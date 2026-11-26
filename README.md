@@ -1,112 +1,99 @@
-<p align="center">
-  <img src="static/video-use-banner.png" alt="video-use" width="100%">
-</p>
+# MotionLab-AI — ML-01 (Zero-API Automatic Video Effects Engine)
 
-# video-use
+> **Standalone greenfield engine forked from [`browser-use/video-use`](https://github.com/browser-use/video-use) (`43cfc566833548093455c9d4a46bd69913b7e552`).**
+> Put a raw MP4 (with your character, footage, and voice already recorded) into `input/`, run **one local offline command**, and get a technically validated `final.mp4` with restrained, rhythmic visual effects — **0 USD per-edit API cost, zero cloud calls, zero LLM/agent required at runtime, zero voice alteration.**
 
-Introducing **video-use** — edit videos with Claude Code. 100% open source.
+---
 
-Drop raw footage in a folder, chat with Claude Code, get `final.mp4` back. Works for any content — talking heads, montages, tutorials, travel, interviews — without presets or menus.
+## Core Guarantees & Scope
 
-Cloud-hosted video-use is coming. [Join the waitlist at video-use.com](https://video-use.com?utm_source=github).
+- **100% Local Offline Runtime**: No ElevenLabs, OpenAI, Anthropic, Google, stock-download, or cloud-render calls during editing. Works with zero `.env` and zero API keys.
+- **Hard Audio-Master Preservation**: Original voice/audio is never retimed, cut, faded, noise-reduced, loudness-altered, or replaced. Stream-copied (`-c:a copy`) whenever MP4-compatible (verified by raw packet SHA-256 hash) or disclosed high-bitrate AAC transcode with PCM cross-correlation validation when source uses raw PCM.
+- **No Unwanted Defaults**: Zero auto subtitles, zero default background music, zero default SFX, zero watermarks, zero fabricated content or stock footage.
+- **40 Distinct Rule-Based Local Effects**:
+  - Camera & Composition (`C01`–`C10`)
+  - Mask, Reveal & Layout (`L01`–`L10`)
+  - Duration-Preserving Shot Transitions (`T01`–`T08`)
+  - Color & Optical Polish (`V01`–`V06`)
+  - Peripheral Motion Graphics & Audio-Reactive (`G01`–`G06`)
+- **Multi-Engine Architecture**:
+  - **FFmpeg + Frame-Exact Procedural Compositor** (primary, always available offline)
+  - **HyperFrames** (`0.9.98`, Apache-2.0) + GSAP (`3.15.1`) for verified transparent WebM alpha overlays
+  - **Remotion** (`4.0.547`, license-gated opt-in via `--enable-remotion`; see `THIRD_PARTY_NOTICES.md`)
+  - **Manim** (optional, disabled by default at ML-01)
+- **Honest Limitations**: ML-01 is a deterministic rule + media-signal engine (scene cuts, optical flow, audio RMS/STFT envelope, bundled OpenCV Haar face safety, UI edge heuristics). It does **not** semantically understand spoken words or story intent, and technical `PASS` does not replace human aesthetic sign-off (`PENDING_HUMAN_REVIEW`).
 
-## What it does
+---
 
-- **Cuts out filler words** (`umm`, `uh`, false starts) and dead space between takes
-- **Auto color grades** every segment (warm cinematic, neutral punch, or any custom ffmpeg chain)
-- **30ms audio fades** at every cut so you never hear a pop
-- **Burns subtitles** in your style — 2-word UPPERCASE chunks by default, fully customizable
-- **Generates animation overlays** via [HyperFrames](https://github.com/heygen-com/hyperframes), [Remotion](https://www.remotion.dev/), [Manim](https://www.manim.community/), or PIL — spawned in parallel sub-agents, one per animation
-- **Self-evaluates the rendered output** at every cut boundary before showing you anything
-- **Persists session memory** in `project.md` so next week's session picks up where you left off
+## Quick Start
 
-## Setup prompt
+### 1. One-Time Online Bootstrap
 
-Paste into Claude Code, Codex, Hermes, Openclaw, or any agent with shell access:
+**Windows PowerShell** (non-admin, process-scoped policy, no global PATH mutation):
 
-```text
-Set up https://github.com/browser-use/video-use for me.
-
-Read install.md first to install this repo, wire up ffmpeg, register the skill with whichever agent you're running under, and set up the ElevenLabs API key — ask me to paste it when you need it. Then read SKILL.md for daily usage, and always read helpers/ because that's where the editing scripts live. After install, don't transcribe anything on your own — just tell me it's ready and wait for me to drop footage into a folder.
+```powershell
+cd MotionLab-AI-ML01
+powershell -ExecutionPolicy Bypass -Scope Process -File .\scripts\bootstrap.ps1
+# Optional Node renderers:
+# powershell -ExecutionPolicy Bypass -Scope Process -File .\scripts\bootstrap.ps1 -InstallHyperFrames
 ```
 
-The agent handles the clone, dependencies, skill registration, and prompts you once for your ElevenLabs API key (grab one at [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys)).
-
-Then point your agent at a folder of raw takes:
+**Linux / macOS**:
 
 ```bash
-cd /path/to/your/videos
-claude    # or codex, hermes, etc.
+cd MotionLab-AI-ML01
+bash scripts/bootstrap.sh
+# Optional Node renderers:
+# bash scripts/bootstrap.sh --with-hyperframes
+# bash scripts/bootstrap.sh --with-remotion   # Check THIRD_PARTY_NOTICES.md license terms first
 ```
 
-For always-on editing from your own VPS or Telegram, run the agent through [Browser Use Box](https://browser-use.com/bux). [Watch the 15-second demo](https://www.tiktok.com/@browser_use/video/7639824093721758989).
-
-And in the session:
-
-> edit these into a launch video
-
-It inventories the sources, proposes a strategy, waits for your OK, then produces `edit/final.mp4` next to your sources. All outputs live in `<videos_dir>/edit/` — the skill directory stays clean.
-
-## Manual install
-
-If you'd rather do it by hand:
+### 2. Verify Local Toolchain (`doctor`)
 
 ```bash
-# 1. Clone and symlink into your agent's skills directory
-git clone https://github.com/browser-use/video-use ~/Developer/video-use
-ln -sfn ~/Developer/video-use ~/.claude/skills/video-use        # Claude Code
-# ln -sfn ~/Developer/video-use ~/.codex/skills/video-use       # Codex
+# Linux / macOS
+.venv/bin/python -m motionlab doctor
 
-# 2. Install deps
-cd ~/Developer/video-use
-uv sync                         # or: pip install -e .
-brew install ffmpeg             # required
-brew install yt-dlp             # optional, for downloading online sources
-
-# 3. Add your ElevenLabs API key
-cp .env.example .env
-$EDITOR .env                    # ELEVENLABS_API_KEY=...
+# Windows PowerShell
+.\.venv\Scripts\python.exe -m motionlab doctor
 ```
 
-## How it works
+### 3. One-Command Offline Edit
 
-The LLM never watches the video. It **reads** it — through two layers that together give it everything it needs to cut with word-boundary precision.
+Place your raw MP4 in `input/raw.mp4` (your source file is **never modified**):
 
-<p align="center">
-  <img src="static/timeline-view.svg" alt="timeline_view composite — filmstrip + speaker track + waveform + word labels + silence-gap cut candidates" width="100%">
-</p>
+```bash
+# Linux / macOS
+.venv/bin/python -m motionlab edit --input "input/raw.mp4" --profile auto --offline --output "runs"
 
-**Layer 1 — Audio transcript (always loaded).** One ElevenLabs Scribe call per source gives word-level timestamps, speaker diarization, and audio events (`(laughter)`, `(applause)`, `(sigh)`). All takes pack into a single ~12KB `takes_packed.md` — the LLM's primary reading view.
-
-```
-## C0103  (duration: 43.0s, 8 phrases)
-  [002.52-005.36] S0 Ninety percent of what a web agent does is completely wasted.
-  [006.08-006.74] S0 We fixed this.
+# Windows PowerShell
+.\.venv\Scripts\python.exe -m motionlab edit --input "input\raw.mp4" --profile auto --offline --output "runs"
 ```
 
-**Layer 2 — Visual composite (on demand).** `timeline_view` produces a filmstrip + waveform + word labels PNG for any time range. Called only at decision points — ambiguous pauses, retake comparisons, cut-point sanity checks.
+Open `runs/<run_id>/final.mp4`, `runs/<run_id>/contact_sheet.jpg`, and `runs/<run_id>/README.md`.
 
-> Naive approach: 30,000 frames × 1,500 tokens = **45M tokens of noise**.
-> Video Use: **12KB text + a handful of PNGs**.
+---
 
-Same idea as browser-use giving an LLM a structured DOM instead of a screenshot — but for video.
+## CLI Reference
 
-## Pipeline
+| Command | Description |
+|---|---|
+| `python -m motionlab doctor` | Inspect FFmpeg, ffprobe, Python packages, Node renderers, licenses, and free disk space |
+| `python -m motionlab analyze --input input/raw.mp4 --output runs` | Run local offline media analysis (`analysis.json`) |
+| `python -m motionlab plan --input input/raw.mp4 --profile auto --seed 42` | Generate deterministic `edit_plan.json` + `plan_explain.json` without rendering |
+| `python -m motionlab edit --input input/raw.mp4 --profile auto --seed 42 --output runs` | Full offline edit, technical validation, contact sheet, and atomic `final.mp4` promotion |
+| `python -m motionlab edit --input input/raw.mp4 --profile talking-head --aspect 9:16 --quality preview` | Explicit 9:16 preview render (fit/pad by default, never blind crop) |
+| `python -m motionlab edit --input input/raw.mp4 --profile neutral --offline --strict` | Strict fail-closed mode |
+| `python -m motionlab render --plan runs/<id>/edit_plan.json --input input/raw.mp4` | Replay a saved deterministic plan |
+| `python -m motionlab validate --run runs/<run_id>` | Re-run machine technical checks on an existing run |
+| `python -m motionlab effects list` | List all 40 registered effects, milestones, layers, and engines |
+| `python -m motionlab effects gallery --output runs` | Render procedural before/after visual verification sheet for all 40 effects |
+| `python -m motionlab cache prune` | Safely clear MotionLab-owned analysis cache entries |
 
-```
-Transcribe ──> Pack ──> LLM Reasons ──> EDL ──> Render ──> Self-Eval
-                                                              │
-                                                              └─ issue? fix + re-render (max 3)
-```
+Available explicit profiles: `auto`, `neutral`, `talking-head`, `product`, `storytelling`, `gameplay`, `tutorial`, `cinematic`.
 
-The self-eval loop runs `timeline_view` on the _rendered output_ at every cut boundary — catches visual jumps, audio pops, hidden subtitles. You see the preview only after it passes.
+---
 
-## Design principles
+## Upstream Legacy Workflow (Strictly Opt-In / Isolated)
 
-1. **Text + on-demand visuals.** No frame-dumping. The transcript is the surface.
-2. **Audio is primary, visuals follow.** Cuts come from speech boundaries and silence gaps.
-3. **Ask → confirm → execute → self-eval → persist.** Never touch the cut without strategy approval.
-4. **Zero assumptions about content type.** Look, ask, then edit.
-5. **12 hard rules, artistic freedom elsewhere.** Production-correctness is non-negotiable. Taste isn't.
-
-See [`SKILL.md`](./SKILL.md) for the full production rules and editing craft.
+The original upstream `browser-use/video-use` agent helpers (`helpers/transcribe.py`, `helpers/render.py`, `SKILL.md`, `install.md`) remain intact as legacy reference and are **never imported or executed by `motionlab`**. Upstream MIT license and copyright are preserved in [`LICENSE`](./LICENSE). See [`docs/UPSTREAM.md`](./docs/UPSTREAM.md), [`docs/ADR.md`](./docs/ADR.md), and [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) for full provenance and third-party license details.

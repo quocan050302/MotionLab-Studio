@@ -1,0 +1,11 @@
+{
+  "name": "motionlab-hyperframes-renderer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local locked HyperFrames (Apache-2.0) + GSAP offline overlay renderer for MotionLab-AI ML-01",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "gsap": "3.15.1",
+    "hyperframes": "0.9.98"
+  }
+}
