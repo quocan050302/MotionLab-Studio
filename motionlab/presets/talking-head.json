@@ -1,0 +1,16 @@
+{
+  "name": "talking-head",
+  "description": "Subject-safe framing with gentle push-ins, focus holds, and peripheral accents that never obscure faces.",
+  "max_accents_per_15s": 4,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.90,
+  "min_strong_spacing_s": 2.2,
+  "same_effect_cooldown_s": 5.5,
+  "same_family_cooldown_s": 2.2,
+  "allow_subject_zoom": true,
+  "allow_layout_masks": true,
+  "allow_split_layout": false,
+  "allow_audio_reactive": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "graphics", "color", "transition"]
+}

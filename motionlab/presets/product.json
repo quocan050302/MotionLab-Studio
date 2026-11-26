@@ -1,0 +1,16 @@
+{
+  "name": "product",
+  "description": "Controlled framing, clean reveals, and subtle lighting/edge polish without obscuring salient details.",
+  "max_accents_per_15s": 4,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.95,
+  "min_strong_spacing_s": 2.0,
+  "same_effect_cooldown_s": 5.0,
+  "same_family_cooldown_s": 2.0,
+  "allow_subject_zoom": true,
+  "allow_layout_masks": true,
+  "allow_split_layout": true,
+  "allow_audio_reactive": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["layout", "camera", "color", "transition", "graphics"]
+}

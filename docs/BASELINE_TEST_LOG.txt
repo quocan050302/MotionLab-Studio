@@ -1,0 +1,39 @@
+BASELINE UPSTREAM TEST RUN LOG
+==============================
+Timestamp (UTC): 2026-11-26T10:54:44Z
+Repository: MotionLab-AI-ML01 (cloned from https://github.com/browser-use/video-use.git)
+Upstream SHA: 43cfc566833548093455c9d4a46bd69913b7e552
+Branch: feat/ml-01-zero-api-effects
+OS: Darwin 23.4.0 arm64 (macOS, 8 CPUs, 16 GiB RAM)
+Python: 3.13.0 (.venv)
+FFmpeg: 6.0 | ffprobe: 4.4-tessus
+Node: v22.22.3 | npm: 10.9.8
+
+Installed .venv packages (pip freeze):
+  iniconfig==2.3.1
+  numpy==2.2.6
+  opencv-python-headless==4.14.0.94
+  packaging==26.4
+  pillow==13.0.0
+  pluggy==1.7.0
+  psutil==7.2.2
+  Pygments==2.21.0
+  pytest==9.2.0
+
+Command:
+  .venv/bin/python -m unittest discover -s tests -v
+
+Result:
+  Executed: 26
+  Passed:   26
+  Failed:   0
+  Skipped:  0
+  Duration: 0.020s
+  ExitCode: 0
+
+Notes:
+  - No ElevenLabs API calls or transcription scripts executed.
+  - All 3 upstream test files passed:
+    - tests/test_render_captions.py (10 passed)
+    - tests/test_render_fps.py (10 passed)
+    - tests/test_render_orientation.py (6 passed)

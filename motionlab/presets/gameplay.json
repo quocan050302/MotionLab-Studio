@@ -1,0 +1,16 @@
+{
+  "name": "gameplay",
+  "description": "Preserves HUD and screen edges, avoids stacking zoom on fast motion, allows mild color/cut polish.",
+  "max_accents_per_15s": 2,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.70,
+  "min_strong_spacing_s": 3.0,
+  "same_effect_cooldown_s": 7.0,
+  "same_family_cooldown_s": 3.0,
+  "allow_subject_zoom": false,
+  "allow_layout_masks": false,
+  "allow_split_layout": false,
+  "allow_audio_reactive": true,
+  "protect_edges_strict": true,
+  "preferred_families": ["color", "transition", "graphics"]
+}

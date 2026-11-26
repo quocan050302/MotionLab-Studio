@@ -1,0 +1,10 @@
+# Pinned Python dependencies for MotionLab-AI ML-01 (verified on Python 3.13)
+iniconfig==2.3.1
+numpy==2.2.6
+opencv-python-headless==4.14.0.94
+packaging==26.4
+pillow==13.0.0
+pluggy==1.7.0
+psutil==7.2.2
+Pygments==2.21.0
+pytest==9.2.0

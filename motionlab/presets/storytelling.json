@@ -1,0 +1,16 @@
+{
+  "name": "storytelling",
+  "description": "Longer deliberate holds, subtle mood color shifts, restrained dissolves, minimal graphic clutter.",
+  "max_accents_per_15s": 3,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.80,
+  "min_strong_spacing_s": 2.8,
+  "same_effect_cooldown_s": 6.5,
+  "same_family_cooldown_s": 2.8,
+  "allow_subject_zoom": true,
+  "allow_layout_masks": true,
+  "allow_split_layout": false,
+  "allow_audio_reactive": false,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "color", "transition", "layout"]
+}

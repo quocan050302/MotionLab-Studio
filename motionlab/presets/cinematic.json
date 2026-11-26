@@ -1,0 +1,16 @@
+{
+  "name": "cinematic",
+  "description": "Restrained camera drift, subtle optical warmth/vignette, smooth boundary transitions; no particles or noisy shapes.",
+  "max_accents_per_15s": 3,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.85,
+  "min_strong_spacing_s": 2.6,
+  "same_effect_cooldown_s": 6.0,
+  "same_family_cooldown_s": 2.6,
+  "allow_subject_zoom": true,
+  "allow_layout_masks": true,
+  "allow_split_layout": false,
+  "allow_audio_reactive": false,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "color", "transition", "layout"]
+}

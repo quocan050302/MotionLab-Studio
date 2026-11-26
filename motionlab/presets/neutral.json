@@ -1,0 +1,16 @@
+{
+  "name": "neutral",
+  "description": "Conservative safe default across unknown content: subtle camera drift, gentle color balance, peripheral edge accents.",
+  "max_accents_per_15s": 3,
+  "max_transitions_per_15s": 2,
+  "intensity_scale": 0.85,
+  "min_strong_spacing_s": 2.4,
+  "same_effect_cooldown_s": 6.0,
+  "same_family_cooldown_s": 2.4,
+  "allow_subject_zoom": false,
+  "allow_layout_masks": true,
+  "allow_split_layout": false,
+  "allow_audio_reactive": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "color", "graphics", "transition"]
+}
