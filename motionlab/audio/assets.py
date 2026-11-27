@@ -1,9 +1,9 @@
-"""Phase A4 (ML-01.R5): Local Recorded Foley Asset Manifest & Strict Provenance Validator.
+"""Phase A4 / R2-A4 (ML-01.R5.R2): Local Recorded Foley Asset Manifest, Exact Immutable Provenance & Envelope Analyzer.
 
 Supports owner-supplied or verified CC0/commercial-permitted recorded WAV foley inside `assets/sfx_foley/`
-with per-file SHA-256, license, creator, transient sample offset, and redistribution metadata.
-When no recorded foley assets are provisioned, honestly reports `PARTIAL_FOLEY_ASSETS` and routes to
-explicitly labeled `procedural_dsp_synthesis` (NEVER mislabeling DSP as studio-recorded foley).
+with per-file SHA-256, license, creator, transient sample offset, measured onset/crest samples, and
+processed PCM SHA-256 caching. Never mislabels procedural DSP as studio-recorded foley, and distinguishes
+unique raw WAV files from family/variant bindings honestly.
 """
 
 from __future__ import annotations
@@ -12,10 +12,12 @@ import hashlib
 import json
 import wave
 from dataclasses import asdict, dataclass
+from math import gcd
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+from scipy.signal import resample_poly
 
 from motionlab.config import PROJECT_ROOT
 from motionlab.schemas import ensure_contained_path, sanitize_native
@@ -23,6 +25,10 @@ from motionlab.schemas import ensure_contained_path, sanitize_native
 FOLEY_DIR = PROJECT_ROOT / "assets" / "sfx_foley"
 FOLEY_MANIFEST_PATH = FOLEY_DIR / "manifest.json"
 PERMITTED_RECORDED_LICENSES = {"CC0-1.0", "PUBLIC_DOMAIN", "OWNER_RECORDED", "COMMERCIAL_LICENSED"}
+
+# In-process immutable-hash PCM cache keyed by (raw_sha256, target_sr, trim_leading_silence)
+_PCM_CACHE: dict[tuple[str, int, bool], dict[str, Any]] = {}
+_FOLEY_LIB_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 
 
 def _sha256_file(path: Path) -> str:
@@ -55,15 +61,22 @@ class FoleyAssetRecord:
         return sanitize_native(asdict(self))
 
 
-def inspect_foley_library(foley_dir: Path | None = None) -> dict[str, Any]:
+def inspect_foley_library(foley_dir: Path | None = None, bypass_cache: bool = False) -> dict[str, Any]:
     """Audit local recorded foley manifest with strict SHA-256 and license verification (zero network)."""
     fdir = (foley_dir or FOLEY_DIR).resolve()
     mpath = fdir / "manifest.json"
+    cache_key = str(fdir)
+    if not bypass_cache and mpath.is_file() and cache_key in _FOLEY_LIB_CACHE:
+        mtime, cached = _FOLEY_LIB_CACHE[cache_key]
+        if mpath.stat().st_mtime == mtime:
+            return cached
+
     result: dict[str, Any] = {
         "foley_dir": str(fdir),
         "manifest_present": mpath.is_file(),
         "status": "PARTIAL_FOLEY_ASSETS",
         "recorded_assets_verified": 0,
+        "unique_wav_files_verified": 0,
         "recorded_families": [],
         "assets": [],
         "rejected_assets": [],
@@ -84,6 +97,7 @@ def inspect_foley_library(foley_dir: Path | None = None) -> dict[str, Any]:
 
     verified: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
+    sha_memo: dict[Path, str] = {}
     for entry in raw.get("assets", []):
         aid = str(entry.get("asset_id", "unknown"))
         lic = str(entry.get("license", "")).upper()
@@ -103,14 +117,19 @@ def inspect_foley_library(foley_dir: Path | None = None) -> dict[str, Any]:
         if not fp.is_file():
             rejected.append({"asset_id": aid, "reason": f"file_missing:{rel}"})
             continue
-        actual_sha = _sha256_file(fp)
+        actual_sha = sha_memo.get(fp)
+        if actual_sha is None:
+            actual_sha = _sha256_file(fp)
+            sha_memo[fp] = actual_sha
         if actual_sha != exp_sha:
             rejected.append({"asset_id": aid, "reason": f"sha256_mismatch:expected={exp_sha[:12]},actual={actual_sha[:12]}"})
             continue
         verified.append({**entry, "resolved_path": str(fp), "provenance": "recorded_local_foley"})
 
     fams = sorted({str(a["family"]) for a in verified})
+    uniq_shas = {str(a["sha256"]) for a in verified}
     result["recorded_assets_verified"] = len(verified)
+    result["unique_wav_files_verified"] = len(uniq_shas)
     result["recorded_families"] = fams
     result["assets"] = verified
     result["rejected_assets"] = rejected
@@ -122,13 +141,74 @@ def inspect_foley_library(foley_dir: Path | None = None) -> dict[str, Any]:
             result["notes"].append(
                 "Manifest contains 0 verified recorded foley WAVs; upgraded procedural_dsp_synthesis active (never labeled recorded)."
             )
+    if mpath.is_file():
+        _FOLEY_LIB_CACHE[cache_key] = (mpath.stat().st_mtime, result)
     return result
+
+
+def analyze_waveform_envelope(pcm: np.ndarray, sr: int) -> dict[str, Any]:
+    """Measure exact onset, energy crest, peak sample, RMS, and processed PCM SHA-256 on float32 stereo PCM."""
+    if pcm.size == 0:
+        return {
+            "n_frames": 0,
+            "duration_s": 0.0,
+            "onset_sample": 0,
+            "crest_sample": 0,
+            "peak_sample": 0,
+            "rms_dbfs": -120.0,
+            "peak_dbfs": -120.0,
+            "processed_pcm_sha256": hashlib.sha256(b"").hexdigest(),
+        }
+    mono = 0.5 * (pcm[:, 0] + pcm[:, 1]) if pcm.ndim == 2 else pcm
+    abs_m = np.abs(mono)
+    peak_val = float(np.max(abs_m))
+    peak_idx = int(np.argmax(abs_m))
+    onset_thresh = max(1e-4, peak_val * 0.10)
+    onset_hits = np.flatnonzero(abs_m >= onset_thresh)
+    onset_idx = int(onset_hits[0]) if onset_hits.size > 0 else 0
+
+    # Smoothed 12ms RMS energy envelope crest (captures perceived energy climax of slides/swishes cleanly!)
+    win = max(16, min(mono.size, int(round(sr * 0.012))))
+    if mono.size >= win:
+        sq = (mono.astype(np.float64) ** 2)
+        csum = np.cumsum(np.insert(sq, 0, 0.0))
+        win_rms = np.sqrt(np.maximum(0.0, (csum[win:] - csum[:-win]) / win))
+        crest_idx = int(np.argmax(win_rms)) + win // 2
+    else:
+        crest_idx = peak_idx
+
+    rms_val = float(np.sqrt(np.mean(mono.astype(np.float64) ** 2) + 1e-12))
+    return {
+        "n_frames": int(pcm.shape[0]),
+        "duration_s": round(float(pcm.shape[0]) / max(1, sr), 5),
+        "onset_sample": onset_idx,
+        "crest_sample": int(min(pcm.shape[0] - 1, crest_idx)),
+        "peak_sample": peak_idx,
+        "rms_dbfs": round(20.0 * float(np.log10(max(1e-7, rms_val))), 2),
+        "peak_dbfs": round(20.0 * float(np.log10(max(1e-7, peak_val))), 2),
+        "processed_pcm_sha256": hashlib.sha256(np.ascontiguousarray(pcm, dtype=np.float32).tobytes()).hexdigest(),
+    }
 
 
 def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100) -> tuple[np.ndarray, float] | None:
     """Load a SHA-256-verified local recorded WAV file (16-bit, 24-bit, or 32-bit PCM) as float32 stereo PCM."""
-    from math import gcd
-    from scipy.signal import resample_poly
+    prepared = prepare_recorded_foley_asset(asset_entry, target_sr=target_sr)
+    if prepared is None:
+        return None
+    return prepared["pcm"].copy(), float(prepared["transient_offset_s"])
+
+
+def prepare_recorded_foley_asset(
+    asset_entry: dict[str, Any],
+    target_sr: int = 44100,
+    trim_leading_silence: bool = False,
+) -> dict[str, Any] | None:
+    """Load, verify, resample, normalize, and analyze a recorded WAV asset once (cached by immutable raw SHA-256)."""
+    raw_sha = str(asset_entry.get("sha256", ""))
+    ckey = (raw_sha, int(target_sr), bool(trim_leading_silence))
+    if raw_sha and ckey in _PCM_CACHE:
+        c = _PCM_CACHE[ckey]
+        return {**c, "pcm": c["pcm"].copy()}
 
     fp = Path(asset_entry.get("resolved_path", ""))
     if not fp.is_file():
@@ -142,7 +222,6 @@ def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100)
     if sw == 2:
         pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
     elif sw == 3:
-        # Unpack 24-bit little-endian signed PCM cleanly into float32 [-1.0, 1.0]
         b = np.frombuffer(raw, dtype=np.uint8).reshape((-1, 3))
         i32 = (b[:, 0].astype(np.int32) | (b[:, 1].astype(np.int32) << 8) | (b[:, 2].astype(np.int32) << 16))
         i32 = np.where(i32 & 0x800000, i32 - 0x1000000, i32)
@@ -151,10 +230,12 @@ def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100)
         pcm = np.frombuffer(raw, dtype=np.int32).astype(np.float32) / 2147483648.0
     else:
         return None
+
     if ch == 1:
         pcm = np.stack([pcm, pcm], axis=1)
     else:
         pcm = pcm.reshape((-1, ch))[:, :2]
+
     if sr != target_sr and pcm.shape[0] > 8:
         g = gcd(int(target_sr), int(sr))
         up, down = int(target_sr) // g, int(sr) // g
@@ -162,10 +243,56 @@ def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100)
             [resample_poly(pcm[:, 0], up, down), resample_poly(pcm[:, 1], up, down)],
             axis=1,
         ).astype(np.float32)
+
     peak = float(np.max(np.abs(pcm)))
     if peak > 1e-5:
         pcm = pcm * (0.88 / peak)
-    t_samp = int(asset_entry.get("transient_sample", 0))
-    t_off = float(t_samp) / max(1, int(asset_entry.get("original_sample_rate", sr)))
-    return pcm.astype(np.float32), round(t_off, 5)
 
+    trim_shift = 0
+    if trim_leading_silence and pcm.shape[0] > int(target_sr * 0.06):
+        mono_a = np.abs(0.5 * (pcm[:, 0] + pcm[:, 1]))
+        hits = np.flatnonzero(mono_a >= max(1e-4, float(np.max(mono_a)) * 0.05))
+        if hits.size > 0 and int(hits[0]) > int(target_sr * 0.008):
+            trim_shift = max(0, int(hits[0]) - int(target_sr * 0.004))
+            pcm = pcm[trim_shift:].copy()
+
+    pcm = np.ascontiguousarray(pcm, dtype=np.float32)
+    env = analyze_waveform_envelope(pcm, target_sr)
+    t_samp = int(asset_entry.get("transient_sample", 0))
+    orig_sr = max(1, int(asset_entry.get("original_sample_rate", sr)))
+    manifest_t_off = max(0.0, (float(t_samp) / orig_sr) - (trim_shift / max(1, target_sr)))
+
+    prepared = {
+        "asset_id": str(asset_entry.get("asset_id", "")),
+        "raw_asset_sha256": raw_sha,
+        "license": str(asset_entry.get("license", "")),
+        "provenance": "recorded_local_foley",
+        "pcm": pcm,
+        "sample_rate": int(target_sr),
+        "transient_offset_s": round(manifest_t_off, 5),
+        "onset_sample": env["onset_sample"],
+        "crest_sample": env["crest_sample"],
+        "peak_sample": env["peak_sample"],
+        "n_frames": env["n_frames"],
+        "duration_s": env["duration_s"],
+        "processed_pcm_sha256": env["processed_pcm_sha256"],
+    }
+    if raw_sha:
+        _PCM_CACHE[ckey] = {**prepared, "pcm": pcm.copy()}
+    return prepared
+
+
+def load_recorded_foley_by_asset_id(
+    asset_id: str,
+    expected_raw_sha256: str | None = None,
+    target_sr: int = 44100,
+    foley_dir: Path | None = None,
+) -> dict[str, Any] | None:
+    """Resolve an immutable recorded foley asset strictly by exact asset_id + SHA-256 (fixes D11 provenance drift!)."""
+    lib = inspect_foley_library(foley_dir=foley_dir)
+    for a in lib.get("assets", []):
+        if a.get("asset_id") == asset_id:
+            if expected_raw_sha256 and str(a.get("sha256", "")) != expected_raw_sha256:
+                return None
+            return prepare_recorded_foley_asset(a, target_sr=target_sr)
+    return None

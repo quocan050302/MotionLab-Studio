@@ -27,10 +27,12 @@ import cv2
 import numpy as np
 
 from motionlab import SCHEMA_VERSION, __version__
+from motionlab.assets.catalog import inspect_product_asset_catalog, match_product_assets_for_name
 from motionlab.audio.assets import inspect_foley_library
 from motionlab.audio.mixer import mix_preserving_master, validate_final_audio_mix
 from motionlab.audio.semantic_sound import (
     align_sound_to_marker,
+    extract_realized_animation_markers,
     extract_rendered_animation_markers,
     extract_sonic_opportunities,
     plan_sonic_score,
@@ -43,6 +45,7 @@ from motionlab.composition.art_direction import (
     solve_layout_with_protection,
     validate_layout_sweep,
 )
+from motionlab.composition.continuous_timeline import compile_continuous_timeline
 from motionlab.composition.creative_quality import evaluate_creative_quality, verify_ablation_still_diff
 from motionlab.composition.generative_compiler import (
     compile_scene_hyperframes_html,
@@ -55,6 +58,7 @@ from motionlab.composition.generative_schema import (
     validate_canonical_reuse_gate,
 )
 from motionlab.composition.primitive_registry import load_unified_registry
+from motionlab.composition.visual_critic import run_objective_rendered_critic
 from motionlab.config import EditConfig, PROJECT_ROOT
 from motionlab.renderers.base import verify_webm_alpha_pixels
 from motionlab.renderers.hyperframes import HyperFramesRenderer
@@ -263,7 +267,7 @@ def render_compiled_storyboard_to_mp4(
     atomic_write_json(run_dir / "storyboard_spec.json", storyboard.to_dict())
     atomic_write_json(run_dir / "composition_graph.json", compiled_plan)
 
-    # 0. R5.R1 Premium Art Direction: Style Tokens, All-Frame Protection Sweep & Shared-Element Continuity
+    # 0. R5.R2 Premium Art Direction, Continuous Timeline, Numeric State Trace & Product Asset Audit
     style_tokens = build_style_tokens(niche=storyboard.niche, source_mp4=Path(media.source_path))
     layout_plan, frame_prot_rows = solve_layout_with_protection(
         storyboard, roi_tracks, media.display_width, media.display_height
@@ -272,10 +276,16 @@ def render_compiled_storyboard_to_mp4(
         layout_plan, storyboard, media.display_width, media.display_height
     )
     continuity_doc = build_shared_element_tracks(storyboard, story_graph, layout_plan)
+    continuous_tl = compile_continuous_timeline(storyboard, story_graph, layout_plan)
+    prod_catalog = inspect_product_asset_catalog()
+    prod_match = match_product_assets_for_name(story_graph.product_name, catalog=prod_catalog)
     layout_sweep_errors = validate_layout_sweep(layout_plan, legibility_report)
     atomic_write_json(run_dir / "layout.json", {**layout_plan, "style_tokens": style_tokens, "layout_sweep_errors": layout_sweep_errors})
-    atomic_write_json(run_dir / "continuity.json", continuity_doc)
+    atomic_write_json(run_dir / "continuity.json", {**continuity_doc, "continuous_timeline_hash": continuous_tl["continuity_hash"]})
+    atomic_write_json(run_dir / "continuous_timeline.json", continuous_tl)
+    atomic_write_json(run_dir / "numeric_state_trace.json", continuous_tl["numeric_state_trace"])
     atomic_write_json(ev_dir / "phone_legibility.json", legibility_report)
+    atomic_write_json(ev_dir / "product_asset_status.json", prod_match)
     prot_csv_lines = ["frame,scene_id,stage_mode,protect_live_face,eye_mouth_overlap_ratio,hero_top_px,hero_bottom_px,safe_ok"]
     for pr in frame_prot_rows:
         prot_csv_lines.append(
@@ -291,7 +301,7 @@ def render_compiled_storyboard_to_mp4(
     vision_cache = (cache_base / "vision") if config.cache_enabled else (temp_dir / "nocache_vision")
     hf_cache_dir = cache_base / "hyperframes_overlays"
     rem_scene_cache_dir = cache_base / "remotion_scenes"
-    rem_bundle_cache_dir = cache_base / "remotion_bundles"
+    rem_bundle_cache_dir = (cache_base / "remotion_bundles") if config.cache_enabled else (temp_dir / "nocache_rem_bundles")
 
     tracker.start_stage("vision_segmentation")
     if matte_spans and vision_model_info.get("available"):
@@ -311,82 +321,27 @@ def render_compiled_storyboard_to_mp4(
 
     matte_by_span = {(int(sp["start_frame"]), int(sp["end_frame_exclusive"])): Path(sp["matte_mp4"]) for sp in matte_res.get("spans", [])}
 
-    # 2. R5.R1 Two-Pass Semantic Sound Director + Animation Marker Alignment + Voice-Priority Mix
     eff_audio_mode = "preserve-exact" if config.audio_mode == "preserve-exact" else "mix"
     eff_sfx = (config.sfx_mode != "off") and (eff_audio_mode == "mix")
     eff_music = (config.music_mode == "local") and (eff_audio_mode == "mix")
-
-    tracker.start_stage("sound_design_mix")
-    anim_markers = extract_rendered_animation_markers(storyboard, story_graph)
-    sonic_opps = extract_sonic_opportunities(
-        story_graph=story_graph,
-        transcript=transcript_obj,
-        observed_actions=roi_tracks,
-        storyboard=storyboard,
-    )
     sr_target = media.audio_streams[0].sample_rate if media.audio_streams else 44100
     audio_pts = [s for s in media.pts_summary if s.get("codec_type") == "audio"]
     priming_s = float(audio_pts[0].get("priming_offset_s", 0.0)) if audio_pts else 0.0
-    sonic_score = plan_sonic_score(
-        storyboard=storyboard,
-        opportunities=sonic_opps,
-        story_graph=story_graph,
-        markers=anim_markers,
-        niche_style=storyboard.niche,
-        seed=config.seed,
-        sr=sr_target,
-    )
-    audio_tl, cue_align_rows, _used_sfx = align_sound_to_marker(
-        sonic_score,
-        fps_num=media.fps.num,
-        fps_den=media.fps.den,
-        sample_rate=sr_target,
-        total_frames=media.duration_frames,
-        source_hash=media.input_hash,
-        priming_offset_s=priming_s,
-        audio_mode=eff_audio_mode,
-        sfx_enabled=eff_sfx,
-        music_enabled=eff_music,
-        seed=config.seed,
-    )
-    atomic_write_json(ev_dir / "animation_markers.json", {"markers": [m.to_dict() for m in anim_markers]})
-    atomic_write_json(ev_dir / "sound_rationale.json", sonic_score.to_dict())
-    align_csv = ["event_id,cue_id,scene_id,marker_id,marker_type,sound_role,family,variant,provenance,expected_frame,expected_sample,placed_peak_sample,delta_samples,delta_frames"]
-    for ar in cue_align_rows:
-        align_csv.append(
-            f"{ar['event_id']},{ar['cue_id']},{ar['scene_id']},{ar['marker_id']},{ar['marker_type']},"
-            f"{ar['sound_role']},{ar['family']},{ar['variant']},{ar['provenance']},"
-            f"{ar['expected_frame']},{ar['expected_sample']},{ar['placed_peak_sample']},{ar['delta_samples']},{ar['delta_frames']}"
-        )
-    atomic_write_text(ev_dir / "cue_alignment.csv", "\n".join(align_csv) + "\n")
-    sfx_manifest = build_sfx_asset_manifest(sr=audio_tl.sample_rate, seed=config.seed)
-    atomic_write_json(run_dir / "audio_timeline.json", audio_tl.to_dict())
-    atomic_write_json(run_dir / "sfx_asset_manifest.json", sfx_manifest)
 
-    mix_info: dict[str, Any] | None = None
-    mixed_wav_p: Path | None = None
-    if eff_audio_mode == "mix" and eff_sfx and audio_tl.events:
-        mix_info = mix_preserving_master(
-            media=media,
-            timeline=audio_tl,
-            transcript=transcript_obj,
-            run_dir=run_dir,
-            seed=config.seed,
-            ffmpeg_bin=ffmpeg_bin,
-            ffprobe_bin=ffprobe_bin,
-        )
-        mixed_wav_p = Path(mix_info["mixed_reference_path"])
-    tracker.end_stage("sound_design_mix", temp_dir=temp_dir)
+    # Emit PLANNED animation markers before render (distinguished explicitly from post-render REALIZED markers!)
+    planned_markers = extract_rendered_animation_markers(storyboard, story_graph)
+    atomic_write_json(ev_dir / "animation_markers_planned.json", {"phase": "PLANNED_PRE_RENDER", "markers": [m.to_dict() for m in planned_markers]})
 
     if config.dry_run:
         return {
             "status": "DRY_RUN_PLANNED",
             "storyboard_hash": storyboard.storyboard_hash,
+            "continuity_hash": continuous_tl["continuity_hash"],
             "scenes": len(storyboard.scenes),
             "compiled_plan": compiled_plan,
         }
 
-    # 3. Render Imported HyperFrames Apache-2.0 VP9 Alpha Graphics (with Content-Addressed Overlay Cache!)
+    # 2. Render Imported HyperFrames Apache-2.0 VP9 Alpha Graphics (with Content-Addressed Overlay Cache & fast static lint!)
     tracker.start_stage("hyperframes_graphics")
     hf_results: dict[str, dict[str, Any]] = {}
     hf_cache_hits = 0
@@ -404,6 +359,7 @@ def render_compiled_storyboard_to_mp4(
             timeout_s=180.0,
             cache_dir=hf_cache_dir,
             use_cache=bool(config.cache_enabled),
+            skip_cli_lint=True,
         )
         if r_hf.get("cache_hit"):
             hf_cache_hits += 1
@@ -421,7 +377,7 @@ def render_compiled_storyboard_to_mp4(
         }
     tracker.end_stage("hyperframes_graphics", temp_dir=temp_dir)
 
-    # 4. R5.R1 Optimized Remotion MIT Single-Bundle Persistent-Browser Batch + Per-Scene Cache + Active-Window Ablation!
+    # 3. R5.R2 Optimized Remotion MIT Single-Bundle Persistent-Browser Batch + Continuity Handles + Active-Window Ablation!
     tracker.start_stage("remotion_scenes")
     rendered_scenes: dict[str, dict[str, Any]] = {}
     ablation_results: dict[str, dict[str, Any]] = {}
@@ -436,6 +392,7 @@ def render_compiled_storyboard_to_mp4(
     public_mounts: list[dict[str, str]] = []
     batch_jobs: list[dict[str, Any]] = []
     scene_prep: dict[str, dict[str, Any]] = {}
+    compiled_props_by_scene: dict[str, dict[str, Any]] = {}
     ablation_plan: dict[str, list[dict[str, Any]]] = {}
     rem_scene_cache_hits = 0
 
@@ -444,10 +401,11 @@ def render_compiled_storyboard_to_mp4(
         pub_dir = slot_dir / "public"
         pub_dir.mkdir(parents=True, exist_ok=True)
 
-        # Slice exact source mezzanine for non-cutaway or transition-in scenes
+        # Slice exact source mezzanine for live scenes OR ANY cutaway with transition_in OR transition_out (fixes D06!)
+        tr_out_kind = str(sc.parameters.get("transition_out", "none"))
         src_rel: str | None = None
         src_sha = ""
-        if sc.stage_mode != "full_graphic_cutaway" or sc.transition_in.kind != "none":
+        if sc.stage_mode != "full_graphic_cutaway" or sc.transition_in.kind != "none" or tr_out_kind != "none":
             src_slice = pub_dir / "scene_source.mp4"
             rem._slice_source_mezzanine(Path(media.source_path), sc.start_frame, sc.end_frame_exclusive, fps_str, src_slice)
             src_rel = f"{sc.scene_id}/{src_slice.name}"
@@ -505,15 +463,18 @@ def render_compiled_storyboard_to_mp4(
             hf_layer_role=hf_role,
             task_anchor=task_anchor,
             face_anchor=face_anchor,
+            continuity_tracks=continuous_tl.get("tracks", []),
         )
+        compiled_props_by_scene[sc.scene_id] = props
         atomic_write_json(slot_dir / "props.json", props)
 
-        # Content-addressed per-scene cache key (invalidates on ANY code/props/source/matte/HF/seed/dims change!)
+        # Content-addressed per-scene cache key (invalidates on code, props, continuity, source, matte, HF, seed, dims!)
         scene_cache_key = hashlib.sha256(
             json.dumps(
                 {
                     "code_hash": rem_code_hash,
                     "schema_version": storyboard.schema_version,
+                    "continuity_hash": continuous_tl["continuity_hash"],
                     "props": props,
                     "src_sha": src_sha,
                     "fg_sha": fg_sha,
@@ -553,17 +514,15 @@ def render_compiled_storyboard_to_mp4(
                 "concurrency": 1,
             })
 
-        # Active-Window Ablation Plan (fixes R5 13/15 midpoint bug: entry transitions tested at entry midpoint, flip at mid-flip!)
+        # Active-Window Ablation Plan (entry / peak / exit-bridge!)
         dur_f = int(props["durationInFrames"])
         mid_rel = max(6, min(dur_f - 8, dur_f // 2))
         ab_dir = ev_dir / "ablations" / sc.scene_id
         ab_dir.mkdir(parents=True, exist_ok=True)
 
         sc_ab_checks: list[dict[str, Any]] = []
-        # 1. HyperFrames layer active peak
         if hf_rel is not None:
             sc_ab_checks.append({"role": hf_role, "frame": mid_rel, "window": "peak"})
-        # 2. Remotion primary primitive active peak (use mid-flip frame for 3D flip_page, else midpoint)
         if props["primitives"]:
             rem_f = mid_rel
             for pn in props["primitives"]:
@@ -572,22 +531,22 @@ def render_compiled_storyboard_to_mp4(
                     fdur = int(pn["params"].get("flip_duration", max(16, round(dur_f * 0.34))))
                     rem_f = max(4, min(dur_f - 6, fd + fdur // 2))
                 elif pn["primitiveId"] == "rem_viv_particle_field":
-                    # ParticleField on depth matte is subtle; verify foreground matte or transition when present!
                     rem_f = max(8, min(dur_f - 8, dur_f // 2))
-            # Prefer testing substantive visible Remotion primitive OR matte/transition (skip ultra-faint ambient particles if matte present!)
             only_particles = all(pn["primitiveId"] == "rem_viv_particle_field" for pn in props["primitives"])
             if only_particles and fg_rel is not None:
                 sc_ab_checks.append({"role": "foreground_subject_matte", "frame": mid_rel, "window": "peak"})
             else:
                 sc_ab_checks.append({"role": "remotion_primitive", "frame": rem_f, "window": "peak"})
-        # 3. Entrance transition tested at its ACTUAL active entry midpoint (fixes D08!)
         if sc.transition_in.kind != "none" and src_rel is not None and sc.transition_in.duration_frames >= 4:
             tr_f = max(2, min(dur_f - 2, sc.transition_in.duration_frames // 2))
             sc_ab_checks.append({"role": "transition_in", "frame": tr_f, "window": "entry"})
+        elif tr_out_kind != "none" and src_rel is not None:
+            tr_out_f = int(props.get("transitionOutFrames", 12))
+            out_mid = max(2, min(dur_f - 2, dur_f - max(2, tr_out_f // 2)))
+            sc_ab_checks.append({"role": "transition_out", "frame": out_mid, "window": "exit"})
         elif fg_rel is not None and not any(c["role"] == "foreground_subject_matte" for c in sc_ab_checks):
             sc_ab_checks.append({"role": "foreground_subject_matte", "frame": mid_rel, "window": "peak"})
 
-        # Queue full + excluded stills for each distinct sample frame inside the SAME single-browser batch!
         seen_full_frames: dict[int, Path] = {}
         for chk in sc_ab_checks[:3]:
             sf_rel = int(chk["frame"])
@@ -646,6 +605,7 @@ def render_compiled_storyboard_to_mp4(
         "bundle_s": 0.0,
         "browser_open_s": 0.0,
         "browser_launches": 0,
+        "select_composition_calls": 0,
         "total_s": 0.0,
         "jobs": [],
     }
@@ -701,14 +661,81 @@ def render_compiled_storyboard_to_mp4(
         "remotion_bundle_s": float(batch_summary.get("bundle_s", 0.0)),
         "remotion_browser_open_s": float(batch_summary.get("browser_open_s", 0.0)),
         "remotion_browser_launches": int(batch_summary.get("browser_launches", 0)),
+        "remotion_select_composition_calls": int(batch_summary.get("select_composition_calls", 0)),
         "remotion_scene_cache_hits": rem_scene_cache_hits,
         "remotion_scene_total": len(storyboard.scenes),
         "hf_overlay_cache_hits": hf_cache_hits,
         "hf_overlay_total": len(hf_results),
-        "ablation_window_mode": "active_window_entry_peak_settle",
+        "ablation_window_mode": "active_window_entry_peak_exit",
         "batch_worker_peak_tree_rss_mb": float(batch_summary.get("peak_tree_rss_mb", 0.0)),
+        "audio_render_marker_barrier": "REALIZED_POST_RENDER",
     }
     tracker.end_stage("remotion_scenes", temp_dir=temp_dir)
+
+    # 4. POST-RENDER DEPENDENCY BARRIER (R5.R2 Fix D12!): Realize animation markers -> Semantic Sound Director -> Exact Mix!
+    tracker.start_stage("sound_design_mix")
+    anim_markers = extract_realized_animation_markers(storyboard, story_graph, compiled_scene_props=compiled_props_by_scene)
+    sonic_opps = extract_sonic_opportunities(
+        story_graph=story_graph,
+        transcript=transcript_obj,
+        observed_actions=roi_tracks,
+        storyboard=storyboard,
+    )
+    sonic_score = plan_sonic_score(
+        storyboard=storyboard,
+        opportunities=sonic_opps,
+        story_graph=story_graph,
+        markers=anim_markers,
+        niche_style=storyboard.niche,
+        seed=config.seed,
+        sr=sr_target,
+    )
+    audio_tl, cue_align_rows, used_sfx_info = align_sound_to_marker(
+        sonic_score,
+        fps_num=media.fps.num,
+        fps_den=media.fps.den,
+        sample_rate=sr_target,
+        total_frames=media.duration_frames,
+        source_hash=media.input_hash,
+        priming_offset_s=priming_s,
+        audio_mode=eff_audio_mode,
+        sfx_enabled=eff_sfx,
+        music_enabled=eff_music,
+        seed=config.seed,
+    )
+    atomic_write_json(ev_dir / "animation_markers.json", {"phase": "REALIZED_POST_RENDER", "markers": [m.to_dict() for m in anim_markers]})
+    atomic_write_json(ev_dir / "animation_markers_realized.json", {"phase": "REALIZED_POST_RENDER", "markers": [m.to_dict() for m in anim_markers]})
+    atomic_write_json(ev_dir / "sound_rationale.json", sonic_score.to_dict())
+    atomic_write_json(ev_dir / "cue_decisions.json", {
+        "cue_ledger_summary": used_sfx_info.get("cue_ledger_summary", {}),
+        "decisions": used_sfx_info.get("cue_decisions", []),
+    })
+    align_csv = ["event_id,cue_id,scene_id,marker_id,marker_type,sound_role,family,variant,align_anchor,provenance,expected_frame,expected_sample,placed_peak_sample,delta_samples,delta_frames"]
+    for ar in cue_align_rows:
+        align_csv.append(
+            f"{ar['event_id']},{ar['cue_id']},{ar['scene_id']},{ar['marker_id']},{ar['marker_type']},"
+            f"{ar['sound_role']},{ar['family']},{ar['variant']},{ar.get('align_anchor','transient')},{ar['provenance']},"
+            f"{ar['expected_frame']},{ar['expected_sample']},{ar['placed_peak_sample']},{ar['delta_samples']},{ar['delta_frames']}"
+        )
+    atomic_write_text(ev_dir / "cue_alignment.csv", "\n".join(align_csv) + "\n")
+    sfx_manifest = build_sfx_asset_manifest(sr=audio_tl.sample_rate, seed=config.seed)
+    atomic_write_json(run_dir / "audio_timeline.json", audio_tl.to_dict())
+    atomic_write_json(run_dir / "sfx_asset_manifest.json", sfx_manifest)
+
+    mix_info: dict[str, Any] | None = None
+    mixed_wav_p: Path | None = None
+    if eff_audio_mode == "mix" and eff_sfx and audio_tl.events:
+        mix_info = mix_preserving_master(
+            media=media,
+            timeline=audio_tl,
+            transcript=transcript_obj,
+            run_dir=run_dir,
+            seed=config.seed,
+            ffmpeg_bin=ffmpeg_bin,
+            ffprobe_bin=ffprobe_bin,
+        )
+        mixed_wav_p = Path(mix_info["mixed_reference_path"])
+    tracker.end_stage("sound_design_mix", temp_dir=temp_dir)
 
     # 5. Single-pass canonical 0..N-1 assembly + single default AAC mixed audio mux
     partial_out = run_dir / f"{Path(output_filename).stem}.partial.mp4"
@@ -770,12 +797,29 @@ def render_compiled_storyboard_to_mp4(
         run_dir=run_dir,
     )
 
+    # Independent objective decoded-pixel critic (boundary continuity strips, face washout guard, honest VLM status)
+    pixel_critic = run_objective_rendered_critic(
+        source_mp4=Path(media.source_path),
+        final_mp4=partial_out,
+        storyboard=storyboard,
+        continuous_timeline=continuous_tl,
+        roi_tracks=roi_tracks,
+        out_dir=ev_dir,
+    )
+
+    ablation_total = int(creative_qa.get("ablation_layers_total", 0))
+    ablation_verified = int(creative_qa.get("ablation_layers_verified", 0))
+    ablation_all_ok = (ablation_total == 0) or (ablation_verified == ablation_total)
+
     tech_ok = bool(
         source_immutable
         and out_w == media.display_width
         and out_h == media.display_height
         and out_frames == media.duration_frames
         and creative_qa["black_frames"] == 0
+        and ablation_all_ok
+        and continuous_tl["continuous_timeline_valid"]
+        and pixel_critic["abrupt_cutaway_jumps"] == 0
         and (not require_dual_engine_reuse_gate or reuse_passed)
         and (mix_info is None or audio_qa.get("status") == "PASS")
     )
@@ -833,12 +877,29 @@ def render_compiled_storyboard_to_mp4(
         "sonic_score_summary": {
             "score_hash": sonic_score.score_hash,
             "cues_planned": len(sonic_score.cues),
+            "cue_ledger_summary": used_sfx_info.get("cue_ledger_summary", {}),
             "quiet_spans": len(sonic_score.quiet_spans),
             "rejected_decisions": len(sonic_score.rejected_decisions),
-            "recorded_cues_used": sonic_score.recorded_cues_used,
-            "procedural_cues_used": sonic_score.procedural_cues_used,
+            "recorded_cues_used": used_sfx_info.get("recorded_cues_used", 0),
+            "procedural_cues_used": used_sfx_info.get("procedural_cues_used", 0),
             "grounding_errors": sonic_score.validation_errors,
         },
+        "continuous_timeline_summary": {
+            "continuity_hash": continuous_tl["continuity_hash"],
+            "continuous_timeline_valid": continuous_tl["continuous_timeline_valid"],
+            "boundary_count": len(continuous_tl["boundaries"]),
+            "numeric_state_integer_lock": continuous_tl["numeric_state_trace"]["integer_dollar_lock"],
+            "single_numeric_owner_verified": continuous_tl["numeric_state_trace"]["single_numeric_owner_verified"],
+            "validation_errors": continuous_tl["validation_errors"],
+        },
+        "objective_pixel_critic": {
+            "vlm_status": pixel_critic["vlm_status"],
+            "objective_pixel_critic_status": pixel_critic["objective_pixel_critic_status"],
+            "abrupt_cutaway_jumps": pixel_critic["abrupt_cutaway_jumps"],
+            "max_face_washout_luma_delta": pixel_critic["max_face_washout_luma_delta"],
+            "findings_count": len(pixel_critic["findings"]),
+        },
+        "product_asset_status": prod_match,
         "layout_qa": {
             "zero_eye_mouth_collision": layout_plan["zero_eye_mouth_collision"],
             "max_eye_mouth_overlap": layout_plan["max_eye_mouth_overlap_any_frame"],

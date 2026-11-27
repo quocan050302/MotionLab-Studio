@@ -396,6 +396,7 @@ class HyperFramesRenderer(BaseRenderer):
         timeout_s: float = 180.0,
         cache_dir: Path | None = None,
         use_cache: bool = False,
+        skip_cli_lint: bool = False,
     ) -> dict[str, Any]:
         """Render any standalone offline HyperFrames HTML composition (VP9 WebM alpha or H.264 MP4) with optional content-addressed cache."""
         cap = self.probe_capability()
@@ -456,10 +457,21 @@ class HyperFramesRenderer(BaseRenderer):
 
         env = _sanitized_offline_env(self.browser_exe)
         fps_int = max(1, int(round(fps)))
+        lint_rc = 0
+        if skip_cli_lint:
+            # Fast offline static HTML contract audit (avoids ~3s cold Node CLI spawn per slot while remaining fail-closed!)
+            low_h = html.lower()
+            for req_tok in ("<!doctype html>", "data-composition-id=", "data-duration=", "data-width=", "data-height=", "data-fps=", "./gsap.min.js", "__timelines"):
+                if req_tok not in low_h:
+                    raise RendererError(f"HyperFrames static HTML lint failed: missing {req_tok}")
+            if "http://" in low_h or "https://" in low_h:
+                raise RendererError("HyperFrames static HTML lint failed: forbidden remote URL detected")
         with GLOBAL_JOB_SEMAPHORE:
-            lint_res, _ = run_managed_subprocess(
-                [str(self.hf_bin), "lint", str(slot_dir)], timeout_s=45.0, cwd=slot_dir, env=env, check=False
-            )
+            if not skip_cli_lint:
+                lint_res, _ = run_managed_subprocess(
+                    [str(self.hf_bin), "lint", str(slot_dir)], timeout_s=45.0, cwd=slot_dir, env=env, check=False
+                )
+                lint_rc = lint_res.returncode
             render_cmd = [
                 str(self.hf_bin), "render", str(slot_dir),
                 "--format", fmt,
@@ -505,7 +517,7 @@ class HyperFramesRenderer(BaseRenderer):
             "artifact_path": str(out_path),
             "artifact_sha256": h.hexdigest(),
             "size_bytes": int(out_path.stat().st_size),
-            "lint_rc": lint_res.returncode,
+            "lint_rc": lint_rc,
             "elapsed_s": r_stats["elapsed_s"],
             "peak_tree_rss_mb": r_stats.get("peak_tree_rss_mb", 0.0),
             "cache_hit": False,

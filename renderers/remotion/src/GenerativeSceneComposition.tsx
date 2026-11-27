@@ -34,6 +34,11 @@ import { FlipPage, FlipPageTransition } from "./imported/free-remotion-templates
 import { FrameMorphBridge } from "./imported/remotion-transitions/FrameMorphTransition";
 import { LineLedBridge } from "./imported/remotion-transitions/LineLedTransition";
 import { sceneEnvelope } from "./composition/easing";
+import {
+  EditorialSheetSweepInBridge,
+  PaperFoldExitBridge,
+  type SharedElementTrackTS,
+} from "./composition/continuity";
 
 const EDITORIAL_SANS = 'Bahnschrift, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif';
 const EDITORIAL_SERIF = 'Georgia, Cambria, "Times New Roman", serif';
@@ -98,8 +103,12 @@ export interface GenerativeSceneProps {
   propAlphaFile: string | null;
   hfGraphicFile: string | null;
   hfLayerRole: "background_graphics" | "foreground_graphics";
-  transitionIn?: "none" | "frame_morph" | "line_led" | "flip_page";
+  transitionIn?: "none" | "frame_morph" | "line_led" | "flip_page" | "sheet_sweep";
   transitionInFrames?: number;
+  transitionOut?: "none" | "paper_fold_out" | "line_led_out";
+  transitionOutFrames?: number;
+  globalStartFrame?: number;
+  continuityTracks?: SharedElementTrackTS[];
   palette?: Partial<PaletteTokens>;
   primitives: GenerativePrimitiveNode[];
   ledger?: PersistentLedgerState;
@@ -338,23 +347,23 @@ const RenderImportedPrimitive: React.FC<{
       const fromText = String(p.from_text ?? "$1,200 TO SPEND");
       const toText = String(p.to_text ?? "BALANCE ≠ SPENDABLE");
       const eyebrow = String(p.eyebrow ?? "REALITY CHECK");
-      const fontSize = Number(p.font_size ?? 48);
-      const yPct = Number(p.y_pct ?? 8.8);
-      const op = interpolate(frame, [0, 6, durationInFrames - 8, durationInFrames - 1], [0, 1, 1, 0], {
+      const fontSize = Number(p.font_size ?? 56);
+      const yPct = Number(p.y_pct ?? 8.4);
+      const op = interpolate(frame, [0, 5, durationInFrames - 8, durationInFrames - 1], [0, 1, 1, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       });
       return (
         <AbsoluteFill style={{ opacity: op, pointerEvents: "none" }}>
-          {/* Open editorial atmospheric upper scrim — ZERO rounded pill box! */}
+          {/* Strong editorial atmospheric contrast scrim — ZERO rounded box, crisp D02 hierarchy! */}
           <div
             style={{
               position: "absolute",
               left: 0,
               right: 0,
               top: 0,
-              height: 360,
-              background: "linear-gradient(180deg, rgba(24,22,18,0.74) 0%, rgba(24,22,18,0.38) 64%, rgba(24,22,18,0) 100%)",
+              height: 400,
+              background: "linear-gradient(180deg, rgba(18,16,13,0.82) 0%, rgba(18,16,13,0.48) 64%, rgba(18,16,13,0) 100%)",
             }}
           />
           <div
@@ -366,27 +375,27 @@ const RenderImportedPrimitive: React.FC<{
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              gap: 10,
+              gap: 12,
             }}
           >
             {eyebrow ? (
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ width: 28, height: 3, backgroundColor: pal.brass, display: "inline-block" }} />
-                <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 800, letterSpacing: "0.16em", color: pal.brass, textTransform: "uppercase", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
+                <span style={{ width: 34, height: 3.5, backgroundColor: pal.brass, display: "inline-block" }} />
+                <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 25, fontWeight: 800, letterSpacing: "0.16em", color: pal.brass, textTransform: "uppercase", textShadow: "0 2px 10px rgba(0,0,0,0.55)" }}>
                   {eyebrow}
                 </span>
               </div>
             ) : null}
-            <div style={{ textShadow: "0 6px 22px rgba(14,12,10,0.58)" }}>
+            <div style={{ textShadow: "0 8px 26px rgba(12,10,8,0.68)" }}>
               <StrikethroughReplace
                 from={fromText}
                 to={toText}
-                delayInFrames={Number(p.delay_frames ?? 6)}
-                strikeDurationInFrames={Number(p.strike_frames ?? 12)}
-                holdInFrames={Number(p.hold_frames ?? 4)}
-                departDurationInFrames={10}
-                replaceDelayInFrames={8}
-                replaceDurationInFrames={14}
+                delayInFrames={Number(p.delay_frames ?? 5)}
+                strikeDurationInFrames={Number(p.strike_frames ?? 11)}
+                holdInFrames={Number(p.hold_frames ?? 3)}
+                departDurationInFrames={9}
+                replaceDelayInFrames={7}
+                replaceDurationInFrames={13}
                 color={pal.ivory}
                 strikeColor={String(p.strike_color ?? pal.clay)}
                 replaceColor={String(p.replace_color ?? pal.brass)}
@@ -1020,7 +1029,7 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
     );
   }
 
-  // Optional timeline-preserving entrance transition bridge (GTKottman FrameMorph / LineLed or FlipPage)
+  // Optional timeline-preserving entrance transition bridge (GTKottman LineLed / EditorialSheetSweep / FrameMorph / FlipPage)
   const trFrames = Math.max(4, Math.min(18, Number(props.transitionInFrames ?? 12)));
   if (ex !== "transition_in" && props.transitionIn && props.transitionIn !== "none" && frame < trFrames && props.sourceFile) {
     const trP = frame / Math.max(1, trFrames - 1);
@@ -1029,8 +1038,14 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
         <OffthreadVideo src={staticFile(props.sourceFile)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </AbsoluteFill>
     );
+    if (props.transitionIn === "sheet_sweep") {
+      return <EditorialSheetSweepInBridge progress={trP} accentColor={pal.brass} exiting={livePrev} entering={sceneContent} />;
+    }
     if (props.transitionIn === "frame_morph") {
-      // R5.R1 Fix D04: Warm luminous ivory paper morph — NEVER a dark black/espresso circular hole!
+      // R5.R2 Fix D05: On full_graphic_cutaway, use luminous editorial sheet sweep (zero circular iris hole!); else warm ivory FrameMorph
+      if (props.stageMode === "full_graphic_cutaway") {
+        return <EditorialSheetSweepInBridge progress={trP} accentColor={pal.brass} exiting={livePrev} entering={sceneContent} />;
+      }
       return <FrameMorphBridge progress={trP} background={pal.ivory} size={0.86} exiting={livePrev} entering={sceneContent} />;
     }
     if (props.transitionIn === "line_led") {
@@ -1045,6 +1060,30 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
           </FlipPage>
         </AbsoluteFill>
       );
+    }
+  }
+
+  // R5.R2 Fix D06: Outgoing timeline-preserving cutaway-to-live bridge (PaperFoldExitBridge / LineLedOut)
+  // Smoothly folds warm-ivory cutaway away to reveal exact live source frame underneath — ZERO abrupt 114+ MAD hard cut!
+  const trOutFrames = Math.max(4, Math.min(18, Number(props.transitionOutFrames ?? 12)));
+  if (
+    ex !== "transition_out" &&
+    props.transitionOut &&
+    props.transitionOut !== "none" &&
+    props.sourceFile &&
+    frame >= durationInFrames - trOutFrames
+  ) {
+    const outP = (frame - (durationInFrames - trOutFrames)) / Math.max(1, trOutFrames - 1);
+    const liveUnder = (
+      <AbsoluteFill>
+        <OffthreadVideo src={staticFile(props.sourceFile)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </AbsoluteFill>
+    );
+    if (props.transitionOut === "paper_fold_out") {
+      return <PaperFoldExitBridge progress={outP} accentColor={pal.brass} liveUnderneath={liveUnder} cutawayContent={sceneContent} />;
+    }
+    if (props.transitionOut === "line_led_out") {
+      return <LineLedBridge progress={outP} color={pal.brass} thickness={6} orientation="horizontal" exiting={sceneContent} entering={liveUnder} />;
     }
   }
 

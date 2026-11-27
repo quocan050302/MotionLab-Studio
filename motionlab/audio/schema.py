@@ -1,4 +1,4 @@
-"""Typed schemas for ML-01.R4 local sound design assets, sample-exact cues, audio timeline, and mix QA."""
+"""Typed schemas for ML-01.R4/R5/R5.R2 local sound design assets, sample-exact cues, audio timeline, and mix QA."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 
 from motionlab.schemas import canonical_hash
 
-AUDIO_SCHEMA_VERSION = "1.0.0"
+AUDIO_SCHEMA_VERSION = "2.0.0"
 
 
 @dataclass
@@ -50,6 +50,15 @@ class SoundEvent:
     confidence: float
     reason: str
     fallback: str = "none"
+    # R5.R2 P0 Cue Integrity & Exact Provenance fields (backward-compatible defaults!)
+    cue_id: str = ""
+    raw_asset_sha256: str = ""
+    processed_pcm_sha256: str = ""
+    align_anchor: str = "transient"  # "transient" | "onset" | "crest_in_window"
+    onset_sample: int = 0
+    crest_sample: int = 0
+    priority: int = 1
+    required: bool = True
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -71,6 +80,9 @@ class AudioTimeline:
     events: list[SoundEvent] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     timeline_hash: str = ""
+    # R5.R2 Cue Ledger Accounting (zero silent drops!)
+    cue_decisions: list[dict[str, Any]] = field(default_factory=list)
+    cue_ledger_summary: dict[str, Any] = field(default_factory=dict)
 
     def compute_hash(self) -> str:
         payload = self.to_dict()

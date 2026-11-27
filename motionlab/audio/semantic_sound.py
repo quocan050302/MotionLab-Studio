@@ -19,15 +19,24 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
-from motionlab.audio.assets import inspect_foley_library
+from motionlab.audio.assets import (
+    analyze_waveform_envelope,
+    inspect_foley_library,
+    load_recorded_foley_by_asset_id,
+    prepare_recorded_foley_asset,
+)
 from motionlab.audio.cues import frame_to_sample_exact
 from motionlab.audio.schema import AUDIO_SCHEMA_VERSION, AudioTimeline, SoundEvent
-from motionlab.audio.synthesis import SFX_FAMILIES, synthesize_sfx_waveform
+from motionlab.audio.synthesis import SFX_FAMILIES, synthesize_sfx_variant, synthesize_sfx_waveform
 from motionlab.composition.generative_schema import SceneSpec, SoundIntent, StoryboardSpec
 from motionlab.schemas import canonical_hash, sanitize_native
 from motionlab.semantic.story_graph import StoryBeatNode, StoryGraph
 
-SONIC_SCHEMA_VERSION = "2.0.0"
+SONIC_SCHEMA_VERSION = "2.1.0"
+
+# Event classes for BEFORE-measurement alignment anchor contract (fixes D10!)
+IMPULSE_FAMILIES = frozenset({"cash_flick", "tick_accent", "pop_reveal", "soft_impact", "bass_settle"})
+GRADUAL_FAMILIES = frozenset({"paper_rustle", "envelope_slide", "page_turn", "soft_whoosh", "reverse_whoosh", "shimmer_payoff", "riser_build"})
 
 VALID_SOUND_ROLES = (
     "DIEGETIC_FOLEY",
@@ -607,24 +616,73 @@ def extract_sonic_opportunities(
     return opportunities
 
 
+def extract_realized_animation_markers(
+    storyboard: StoryboardSpec,
+    story_graph: StoryGraph,
+    compiled_scene_props: dict[str, dict[str, Any]] | None = None,
+) -> list[AnimationMarker]:
+    """Post-render barrier marker extractor verifying realized frame timings from compiled scene props."""
+    markers = extract_rendered_animation_markers(storyboard, story_graph)
+    if not compiled_scene_props:
+        return markers
+    realized: list[AnimationMarker] = []
+    for m in markers:
+        props = compiled_scene_props.get(m.scene_id)
+        if not props:
+            realized.append(m)
+            continue
+        dur = int(props.get("durationInFrames", 24))
+        g0 = int(props.get("globalStartFrame", m.global_frame - m.local_frame))
+        clamped_loc = max(0, min(dur - 1, int(m.local_frame)))
+        realized.append(AnimationMarker(
+            marker_id=m.marker_id,
+            scene_id=m.scene_id,
+            marker_type=m.marker_type,
+            local_frame=clamped_loc,
+            global_frame=g0 + clamped_loc,
+            source_element_id=m.source_element_id,
+            engine=m.engine,
+            rationale=f"[REALIZED_POST_RENDER] {m.rationale}",
+        ))
+    return realized
+
+
 def resolve_sound_asset(
     family: str,
     variant: int,
     foley_lib: dict[str, Any] | None = None,
     sr: int = 44100,
     seed: int = 42,
+    prefer_full_body: bool = True,
 ) -> dict[str, Any]:
     """Resolve a semantically chosen SFX family/variant against verified recorded foley first, else honest DSP."""
     lib = foley_lib if foley_lib is not None else inspect_foley_library()
-    # Exact (family, variant) match first, then any verified recorded variant of the same family
     rec_matches = [a for a in lib.get("assets", []) if a.get("family") == family]
     chosen_rec = None
     if rec_matches:
         chosen_rec = next((a for a in rec_matches if int(a.get("variant", 0)) == int(variant)), None)
         if chosen_rec is None:
             chosen_rec = rec_matches[int(variant) % len(rec_matches)]
+        # Semantic material guard (R5.R2): For banknote `cash_flick`, prefer real banknote/paper recordings
+        # (`money-notes`, `foley-paper-touch`) over ultra-short stiff card tack (`foley-card-touch`)!
+        if prefer_full_body and family == "cash_flick" and "card-touch" in str(chosen_rec.get("asset_id", "")):
+            paper_alt = next(
+                (a for a in rec_matches if "paper" in str(a.get("asset_id", "")) or "money" in str(a.get("asset_id", ""))),
+                None,
+            )
+            if paper_alt is not None:
+                chosen_rec = paper_alt
+        # For `page_turn`, prefer authentic recorded page turning (`page-turn`) over bright high-mid paper-touch!
+        if prefer_full_body and family == "page_turn" and "paper-touch" in str(chosen_rec.get("asset_id", "")):
+            page_alt = next(
+                (a for a in rec_matches if "props-page-turn" in str(a.get("asset_id", "")) or "page-turn" in str(a.get("filename", ""))),
+                None,
+            )
+            if page_alt is not None:
+                chosen_rec = page_alt
 
     if chosen_rec is not None:
+        prep = prepare_recorded_foley_asset(chosen_rec, target_sr=sr)
         return {
             "asset_id": str(chosen_rec["asset_id"]),
             "family": family,
@@ -632,10 +690,17 @@ def resolve_sound_asset(
             "provenance": "recorded_local_foley",
             "license": str(chosen_rec.get("license", "")),
             "sha256": str(chosen_rec.get("sha256", "")),
+            "processed_pcm_sha256": prep["processed_pcm_sha256"] if prep else "",
+            "onset_sample": prep["onset_sample"] if prep else 0,
+            "crest_sample": prep["crest_sample"] if prep else 0,
+            "peak_sample": prep["peak_sample"] if prep else 0,
+            "duration_s": prep["duration_s"] if prep else float(chosen_rec.get("duration_s", 0.0)),
             "fallback_status": "RECORDED_LOCAL_FOLEY",
             "resolved_path": str(chosen_rec.get("resolved_path", "")),
         }
 
+    pcm_st, t_off = synthesize_sfx_variant(family, variant=variant % 3, sr=sr, seed=seed)
+    env = analyze_waveform_envelope(pcm_st, sr)
     _, spec = synthesize_sfx_waveform(family, variant=variant % 3, sr=sr, seed=seed)
     return {
         "asset_id": spec.asset_id,
@@ -644,6 +709,11 @@ def resolve_sound_asset(
         "provenance": "procedural_dsp_synthesis",
         "license": spec.license,
         "sha256": spec.sha256,
+        "processed_pcm_sha256": env["processed_pcm_sha256"],
+        "onset_sample": env["onset_sample"],
+        "crest_sample": env["crest_sample"],
+        "peak_sample": env["peak_sample"],
+        "duration_s": env["duration_s"],
         "fallback_status": "PARTIAL_FOLEY_DSP_FALLBACK",
         "resolved_path": "",
     }
@@ -957,8 +1027,20 @@ def align_sound_to_marker(
     sfx_enabled: bool = True,
     music_enabled: bool = False,
     seed: int = 42,
+    foley_dir: Path | None = None,
 ) -> tuple[AudioTimeline, list[dict[str, Any]], dict[str, Any]]:
-    """Convert validated SonicScore + AnimationMarkers onto exact Rational Fraction sample positions."""
+    """Convert validated SonicScore + AnimationMarkers onto exact Rational Fraction sample positions.
+
+    R5.R2 P0 Fixes (D09, D10, D11):
+      - ZERO silent drops: removes the broken 50ms duration gate (accepts valid crisp transients down to 8ms,
+        including 18ms `data-tick` and 49.5ms `foley-card-touch`!).
+      - Stable original `cue_id` preserved end-to-end (NEVER renumbered sequentially to mask dropped cues!).
+      - Priority-aware sliding-window reconciliation (max 8 cues / 10s window; no magic 16-cue global cutoff!).
+      - Every planned cue gets EXACTLY ONE explicit terminal outcome in `cue_decisions` so
+        `planned == verified_staged + explicitly_suppressed + blocked` holds mathematically.
+      - Exact immutable asset_id + SHA-256 PCM resolution & event-class-aware anchor alignment
+        (`transient` for sharp impacts/ticks vs `crest_in_window` for gradual paper/envelope slides!).
+    """
     dur_samples = frame_to_sample_exact(total_frames, fps_num, fps_den, sample_rate)
     if audio_mode == "preserve-exact" or not sfx_enabled:
         tl = AudioTimeline(
@@ -974,49 +1056,186 @@ def align_sound_to_marker(
             fps_den=fps_den,
             pts_priming_offset_s=round(priming_offset_s, 6),
             events=[],
+            cue_decisions=[],
+            cue_ledger_summary={"planned": len(score.cues), "staged": 0, "explicitly_suppressed": len(score.cues), "blocked": 0, "conservation_exact": True},
         )
         tl.timeline_hash = tl.compute_hash()
-        return tl, [], {"used_assets": [], "recorded_cues_used": 0, "procedural_cues_used": 0}
+        return tl, [], {"used_assets": [], "recorded_cues_used": 0, "procedural_cues_used": 0, "cue_decisions": []}
 
-    sorted_cues = sorted(score.cues, key=lambda c: (c.target_frame, c.priority))
+    fps_f = float(Fraction(fps_num, fps_den))
+    samples_per_frame = sample_rate / max(1.0, fps_f)
+    sorted_cues = sorted(score.cues, key=lambda c: (int(c.target_frame), int(c.priority), c.cue_id))
     events: list[SoundEvent] = []
     alignment_rows: list[dict[str, Any]] = []
+    cue_decisions: list[dict[str, Any]] = []
     used_assets: dict[str, dict[str, Any]] = {}
-    last_any_peak = -sample_rate
-    last_fam_peak: dict[str, int] = {}
+    placed_peaks: list[tuple[int, str, int]] = []  # (sample, family, priority)
+
+    min_valid_samples = max(64, int(round(sample_rate * 0.008)))  # 8ms minimum -> preserves 18ms ticks & 49.5ms touches!
+    min_any_spacing = int(round(sample_rate * 0.24))
+    min_same_fam_spacing = int(round(sample_rate * 0.65))
+    window_10s = int(round(sample_rate * 10.0))
+    max_cues_per_10s = 8
 
     for c in sorted_cues:
-        clamped_f = max(1, min(total_frames - 3, int(c.target_frame)))
-        peak_samp = frame_to_sample_exact(clamped_f, fps_num, fps_den, sample_rate)
-        if peak_samp - last_any_peak < int(sample_rate * 0.32):
-            continue
-        if c.family in last_fam_peak and (peak_samp - last_fam_peak[c.family]) < int(sample_rate * 0.80):
+        is_required = int(c.priority) <= 1
+        clamped_f = max(1, min(total_frames - 2, int(c.target_frame)))
+        target_samp = frame_to_sample_exact(clamped_f, fps_num, fps_den, sample_rate)
+
+        # 1. Resolve EXACT immutable asset by (asset_id, asset_sha256) first!
+        prep = None
+        if c.asset_id and c.asset_provenance == "recorded_local_foley":
+            prep = load_recorded_foley_by_asset_id(
+                c.asset_id,
+                expected_raw_sha256=c.asset_sha256 or None,
+                target_sr=sample_rate,
+                foley_dir=foley_dir,
+            )
+        if prep is not None:
+            pcm_n = int(prep["n_frames"])
+            raw_sha = str(prep["raw_asset_sha256"])
+            proc_sha = str(prep["processed_pcm_sha256"])
+            onset_rel = int(prep["onset_sample"])
+            crest_rel = int(prep["crest_sample"])
+            peak_rel = int(prep["peak_sample"])
+            asset_id_final = str(prep["asset_id"])
+            provenance_final = "recorded_local_foley"
+            fallback_final = "RECORDED_LOCAL_FOLEY"
+            used_assets[asset_id_final] = {
+                "asset_id": asset_id_final,
+                "family": c.family,
+                "variant": int(c.variant),
+                "provenance": provenance_final,
+                "license": prep["license"],
+                "raw_asset_sha256": raw_sha,
+                "processed_pcm_sha256": proc_sha,
+                "duration_s": prep["duration_s"],
+                "onset_sample": onset_rel,
+                "crest_sample": crest_rel,
+                "peak_sample": peak_rel,
+            }
+        else:
+            pcm_st, t_off = synthesize_sfx_variant(c.family, variant=int(c.variant) % 3, sr=sample_rate, seed=seed)
+            env = analyze_waveform_envelope(pcm_st, sample_rate)
+            _, spec = synthesize_sfx_waveform(c.family, variant=int(c.variant) % 3, sr=sample_rate, seed=seed)
+            pcm_n = int(env["n_frames"])
+            raw_sha = spec.sha256
+            proc_sha = env["processed_pcm_sha256"]
+            onset_rel = int(env["onset_sample"])
+            crest_rel = int(env["crest_sample"])
+            peak_rel = int(env["peak_sample"])
+            asset_id_final = c.asset_id or spec.asset_id
+            provenance_final = "procedural_dsp_synthesis"
+            fallback_final = "PARTIAL_FOLEY_DSP_FALLBACK"
+            used_assets[asset_id_final] = spec.to_dict()
+
+        if pcm_n < min_valid_samples:
+            status = "BLOCKED" if is_required else "EXPLICITLY_SUPPRESSED"
+            cue_decisions.append({
+                "cue_id": c.cue_id,
+                "scene_id": c.scene_id,
+                "family": c.family,
+                "priority": c.priority,
+                "required": is_required,
+                "terminal_status": status,
+                "reason": f"asset_too_short_or_empty:n_frames={pcm_n}<min={min_valid_samples}",
+                "asset_id": asset_id_final,
+            })
             continue
 
-        wav, spec = synthesize_sfx_waveform(c.family, variant=int(c.variant) % 3, sr=sample_rate, seed=seed)
-        used_assets[spec.asset_id] = spec.to_dict()
+        # 2. Priority-aware collision & sliding-window density check (ZERO silent drops!)
+        conflict_reason = ""
+        rescheduled = False
+        candidate_samp = target_samp
+        for prev_s, prev_fam, _prev_pri in placed_peaks:
+            if abs(candidate_samp - prev_s) < min_any_spacing:
+                conflict_reason = f"min_any_spacing_collision_with_{prev_fam}@s{prev_s}"
+                break
+            if prev_fam == c.family and abs(candidate_samp - prev_s) < min_same_fam_spacing:
+                conflict_reason = f"same_family_cooldown_with_{prev_fam}@s{prev_s}"
+                break
+        if conflict_reason and is_required:
+            # Try modest priority shift (+3 frames) inside permissible marker tolerance before ever blocking!
+            for shift_f in (2, 3, -2):
+                cand2 = max(0, min(dur_samples - min_valid_samples, target_samp + int(round(shift_f * samples_per_frame))))
+                if all(abs(cand2 - ps) >= min_any_spacing for ps, _, _ in placed_peaks):
+                    candidate_samp = cand2
+                    clamped_f = max(1, min(total_frames - 2, clamped_f + shift_f))
+                    rescheduled = True
+                    conflict_reason = ""
+                    break
 
-        trans_samp = int(round(spec.transient_offset_s * sample_rate))
-        pre_roll_samp = int(round((c.pre_roll_ms / 1000.0) * sample_rate)) if c.sound_role == "TRANSITION_BRIDGE" else 0
-        desired_peak = max(trans_samp, peak_samp - pre_roll_samp // 3)
-        start_samp = max(0, desired_peak - trans_samp)
-        end_samp = min(dur_samples, start_samp + wav.size)
-        if end_samp - start_samp < int(sample_rate * 0.05):
+        recent_in_10s = sum(1 for ps, _, _ in placed_peaks if abs(candidate_samp - ps) <= window_10s)
+        if not conflict_reason and recent_in_10s >= max_cues_per_10s and not is_required:
+            conflict_reason = f"sliding_10s_density_cap:{recent_in_10s}>={max_cues_per_10s}"
+
+        if conflict_reason:
+            status = "BLOCKED" if is_required else "EXPLICITLY_SUPPRESSED"
+            cue_decisions.append({
+                "cue_id": c.cue_id,
+                "scene_id": c.scene_id,
+                "family": c.family,
+                "priority": c.priority,
+                "required": is_required,
+                "terminal_status": status,
+                "reason": conflict_reason,
+                "asset_id": asset_id_final,
+                "target_frame": clamped_f,
+            })
             continue
 
-        actual_peak_samp = min(end_samp - 1, start_samp + trans_samp)
-        ev_id = f"sfx_{len(events):02d}_{c.family}"
+        # 3. Event-class-aware anchor alignment (fixes D10 +6f/+5.38f paper/envelope crest drift!)
+        if c.family in IMPULSE_FAMILIES:
+            align_anchor = "transient"
+            anchor_rel = peak_rel
+        else:
+            # Gradual slide/swish/turn: align measured energy crest right onto the visual contact/peak frame!
+            align_anchor = "crest_in_window"
+            anchor_rel = crest_rel
+
+        start_samp = max(0, candidate_samp - anchor_rel)
+        # Keep short cues strictly inside [0, dur_samples)
+        if start_samp + min_valid_samples > dur_samples:
+            start_samp = max(0, dur_samples - pcm_n)
+        end_samp = min(dur_samples, start_samp + pcm_n)
+        usable = end_samp - start_samp
+        if usable < min_valid_samples:
+            status = "BLOCKED" if is_required else "EXPLICITLY_SUPPRESSED"
+            cue_decisions.append({
+                "cue_id": c.cue_id,
+                "scene_id": c.scene_id,
+                "family": c.family,
+                "priority": c.priority,
+                "required": is_required,
+                "terminal_status": status,
+                "reason": f"clipped_at_timeline_end:usable={usable}<min={min_valid_samples}",
+                "asset_id": asset_id_final,
+            })
+            continue
+
+        actual_anchor_samp = min(end_samp - 1, start_samp + min(anchor_rel, usable - 1))
+        actual_onset_samp = min(end_samp - 1, start_samp + min(onset_rel, usable - 1))
+        actual_crest_samp = min(end_samp - 1, start_samp + min(crest_rel, usable - 1))
+
+        # Preserve stable original cue_id (NEVER hide dropped cues behind sequential renumbering!)
+        ev_id = c.cue_id
         events.append(SoundEvent(
             id=ev_id,
+            cue_id=c.cue_id,
             linked_visual_event_id=c.scene_id,
             semantic_span_ids=[str(w) for w in c.word_ids],
             observed_action_id=c.action_ref,
-            asset_id=c.asset_id or spec.asset_id,
+            asset_id=asset_id_final,
             family=c.family,
-            variant=int(c.variant) % 3,
-            asset_sha256=c.asset_sha256 or spec.sha256,
+            variant=int(c.variant),
+            asset_sha256=raw_sha,
+            raw_asset_sha256=raw_sha,
+            processed_pcm_sha256=proc_sha,
+            align_anchor=align_anchor,
             start_sample=start_samp,
-            peak_sample=actual_peak_samp,
+            peak_sample=actual_anchor_samp,
+            onset_sample=actual_onset_samp,
+            crest_sample=actual_crest_samp,
             end_sample=end_samp,
             peak_frame=clamped_f,
             gain_db=float(c.gain_db),
@@ -1024,8 +1243,28 @@ def align_sound_to_marker(
             role=c.sound_role,
             confidence=float(c.action_confidence),
             reason=c.reason,
-            fallback=c.fallback_status,
+            fallback=fallback_final,
+            priority=int(c.priority),
+            required=is_required,
         ))
+        cue_decisions.append({
+            "cue_id": c.cue_id,
+            "scene_id": c.scene_id,
+            "family": c.family,
+            "priority": int(c.priority),
+            "required": is_required,
+            "terminal_status": "VERIFIED_STAGED",
+            "rescheduled": rescheduled,
+            "align_anchor": align_anchor,
+            "asset_id": asset_id_final,
+            "raw_asset_sha256": raw_sha,
+            "processed_pcm_sha256": proc_sha,
+            "target_frame": clamped_f,
+            "start_sample": start_samp,
+            "anchor_sample": actual_anchor_samp,
+            "end_sample": end_samp,
+            "duration_ms": round(usable * 1000.0 / sample_rate, 2),
+        })
         alignment_rows.append({
             "event_id": ev_id,
             "cue_id": c.cue_id,
@@ -1034,20 +1273,34 @@ def align_sound_to_marker(
             "marker_type": c.marker_type,
             "sound_role": c.sound_role,
             "family": c.family,
-            "variant": int(c.variant) % 3,
-            "provenance": c.asset_provenance,
+            "variant": int(c.variant),
+            "align_anchor": align_anchor,
+            "provenance": provenance_final,
             "expected_frame": clamped_f,
-            "expected_sample": peak_samp,
-            "placed_peak_sample": actual_peak_samp,
-            "delta_samples": actual_peak_samp - peak_samp,
-            "delta_frames": round((actual_peak_samp - peak_samp) / (sample_rate * float(Fraction(fps_den, fps_num))), 3),
+            "expected_sample": target_samp,
+            "placed_peak_sample": actual_anchor_samp,
+            "delta_samples": actual_anchor_samp - target_samp,
+            "delta_frames": round((actual_anchor_samp - target_samp) / samples_per_frame, 3),
             "start_sample": start_samp,
             "end_sample": end_samp,
         })
-        last_any_peak = actual_peak_samp
-        last_fam_peak[c.family] = actual_peak_samp
-        if len(events) >= 16:
-            break
+        placed_peaks.append((actual_anchor_samp, c.family, int(c.priority)))
+
+    staged_n = sum(1 for d in cue_decisions if d["terminal_status"] == "VERIFIED_STAGED")
+    suppressed_n = sum(1 for d in cue_decisions if d["terminal_status"] == "EXPLICITLY_SUPPRESSED")
+    blocked_n = sum(1 for d in cue_decisions if d["terminal_status"] == "BLOCKED")
+    rec_staged = sum(1 for e in events if e.fallback == "RECORDED_LOCAL_FOLEY")
+    proc_staged = len(events) - rec_staged
+    ledger_summary = {
+        "planned": len(sorted_cues),
+        "staged": staged_n,
+        "explicitly_suppressed": suppressed_n,
+        "blocked": blocked_n,
+        "conservation_exact": (len(sorted_cues) == staged_n + suppressed_n + blocked_n),
+        "recorded_staged_cues": rec_staged,
+        "procedural_staged_cues": proc_staged,
+        "unique_raw_asset_hashes": len({e.raw_asset_sha256 for e in events if e.raw_asset_sha256}),
+    }
 
     tl = AudioTimeline(
         schema_version=AUDIO_SCHEMA_VERSION,
@@ -1062,12 +1315,16 @@ def align_sound_to_marker(
         fps_den=fps_den,
         pts_priming_offset_s=round(priming_offset_s, 6),
         events=events,
+        cue_decisions=cue_decisions,
+        cue_ledger_summary=ledger_summary,
     )
     tl.timeline_hash = tl.compute_hash()
     return tl, alignment_rows, {
         "used_assets": list(used_assets.values()),
-        "recorded_cues_used": score.recorded_cues_used,
-        "procedural_cues_used": score.procedural_cues_used,
+        "recorded_cues_used": rec_staged,
+        "procedural_cues_used": proc_staged,
+        "cue_decisions": cue_decisions,
+        "cue_ledger_summary": ledger_summary,
     }
 
 

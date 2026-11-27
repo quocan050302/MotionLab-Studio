@@ -134,17 +134,26 @@ async function main() {
   const browserOpenS = Number(((performance.now() - tBrowser0) / 1000).toFixed(3));
 
   const jobResults = [];
+  const compCache = new Map();
+  let selectCalls = 0;
   try {
     for (const job of jobs) {
       const tj0 = performance.now();
       const inputProps = job.props || {};
-      const composition = await selectComposition({
-        serveUrl: path.resolve(serveDir),
-        id: job.compositionId,
-        inputProps,
-        puppeteerInstance: browser,
-        logLevel: "error",
-      });
+      const exKey = inputProps.excludeLayerRole == null ? "full" : String(inputProps.excludeLayerRole);
+      const compCacheKey = `${job.compositionId}::${inputProps.sceneId || job.id}::${inputProps.width || 0}x${inputProps.height || 0}::${inputProps.durationInFrames || 0}::${inputProps.fps || 0}::ex=${exKey}`;
+      let composition = compCache.get(compCacheKey);
+      if (!composition) {
+        composition = await selectComposition({
+          serveUrl: path.resolve(serveDir),
+          id: job.compositionId,
+          inputProps,
+          puppeteerInstance: browser,
+          logLevel: "error",
+        });
+        compCache.set(compCacheKey, composition);
+        selectCalls += 1;
+      }
 
       fs.mkdirSync(path.dirname(path.resolve(job.outputLocation)), { recursive: true });
 
@@ -207,6 +216,7 @@ async function main() {
     bundle_s: bundleS,
     browser_open_s: browserOpenS,
     browser_launches: 1,
+    select_composition_calls: selectCalls,
     total_s: Number(((performance.now() - tStart) / 1000).toFixed(3)),
     jobs: jobResults,
   };

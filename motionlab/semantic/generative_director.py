@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from motionlab.assets.catalog import inspect_product_asset_catalog, match_product_assets_for_name
 from motionlab.composition.catalog_search import search_primitives_by_intent
 from motionlab.composition.generative_schema import (
     AssetRef,
@@ -40,6 +41,14 @@ from motionlab.semantic.local_model import (
     generate_structured_json,
     inspect_llm_model,
     sanitize_untrusted_transcript_text,
+)
+from motionlab.semantic.narrative_brain import (
+    build_evidence_index,
+    build_narrative_contract,
+    build_state_graph,
+    propose_scene_graphs,
+    rank_scene_candidates,
+    retrieve_playbook_rules,
 )
 from motionlab.semantic.niche import NICHE_PROFILES
 from motionlab.semantic.story_graph import StoryBeatNode, StoryGraph, format_cents
@@ -240,8 +249,8 @@ def _select_grounded_layer_params(
             "eyebrow": "SPENDABILITY CHECK",
             "from_text": init_txt,
             "to_text": "BALANCE ≠ SPENDABLE" if led.active else "NOT THE FULL PICTURE",
-            "y_pct": 8.6,
-            "font_size": 46,
+            "y_pct": 8.4,
+            "font_size": 56,
             "dark_card": False,
         }
 
@@ -304,37 +313,54 @@ def _select_grounded_layer_params(
         return {"x_frac": 0.43, "y_frac": 0.46, "detail_zoom": 1.60, "label": "LIVE DETAIL"}
 
     # --- HyperFrames Apache-2.0 primitives ---
+    allow_frac_led = bool(
+        led.active and (
+            (abs(led.initial_cents) % 100 != 0)
+            or any((abs(s_i.amount_cents) % 100 != 0) or (abs(s_i.running_balance_cents) % 100 != 0) for s_i in all_steps)
+        )
+    )
     if primitive_id == "hf_apple_money_count":
         if st is not None:
             if st.step_type == "opening_balance":
                 return {
-                    "from_cents": 0, "to_cents": st.amount_cents, "currency_symbol": sym,
+                    "from_cents": st.amount_cents, "to_cents": st.amount_cents, "currency_symbol": sym,
                     "eyebrow": "BANK BALANCE", "caption": "",
-                    "y_anchor": "8.6%", "dark_plate": True, "token_count": 4, "hero_px": 124,
+                    "y_anchor": "8.6%", "dark_plate": True, "token_count": 4, "hero_px": 128,
+                    "allow_fractional_cents": allow_frac_led, "hold_exact_amount": not allow_frac_led,
                 }
             if st.step_type == "remaining_confirmed":
+                # Verified discrete milestone sequence (e.g. [$1,200, $400, $200, $100]) — ZERO unverified intermediates like $116 / $144.06!
+                milestones = [led.initial_cents]
+                for s_m in all_steps:
+                    if s_m.running_balance_cents != milestones[-1]:
+                        milestones.append(s_m.running_balance_cents)
+                if milestones[-1] != st.running_balance_cents:
+                    milestones.append(st.running_balance_cents)
                 return {
                     "from_cents": led.initial_cents, "to_cents": st.running_balance_cents, "currency_symbol": sym,
-                    "eyebrow": "REMAINING TO SPEND", "caption": f"after these expenses ({format_cents(led.initial_cents, sym)} example)",
-                    "y_anchor": "8.8%", "dark_plate": False, "token_count": 3, "hero_px": 148, "accent_color": palette["brass"],
+                    "eyebrow": "ACTUALLY LEFT TO SPEND", "caption": f"from {format_cents(led.initial_cents, sym)} example balance",
+                    "y_anchor": "8.6%", "dark_plate": False, "token_count": 3, "hero_px": 150, "accent_color": palette["brass"],
+                    "allow_fractional_cents": allow_frac_led, "hold_exact_amount": False,
+                    "discrete_steps_cents": milestones,
                 }
             prev_c = st.running_balance_cents + abs(st.delta_cents)
             return {
                 "from_cents": prev_c, "to_cents": st.running_balance_cents, "currency_symbol": sym,
                 "eyebrow": f"AFTER {st.category.upper()}", "caption": f"-{format_cents(st.amount_cents, sym)}",
                 "y_anchor": "8.6%", "dark_plate": True, "token_count": 3,
+                "allow_fractional_cents": allow_frac_led, "hold_exact_amount": False,
             }
         return {
-            "from_cents": 0, "to_cents": led.initial_cents or 10000, "currency_symbol": sym,
+            "from_cents": led.initial_cents or 10000, "to_cents": led.initial_cents or 10000, "currency_symbol": sym,
             "eyebrow": "BALANCE", "y_anchor": "8.8%", "dark_plate": True, "token_count": 3,
+            "allow_fractional_cents": allow_frac_led, "hold_exact_amount": not allow_frac_led,
         }
 
     if primitive_id == "hf_mk_progress_stat":
         if st is not None and led.initial_cents > 0:
             is_ded = st.step_type == "allocation"
-            # R5.R1 Fix D02: Consumer-friendly copy ONLY — NEVER leak "(derived)" internal QA jargon!
             cap_txt = (
-                f"{format_cents(st.running_balance_cents, sym)} left"
+                f"{format_cents(st.running_balance_cents, sym)} left to spend"
                 if is_ded
                 else f"of {format_cents(led.initial_cents, sym)} balance"
             )
@@ -348,6 +374,8 @@ def _select_grounded_layer_params(
                 "caption": cap_txt,
                 "y_px": 110,
                 "dark_plate": False,
+                "allow_fractional_cents": allow_frac_led,
+                "token_count": 3 if is_ded else 0,
             }
         return {"amount_cents": 10000, "denom_cents": 100000, "remaining_cents": 90000, "currency_symbol": sym, "category": "ALLOCATION", "y_px": 110}
 
@@ -418,7 +446,7 @@ def _select_grounded_layer_params(
         return {"text": main_q or safe_headline, "subtitle": cta, "font_size": 46, "y_px": 110}
 
     if primitive_id == "hf_organic_light_leak":
-        return {"opacity": 0.48}
+        return {"opacity": 0.20}
 
     return {}
 
@@ -866,15 +894,22 @@ def direct_generative_storyboard(
             ))
             used_hf_prims.add(req_hf)
 
-        # Clean transition selection (preserve frame continuity; no transition on frame 0!)
+        # Clean transition selection (R5.R2 Fix D05/D06: zero circular iris hole, zero unbridged cutaway hard cuts!)
         tr_kind = str(bp.get("transition_in") or "none")
         if tr_kind not in VALID_TRANSITIONS or sf == 0:
             tr_kind = "none"
-        if g_idx > 0 and tr_kind == "none":
-            if primary_b.speech_act == "payoff_reveal" and "rem_gtk_frame_morph" in verified_rem_ids:
-                tr_kind = "frame_morph"
+        if g_idx > 0:
+            if req_stage == "full_graphic_cutaway":
+                # Smooth editorial line-led / sheet-sweep entry into cutaway (never dark iris or unbridged hard cut!)
+                tr_kind = "line_led" if "rem_gtk_line_led" in verified_rem_ids else ("frame_morph" if "rem_gtk_frame_morph" in verified_rem_ids else tr_kind)
             elif primary_b.speech_act == "product_intro" and "rem_gtk_line_led" in verified_rem_ids:
                 tr_kind = "line_led"
+
+        # R5.R2 Fix D04: Give distinct allocation layout variants so Bills (top_strip) and Gas (compact_editorial_rail) never repeat!
+        if primary_b.speech_act == "allocation_step":
+            for ly in layers:
+                if ly.primitive_id == "hf_mk_progress_stat":
+                    ly.params["layout_variant"] = "compact_editorial_rail" if req_stage == "live_clean_bridge" else "top_strip"
 
         # 5. Sound Intents aligned to spoken words & visual transitions (rich varied foley palette, NEVER monotonic repeat!)
         sound_intents: list[SoundIntent] = []
@@ -961,17 +996,26 @@ def direct_generative_storyboard(
         scene_params: dict[str, Any] = {}
         if req_stage == "full_graphic_cutaway":
             scene_params["bg_color"] = palette["ivory"]
+            # R5.R2 Fix D06: Every full-frame cutaway MUST have an outgoing paper-fold bridge returning cleanly to live footage!
+            scene_params["transition_out"] = "paper_fold_out"
+            scene_params["transition_out_frames"] = 12
         elif req_stage == "aspect_morph_editorial":
-            # R5.R1 Fix D05: Balanced architectural split filling upper editorial breakdown cleanly into generous live speaker window
-            scene_params.update({"kicker": "", "lines": [], "header_title": "", "shifted_y_frac": 0.48, "shifted_h_frac": 0.43})
+            # R5.R2 Fix D04: Generous live speaker framing (y=0.45, h=0.46) + open editorial breakdown above (zero empty void!)
+            scene_params.update({"kicker": "", "lines": [], "header_title": "", "shifted_y_frac": 0.45, "shifted_h_frac": 0.46})
         elif req_stage == "live_depth_matte":
             scene_params.update({"bg_dim": 0.78, "bg_blur_px": 2.0, "parallax_travel_px": 26})
 
+        # R5.R2 Fix D03: ONE canonical numeric owner per scene! Never stack PersistentLedgerRibbon on top of an active progress strip / chart!
+        has_numeric_layer = any(
+            ly.primitive_id in ("hf_mk_progress_stat", "hf_apple_money_count", "hf_data_chart", "rem_ru_counter")
+            for ly in layers
+        )
         show_ribbon = bool(
             story_graph.ledger.active
             and primary_b.ledger_step_id
             and primary_b.speech_act == "allocation_step"
             and req_stage != "full_graphic_cutaway"
+            and not has_numeric_layer
         )
 
         scenes.append(SceneSpec(
@@ -1027,5 +1071,99 @@ def direct_generative_storyboard(
     if val_errs:
         raise SchemaValidationError(f"Generative director produced invalid StoryboardSpec: {val_errs[:6]}")
 
-    return storyboard, {"raw_llm": raw_llm, "llm_meta": llm_meta, "cache_hit": cache_hit}
+    # Build stateful R2-A1 Narrative Brain telemetry (EvidenceIndex, NarrativeContract, StateGraph, Ranked Candidates, Raw vs Reconciled Audit)
+    prod_catalog = inspect_product_asset_catalog()
+    prod_match = match_product_assets_for_name(story_graph.product_name, catalog=prod_catalog)
+    synthetic_tr = None
+    try:
+        from motionlab.semantic.schema import Transcript, TranscriptSegment, WordSpan
+        w_spans = [
+            WordSpan(word=w, start_s=b.start_s, end_s=b.end_s, probability=b.mean_word_confidence)
+            for b in story_graph.beats
+            for w in (b.verbatim_quote or "").split()
+        ]
+        synthetic_tr = Transcript(
+            schema_version="1.0.0",
+            source_hash=story_graph.source_hash,
+            source_audio_hash=story_graph.source_hash,
+            sample_rate_asr=16000,
+            model_id="story_graph_linked",
+            model_sha256="linked",
+            asr_params={},
+            language=story_graph.language,
+            language_probability=0.99,
+            duration_s=media.duration_s,
+            word_timestamps_exact=True,
+            pts_priming_offset_s=0.0,
+            pts_anomalies=[],
+            status="OK",
+            segments=[
+                TranscriptSegment(
+                    segment_id=0,
+                    start_s=0.0,
+                    end_s=media.duration_s,
+                    text=story_graph.full_text,
+                    words=w_spans,
+                    avg_logprob=-0.1,
+                    mean_word_prob=0.95,
+                )
+            ],
+            full_text=story_graph.full_text,
+            transcript_hash=story_graph.transcript_hash,
+        )
+    except Exception:
+        synthetic_tr = None
+
+    brain_audit: dict[str, Any] = {"product_asset_match": prod_match, "playbook_rules": retrieve_playbook_rules(niche)}
+    if synthetic_tr is not None:
+        ev_idx = build_evidence_index(media, synthetic_tr, story_graph, roi_tracks=roi_tracks, asset_catalog=prod_catalog.get("verified_assets", []))
+        contract = build_narrative_contract(ev_idx, story_graph, requested_niche=niche)
+        nsg = build_state_graph(ev_idx, story_graph, contract)
+        state_by_beat = {bs.beat_id: bs for bs in nsg.beat_states}
+        cand_rankings: dict[str, Any] = {}
+        reconciled_deltas: list[dict[str, Any]] = []
+        a_i = 0
+        prev_st: list[str] = []
+        for sc in storyboard.scenes:
+            b_match = next((b for b in story_graph.beats if b.speech_act == sc.role and b.start_frame >= sc.start_frame - 6), None)
+            if b_match is None:
+                continue
+            bs = state_by_beat.get(b_match.beat_id)
+            if bs is None:
+                continue
+            raw_bp = llm_plans_by_beat.get(b_match.beat_id, {})
+            props_list = propose_scene_graphs(
+                b_match, bs, retrieved_candidates.get(b_match.beat_id, []),
+                llm_proposal=raw_bp, matte_available=matte_available, is_talking_head=is_talking_head,
+                alloc_index=a_i, verified_rem_ids=verified_rem_ids, verified_hf_ids=verified_hf_ids,
+            )
+            if b_match.speech_act == "allocation_step":
+                a_i += 1
+            chosen, ranked = rank_scene_candidates(props_list, b_match, bs, contract, prev_stage_modes=prev_st)
+            prev_st.append(sc.stage_mode)
+            cand_rankings[sc.scene_id] = {"chosen_candidate_id": chosen["candidate_id"], "candidates": ranked}
+            raw_rem = str(raw_bp.get("remotion_primitive_id") or "none")
+            raw_hf = str(raw_bp.get("hyperframes_primitive_id") or "none")
+            final_rem = next((ly.primitive_id for ly in sc.layers if ly.engine == "remotion"), "none")
+            final_hf = next((ly.primitive_id for ly in sc.layers if ly.engine == "hyperframes"), "none")
+            if raw_bp and (raw_bp.get("stage_mode") != sc.stage_mode or raw_rem != final_rem or raw_hf != final_hf):
+                reconciled_deltas.append({
+                    "scene_id": sc.scene_id,
+                    "beat_id": b_match.beat_id,
+                    "raw_llm": {"stage_mode": raw_bp.get("stage_mode"), "rem": raw_rem, "hf": raw_hf},
+                    "reconciled": {"stage_mode": sc.stage_mode, "rem": final_rem, "hf": final_hf},
+                })
+        brain_audit.update({
+            "reasoning_mode": "HYBRID_LOCAL_LLM_PLUS_DETERMINISTIC_STATE_RECONCILER",
+            "evidence_index_hash": ev_idx.index_hash,
+            "narrative_contract": contract.to_dict(),
+            "state_graph_hash": nsg.state_graph_hash,
+            "attention_arc": nsg.attention_arc,
+            "candidate_rankings": cand_rankings,
+            "raw_vs_reconciled_overrides": reconciled_deltas,
+            "raw_llm_proposals_count": len(llm_plans_by_beat),
+            "reconciled_override_count": len(reconciled_deltas),
+        })
+
+    return storyboard, {"raw_llm": raw_llm, "llm_meta": llm_meta, "cache_hit": cache_hit, "brain_audit": brain_audit}
 

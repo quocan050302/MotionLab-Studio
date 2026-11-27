@@ -81,15 +81,20 @@ def build_qa01_evidence_pack(
     aeu_doc = _load("actual_engine_usage.json")
     res_doc = _load("resource_stats.json")
     sound_rat = _load("evidence/sound_rationale.json")
+    cue_dec = _load("evidence/cue_decisions.json")
     audio_tl = _load("audio_timeline.json")
     mix_metrics = _load("evidence/audio_mix_metrics.json")
     audio_qa = _load("evidence/audio_event_qa.json")
     cq_doc = _load("evidence/creative_quality_proxy.json")
+    bnd_rep = _load("evidence/scene_boundary_report.json")
     layout_doc = _load("layout.json")
-    cont_doc = _load("continuity.json")
+    cont_doc = _load("continuous_timeline.json") or _load("continuity.json")
+    num_trace = _load("numeric_state_trace.json")
     leg_doc = _load("evidence/phone_legibility.json")
+    prod_stat = _load("evidence/product_asset_status.json")
     sb_doc = _load("storyboard_spec.json")
     sg_doc = _load("story_graph.json")
+    raw_dir = _load("raw_director_response.json")
 
     final_p = run_dir / final_mp4_name
     if not final_p.is_file():
@@ -125,6 +130,8 @@ def build_qa01_evidence_pack(
     _emit_json("story_graph_redacted.json", _redact_quotes(sg_doc))
     _emit_json("effect_execution.json", aeu_doc)
     _emit_json("sound_rationale.json", _redact_quotes(sound_rat))
+    if cue_dec:
+        _emit_json("cue_decisions.json", cue_dec)
     _emit_json("audio_timeline.json", _redact_quotes(audio_tl))
     _emit_json("mix_metrics.json", {
         "master_exact": mix_metrics.get("master_exact"),
@@ -135,12 +142,19 @@ def build_qa01_evidence_pack(
     })
     _emit_json("visual_quality.json", {
         "creative_quality_proxy": cq_doc,
+        "objective_pixel_critic": bnd_rep,
         "layout_summary": {k: v for k, v in layout_doc.items() if k != "scenes"},
         "continuity_summary": {
+            "continuity_hash": cont_doc.get("continuity_hash", ""),
             "persistent_element_ids": cont_doc.get("persistent_element_ids", []),
             "track_count": cont_doc.get("track_count", 0),
+            "boundaries": cont_doc.get("boundaries", []),
+            "continuous_timeline_valid": cont_doc.get("continuous_timeline_valid"),
         },
+        "numeric_state_trace": num_trace,
         "phone_legibility": leg_doc,
+        "product_asset_status": prod_stat,
+        "narrative_brain_audit": _redact_quotes(raw_dir.get("brain_audit", {})),
     })
     _emit_json("benchmark.json", {
         "resource_stats": res_doc,

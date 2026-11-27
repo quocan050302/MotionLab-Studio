@@ -610,6 +610,144 @@ def run_edit_pipeline(
     return asyncio.run(run_edit_pipeline_async(input_path, output_root, config, preloaded_plan=preloaded_plan))
 
 
+def _validate_generative_r5_run(run_dir: Path, manifest: dict[str, Any], media: MediaInfo, final_p: Path) -> ValidationResult:
+    """Strict, non-destructive re-validation for ML-01.R5 / R5.R1 / R5.R2 generative runs."""
+    import hashlib
+    import subprocess
+    from motionlab.schemas import ValidationCheck
+    from motionlab.validation import _audio_packet_hash_and_pts, _detect_black_intervals, _detect_freeze_intervals
+
+    def _sha256_file(path: Path) -> str:
+        h = hashlib.sha256()
+        with path.open("rb") as fh:
+            while chunk := fh.read(1 << 20):
+                h.update(chunk)
+        return h.hexdigest()
+
+    ffmpeg = shutil.which("ffmpeg") or "ffmpeg"
+    ffprobe = shutil.which("ffprobe") or "ffprobe"
+    checks: list[ValidationCheck] = []
+    warnings: list[str] = []
+
+    size_b = int(final_p.stat().st_size) if final_p.is_file() else 0
+    checks.append(ValidationCheck("artifact_exists_non_empty", "PASS" if size_b > 0 else "FAIL", "> 0 bytes", size_b))
+
+    source_p = Path(media.source_path)
+    src_sha = _sha256_file(source_p) if source_p.is_file() else ""
+    checks.append(ValidationCheck(
+        "source_immutable",
+        "PASS" if src_sha == media.input_hash else "FAIL",
+        media.input_hash,
+        src_sha,
+    ))
+
+    # Probe final video/audio geometry
+    p_proc = subprocess.run(
+        [ffprobe, "-v", "error", "-print_format", "json", "-show_format", "-show_streams", str(final_p)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, shell=False,
+    )
+    probe = json.loads(p_proc.stdout or "{}")
+    v_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "video"]
+    a_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
+    vs = v_streams[0] if v_streams else {}
+    out_w, out_h = int(vs.get("width", 0)), int(vs.get("height", 0))
+    out_pix = str(vs.get("pix_fmt", "unknown"))
+    out_frames = int(vs["nb_frames"]) if str(vs.get("nb_frames", "")).isdigit() else 0
+    out_dur = float((probe.get("format") or {}).get("duration") or vs.get("duration") or 0.0)
+    tol_s = max(0.08, 1.5 / max(1.0, media.fps_float))
+    checks.append(ValidationCheck("output_dimensions_match", "PASS" if (out_w == media.display_width and out_h == media.display_height) else "FAIL", f"{media.display_width}x{media.display_height}", f"{out_w}x{out_h}"))
+    checks.append(ValidationCheck("pixel_format_compatible", "PASS" if out_pix == "yuv420p" else "FAIL", "yuv420p", out_pix))
+    checks.append(ValidationCheck("frame_count_exact", "PASS" if out_frames == media.duration_frames else "FAIL", media.duration_frames, out_frames))
+    checks.append(ValidationCheck("duration_preserved", "PASS" if abs(out_dur - media.duration_s) <= tol_s else "FAIL", f"{media.duration_s:.3f}s (±{tol_s:.3f}s)", f"{out_dur:.3f}s"))
+
+    # Full decode check with -xerror
+    dec_proc = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(final_p), "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, shell=False)
+    checks.append(ValidationCheck("ffmpeg_full_decode_zero_errors", "PASS" if (dec_proc.returncode == 0 and not dec_proc.stderr.strip()) else "FAIL", "exit 0, empty stderr", f"exit {dec_proc.returncode}, stderr_len={len(dec_proc.stderr.strip())}"))
+
+    # Audio master bit-exact + single default track + R5.R2 audio QA (true counterfactual ablation)
+    checks.append(ValidationCheck("single_default_audio_track", "PASS" if len(a_streams) == 1 else "FAIL", 1, len(a_streams)))
+    master_p = run_dir / "original_audio_master.m4a"
+    if master_p.is_file() and source_p.is_file():
+        src_pkt = _audio_packet_hash_and_pts(source_p, 0, ffmpeg, ffprobe)
+        mst_pkt = _audio_packet_hash_and_pts(master_p, 0, ffmpeg, ffprobe)
+        m_exact = (src_pkt["packet_hash"] == mst_pkt["packet_hash"] and src_pkt["packet_count"] == mst_pkt["packet_count"])
+    else:
+        m_exact = False
+    checks.append(ValidationCheck("original_audio_master_bit_exact", "PASS" if m_exact else "FAIL", "exact packet SHA-256 & count match", f"master_exact={m_exact}", "original_audio_master.m4a"))
+
+    aqa_p = run_dir / "evidence" / "audio_event_qa.json"
+    aqa = json.loads(aqa_p.read_text(encoding="utf-8")) if aqa_p.is_file() else {}
+    aqa_ok = (
+        aqa.get("status") == "PASS"
+        and bool(aqa.get("cue_ledger_conservation_ok"))
+        and bool(aqa.get("cue_ids_exact_match"))
+        and int(aqa.get("events_total", 0)) > 0
+        and int(aqa.get("events_proxy_audible", 0)) == int(aqa.get("events_total", 0))
+        and int(aqa.get("events_sync_ok", 0)) == int(aqa.get("events_total", 0))
+        and int(aqa.get("events_speech_band_ok", 0)) == int(aqa.get("events_total", 0))
+        and int(aqa.get("clipping_samples_added", 1)) == 0
+    )
+    checks.append(ValidationCheck(
+        "r5r2_audio_counterfactual_qa",
+        "PASS" if aqa_ok else "FAIL",
+        "status=PASS, 100% audible/sync/speech, true counterfactual ablation, 0 clipping",
+        f"status={aqa.get('status')}, audible={aqa.get('events_proxy_audible')}/{aqa.get('events_total')}, sync={aqa.get('events_sync_ok')}/{aqa.get('events_total')}, speech={aqa.get('events_speech_band_ok')}/{aqa.get('events_total')}",
+        "evidence/audio_event_qa.json",
+    ))
+
+    # Black & freeze check
+    out_blacks = sum(b[2] for b in _detect_black_intervals(final_p, ffmpeg))
+    out_freezes = sum(f[2] for f in _detect_freeze_intervals(final_p, ffmpeg))
+    checks.append(ValidationCheck("no_unexplained_black_intervals", "PASS" if out_blacks <= 0.25 else "FAIL", "<= 0.25s", f"{out_blacks:.2f}s"))
+    checks.append(ValidationCheck("no_unexpected_freeze_intervals", "PASS" if out_freezes <= 0.80 else "FAIL", "<= 0.80s", f"{out_freezes:.2f}s"))
+
+    # Continuous timeline, numeric state, objective pixel critic & 100% active-window ablation
+    ct_p = run_dir / "continuous_timeline.json"
+    ct = json.loads(ct_p.read_text(encoding="utf-8")) if ct_p.is_file() else {}
+    bnd_p = run_dir / "evidence" / "scene_boundary_report.json"
+    bnd = json.loads(bnd_p.read_text(encoding="utf-8")) if bnd_p.is_file() else {}
+    cq_p = run_dir / "evidence" / "creative_quality_proxy.json"
+    cq = json.loads(cq_p.read_text(encoding="utf-8")) if cq_p.is_file() else {}
+    aeu_p = run_dir / "actual_engine_usage.json"
+    aeu = json.loads(aeu_p.read_text(encoding="utf-8")) if aeu_p.is_file() else {}
+
+    checks.append(ValidationCheck(
+        "continuous_timeline_and_boundaries",
+        "PASS" if (bool(ct.get("continuous_timeline_valid")) and int(bnd.get("abrupt_cutaway_jumps", 1)) == 0) else "FAIL",
+        "continuous_timeline_valid=True, abrupt_cutaway_jumps=0",
+        f"valid={ct.get('continuous_timeline_valid')}, abrupt_jumps={bnd.get('abrupt_cutaway_jumps')}",
+        "evidence/scene_boundary_report.json",
+    ))
+    ab_v = int(cq.get("ablation_layers_verified", 0))
+    ab_t = int(cq.get("ablation_layers_total", 0))
+    checks.append(ValidationCheck(
+        "active_window_layer_ablations",
+        "PASS" if (ab_t > 0 and ab_v == ab_t) else "FAIL",
+        "100% active-window layers verified",
+        f"{ab_v}/{ab_t}",
+        "evidence/ablation_results.json",
+    ))
+    rg_ok = bool((aeu.get("reuse_gate") or {}).get("passed"))
+    checks.append(ValidationCheck(
+        "dual_engine_reuse_gate",
+        "PASS" if rg_ok else "FAIL",
+        "dual-engine Remotion+HyperFrames verified reuse gate passed",
+        f"passed={rg_ok}, total={(aeu.get('reuse_gate') or {}).get('distinct_verified_total', 0)}",
+        "actual_engine_usage.json",
+    ))
+
+    # Preview 9:16 check if present
+    prev_p = run_dir / "preview_9x16.mp4"
+    if prev_p.is_file():
+        pdec = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(prev_p), "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90, shell=False)
+        checks.append(ValidationCheck("preview_9x16_decode_ok", "PASS" if (pdec.returncode == 0 and prev_p.stat().st_size > 0) else "FAIL", "exit 0, non-empty", f"exit {pdec.returncode}, bytes={prev_p.stat().st_size}", "preview_9x16.mp4"))
+
+    overall = "TECHNICAL_PASS" if all(c.status == "PASS" for c in checks) else "FAIL"
+    val_res = ValidationResult(checks=checks, overall_status=overall, aesthetic_status="PENDING_HUMAN_REVIEW", warnings=warnings)
+    atomic_write_json(run_dir / "evidence" / "revalidation_check.json", val_res.to_dict())
+    return val_res
+
+
 def run_validate_existing_run(run_dir: Path) -> ValidationResult:
     """Re-run full technical validation on an existing run folder."""
     run_dir = run_dir.resolve()
@@ -617,11 +755,18 @@ def run_validate_existing_run(run_dir: Path) -> ValidationResult:
     plan_p = run_dir / "edit_plan.json"
     rm_p = run_dir / "render_manifest.json"
     final_p = run_dir / "final.mp4"
-    if not manifest_p.exists() or not plan_p.exists() or not final_p.exists():
-        raise FileNotFoundError(f"Run directory missing manifest.json, edit_plan.json, or final.mp4: {run_dir}")
+    if not manifest_p.exists() or not final_p.exists():
+        raise FileNotFoundError(f"Run directory missing manifest.json or final.mp4: {run_dir}")
 
     manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
     media = MediaInfo.from_dict(manifest["media_info"])
+
+    # R5 / R5.R1 / R5.R2 generative runs use non-destructive dual-engine + counterfactual audio verification!
+    if manifest.get("composition_mode") == "generative" or (run_dir / "storyboard_spec.json").is_file():
+        return _validate_generative_r5_run(run_dir, manifest, media, final_p)
+
+    if not plan_p.exists():
+        raise FileNotFoundError(f"Run directory missing edit_plan.json: {run_dir}")
     plan = EditPlan.from_dict(json.loads(plan_p.read_text(encoding="utf-8")))
     rm_data = json.loads(rm_p.read_text(encoding="utf-8")) if rm_p.exists() else {}
     render_res = RenderResult(

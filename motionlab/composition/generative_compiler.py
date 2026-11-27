@@ -116,6 +116,7 @@ def compile_scene_remotion_props(
     hf_layer_role: str,
     task_anchor: dict[str, float] | None = None,
     face_anchor: dict[str, float] | None = None,
+    continuity_tracks: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Compile a validated SceneSpec into exact `MotionLabGenerativeScene` Remotion props."""
     dur_frames = max(2, scene.end_frame_exclusive - scene.start_frame)
@@ -141,6 +142,9 @@ def compile_scene_remotion_props(
     if stage_mode == "live_depth_matte" and not fg_alpha_file:
         stage_mode = "live_clean_bridge"
 
+    tr_out = str(params.get("transition_out", "none"))
+    tr_out_frames = int(params.get("transition_out_frames", 12 if tr_out != "none" else 0))
+
     return {
         "sceneId": scene.scene_id,
         "stageMode": stage_mode,
@@ -157,6 +161,10 @@ def compile_scene_remotion_props(
         "hfLayerRole": hf_layer_role,
         "transitionIn": scene.transition_in.kind,
         "transitionInFrames": scene.transition_in.duration_frames,
+        "transitionOut": tr_out,
+        "transitionOutFrames": tr_out_frames,
+        "globalStartFrame": scene.start_frame,
+        "continuityTracks": list(continuity_tracks or []),
         "palette": storyboard.palette,
         "primitives": rem_nodes,
         "ledger": ledger_payload,

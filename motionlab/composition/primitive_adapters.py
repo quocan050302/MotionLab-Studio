@@ -133,10 +133,16 @@ def build_adapted_hyperframes_html(
         token_count = max(0, min(6, int(parameters.get("token_count", 4))))
         y_pos = str(parameters.get("y_anchor", "8.8%"))
         dark_plate = bool(parameters.get("dark_plate", transparent))
+        # R5.R2 Fix D01/D05: Lock integer-dollar display unless source evidence explicitly has fractional cents!
+        # Also support `discrete_steps_cents` (verified ledger milestones) so EVERY frame displays ONLY verified amounts (no $116 / $144.06!).
+        allow_frac = bool(parameters.get("allow_fractional_cents", (abs(from_cents) % 100 != 0) or (abs(to_cents) % 100 != 0)))
+        hold_exact = bool(parameters.get("hold_exact_amount", not allow_frac and from_cents == 0))
+        discrete_steps = [int(x) for x in (parameters.get("discrete_steps_cents") or [])]
         fg_col = pal["ivory"] if dark_plate else pal["forest"]
         accent_col = str(parameters.get("accent_color") or pal["brass"])
         cap_col = pal["ivory"] if dark_plate else pal["espresso"]
         hero_px = int(parameters.get("hero_px", 122 if dark_plate else 146))
+        note_top_css = "44%" if dark_plate else "23%"
         scrim_css = (
             "position:absolute;left:0;right:0;top:0;height:360px;z-index:2;pointer-events:none;"
             "background:linear-gradient(180deg, rgba(24,22,18,0.72) 0%, rgba(24,22,18,0.40) 58%, rgba(24,22,18,0.0) 100%);"
@@ -184,7 +190,7 @@ def build_adapted_hyperframes_html(
   }}
   .money-burst {{ position: absolute; inset: 0; pointer-events: none; z-index: 3; perspective: 640px; }}
   .paper-note {{
-    position: absolute; left: 46%; top: 44%; width: 108px; height: 54px; border-radius: 5px;
+    position: absolute; left: 46%; top: {note_top_css}; width: 108px; height: 54px; border-radius: 5px;
     background: linear-gradient(135deg, #F4EEE0 0%, #E3DBC6 55%, #D5CEB8 100%);
     border: 1.5px solid #84977A;
     box-shadow: 0 14px 26px rgba(22, 20, 16, 0.30), inset 0 0 0 4px rgba(132, 151, 122, 0.24);
@@ -221,9 +227,18 @@ def build_adapted_hyperframes_html(
   const TO_CENTS = {to_cents};
   const SYM = {_j(sym)};
   const DUR = {dur_s:.4f};
+  const ALLOW_FRAC = {"true" if allow_frac else "false"};
+  const HOLD_EXACT = {"true" if hold_exact else "false"};
+  const DISCRETE_STEPS = {_j(discrete_steps)};
+  const IS_CUTAWAY = {"true" if not dark_plate else "false"};
 
   function fmtCents(c) {{
     const sign = c < 0 ? "-" : "";
+    if (!ALLOW_FRAC) {{
+      // Integer-dollar lock (R5.R2 D01/D05): discrete whole-dollar increments only, ZERO fake cents!
+      const wholeDollars = Math.round(Math.abs(c) / 100);
+      return sign + SYM + wholeDollars.toLocaleString("en-US");
+    }}
     const absC = Math.abs(Math.round(c));
     const whole = Math.floor(absC / 100);
     const rem = absC % 100;
@@ -231,14 +246,21 @@ def build_adapted_hyperframes_html(
   }}
 
   const icons = [];
-  const specs = [
-    {{ sx: -160, sy: 140, ex: -195, ey: -185, rot: -16, rx: 14, ry: -18, delay: 0.02 }},
-    {{ sx: 145, sy: 160, ex: 185, ey: -165, rot: 14, rx: -12, ry: 16, delay: 0.07 }},
-    {{ sx: -90, sy: 190, ex: -130, ey: -120, rot: -9, rx: 10, ry: 14, delay: 0.12 }},
-    {{ sx: 110, sy: 180, ex: 150, ey: -105, rot: 11, rx: -14, ry: -12, delay: 0.16 }},
-    {{ sx: -40, sy: 210, ex: -220, ey: -95, rot: -20, rx: 16, ry: -10, delay: 0.20 }},
-    {{ sx: 60, sy: 210, ex: 210, ey: -75, rot: 18, rx: -10, ry: 18, delay: 0.24 }},
-  ].slice(0, {token_count});
+  const specsLive = [
+    {{ sx: -170, sy: 150, cx: -240, cy: -20, ex: -195, ey: -185, rot: -14, rx: 14, ry: -18, delay: 0.04 }},
+    {{ sx: 155, sy: 165, cx: 235, cy: -10, ex: 185, ey: -165, rot: 12, rx: -12, ry: 16, delay: 0.12 }},
+    {{ sx: -95, sy: 190, cx: -165, cy: 20, ex: -130, ey: -120, rot: -8, rx: 10, ry: 14, delay: 0.20 }},
+    {{ sx: 115, sy: 185, cx: 180, cy: 35, ex: 150, ey: -105, rot: 10, rx: -14, ry: -12, delay: 0.28 }},
+    {{ sx: -45, sy: 210, cx: -195, cy: 60, ex: -215, ey: -95, rot: -16, rx: 16, ry: -10, delay: 0.34 }},
+    {{ sx: 65, sy: 210, cx: 200, cy: 65, ex: 205, ey: -75, rot: 15, rx: -10, ry: 18, delay: 0.40 }},
+  ];
+  const specsCutaway = [
+    {{ sx: -210, sy: 10, cx: -265, cy: -45, ex: -245, ey: -95, rot: -14, rx: 12, ry: -16, delay: 0.05 }},
+    {{ sx: 215, sy: 15, cx: 265, cy: -40, ex: 245, ey: -88, rot: 13, rx: -12, ry: 16, delay: 0.14 }},
+    {{ sx: -190, sy: 42, cx: -245, cy: -10, ex: -225, ey: -48, rot: -9, rx: 10, ry: 12, delay: 0.22 }},
+    {{ sx: 195, sy: 44, cx: 245, cy: -8, ex: 225, ey: -44, rot: 10, rx: -10, ry: -12, delay: 0.30 }},
+  ];
+  const specs = (IS_CUTAWAY ? specsCutaway : specsLive).slice(0, {token_count});
 
   specs.forEach((s) => {{
     const el = document.createElement("div");
@@ -248,31 +270,65 @@ def build_adapted_hyperframes_html(
     icons.push({{ el, s }});
   }});
 
-  const state = {{ c: FROM_CENTS }};
+  const state = {{ c: HOLD_EXACT ? TO_CENTS : (DISCRETE_STEPS.length > 0 ? DISCRETE_STEPS[0] : FROM_CENTS), stepP: 0 }};
+  amountEl.textContent = fmtCents(state.c);
   const tl = gsap.timeline({{ paused: true }});
-  gsap.set("#plate", {{ opacity: 0, y: 22 }});
+  gsap.set("#plate", {{ opacity: 0, y: 20, scale: 0.94 }});
   icons.forEach(({{ el, s }}) => {{
-    gsap.set(el, {{ x: s.sx, y: s.sy, rotation: s.rot * 0.4, rotationX: s.rx, rotationY: s.ry, opacity: 0, scale: 0.72 }});
+    gsap.set(el, {{ x: s.sx, y: s.sy, rotation: s.rot * 0.35, rotationX: s.rx, rotationY: s.ry, opacity: 0, scale: 0.72 }});
   }});
 
-  tl.to("#plate", {{ opacity: 1, y: 0, duration: Math.min(0.32, DUR * 0.18), ease: "power3.out" }}, 0.03);
-  const countDur = Math.min(0.76, Math.max(0.30, DUR * 0.34));
-  tl.to(state, {{
-    c: TO_CENTS, duration: countDur, ease: "power3.out",
-    onUpdate: () => {{ amountEl.textContent = fmtCents(state.c); }},
-    onComplete: () => {{ amountEl.textContent = fmtCents(TO_CENTS); }},
-  }}, 0.08);
-  tl.to("#amount", {{ scale: 1.04, duration: 0.11, ease: "power2.out" }}, 0.08 + countDur);
-  tl.to("#amount", {{ scale: 1.0, duration: 0.16, ease: "power2.inOut" }}, 0.19 + countDur);
+  // Anticipation -> crisp reveal -> settle (spring geometry ONLY, never numeric overshoot!)
+  tl.to("#plate", {{ opacity: 1, y: 0, scale: 1.02, duration: Math.min(0.24, DUR * 0.14), ease: "power3.out" }}, 0.04);
+  tl.to("#plate", {{ scale: 1.0, duration: 0.18, ease: "power2.out" }}, 0.28);
+  const countDur = Math.min(0.46, Math.max(0.22, DUR * 0.20));
+  if (DISCRETE_STEPS.length >= 2) {{
+    // Step strictly through verified ledger milestones ONLY (e.g. $1,200 -> $400 -> $200 -> $100 — ZERO unverified intermediates!)
+    tl.to(state, {{
+      stepP: DISCRETE_STEPS.length - 1, duration: countDur, ease: "power2.out",
+      onUpdate: () => {{
+        const idx = Math.max(0, Math.min(DISCRETE_STEPS.length - 1, Math.floor(state.stepP + 0.0001)));
+        amountEl.textContent = fmtCents(DISCRETE_STEPS[idx]);
+      }},
+      onComplete: () => {{ amountEl.textContent = fmtCents(DISCRETE_STEPS[DISCRETE_STEPS.length - 1]); }},
+    }}, 0.08);
+    tl.to("#amount", {{ scale: 1.04, duration: 0.10, ease: "power2.out" }}, 0.08 + countDur);
+    tl.to("#amount", {{ scale: 1.0, duration: 0.16, ease: "power2.inOut" }}, 0.18 + countDur);
+  }} else if (!HOLD_EXACT && FROM_CENTS !== TO_CENTS) {{
+    tl.to(state, {{
+      c: TO_CENTS, duration: countDur, ease: "power3.out",
+      onUpdate: () => {{
+        const snapped = ALLOW_FRAC ? Math.round(state.c) : Math.round(state.c / 100) * 100;
+        const lo = Math.min(FROM_CENTS, TO_CENTS);
+        const hi = Math.max(FROM_CENTS, TO_CENTS);
+        amountEl.textContent = fmtCents(Math.max(lo, Math.min(hi, snapped)));
+      }},
+      onComplete: () => {{ amountEl.textContent = fmtCents(TO_CENTS); }},
+    }}, 0.12);
+    tl.to("#amount", {{ scale: 1.035, duration: 0.10, ease: "power2.out" }}, 0.12 + countDur);
+    tl.to("#amount", {{ scale: 1.0, duration: 0.16, ease: "power2.inOut" }}, 0.22 + countDur);
+  }} else {{
+    amountEl.textContent = fmtCents(TO_CENTS);
+  }}
 
+  // Curved quadratic-Bezier paper token paths with subtle flutter & soft contact settle
   icons.forEach(({{ el, s }}) => {{
-    tl.to(el, {{
-      x: s.ex, y: s.ey, rotation: s.rot, rotationX: s.rx * 0.3, rotationY: s.ry * 0.3,
-      opacity: 0.88, scale: 0.96, duration: 0.56, ease: "power3.out"
+    const pObj = {{ t: 0 }};
+    tl.to(el, {{ opacity: 0.90, scale: 0.96, duration: 0.16, ease: "power2.out" }}, 0.08 + s.delay);
+    tl.to(pObj, {{
+      t: 1, duration: 0.56, ease: "power3.out",
+      onUpdate: () => {{
+        const u = pObj.t;
+        const inv = 1 - u;
+        const bx = inv * inv * s.sx + 2 * inv * u * s.cx + u * u * s.ex;
+        const by = inv * inv * s.sy + 2 * inv * u * s.cy + u * u * s.ey + Math.sin(u * Math.PI * 2.0) * 2.5;
+        const br = s.rot * (0.35 + 0.65 * u);
+        gsap.set(el, {{ x: bx, y: by, rotation: br, rotationX: s.rx * (1 - 0.7 * u), rotationY: s.ry * (1 - 0.7 * u) }});
+      }},
     }}, 0.08 + s.delay);
-    tl.to(el, {{ opacity: 0, y: s.ey - 28, duration: 0.38, ease: "power2.in" }}, Math.max(0.68, DUR * 0.64) + s.delay * 0.4);
+    tl.to(el, {{ opacity: 0, y: s.ey - 22, duration: 0.34, ease: "power2.in" }}, Math.max(0.68, DUR * 0.66) + s.delay * 0.35);
   }});
-  tl.to("#plate", {{ opacity: 0, y: -12, duration: Math.min(0.28, DUR * 0.14), ease: "power2.in" }}, Math.max(0.2, DUR - 0.30));
+  tl.to("#plate", {{ opacity: 0, y: -10, duration: Math.min(0.24, DUR * 0.12), ease: "power2.in" }}, Math.max(0.2, DUR - 0.26));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -281,7 +337,8 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_mk_progress_stat":
         # Adapted directly from heygen-com/hyperframes `mk-progress-stat` (Apache-2.0)
-        # R5.R1: Clean warm-ivory architectural ledger strip inside Reels safe zone (ZERO dark rounded card & ZERO '(derived)' jargon!)
+        # R5.R2: Clean warm-ivory architectural strip OR compact editorial rail (distinct rhythm across allocations!)
+        # + curved paper transfer tokens gliding into the reserved category bar + integer-dollar lock!
         amount_cents = int(parameters.get("amount_cents", 80000))
         denom_cents = max(1, int(parameters.get("denom_cents", 120000)))
         remaining_cents = int(parameters.get("remaining_cents", denom_cents - amount_cents))
@@ -293,7 +350,17 @@ def build_adapted_hyperframes_html(
         fill_ratio = max(0.02, min(1.0, abs(amount_cents) / denom_cents))
         bar_col = str(parameters.get("bar_color") or (pal["clay"] if is_deduction else pal["forest"]))
         y_top = max(96, int(parameters.get("y_px", 110)))
+        layout_var = str(parameters.get("layout_variant", "top_strip"))
+        allow_frac = bool(parameters.get("allow_fractional_cents", abs(amount_cents) % 100 != 0))
+        token_count = max(0, min(4, int(parameters.get("token_count", 3 if is_deduction else 0))))
         sign_prefix = "-" if (is_deduction and amount_cents > 0) else ""
+        is_rail = (layout_var == "compact_editorial_rail")
+        box_bg = "rgba(36, 59, 50, 0.90)" if is_rail else "rgba(245, 240, 230, 0.94)"
+        ink_main = pal["ivory"] if is_rail else pal["forest"]
+        ink_dim = pal["sage"] if is_rail else pal["espresso"]
+        track_bg = "rgba(245, 240, 230, 0.18)" if is_rail else "rgba(64, 56, 46, 0.14)"
+        bar_accent = pal["brass"] if is_rail else bar_col
+        border_rule = f"border-top: 4px solid {bar_accent}; border-left: none;" if is_rail else f"border-left: 6px solid {bar_col};"
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -305,31 +372,31 @@ def build_adapted_hyperframes_html(
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #mk-ps-root {{
     --mk-font: {_SANS};
-    --mk-ink: {pal["forest"]};
-    --mk-ink-dim: {pal["espresso"]};
-    --mk-accent: {bar_col};
+    --mk-ink: {ink_main};
+    --mk-ink-dim: {ink_dim};
+    --mk-accent: {bar_accent};
     position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css};
   }}
   #mk-ps-group {{
     position: absolute; left: 48px; right: 105px; top: {y_top}px;
     font-family: var(--mk-font);
-    padding: 20px 24px 20px 26px; border-radius: 10px;
-    background: rgba(245, 240, 230, 0.94);
-    border-left: 6px solid {bar_col};
-    box-shadow: 0 14px 34px rgba(24, 22, 18, 0.24);
+    padding: 20px 24px 20px 26px; border-radius: {4 if is_rail else 10}px;
+    background: {box_bg};
+    {border_rule}
+    box-shadow: 0 14px 34px rgba(24, 22, 18, 0.28);
   }}
   .top-row {{ display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }}
   #mk-ps-num {{
-    font-weight: 900; font-size: 84px; line-height: 0.98; letter-spacing: -0.025em;
+    font-weight: 900; font-size: {82 if is_rail else 88}px; line-height: 0.96; letter-spacing: -0.025em;
     color: var(--mk-ink); font-variant-numeric: tabular-nums;
   }}
   #mk-ps-label {{
-    font-weight: 800; font-size: 34px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: {bar_col};
+    font-weight: 800; font-size: 32px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: {bar_accent};
   }}
   #mk-ps-track {{
     position: relative; margin-top: 16px; width: 100%; height: 14px; border-radius: 4px;
-    background: rgba(64, 56, 46, 0.14); overflow: hidden;
+    background: {track_bg}; overflow: hidden;
   }}
   #mk-ps-fill {{
     position: absolute; inset: 0; border-radius: 4px; background: var(--mk-accent);
@@ -337,14 +404,24 @@ def build_adapted_hyperframes_html(
   }}
   .meta-row {{ display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }}
   #mk-ps-caption {{ font-weight: 700; font-size: 28px; color: var(--mk-ink); font-variant-numeric: tabular-nums; }}
-  #mk-ps-share {{ font-weight: 700; font-size: 25px; color: var(--mk-ink-dim); font-variant-numeric: tabular-nums; }}
+  #mk-ps-share {{ font-weight: 700; font-size: 24px; color: var(--mk-ink-dim); font-variant-numeric: tabular-nums; }}
+  #allocTokens {{ position: absolute; inset: 0; pointer-events: none; z-index: 2; perspective: 560px; }}
+  .alloc-note {{
+    position: absolute; left: 52%; top: {y_top + 170}px; width: 92px; height: 46px; border-radius: 5px;
+    background: linear-gradient(135deg, #F4EEE0 0%, #E3DBC6 55%, #D5CEB8 100%);
+    border: 1.5px solid #84977A;
+    box-shadow: 0 10px 22px rgba(22,20,16,0.28), inset 0 0 0 3px rgba(132,151,122,0.24);
+    display: flex; align-items: center; justify-content: center; opacity: 0;
+    color: {pal["forest"]}; font-family: {_SERIF}; font-size: 18px; font-weight: 700;
+  }}
 </style>
 </head>
 <body>
 <div id="mk-ps-root" data-composition-id="{comp_id}" data-start="0" data-duration="{dur_s:.4f}" data-width="{width}" data-height="{height}" data-fps="{fps_i}">
+  <div id="allocTokens"></div>
   <div id="mk-ps-group">
     <div class="top-row">
-      <div id="mk-ps-num">{_esc(sign_prefix)}{_esc(sym)}0</div>
+      <div id="mk-ps-num">{_esc(sign_prefix)}{_esc(format_cents(abs(amount_cents), sym))}</div>
       <div id="mk-ps-label">{_esc(category)}</div>
     </div>
     <div id="mk-ps-track"><div id="mk-ps-fill"></div></div>
@@ -360,27 +437,59 @@ def build_adapted_hyperframes_html(
   var group = document.getElementById("mk-ps-group");
   var num = document.getElementById("mk-ps-num");
   var fill = document.getElementById("mk-ps-fill");
+  var tokenRoot = document.getElementById("allocTokens");
   var TARGET = {abs(amount_cents)};
   var SIGN = {_j(sign_prefix)};
   var SYM = {_j(sym)};
   var RATIO = {fill_ratio:.6f};
+  var ALLOW_FRAC = {"true" if allow_frac else "false"};
   function fmt(c) {{
-    var w = Math.floor(Math.round(c) / 100);
-    return SIGN + SYM + w.toLocaleString("en-US");
+    if (!ALLOW_FRAC) {{
+      var wd = Math.round(Math.abs(c) / 100);
+      return SIGN + SYM + wd.toLocaleString("en-US");
+    }}
+    var absC = Math.abs(Math.round(c));
+    var w = Math.floor(absC / 100);
+    var r = absC % 100;
+    return SIGN + SYM + w.toLocaleString("en-US") + (r ? "." + String(r).padStart(2, "0") : "");
   }}
+  var tokenSpecs = [
+    {{ sx: 140, sy: 130, cx: 40, cy: 15, ex: -140, ey: -62, rot: -12, delay: 0.05 }},
+    {{ sx: 165, sy: 150, cx: 70, cy: 30, ex: -115, ey: -54, rot: 9, delay: 0.14 }},
+    {{ sx: 115, sy: 165, cx: 25, cy: 40, ex: -155, ey: -48, rot: -8, delay: 0.22 }},
+    {{ sx: 180, sy: 140, cx: 85, cy: 20, ex: -125, ey: -58, rot: 11, delay: 0.30 }},
+  ].slice(0, {token_count});
+  var tokenEls = tokenSpecs.map(function (s) {{
+    var el = document.createElement("div");
+    el.className = "alloc-note";
+    el.textContent = SYM;
+    tokenRoot.appendChild(el);
+    return {{ el: el, s: s }};
+  }});
   var tl = gsap.timeline({{ paused: true }});
-  gsap.set(group, {{ opacity: 0, x: -20 }});
+  gsap.set(group, {{ opacity: 0, x: -18 }});
   gsap.set(fill, {{ scaleX: 0 }});
-  tl.to(group, {{ opacity: 1, x: 0, duration: Math.min(0.32, DUR * 0.16), ease: "power3.out" }}, 0.03);
-  var st = {{ v: 0 }};
-  var animDur = Math.min(0.70, Math.max(0.32, DUR * 0.32));
-  tl.to(st, {{
-    v: TARGET, duration: animDur, ease: "power2.out",
-    onUpdate: function () {{ num.textContent = fmt(st.v); }},
-    onComplete: function () {{ num.textContent = fmt(TARGET); }},
-  }}, 0.10);
-  tl.to(fill, {{ scaleX: RATIO, duration: animDur, ease: "power2.out" }}, 0.10);
-  tl.to(group, {{ opacity: 0, y: -12, duration: Math.min(0.28, DUR * 0.14), ease: "power2.in" }}, Math.max(0.2, DUR - 0.30));
+  num.textContent = fmt(TARGET);
+  tl.to(group, {{ opacity: 1, x: 0, duration: Math.min(0.28, DUR * 0.14), ease: "power3.out" }}, 0.03);
+  var animDur = Math.min(0.62, Math.max(0.28, DUR * 0.28));
+  tl.to(fill, {{ scaleX: RATIO, duration: animDur, ease: "power3.out" }}, 0.10);
+  tokenEls.forEach(function (item) {{
+    var s = item.s;
+    var p = {{ t: 0 }};
+    gsap.set(item.el, {{ x: s.sx, y: s.sy, rotation: s.rot * 0.4, opacity: 0, scale: 0.78 }});
+    tl.to(item.el, {{ opacity: 0.88, scale: 0.94, duration: 0.12, ease: "power2.out" }}, 0.06 + s.delay);
+    tl.to(p, {{
+      t: 1, duration: 0.48, ease: "power3.out",
+      onUpdate: function () {{
+        var u = p.t, inv = 1 - u;
+        var bx = inv * inv * s.sx + 2 * inv * u * s.cx + u * u * s.ex;
+        var by = inv * inv * s.sy + 2 * inv * u * s.cy + u * u * s.ey + Math.sin(u * Math.PI * 2) * 2.0;
+        gsap.set(item.el, {{ x: bx, y: by, rotation: s.rot * (0.4 + 0.6 * u) }});
+      }},
+    }}, 0.06 + s.delay);
+    tl.to(item.el, {{ opacity: 0, scale: 0.76, duration: 0.18, ease: "power2.in" }}, 0.44 + s.delay);
+  }});
+  tl.to(group, {{ opacity: 0, y: -10, duration: Math.min(0.24, DUR * 0.12), ease: "power2.in" }}, Math.max(0.2, DUR - 0.26));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -690,7 +799,8 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_organic_light_leak":
         # Adapted directly from heygen-com/hyperframes `organic-light-leak-overlay` (Apache-2.0)
-        max_op = min(0.75, max(0.25, float(parameters.get("opacity", 0.58))))
+        # R5.R2 Fix D08: Strictly peripheral warm rim glow (<= 0.22 opacity) with center face cutout mask so skin contrast stays 100% protected!
+        max_op = min(0.22, max(0.14, float(parameters.get("opacity", 0.20))))
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -700,16 +810,20 @@ def build_adapted_hyperframes_html(
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: transparent; }}
-  #hf-light-leak {{ position: absolute; inset: -16%; opacity: 0; overflow: hidden; pointer-events: none; }}
-  #hf-light-leak .hf-leak-layer {{ position: absolute; inset: -20%; }}
+  #hf-light-leak {{
+    position: absolute; inset: 0; opacity: 0; overflow: hidden; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 46% 54% at 50% 42%, transparent 0%, transparent 56%, black 92%);
+    mask-image: radial-gradient(ellipse 46% 54% at 50% 42%, transparent 0%, transparent 56%, black 92%);
+  }}
+  #hf-light-leak .hf-leak-layer {{ position: absolute; inset: -10%; }}
   #hf-light-leak .hf-leak-amber {{
-    background: radial-gradient(ellipse 52% 110% at 14% 58%, rgba(245, 240, 230, 0.85), transparent 46%),
-                radial-gradient(ellipse 72% 120% at 28% 54%, rgba(198, 164, 106, 0.72), transparent 66%);
-    filter: blur(22px);
+    background: radial-gradient(ellipse 44% 96% at 4% 52%, rgba(212, 174, 106, 0.96), transparent 56%),
+                radial-gradient(ellipse 42% 88% at 96% 68%, rgba(245, 240, 230, 0.90), transparent 56%);
+    filter: blur(18px);
   }}
   #hf-light-leak .hf-leak-gold {{
-    background: linear-gradient(108deg, transparent 22%, rgba(198, 164, 106, 0.32) 40%, rgba(245, 240, 230, 0.72) 52%, rgba(164, 179, 154, 0.24) 64%, transparent 78%);
-    filter: blur(18px);
+    background: linear-gradient(112deg, rgba(198, 164, 106, 0.85) 0%, transparent 24%, transparent 76%, rgba(164, 179, 154, 0.72) 100%);
+    filter: blur(14px);
   }}
 </style>
 </head>
@@ -724,10 +838,10 @@ def build_adapted_hyperframes_html(
   window.__timelines = window.__timelines || {{}};
   var dur = {dur_s:.4f};
   var tl = gsap.timeline({{ paused: true }});
-  tl.fromTo("#hf-light-leak", {{ opacity: 0 }}, {{ opacity: {max_op:.3f}, duration: dur * 0.28, ease: "sine.out" }}, 0.02);
-  tl.to("#hf-light-leak", {{ opacity: 0, duration: dur * 0.34, ease: "sine.in" }}, dur * 0.62);
-  tl.fromTo(".hf-leak-amber", {{ xPercent: -18, scale: 0.94, rotation: -4 }}, {{ xPercent: 18, scale: 1.08, rotation: 3, duration: dur, ease: "sine.inOut" }}, 0);
-  tl.fromTo(".hf-leak-gold", {{ xPercent: -26, rotation: -6 }}, {{ xPercent: 24, rotation: 4, duration: dur, ease: "sine.inOut" }}, 0);
+  tl.fromTo("#hf-light-leak", {{ opacity: 0 }}, {{ opacity: {max_op:.3f}, duration: Math.min(0.45, dur * 0.16), ease: "sine.out" }}, 0.02);
+  tl.to("#hf-light-leak", {{ opacity: 0, duration: Math.min(0.55, dur * 0.22), ease: "sine.in" }}, Math.max(0.5, dur - 0.60));
+  tl.fromTo(".hf-leak-amber", {{ xPercent: -8, scale: 0.97, rotation: -2 }}, {{ xPercent: 8, scale: 1.04, rotation: 2, duration: dur, ease: "sine.inOut" }}, 0);
+  tl.fromTo(".hf-leak-gold", {{ xPercent: -10, rotation: -3 }}, {{ xPercent: 10, rotation: 3, duration: dur, ease: "sine.inOut" }}, 0);
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
