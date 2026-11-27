@@ -1,0 +1,82 @@
+{
+  "optimization_summary": {
+    "batch_worker_peak_tree_rss_mb": 2380.79,
+    "cold_no_cache_wall_s": 525.08,
+    "contact_sheet_policy": "CONTACT_SHEET_LOCAL_ONLY",
+    "hyperframes_cold_s_r1_vs_r2": {
+      "delta_pct": -19.28,
+      "r5r1": 110.05,
+      "r5r2": 88.83
+    },
+    "remotion_browser_launches": 1,
+    "warm_pass1_wall_s": 236.53,
+    "warm_pass2_wall_s": 230.19,
+    "warm_speedup_ratio": 2.28
+  },
+  "resource_stats": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit",
+      "audio_render_marker_barrier": "REALIZED_POST_RENDER",
+      "batch_worker_peak_tree_rss_mb": 2380.79,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 8,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 0.338,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 8.513,
+      "remotion_code_hash": "2f77131e4dbf68fc91df",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 27
+    },
+    "peak_temp_mb": 90.35,
+    "peak_tree_rss_mb": 226.04,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 8.5857,
+        "temp_mb": 90.35,
+        "tree_rss_mb": 225.58
+      },
+      "generative_director": {
+        "elapsed_s": 107.4495,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.7
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 88.8304,
+        "temp_mb": 8.18,
+        "tree_rss_mb": 219.37
+      },
+      "remotion_scenes": {
+        "elapsed_s": 235.552,
+        "temp_mb": 80.26,
+        "tree_rss_mb": 221.42
+      },
+      "sound_design_mix": {
+        "elapsed_s": 1.7042,
+        "temp_mb": 80.26,
+        "tree_rss_mb": 217.29
+      },
+      "story_graph": {
+        "elapsed_s": 0.0187,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.66
+      },
+      "validation_and_qa": {
+        "elapsed_s": 53.8961,
+        "temp_mb": 90.35,
+        "tree_rss_mb": 226.04
+      },
+      "vision_and_asr": {
+        "elapsed_s": 9.0776,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.07
+      },
+      "vision_segmentation": {
+        "elapsed_s": 12.7925,
+        "temp_mb": 2.31,
+        "tree_rss_mb": 212.05
+      }
+    }
+  }
+}

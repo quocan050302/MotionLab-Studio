@@ -1,0 +1,68 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R2 BASELINE AUDIT & P0/P1 DEFECT REPRODUCTION (R2-A0)
+================================================================================
+Date (UTC)                  : 2026-11-27
+Repository                  : https://github.com/quocan050302/MotionLab-Studio
+Branch                      : feat/ml-01-zero-api-effects
+HEAD Audited                : 43e68a21d1d5345b88e4d724c4bac8dbcaf033fe (synced with origin)
+R5.R1 Tested Code SHA       : 3d524692313e2dd535df30e1e8012393b415bb49
+Upstream Origin (Read-Only) : browser-use/video-use @ 43cfc566833548093455c9d4a46bd69913b7e552 (MIT)
+Host                        : Windows-11-10.0.26300-SP0 | Python 3.12.10 | 12 CPUs | 31.75 GiB RAM | 40.05 GiB free (D:)
+
+1. SOURCE & REFERENCE INTEGRITY (MEASURED DIRECTLY)
+--------------------------------------------------------------------------------
+- Original Immutable Input : input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+  SHA-256                  : c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+  Bytes                    : 8,650,669
+  Video Stream             : H.264 720x1280 (9:16), 24/1 fps, 720 frames, start_time=0.000000, duration=30.000000s
+  Audio Stream             : AAC mono 44100 Hz, 1296 packets, start_time=0.000000, duration=30.000000s
+- R5.R1 AUTO QA Reference  : runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R1_FINAL_9x16.mp4
+  SHA-256                  : dcf0b5d7d01db2c217dbeef5bd466c297522001981987ef15779e9b46e3b53e3 (11,127,927 bytes, 720 frames)
+- R5 QA Benchmark Ref      : 3662f8e941ed6dc1ef6fb6df533c6d2cb5b847e5d4b90d0bc43f7acc688eae19 (isolated reference)
+- R5 AUTO Reported Ref     : edb254660aa692d891f699df56597f078099d7c0de97a40ee5e861ce91ece096
+- R4 Historical Ref        : NOT_AVAILABLE_LOCALLY (historical SHA 3f008e0750d131ecfa9a04869061c7307880ff05d05fd4661cd6d33a0cf4ec71)
+
+2. TOOLCHAIN & INVENTORY AUDIT (MEASURED)
+--------------------------------------------------------------------------------
+- motionlab doctor         : 40 legacy effects | 20/20 verified imported primitives (Remotion=11, HyperFrames=9)
+- Foley Inventory          : 34 family/variant bindings over 29 UNIQUE CC0-1.0 48kHz 24-bit WAV files (wyzowl/sfx-kit @ 92780e7ab0cd)
+- Local Models Available   : vision_modnet (Apache-2.0), asr_whisper (MIT), llm_qwen Qwen2.5-3B (Apache-2.0); local VLM NOT provisioned
+- TypeScript Check         : renderers/remotion/node_modules/.bin/tsc.cmd --noEmit -> Exit 0
+- R5.R1 Reported Baseline  : 122 unique pytest (+15 subtests, 26 upstream unittest overlap not double-counted);
+                             Cold 520.58s (Remotion 227.89s, HF 110.05s, Director 106.65s); Warm-1 312.61s; Batch RSS 2378.63 MB
+
+3. DIRECT REPRODUCTION OF P0/P1 DEFECTS (D01 - D12)
+--------------------------------------------------------------------------------
+[D01 - REPRODUCED IN CODE] hf_apple_money_count (primitive_adapters.py:225-263) tweens raw cents (0->120000) and
+  renders nonzero fractional cents ($1,151.93 at f12) when spoken amount has 0 cents.
+[D02 - REPRODUCED IN CODE] sc_02_negation_tension uses weak typography hierarchy without bold visual contrast morph.
+[D03 - REPRODUCED IN CODE] sc_03_allocation_step displays top hf_mk_progress_stat (-$800 / $400 left) simultaneously
+  with bottom PersistentLedgerRibbon running an independent Counter tween ($1,200->$400) -> competing currency displays at f144/f166.
+[D04 - REPRODUCED IN CODE] sc_04 aspect_morph_editorial shrinks speaker into small bottom tile with empty gap; sc_05 repeats sc_03 strip.
+[D05 - REPRODUCED IN CODE] sc_06_payoff_reveal uses FrameMorphBridge iris void (f350), tweens arbitrary fractional cents
+  ($144.06 at f356 via hf_apple_money_count), and holds static chart at f400 without buildup/motion handoff.
+[D06 - REPRODUCED DIRECTLY ON R1 MP4] Measured abrupt boundary MAD (0..255) on R1 final MP4:
+  - f343->f344: 6.30 (FrameMorph starts)
+  - f416->f417: 114.16 (hard cut full ivory cutaway -> live kitchen)
+  - f532->f533: 122.43 (hard cut live kitchen -> full ivory cutaway)
+  - f634->f635: 114.40 (hard cut full ivory cutaway -> live kitchen)
+[D07 - REPRODUCED IN CODE] sc_08_product_benefit renders conceptual schematic (ASSET_MISSING_CONCEPTUAL); no AssetCatalog yet.
+[D08 - REPRODUCED IN CODE] sc_09_closing_takeaway applies hf_organic_light_leak at opacity 0.48 washing out face contrast at f680.
+[D09 - REPRODUCED DIRECTLY WITH REAL WAVs] Bills cues silently dropped in align_sound_to_marker (semantic_sound.py:1004):
+  - R1 sound_rationale planned 13 cues; R1 audio_timeline emitted only 11 events (scue_02_cash_flick f152 & scue_03_tick_accent f166 LOST!).
+  - Verified on real CC0 WAVs resampled to 44.1 kHz:
+    * cc0_cash_flick_v1_foley-card-touch: 0.0495s -> 2183 samples < 2205 (50ms gate) -> dropped_by_50ms_gate=True!
+    * cc0_tick_accent_v0_data-tick: 0.0180s -> 794 samples < 2205 (50ms gate) -> dropped_by_50ms_gate=True!
+  - Sequential renumbering (`sfx_00..10`) masked the drop; cooldown/cap continues also silently dropped without decision records.
+[D10 - REPRODUCED DIRECTLY WITH REAL WAVs]
+  - cc0_paper_rustle_v1_foley-paper-slide: toff=0.006s, onset=0.0513s, argmax=0.2561s (+6.00f lag vs toff).
+  - cc0_envelope_slide_v0_foley-card-slide: toff=0.000s, onset=0.0265s, argmax=0.2240s (+5.38f lag vs toff).
+  - cc0_page_turn_v2_foley-paper-touch: R1 mix_metrics reported +7.03 dB in 1-4kHz speech band (masking risk).
+[D11 - REPRODUCED IN CODE] mixer.py:478 computes single_cue_ablation_drop_db identically to snr_over_codec_db (NOT real
+  minus-one-cue omission counterfactual); mixer.py:520 uses >=85% threshold without cue-ledger conservation or peak_lag/speech_band gate;
+  mixer.py:202 calls synthesize_sfx_variant(family, variant) instead of exact immutable asset_id/SHA & prepared PCM cache;
+  mixer.py:185 produces 1,325,352 samples vs 1,323,000 timeline samples (decode padding not aligned to presentation timeline).
+[D12 - REPRODUCED IN CODE] continuity.json only lists adjacent scene IDs; GenerativeSceneComposition.tsx never consumes
+  evaluated shared-element keyframes or outgoing transition bridges; r5_engine.py runs sound_design_mix BEFORE rendering
+  scenes (no render-to-audio marker barrier).
+================================================================================

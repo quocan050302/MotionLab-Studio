@@ -1,0 +1,179 @@
+==============================================================================
+MOTIONLAB STUDIO — ML-01.R5.R2 FULL IMPLEMENTATION & VERIFICATION REPORT
+==============================================================================
+Date (UTC)          : 2026-11-27
+Repository          : https://github.com/quocan050302/MotionLab-Studio
+Branch              : feat/ml-01-zero-api-effects
+Baseline HEAD (R1)  : 43e68a21d1d5345b88e4d724c4bac8dbcaf033fe
+Tested Code SHA     : 04ee4faceb107ee3f2470b52f3734c2826d37efe
+Canonical Run ID    : 20261127T094119Z_c56c9ae0_001
+Execution Mode      : 100% OFFLINE / ZERO-API (all cloud keys unset)
+==============================================================================
+
+1. IMMUTABLE PRIMARY INPUT & CANONICAL OUTPUT ARTIFACTS (LOCAL ONLY)
+------------------------------------------------------------------------------
+Primary Input (UNCHANGED):
+  Path    : input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+  SHA-256 : c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+  Bytes   : 8,650,669 | 720x1280 | 24/1 fps | 720 frames | 30.000s | AAC mono 44.1 kHz (1296 pkts)
+
+Canonical AUTO_GENERATIVE Final (Cold --no-cache):
+  Run Dir : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/
+  Final   : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R2_FINAL_9x16.mp4
+            (NTFS hardlink to final.mp4, identical inode & SHA-256)
+  SHA-256 : 2a28819c9cf2777f1da4ab9b75b4781b1d7f01b24ac4c2a69e5dd729ceeec750
+  Bytes   : 11,308,823 | 720x1280 | yuv420p | 24/1 fps | 720 frames | 30.000s | 1 AAC 192k default mixed stream
+  Access  : ARTIFACT_LOCAL_ONLY (url=null; excluded from Git per policy)
+
+Fresh 9:16 Preview (Downscaled directly from canonical final.mp4):
+  Path    : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/preview_9x16.mp4
+  SHA-256 : b6f42816d78fb7c12c763b45a4b12f5dd636049fe4ff8b55cd9a6a5dda82bd08
+  Bytes   : 4,923,079 | 540x960 | 30.000s | decode exit 0
+
+Isolated Art-Directed Visual Lab Proofs (ART_DIRECTED_QA — strictly separate from AUTO):
+  Dir     : runs/r5r2_visual_lab/
+  Clips   : H1_hook_integer_money.mp4 (1,292,222 B), H2_bills_single_owner.mp4 (1,587,832 B),
+            H3_payoff_paper_fold.mp4 (689,436 B), H4_product_fold_bridge.mp4 (1,082,790 B),
+            H5_closing_face_safe.mp4 (1,944,756 B)
+  Sheet   : runs/r5r2_visual_lab/h1_h5_r5r1_vs_r5r2_phone_compare.jpg
+
+Visual Evidence (Canonical AUTO):
+  Contact Sheet (60 @0.5s) : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/contact_sheet.jpg
+  Scene Peaks (Phone)      : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg
+  Boundary Strips (-6..+6) : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/boundary_strips.jpg
+  3-Way Orig vs R1 vs R2   : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/orig_r1_r2_compare.jpg
+  720-Frame Metrics CSV    : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/frame_metrics_720.csv
+  Original Audio Master    : runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/original_audio_master.m4a (master_exact=True, 1296 pkts)
+
+Redacted QA-01 Git Evidence Pack (<= 2 MiB):
+  Path    : qa_evidence/ML-01.R5.R2/04ee4fa/20261127T094119Z_c56c9ae0_001/
+
+2. MODULES CHANGED / ADDED & PRESERVED FOUNDATION
+------------------------------------------------------------------------------
+Preserved Unchanged Foundation:
+  - 40 legacy effects registry + implementations (`motionlab/effects/*`)
+  - 20/20 verified MIT/Apache imported primitives (11 Remotion + 9 HyperFrames across 5 repos)
+  - 34 CC0-1.0 Foley bindings over 29 verified WAVs (`assets/sfx_foley/*`)
+  - Legacy `ml-01` (`--composition legacy`), `r3`, `cinematic` (R4), and upstream `render_captions`/`render_fps`/`render_orientation`
+
+New Modules (ML-01.R5.R2):
+  - motionlab/semantic/narrative_brain.py      (EvidenceIndex, entity normalization, coreference, NarrativeStateGraph, attention arc, CreativePlaybook PB-01..PB-07, candidate proposer & fail-closed ranker)
+  - motionlab/semantic/eval_harness.py         (Independent 16-case reasoning eval suite EV01..EV16)
+  - motionlab/composition/continuous_timeline.py (ContinuousTimeline, SharedElementTrack, BoundaryContract, single-owner canonical numeric state trace)
+  - renderers/remotion/src/composition/continuity.tsx (TS mirror + EditorialSheetSweepInBridge + PaperFoldExitBridge)
+  - motionlab/assets/catalog.py & __init__.py  (Owner product asset catalog with SHA-256, authorization, PII redaction & honest ASSET_MISSING_CONCEPTUAL)
+  - motionlab/composition/visual_critic.py     (Independent objective decoded-pixel auditor + honest VISION_CRITIC_NOT_RUN VLM adapter)
+  - scripts/render_r5r2_proof_clips.py         (Isolated ART_DIRECTED_QA H1–H5 proof generator)
+  - 4 new test modules (16 unique tests): test_r5r2_{ai_brain_and_eval,continuity_and_ledger,sound_integrity_and_ablation,product_catalog_and_critic}.py
+
+Upgraded Modules:
+  - motionlab/semantic/generative_director.py  (Wired NarrativeBrain + raw-vs-reconciled audit, single numeric owner, cutaway transition_out bridges, balanced Groceries morph)
+  - motionlab/composition/primitive_adapters.py (Integer-dollar lock + milestone stepper in hf_apple_money_count, distinct Bills/Gas layouts in hf_mk_progress_stat, center-face mask in hf_organic_light_leak)
+  - motionlab/composition/generative_compiler.py & renderers/remotion/src/GenerativeSceneComposition.tsx (paper_fold_out & EditorialSheetSweepInBridge rendering, stronger D02 typography)
+  - motionlab/audio/{schema,assets,semantic_sound,mixer}.py (8ms transient preservation, immutable cue IDs & asset SHA loading, sliding-window 8/10s scheduler, cue_decisions conservation, post-render realized markers, 1–4 kHz speech-band carving with Parseval FFT, true minus-one-cue AAC-192k counterfactual ablation, 100% pass gate, exact 1,323,000 samples)
+  - motionlab/composition/{r5_engine,qa_pack}.py, motionlab/renderers/hyperframes.py, renderers/remotion/scripts/batch_render.mjs, motionlab/pipeline.py (Post-render audio barrier, excludeLayerRole cache key, 100% ablation gate, fast static HF HTML lint, non-destructive R5.R2 `motionlab validate --run`)
+
+3. AI REASONING EVALUATION & RAW VS RECONCILED AUDIT
+------------------------------------------------------------------------------
+Local Models Actually Invoked (Canonical Cold Run):
+  - ASR    : faster-whisper-small (local offline, 9.08s paired with ROI tracking)
+  - LLM    : qwen2_5_3b_instruct_q4_k_m (SHA-256 626b4a66..., llama-completion.exe, 103.341s, seed=42, 3239 chars)
+  - Vision : MODNet ONNX (12.79s)
+  - VLM    : VISION_CRITIC_NOT_RUN (local_vlm_not_provisioned; text-only Qwen2.5-3B NEVER treated as a vision critic)
+
+Independent 16-Case Reasoning Eval (EV01..EV16):
+  - Result : 16/16 PASSED (accuracy=1.00, 0.026s) covering financial conservation, non-monetary 56-page isolation, negation/modality, deficit math, EUR currency, explicit spoken fractional cents ($12.50), low-conf ASR abstention, budget vs vehicle "gas", money slogan metaphor, unobserved action non-diegetic rule, missing product asset, inconsistent math contradiction, ASR prompt injection, quiet breathing span, and 90s long-form coreference.
+  - Scope  : Independent deterministic reasoning fixtures; does NOT claim universal or frontier-LLM creative intelligence.
+
+Raw Local 3B LLM vs Reconciled Audit (Canonical Run):
+  - Raw Qwen2.5-3B correctly identified niche="finance" (conf=1.0), core value proposition="organize your money", and beat meanings, but collapsed into repetitive `full_graphic_cutaway` + `hf_exploded_stack` + `cash_flick` on 9/10 beats.
+  - NarrativeStateGraph + CreativePlaybook + CandidateRanker reconciled 9/10 beats (`reconciled_override_count=9`), restoring live Olivia presence, distinct 5-mode pacing, single numeric ownership, cutaway bridges, and semantically matched Foley roles — with ZERO Olivia hardcoding.
+
+4. DUAL-ENGINE REUSE, CONTINUITY BOUNDARIES & VISUAL PROOF
+------------------------------------------------------------------------------
+Dual-Engine Execution (Canonical AUTO):
+  - Engines Executed : ffmpeg, hyperframes, remotion (reuse_gate PASSED: 15 distinct verified primitives = 9 Remotion + 6 HyperFrames across 5 upstream repos)
+  - Active-Window Layer Ablations : 18/18 VERIFIED (entry / peak / exit windows)
+  - Layout QA        : zero_eye_mouth_collision=True (max_overlap=0.0), phone_legibility_passed=True, consumer_jargon_leaks=[]
+  - Template Variety : 9 distinct signatures across 5 stage modes (max_consecutive_identical_templates=1)
+
+Decoded Scene Boundary Continuity (R5.R1 vs R5.R2 Canonical AUTO):
+  - f344 (Gas -> Payoff cutaway)    : R2 MAD =  4.49 (EditorialSheetSweepInBridge, 12f handle)
+  - f417 (Payoff cutaway -> Live)   : R1 MAD = 114.16 -> R2 MAD =  2.76 (-97.6%, PaperFoldExitBridge, 12f handle)
+  - f533 (Intro -> Product cutaway) : R1 MAD = 122.43 -> R2 MAD = 22.63 (-81.5%, EditorialSheetSweepInBridge, 12f handle)
+  - f635 (Product cutaway -> Close) : R1 MAD = 114.40 -> R2 MAD =  3.98 (-96.5%, PaperFoldExitBridge, 12f handle)
+  - Abrupt cutaway jumps (>65 MAD)  : 0 / 10 boundaries
+  - Max live face washout delta     : +9.12 luma (0 findings across 720 frames; f680 glare eliminated)
+
+5. SEMANTIC SOUND LEDGER, TIMING & TRUE COUNTERFACTUAL ABLATION
+------------------------------------------------------------------------------
+Cue Ledger Conservation : planned=13, staged=13, explicitly_suppressed=0, blocked=0 (conservation_exact=True)
+Provenance              : 13/13 recorded_local_foley (CC0-1.0, 12 unique raw WAV SHA-256s), 0 procedural DSP
+Master & Mix            : master_exact=True (1296 packets), single default AAC 192k track, exact 1,323,000 samples (30.000s),
+                          LUFS=-15.2, True Peak=-1.4 dBTP, 0 clipping samples added, corr=0.99994, mono_compat=0.9997
+Ablation Method         : true_minus_one_cue_aac_counterfactual (13/13 PASS, 45.81–55.75 dB real drop)
+Sync & Speech Clarity   : 13/13 role-aware sync PASS (0.00f–0.16f lag), 13/13 1–4 kHz speech-band PASS
+Listening Status        : LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY (human listening review required in VQ-01)
+
+Per-Cue Measured Table (Canonical Cold Run):
+  scue_00_cash_flick      | f002 | transient       | lag=+0.00f | 1-4kHz=-7.60dB  | CF drop=46.92dB | cc0_cash_flick_v0_money-notes
+  scue_01_reverse_whoosh  | f072 | crest_in_window | lag=-0.16f | 1-4kHz=-0.99dB  | CF drop=51.28dB | cc0_reverse_whoosh_v1_reverse-whoosh-short-strong
+  scue_02_cash_flick      | f152 | transient       | lag=+0.00f | 1-4kHz=-7.60dB  | CF drop=47.80dB | cc0_cash_flick_v0_money-notes (BILLS D09 FIXED)
+  scue_03_tick_accent     | f166 | transient       | lag=+0.00f | 1-4kHz=-1.29dB  | CF drop=55.75dB | cc0_tick_accent_v0_data-tick (18ms BILLS D09 FIXED)
+  scue_04_paper_rustle    | f236 | crest_in_window | lag=+0.00f | 1-4kHz=+3.63dB  | CF drop=47.32dB | cc0_paper_rustle_v1_foley-paper-slide (D10 FIXED vs +6.0f)
+  scue_05_tick_accent     | f250 | transient       | lag=+0.00f | 1-4kHz=-4.18dB  | CF drop=53.46dB | cc0_tick_accent_v1_data-number-land
+  scue_06_envelope_slide  | f291 | crest_in_window | lag=+0.00f | 1-4kHz=-9.01dB  | CF drop=48.67dB | cc0_envelope_slide_v0_foley-card-slide (D10 FIXED vs +5.38f)
+  scue_07_tick_accent     | f305 | transient       | lag=+0.00f | 1-4kHz=-19.28dB | CF drop=52.30dB | cc0_tick_accent_v2_impact-light-firm
+  scue_08_soft_impact     | f356 | transient       | lag=+0.00f | 1-4kHz=-18.17dB | CF drop=52.02dB | cc0_soft_impact_v2_impact-deep-soft
+  scue_09_shimmer_payoff  | f376 | crest_in_window | lag=+0.00f | 1-4kHz=-4.72dB  | CF drop=46.85dB | cc0_shimmer_payoff_v0_shimmer-short-soft
+  scue_10_soft_whoosh     | f485 | crest_in_window | lag=+0.00f | 1-4kHz=-10.36dB | CF drop=50.69dB | cc0_soft_whoosh_v1_whoosh-medium-soft
+  scue_11_page_turn       | f566 | crest_in_window | lag=+0.00f | 1-4kHz=-7.93dB  | CF drop=46.60dB | cc0_page_turn_v0_props-page-turn (D10 FIXED vs +7.03dB)
+  scue_12_bass_settle     | f641 | transient       | lag=-0.00f | 1-4kHz=-30.79dB | CF drop=52.22dB | cc0_bass_settle_v0_boom-hit-soft
+
+6. PERFORMANCE & RESOURCE TELEMETRY (SAME WINDOWS MACHINE, FULL 720x1280 QUALITY)
+------------------------------------------------------------------------------
+Canonical Cold (--no-cache) Wall Time : 525.08s
+  - vision_and_asr       :   9.08s | tree RSS 201.07 MB
+  - story_graph          :   0.02s | tree RSS 201.66 MB
+  - generative_director  : 107.45s | tree RSS 201.70 MB (local CPU Qwen2.5-3B inference)
+  - vision_segmentation  :  12.79s | tree RSS 212.05 MB
+  - hyperframes_graphics :  88.83s | tree RSS 219.37 MB (down from 110.05s in R1, -19.3% via fast static HTML lint)
+  - remotion_scenes      : 235.55s | 1 persistent Chromium launch, 27 selectComposition calls (9 scenes + 18 distinct excludeLayerRole ablations), batch worker peak tree RSS 2380.79 MB
+  - sound_design_mix     :   1.70s | post-render marker barrier
+  - canonical_assembly   :   8.59s | peak temp 90.35 MB (cleaned on exit)
+  - validation_and_qa    :  53.90s | includes 13 real minus-one-cue AAC-192k counterfactual encodes + 720-frame pixel critic
+
+Warm-Cache Benchmark (same CLI flags without --no-cache):
+  - Warm Pass 1 (cache populate + reuse) : 236.53s (exit 0)
+  - Warm Pass 2 (warm cache hit)         : 230.19s (exit 0, 2.28x faster than cold 525.08s)
+  - Note: Cold time is dominated by local CPU Qwen2.5-3B (107.4s), Chromium Remotion media + 18 active-window ablation stills (235.6s), and 13 real counterfactual AAC encodes (53.9s). No quality corners were cut to chase an artificial target.
+
+7. VERIFICATION SUITE & GATES G0–G9 (EXECUTED ON EXACT TESTED_CODE_SHA 04ee4fa)
+------------------------------------------------------------------------------
+Command Suite:
+  - pytest -v tests/ --tb=short                              : EXIT 0 | 138 passed, 0 failed, 0 skipped (+15 subtests) | 65.72s
+  - unittest discover -s tests -p "test_render_*.py" -v      : EXIT 0 | 26/26 OK (disclosed overlapping upstream subset) | 0.20s
+  - renderers/remotion/node_modules/.bin/tsc.cmd --noEmit    : EXIT 0 | 0 TypeScript errors | 1.71s
+  - python -m motionlab doctor                               : EXIT 0 | 40 legacy + 20/20 primitives + 34 CC0 Foley | 3.91s
+  - python -m motionlab validate --run <canonical_run_dir>   : EXIT 0 | 16/16 PASS (TECHNICAL_PASS) | 1.89s
+  - ffmpeg -v error -xerror -i final.mp4 -f null -           : EXIT 0 | 0 decode errors
+
+Gate Status Table (Strict Honesty — NO Blanket PASS):
+  G0 Baseline / Source / License / Resources : TECHNICAL_PASS (source SHA immutable, disk/RAM guarded)
+  G1 AI Reasoning / StoryGraph / No Hardcode : TECHNICAL_PASS (16/16 eval, raw vs reconciled audited; 3B limits disclosed)
+  G2 Continuous State / Exact Numeric / Phys : TECHNICAL_PASS (0 fake cents, 1 owner, 0 abrupt cutaway jumps; visual review pending)
+  G3 Dual-Engine Reuse / Active Ablations    : TECHNICAL_PASS (15 verified primitives, 18/18 active-window ablations)
+  G4 Semantic Sound Ledger / Real Ablation   : TECHNICAL_PASS (13/13 CC0, 0 drops, +0.00f sync, 13/13 true CF ablation; listening pending)
+  G5 Product Truth / Objective Critic / VLM  : TECHNICAL_PASS_WITH_DISCLOSURES (ASSET_MISSING_CONCEPTUAL, VISION_CRITIC_NOT_RUN, 0 objective findings)
+  G6 Canonical AUTO 30s & Preview 9:16       : TECHNICAL_PASS (candidate ready; not aesthetic approval)
+  G7 Regression / Security / Generalization  : TECHNICAL_PASS_WITH_DISCLOSURES (138/138 pytest; REAL_HELDOUT_NOT_RUN)
+  G8 QA-01 Provenance & Safe Git Delivery    : TECHNICAL_PASS (<=2 MiB redacted pack, ARTIFACT_LOCAL_ONLY)
+  G9 VQ-01 Human Visual & Listening Review   : PENDING_HUMAN_REVIEW (owner visual + phone listening sign-off required)
+
+8. HONEST LIMITATIONS & NEXT ACTIONS FOR OWNER
+------------------------------------------------------------------------------
+- G9 (VQ-01) requires real human visual & phone-speaker listening review of the canonical AUTO final MP4 (`Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R2_FINAL_9x16.mp4`) and preview (`preview_9x16.mp4`) vs R5.R1.
+- `VISION_CRITIC_NOT_RUN`: No local VLM is installed on this host; visual inspection used the deterministic objective decoded-pixel critic plus manual contact/boundary sheet inspection.
+- `REAL_HELDOUT_NOT_RUN`: Cross-niche generalization is verified on synthetic corpus fixtures (5 niches + 16 reasoning eval cases); real owner-supplied clips from >=2 unrelated niches are needed for real held-out proof.
+- `ASSET_MISSING_CONCEPTUAL`: Providing owner-authorized, PII-redacted Notion dashboard / workbook cover assets in `assets/product_catalog/manifest.json` will upgrade S09 from conceptual schematics to live product framing automatically.
+==============================================================================

@@ -1,0 +1,204 @@
+{
+  "schema_version": "1.0.0",
+  "release": "ML-01.R5.R2",
+  "baseline_commit": "43e68a21d1d5345b88e4d724c4bac8dbcaf033fe",
+  "tested_code_sha": "04ee4faceb107ee3f2470b52f3734c2826d37efe",
+  "canonical_run_id": "20261127T094119Z_c56c9ae0_001",
+  "defects": [
+    {
+      "id": "D01",
+      "severity": "P0",
+      "title": "Fake fractional cents ($1,151.93) on opening $1,200 bank balance",
+      "baseline_evidence": "R5.R1 f12 rendered '$1,151.93' due to unrounded GSAP innerText interpolation.",
+      "fix_modules": [
+        "motionlab/composition/primitive_adapters.py::hf_apple_money_count",
+        "motionlab/composition/continuous_timeline.py::build_canonical_numeric_state_trace"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_hf_apple_money_count_enforces_integer_dollar_lock_d01_d05",
+        "tests/unit/test_r5r2_ai_brain_and_eval.py::test_independent_16_case_reasoning_eval_harness_passes_all_p0_fixtures"
+      ],
+      "measured_outcome": "f12 renders exact '$1,200' with integer_dollar_lock=True (verified visually in orig_r1_r2_compare.jpg and contact_sheet.jpg).",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D02",
+      "severity": "P1",
+      "title": "Weak visual contrast/hierarchy on S02 negation contradiction",
+      "baseline_evidence": "R5.R1 S02 StrikethroughReplace rendered small low-contrast text over kitchen backdrop.",
+      "fix_modules": [
+        "renderers/remotion/src/GenerativeSceneComposition.tsx::RenderImportedPrimitive(rem_ru_strikethrough)",
+        "motionlab/semantic/generative_director.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_ai_brain_and_eval.py::test_independent_16_case_reasoning_eval_harness_passes_all_p0_fixtures"
+      ],
+      "measured_outcome": "S02 renders bold 56px editorial relation 'BALANCE ≠ SPENDABLE' in safe upper negative space with zero face overlap and reverse_whoosh synced at -0.16f.",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D03",
+      "severity": "P0",
+      "title": "Duplicate inconsistent numeric counters on Bills (-$799 top + $402 bottom ribbon)",
+      "baseline_evidence": "R5.R1 f156 displayed both top strip '-$799 / $400 left' and duplicate bottom ribbon 'AFTER BILLS $402'.",
+      "fix_modules": [
+        "motionlab/semantic/generative_director.py",
+        "motionlab/composition/continuous_timeline.py::build_canonical_numeric_state_trace",
+        "motionlab/composition/primitive_adapters.py::hf_mk_progress_stat"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_negative_duplicate_numeric_counters_flagged_d03",
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_continuous_timeline_valid_with_cutaway_bridges_and_single_numeric_owner"
+      ],
+      "measured_outcome": "single_numeric_owner_verified=True; f156 shows single exact '-$800 BILLS / $400 left to spend' with zero bottom ribbon.",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D04",
+      "severity": "P1",
+      "title": "Repetitive/cramped Groceries & Gas framing and identical allocation cards",
+      "baseline_evidence": "R5.R1 compressed speaker window on S05 Groceries and risked repeating allocation styling across S03/S05/S06.",
+      "fix_modules": [
+        "motionlab/composition/primitive_adapters.py::hf_mk_progress_stat",
+        "motionlab/semantic/generative_director.py"
+      ],
+      "verification_tests": [
+        "tests/integration/test_r5_corpus_and_generalization.py::test_template_repetition_detector_flags_three_identical_scenes"
+      ],
+      "measured_outcome": "9 distinct scene signatures across 5 stage modes (max_consecutive_identical_templates=1); Bills uses ivory top_strip + tracked macro, Groceries uses balanced aspect_morph_editorial (y=0.45, h=0.46), Gas uses deep forest compact_editorial_rail.",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D05",
+      "severity": "P0",
+      "title": "Fake fractional cents ($102.98 / $144.06) and circular iris void on Payoff reveal",
+      "baseline_evidence": "R5.R1 f360 displayed '$102.98' and circular frame_morph mask clipped cutaway reveal.",
+      "fix_modules": [
+        "motionlab/composition/primitive_adapters.py::hf_apple_money_count",
+        "renderers/remotion/src/composition/continuity.tsx::EditorialSheetSweepInBridge",
+        "renderers/remotion/src/GenerativeSceneComposition.tsx"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_hf_apple_money_count_enforces_integer_dollar_lock_d01_d05"
+      ],
+      "measured_outcome": "f360 displays exact '$100' ('ACTUALLY LEFT TO SPEND / from $1,200 example balance') with discrete milestone stepping, clear curved banknotes, and editorial sheet sweep entrance (f344 MAD=4.49).",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D06",
+      "severity": "P0",
+      "title": "Abrupt cutaway-to-live hard cuts (f417 MAD 114.16, f533 MAD 122.43, f635 MAD 114.40)",
+      "baseline_evidence": "Empirical R5.R1 decoded boundary audit measured MAD 114.16 at f417, 122.43 at f533, and 114.40 at f635.",
+      "fix_modules": [
+        "motionlab/composition/continuous_timeline.py",
+        "renderers/remotion/src/composition/continuity.tsx::PaperFoldExitBridge",
+        "renderers/remotion/src/GenerativeSceneComposition.tsx",
+        "motionlab/composition/visual_critic.py::run_objective_rendered_critic"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_negative_unbridged_cutaway_hard_cut_fails_continuous_timeline",
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_evaluate_shared_state_deterministic_boundary_continuity"
+      ],
+      "measured_outcome": "Decoded boundary MADs dropped to f344=4.49, f417=2.76 (-97.6%), f533=22.63 (-81.5%), f635=3.98 (-96.5%); abrupt_cutaway_jumps=0 across all 10 boundaries (verified visually in boundary_strips.jpg).",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D07",
+      "severity": "P1",
+      "title": "Product asset grounding & honest conceptual disclosure for Notion dashboard / 56-page workbook",
+      "baseline_evidence": "R5.R1 lacked a verified owner asset catalog with SHA-256, authorization, and PII redaction gates.",
+      "fix_modules": [
+        "motionlab/assets/catalog.py",
+        "motionlab/composition/r5_engine.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_product_catalog_and_critic.py::test_missing_catalog_returns_honest_conceptual_status",
+        "tests/unit/test_r5r2_product_catalog_and_critic.py::test_unauthorized_unredacted_tampered_and_traversal_assets_rejected"
+      ],
+      "measured_outcome": "product_asset_status.json honestly reports ASSET_MISSING_CONCEPTUAL; S09 renders labeled 'CONCEPTUAL PRODUCT OVERVIEW' 3D FlipPage schematic with '56' strictly non-monetary.",
+      "status": "RESOLVED_TECHNICALLY_OWNER_ASSET_OPTIONAL"
+    },
+    {
+      "id": "D08",
+      "severity": "P0",
+      "title": "Light-leak glare washing out Olivia's face contrast at f680",
+      "baseline_evidence": "R5.R1 f680 rendered bright amber glare directly across face and cardigan.",
+      "fix_modules": [
+        "motionlab/composition/primitive_adapters.py::hf_organic_light_leak",
+        "motionlab/composition/visual_critic.py::run_objective_rendered_critic"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_hf_organic_light_leak_protects_center_face_d08"
+      ],
+      "measured_outcome": "Peripheral edge-only rim glow (opacity <= 0.20) with center face transparency mask; decoded max_face_washout_luma_delta=9.12 (0 findings across 720 frames; confirmed visually in orig_r1_r2_compare.jpg f680).",
+      "status": "RESOLVED_TECHNICALLY_PENDING_HUMAN_VQ01"
+    },
+    {
+      "id": "D09",
+      "severity": "P0",
+      "title": "50ms duration gate silently dropped Bills SFX cues (f152 & f166) and renumbered cue IDs",
+      "baseline_evidence": "Reproduced empirically in A0: cc0_cash_flick_v1_foley-card-touch (49.5ms, 2183 samples) and cc0_tick_accent_v0_data-tick (18.0ms, 794 samples) were silently dropped (13 planned -> 11 staged).",
+      "fix_modules": [
+        "motionlab/audio/semantic_sound.py::align_sound_to_marker",
+        "motionlab/audio/assets.py::load_recorded_foley_by_asset_id"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_sound_integrity_and_ablation.py::test_d09_short_18ms_and_49_5ms_recorded_wavs_survive_align_and_preserve_cue_ids",
+        "tests/unit/test_r5r2_sound_integrity_and_ablation.py::test_long_form_24_cues_over_90s_not_truncated_by_old_16_cap"
+      ],
+      "measured_outcome": "planned=13, staged=13, suppressed=0, blocked=0, conservation_exact=True; BOTH Bills cues scue_02_cash_flick (f152, 47.8 dB ablation) and 18ms scue_03_tick_accent (f166, 55.8 dB ablation) verified in final MP4 with immutable cue IDs.",
+      "status": "RESOLVED_TECHNICALLY_PENDING_LISTENING"
+    },
+    {
+      "id": "D10",
+      "severity": "P0",
+      "title": "Transient/crest sync drift (+6.0f paper slide, +5.38f envelope slide) & +7.03 dB page_turn speech masking",
+      "baseline_evidence": "R5.R1 audio_event_qa recorded +6.0f lag on foley-paper-slide, +5.38f on foley-card-slide, and +7.03 dB 1–4 kHz ratio on page_turn.",
+      "fix_modules": [
+        "motionlab/audio/assets.py::analyze_waveform_envelope",
+        "motionlab/audio/semantic_sound.py::resolve_sound_asset",
+        "motionlab/audio/semantic_sound.py::align_sound_to_marker",
+        "motionlab/audio/mixer.py::_carve_speech_band_sfx",
+        "motionlab/audio/mixer.py::mix_preserving_master"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_sound_integrity_and_ablation.py::test_d10_and_d11_true_counterfactual_ablation_passes_valid_mix_and_fails_muted_final"
+      ],
+      "measured_outcome": "13/13 sync PASS (paper_rustle +0.00f, envelope_slide +0.00f, page_turn +0.00f, cash_flick +0.00f, max abs lag 0.16f); 13/13 speech-band PASS (page_turn dropped from +7.03 dB to -7.93 dB).",
+      "status": "RESOLVED_TECHNICALLY_PENDING_LISTENING"
+    },
+    {
+      "id": "D11",
+      "severity": "P0",
+      "title": "False-PASS audio QA (fake SNR-only ablation, >=85% threshold, asset provenance drift, priming sample overhang)",
+      "baseline_evidence": "R5.R1 reused snr_over_codec_db as ablation, allowed >=85% pass, re-resolved assets by family/variant, and wrote 1,325,352 samples instead of exact 1,323,000.",
+      "fix_modules": [
+        "motionlab/audio/mixer.py::_run_true_counterfactual_ablation_window",
+        "motionlab/audio/mixer.py::validate_final_audio_mix",
+        "motionlab/audio/assets.py::load_recorded_foley_by_asset_id"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_sound_integrity_and_ablation.py::test_d10_and_d11_true_counterfactual_ablation_passes_valid_mix_and_fails_muted_final",
+        "tests/unit/test_r5r2_sound_integrity_and_ablation.py::test_tampered_asset_sha_rejected_by_loader"
+      ],
+      "measured_outcome": "Real minus-one-cue AAC-192k counterfactual ablation implemented (13/13 PASS, 45.8–55.8 dB drop); 100% pass gate enforced; immutable (asset_id, raw_asset_sha256) enforced; exact 1,323,000 duration_samples verified; Parseval FFT fixed.",
+      "status": "RESOLVED_TECHNICALLY_PENDING_LISTENING"
+    },
+    {
+      "id": "D12",
+      "severity": "P0",
+      "title": "Metadata-only continuity, pre-render audio mixing & Remotion ablation cache collision",
+      "baseline_evidence": "R5.R1 mixed audio prior to visual render and batch_render.mjs cached selectComposition without excludeLayerRole (producing 0/18 ablation diffs when enabled).",
+      "fix_modules": [
+        "motionlab/composition/r5_engine.py",
+        "motionlab/audio/semantic_sound.py::extract_realized_animation_markers",
+        "renderers/remotion/scripts/batch_render.mjs"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r2_continuity_and_ledger.py::test_continuous_timeline_valid_with_cutaway_bridges_and_single_numeric_owner"
+      ],
+      "measured_outcome": "Strict post-render marker barrier (audio_render_marker_barrier=REALIZED_POST_RENDER) active; batch_render.mjs keys composition cache by excludeLayerRole -> 18/18 active-window visual ablations verified in canonical run.",
+      "status": "RESOLVED_TECHNICALLY"
+    }
+  ]
+}

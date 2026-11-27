@@ -1,0 +1,41 @@
+{
+  "doctor": {
+    "command": ".venv/Scripts/python.exe -m motionlab doctor",
+    "elapsed_s": 3.91,
+    "exit_code": 0
+  },
+  "independent_reasoning_eval": {
+    "accuracy": 1.0,
+    "cases_passed": 16,
+    "cases_total": 16,
+    "elapsed_s": 0.0263
+  },
+  "pytest": {
+    "command": ".venv/Scripts/python.exe -m pytest -v tests/ --tb=short",
+    "elapsed_s": 65.72,
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 138,
+    "skipped": 0,
+    "subtests_passed": 15
+  },
+  "tested_code_sha": "04ee4faceb107ee3f2470b52f3734c2826d37efe",
+  "tsc": {
+    "command": "renderers/remotion/node_modules/.bin/tsc.cmd --noEmit -p renderers/remotion/tsconfig.json",
+    "elapsed_s": 1.71,
+    "exit_code": 0
+  },
+  "unittest_legacy_overlap": {
+    "command": ".venv/Scripts/python.exe -m unittest discover -s tests -p test_render_*.py -v",
+    "exit_code": 0,
+    "note": "overlapping upstream subset of pytest",
+    "passed": 26
+  },
+  "validate_run": {
+    "checks_passed": 16,
+    "checks_total": 16,
+    "command": ".venv/Scripts/python.exe -m motionlab validate --run runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001",
+    "elapsed_s": 1.89,
+    "exit_code": 0
+  }
+}

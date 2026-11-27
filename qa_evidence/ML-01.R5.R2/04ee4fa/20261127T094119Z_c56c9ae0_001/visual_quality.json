@@ -1,0 +1,1465 @@
+{
+  "continuity_summary": {
+    "boundaries": [
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 60,
+        "boundary_id": "bnd_00_f060",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_01_hook_contrast",
+        "from_stage_mode": "live_depth_matte",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_01_hook_contrast -> sc_02_negation_tension.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_02_negation_tension",
+        "to_stage_mode": "live_clean_bridge"
+      },
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 138,
+        "boundary_id": "bnd_01_f138",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_02_negation_tension",
+        "from_stage_mode": "live_clean_bridge",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_02_negation_tension -> sc_03_allocation_step.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_03_allocation_step",
+        "to_stage_mode": "tracked_macro_split"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 207,
+        "boundary_id": "bnd_02_f207",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.154,
+        "from_scene_id": "sc_03_allocation_step",
+        "from_stage_mode": "tracked_macro_split",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f207.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "live_hold_f207_234",
+        "to_stage_mode": "live_source_hold"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 234,
+        "boundary_id": "bnd_03_f234",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "live_hold_f207_234",
+        "from_stage_mode": "live_source_hold",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f234.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_04_allocation_step",
+        "to_stage_mode": "aspect_morph_editorial"
+      },
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 269,
+        "boundary_id": "bnd_04_f269",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_04_allocation_step",
+        "from_stage_mode": "aspect_morph_editorial",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_04_allocation_step -> sc_05_allocation_step.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_05_allocation_step",
+        "to_stage_mode": "live_clean_bridge"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 344,
+        "boundary_id": "bnd_05_f344",
+        "bridge_direction": "incoming_to_next",
+        "expected_position_error_px": 0.013,
+        "from_scene_id": "sc_05_allocation_step",
+        "from_stage_mode": "live_clean_bridge",
+        "handle_frames": 12,
+        "semantic_rationale": "Incoming line_led sweeps warm ivory cutaway cleanly from live plate at f344.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_06_payoff_reveal",
+        "to_stage_mode": "full_graphic_cutaway"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 417,
+        "boundary_id": "bnd_06_f417",
+        "bridge_direction": "outgoing_from_prev",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_06_payoff_reveal",
+        "from_stage_mode": "full_graphic_cutaway",
+        "handle_frames": 12,
+        "semantic_rationale": "Outgoing paper_fold_out smoothly folds cutaway back to exact source clock at f417.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "live_hold_f417_481",
+        "to_stage_mode": "live_source_hold"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 481,
+        "boundary_id": "bnd_07_f481",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "live_hold_f417_481",
+        "from_stage_mode": "live_source_hold",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f481.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_07_product_intro",
+        "to_stage_mode": "live_depth_matte"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 533,
+        "boundary_id": "bnd_08_f533",
+        "bridge_direction": "incoming_to_next",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_07_product_intro",
+        "from_stage_mode": "live_depth_matte",
+        "handle_frames": 12,
+        "semantic_rationale": "Incoming line_led sweeps warm ivory cutaway cleanly from live plate at f533.",
+        "shared_element_id": "product_organization_motif",
+        "to_scene_id": "sc_08_product_benefit",
+        "to_stage_mode": "full_graphic_cutaway"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 635,
+        "boundary_id": "bnd_09_f635",
+        "bridge_direction": "outgoing_from_prev",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_08_product_benefit",
+        "from_stage_mode": "full_graphic_cutaway",
+        "handle_frames": 12,
+        "semantic_rationale": "Outgoing paper_fold_out smoothly folds cutaway back to exact source clock at f635.",
+        "shared_element_id": "product_organization_motif",
+        "to_scene_id": "sc_09_closing_takeaway",
+        "to_stage_mode": "live_clean_bridge"
+      }
+    ],
+    "continuity_hash": "0178bad9ddf2277fe64a7dfff5af2fca89844735a8c7f3da5008c82b60f967fd",
+    "continuous_timeline_valid": true,
+    "persistent_element_ids": [
+      "persistent_ledger_balance",
+      "product_organization_motif"
+    ],
+    "track_count": 2
+  },
+  "creative_quality_proxy": {
+    "ablation_layers_total": 18,
+    "ablation_layers_verified": 18,
+    "black_frames": 0,
+    "competitor_reference_status": "REFERENCE_NOT_AVAILABLE",
+    "evidence_files": {
+      "contact_sheet": "runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/contact_sheet.jpg",
+      "frame_metrics_csv": "runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/frame_metrics_720.csv",
+      "scene_peaks_sheet": "runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg"
+    },
+    "frames_checked": 720,
+    "hard_rejects": [],
+    "human_review_status": "PENDING_HUMAN_REVIEW",
+    "ledger_conservation_exact": true,
+    "phone_360x640_median_contrast_ratio": 3.44,
+    "reuse_gate_passed": true,
+    "schema_version": "1.0.0",
+    "substantive_visual_change_ratio": 0.8361,
+    "technical_proxy_status": "PASS",
+    "template_repetition_audit": {
+      "distinct_signatures": 9,
+      "distinct_stage_modes": [
+        "aspect_morph_editorial",
+        "full_graphic_cutaway",
+        "live_clean_bridge",
+        "live_depth_matte",
+        "tracked_macro_split"
+      ],
+      "flagged_runs": [],
+      "max_consecutive_identical_templates": 1,
+      "passed": true
+    },
+    "vision_critic_note": "No local VLM installed; text-only Qwen2.5-3B is NOT treated as a vision critic.",
+    "vision_critic_status": "VISION_CRITIC_NOT_RUN",
+    "vq01_human_score": null
+  },
+  "layout_summary": {
+    "all_frames_checked": 629,
+    "canvas": {
+      "height": 1280,
+      "width": 720
+    },
+    "layout_sweep_errors": [],
+    "max_eye_mouth_overlap_any_frame": 0.0,
+    "safe_margins_px": {
+      "bottom": 230,
+      "left": 48,
+      "right": 105,
+      "top": 110
+    },
+    "schema_version": "1.0.0",
+    "style_tokens": {
+      "footage_warmth": "warm_natural",
+      "niche": "finance",
+      "palette": {
+        "brass": "#BE9A59",
+        "clay": "#AF745E",
+        "espresso": "#40382E",
+        "forest": "#243B32",
+        "gold": "#BE9A59",
+        "ink_dark": "#1E1B16",
+        "ivory": "#F5F0E6",
+        "sage": "#84977A",
+        "terracotta": "#AF745E"
+      },
+      "sampled_luma": 129.2,
+      "schema_version": "1.0.0",
+      "typography": {
+        "auxiliary_min_px_720": 24,
+        "hero_amount_px_720": [
+          96,
+          150
+        ],
+        "max_families": 2,
+        "max_weights": 3,
+        "sans_family": "Bahnschrift, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "secondary_label_px_720": [
+          32,
+          48
+        ],
+        "serif_family": "Georgia, Cambria, \"Times New Roman\", serif"
+      }
+    },
+    "zero_eye_mouth_collision": true
+  },
+  "narrative_brain_audit": {
+    "attention_arc": [
+      {
+        "beat_id": "beat_00_hook_contrast",
+        "continuity_group": "ledger_world",
+        "emotion": "immediate_curiosity",
+        "focal": "balance_hero",
+        "frame_range": [
+          0,
+          60
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_01_negation_tension",
+        "continuity_group": "ledger_world",
+        "emotion": "sharp_clarity",
+        "focal": "balance_hero",
+        "frame_range": [
+          60,
+          119
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_02_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          138,
+          194
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_03_bridge",
+        "continuity_group": "live_world",
+        "emotion": "reflective_pause",
+        "focal": "live_speaker_expression",
+        "frame_range": [
+          194,
+          234
+        ],
+        "information_burden": "low_rest",
+        "pacing": "breathing_hold",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_04_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          234,
+          269
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_05_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          269,
+          323
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_06_payoff_reveal",
+        "continuity_group": "ledger_world",
+        "emotion": "decisive_realization",
+        "focal": "balance_hero",
+        "frame_range": [
+          344,
+          404
+        ],
+        "information_burden": "high_milestone",
+        "pacing": "decisive_payoff",
+        "speaker_presence": "purposeful_cutaway"
+      },
+      {
+        "beat_id": "beat_07_bridge",
+        "continuity_group": "live_world",
+        "emotion": "reflective_pause",
+        "focal": "live_speaker_expression",
+        "frame_range": [
+          404,
+          481
+        ],
+        "information_burden": "low_rest",
+        "pacing": "breathing_hold",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_08_product_intro",
+        "continuity_group": "solution_world",
+        "emotion": "calm_solution_relief",
+        "focal": "product_organizer",
+        "frame_range": [
+          481,
+          525
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_09_product_benefit",
+        "continuity_group": "solution_world",
+        "emotion": "structured_clarity",
+        "focal": "product_organizer",
+        "frame_range": [
+          533,
+          628
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "purposeful_cutaway"
+      },
+      {
+        "beat_id": "beat_10_closing_takeaway",
+        "continuity_group": "solution_world",
+        "emotion": "warm_confidence",
+        "focal": "live_speaker_and_takeaway",
+        "frame_range": [
+          635,
+          686
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "calm",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_11_cta",
+        "continuity_group": "solution_world",
+        "emotion": "warm_confidence",
+        "focal": "live_speaker_and_takeaway",
+        "frame_range": [
+          686,
+          712
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "calm",
+        "speaker_presence": "full_hero"
+      }
+    ],
+    "candidate_rankings": {
+      "sc_01_hook_contrast": {
+        "candidates": [
+          {
+            "candidate_id": "beat_00_hook_contrast_optA_depth_paper",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": true,
+            "rationale": "Full-frame speaker anchor with MODNet depth plane and open editorial balance reveal.",
+            "remotion_primitive_id": "rem_viv_particle_field",
+            "rubric_score": 70.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "strategy": "live_depth_hero_paper_tokens",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_00_hook_contrast_optB_clean_counter",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "none",
+            "preserve_speaker_hero": true,
+            "rationale": "Minimal single-engine balance counter without depth parallax.",
+            "remotion_primitive_id": "rem_ru_counter",
+            "rubric_score": 59.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "live_clean_counter_only",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_00_hook_contrast_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_counter",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_00_hook_contrast_optA_depth_paper"
+      },
+      "sc_02_negation_tension": {
+        "candidates": [
+          {
+            "candidate_id": "beat_01_negation_tension_optA_bold_strike",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "none",
+            "preserve_speaker_hero": true,
+            "rationale": "High-hierarchy editorial strikethrough preserving speaker expression during contradiction.",
+            "remotion_primitive_id": "rem_ru_strikethrough",
+            "rubric_score": 63.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "open_editorial_strikethrough_morph",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_01_negation_tension_optB_hf_strike",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_strikethrough_replace",
+            "preserve_speaker_hero": true,
+            "rationale": "HyperFrames vector strikethrough alternative.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 59.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "hyperframes_vector_strike",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_01_negation_tension_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_strikethrough_replace",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_strikethrough",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_01_negation_tension_optA_bold_strike"
+      },
+      "sc_03_allocation_step": {
+        "candidates": [
+          {
+            "candidate_id": "beat_02_allocation_step_optA_live_macro_and_transfer_strip",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "preserve_speaker_hero": true,
+            "rationale": "Varied allocation rhythm (live_macro_and_transfer_strip) with ONE canonical ledger counter and physical token motion.",
+            "remotion_primitive_id": "rem_ru_track_matte",
+            "rubric_score": 70.0,
+            "single_numeric_owner": true,
+            "stage_mode": "tracked_macro_split",
+            "strategy": "live_macro_and_transfer_strip",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_02_allocation_step_optB_clean_bar",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live footage with proportional bar only.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 49.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "clean_live_proportional_bar",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_02_allocation_step_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "role_mismatch_product_primitive_on_non_product_beat",
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_02_allocation_step_optA_live_macro_and_transfer_strip"
+      },
+      "sc_04_allocation_step": {
+        "candidates": [
+          {
+            "candidate_id": "beat_04_allocation_step_optA_balanced_editorial_breakdown_split",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": true,
+            "rationale": "Varied allocation rhythm (balanced_editorial_breakdown_split) with ONE canonical ledger counter and physical token motion.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 63.0,
+            "single_numeric_owner": true,
+            "stage_mode": "aspect_morph_editorial",
+            "strategy": "balanced_editorial_breakdown_split",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_04_allocation_step_optB_clean_bar",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live footage with proportional bar only.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 59.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "clean_live_proportional_bar",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_04_allocation_step_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "role_mismatch_product_primitive_on_non_product_beat",
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_04_allocation_step_optA_balanced_editorial_breakdown_split"
+      },
+      "sc_05_allocation_step": {
+        "candidates": [
+          {
+            "candidate_id": "beat_05_allocation_step_optA_open_editorial_rail_transfer",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "preserve_speaker_hero": true,
+            "rationale": "Varied allocation rhythm (open_editorial_rail_transfer) with ONE canonical ledger counter and physical token motion.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 63.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "open_editorial_rail_transfer",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_05_allocation_step_optB_clean_bar",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live footage with proportional bar only.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 59.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "clean_live_proportional_bar",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_05_allocation_step_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "role_mismatch_product_primitive_on_non_product_beat",
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_05_allocation_step_optA_open_editorial_rail_transfer"
+      },
+      "sc_06_payoff_reveal": {
+        "candidates": [
+          {
+            "candidate_id": "beat_06_payoff_reveal_optA_ivory_waterfall_bridge",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Warm ivory architectural sweep (zero dark iris) + exact integer hero payoff + waterfall + smooth paper-fold return to live speaker.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 66.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "shared_sheet_payoff_cutaway_with_exit_fold",
+            "transition_in": "line_led",
+            "transition_out": "paper_fold_out"
+          },
+          {
+            "candidate_id": "beat_06_payoff_reveal_optB_live_hero_payoff",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": true,
+            "rationale": "Keeps speaker visible throughout payoff without waterfall proof.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 51.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "strategy": "live_speaker_payoff_overlay",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_06_payoff_reveal_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "role_mismatch_product_primitive_on_non_product_beat",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_06_payoff_reveal_optA_ivory_waterfall_bridge"
+      },
+      "sc_07_product_intro": {
+        "candidates": [
+          {
+            "candidate_id": "beat_08_product_intro_optA_depth_mask_sweep",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_lt_mask_reveal",
+            "preserve_speaker_hero": true,
+            "rationale": "Editorial brass-line sweep introducing solution title over depth-separated speaker.",
+            "remotion_primitive_id": "rem_viv_particle_field",
+            "rubric_score": 70.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "strategy": "live_depth_editorial_title_sweep",
+            "transition_in": "line_led",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_08_product_intro_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_lt_mask_reveal",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_rc_flip_page",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_08_product_intro_optA_depth_mask_sweep"
+      },
+      "sc_08_product_benefit": {
+        "candidates": [
+          {
+            "candidate_id": "beat_09_product_benefit_optA_flip_and_specs_bridged",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_mk_specs_list",
+            "preserve_speaker_hero": false,
+            "rationale": "Smooth architectural entry & paper-fold exit bridging real 3D FlipPageTransition and open editorial specs list.",
+            "remotion_primitive_id": "rem_rc_flip_page",
+            "rubric_score": 66.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "bridged_cutaway_3d_page_flip_and_specs",
+            "transition_in": "line_led",
+            "transition_out": "paper_fold_out"
+          },
+          {
+            "candidate_id": "beat_09_product_benefit_optB_exploded_stack",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Single-engine HyperFrames exploded stack alternative.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 55.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "exploded_component_stack_cutaway",
+            "transition_in": "line_led",
+            "transition_out": "paper_fold_out"
+          },
+          {
+            "candidate_id": "beat_09_product_benefit_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "role_mismatch_ledger_primitive_on_non_ledger_beat",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_09_product_benefit_optA_flip_and_specs_bridged"
+      },
+      "sc_09_closing_takeaway": {
+        "candidates": [
+          {
+            "candidate_id": "beat_10_closing_takeaway_optA_editorial_slide_rim",
+            "eligible": true,
+            "hard_rejects": [],
+            "hyperframes_primitive_id": "hf_organic_light_leak",
+            "preserve_speaker_hero": true,
+            "rationale": "Full-frame speaker return with open serif takeaway in top safe zone and subtle edge-only rim glow (face clear).",
+            "remotion_primitive_id": "rem_ru_masked_slide",
+            "rubric_score": 70.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "strategy": "clean_editorial_takeaway_edge_rim_glow",
+            "transition_in": "none",
+            "transition_out": "none"
+          },
+          {
+            "candidate_id": "beat_10_closing_takeaway_optLLM_raw",
+            "eligible": false,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "unbridged_hard_cut_cutaway"
+            ],
+            "hyperframes_primitive_id": "hf_mk_callout_highlight",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw Qwen2.5-3B structured JSON proposal evaluated against rubric.",
+            "remotion_primitive_id": "rem_ru_masked_slide",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "none",
+            "transition_out": "none"
+          }
+        ],
+        "chosen_candidate_id": "beat_10_closing_takeaway_optA_editorial_slide_rim"
+      }
+    },
+    "evidence_index_hash": "8bc79b59ad41dc7a65474b65168609071fa88e054751165dde0f4cb31e604d5a",
+    "narrative_contract": {
+      "allow_fractional_cents": false,
+      "central_conflict": "doesn't mean you have $1,200 to spend.",
+      "constraints": [
+        "zero_invented_numbers_or_savings_guarantees",
+        "integer_dollar_display_locked",
+        "single_canonical_ledger_state_owner",
+        "preserve_source_voice_unity_and_timeline",
+        "protect_eyes_mouth_and_reels_safe_zones",
+        "conceptual_product_illustration_only"
+      ],
+      "cta_summary": "Link in my profile.",
+      "has_authorized_product_asset": false,
+      "hook_question": "Just because you have $1,200 in your bank account",
+      "inferred_niche": "finance",
+      "is_hypothetical_example": true,
+      "narrative_pattern": "financial_conservation",
+      "niche_confidence": 0.92,
+      "payoff_takeaway": "$100 actually left to spend in this example",
+      "playbook_rule_ids": [
+        "PB-01",
+        "PB-02",
+        "PB-03",
+        "PB-04",
+        "PB-05",
+        "PB-06",
+        "PB-07"
+      ],
+      "product_value_proposition": "Position The Next Paycheck Plan (Notion dashboard, 56-page workbook) strictly as an organization tool without unverified savings guarantees.",
+      "proof_mechanism": "Step-by-step integer-cent deduction (3 committed categories).",
+      "schema_version": "2.0.0",
+      "tone": "premium_editorial_quiet_luxury",
+      "video_purpose": "Illustrate the gap between opening balance ($1,200) and truly spendable funds ($100) in an example."
+    },
+    "playbook_rules": [
+      {
+        "category": "numeric_integrity",
+        "niches": [
+          "finance",
+          "product",
+          "education"
+        ],
+        "origin": "defect_ledger:D01,D05",
+        "rule": "Never interpolate arbitrary fractional cents (e.g. $1,151.93 or $144.06) when spoken amounts are whole integers; lock integer-dollar display mode unless source evidence explicitly speaks fractional cents.",
+        "rule_id": "PB-01",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "single_numeric_owner",
+        "niches": [
+          "finance"
+        ],
+        "origin": "defect_ledger:D03",
+        "rule": "Maintain ONE canonical visible currency counter per beat; never pair an independent bottom ribbon counter against an active top allocation counter displaying conflicting intermediate numbers.",
+        "rule_id": "PB-02",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "continuous_bridges",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D06,D12",
+        "rule": "Every transition between full-frame graphic cutaway and live footage MUST have an explicit rendered incoming or outgoing bridge (paper fold, soft mask unveil, or shared-element morph) rather than an unmotivated hard cut.",
+        "rule_id": "PB-03",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "editorial_hierarchy",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D01_R1,D04",
+        "rule": "Avoid repetitive dark rounded card templates and tiny speaker inset boxes; keep live speaker as full-frame human anchor and reserve cutaways for high-value teaching milestones.",
+        "rule_id": "PB-04",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "semantic_sound_integrity",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D09,D10,D11",
+        "rule": "Match sound role to actual visual/semantic context (never engine rev on budget gas, never cash flick on negation or non-monetary page counts, never silent cue drops, protect 1-4kHz dialogue).",
+        "rule_id": "PB-05",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "face_contrast_protection",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D08",
+        "rule": "Never apply bright full-frame light leaks over the speaker's face (max edge glow <= 0.22 opacity with clear center face mask) and keep all text clear of eyes/mouth and Reels safe zones.",
+        "rule_id": "PB-06",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "product_asset_truth",
+        "niches": [
+          "product",
+          "finance",
+          "education"
+        ],
+        "origin": "defect_ledger:D07",
+        "rule": "Display real product UI ONLY from owner-authorized verified ProductAssetCatalog entries; otherwise render honest conceptual illustration explicitly marked ASSET_MISSING_CONCEPTUAL.",
+        "rule_id": "PB-07",
+        "status": "HUMAN_APPROVED"
+      }
+    ],
+    "product_asset_match": {
+      "assets": [],
+      "matched": false,
+      "product_demo_status": "PRODUCT_DEMO_PENDING",
+      "status": "ASSET_MISSING_CONCEPTUAL"
+    },
+    "raw_llm_proposals_count": 10,
+    "raw_vs_reconciled_overrides": [
+      {
+        "beat_id": "beat_00_hook_contrast",
+        "raw_llm": {
+          "hf": "hf_apple_money_count",
+          "rem": "rem_ru_counter",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_apple_money_count",
+          "rem": "rem_viv_particle_field",
+          "stage_mode": "live_depth_matte"
+        },
+        "scene_id": "sc_01_hook_contrast"
+      },
+      {
+        "beat_id": "beat_01_negation_tension",
+        "raw_llm": {
+          "hf": "hf_strikethrough_replace",
+          "rem": "rem_ru_strikethrough",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "none",
+          "rem": "rem_ru_strikethrough",
+          "stage_mode": "live_clean_bridge"
+        },
+        "scene_id": "sc_02_negation_tension"
+      },
+      {
+        "beat_id": "beat_02_allocation_step",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_mk_progress_stat",
+          "rem": "rem_ru_track_matte",
+          "stage_mode": "tracked_macro_split"
+        },
+        "scene_id": "sc_03_allocation_step"
+      },
+      {
+        "beat_id": "beat_04_allocation_step",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_data_chart",
+          "rem": "none",
+          "stage_mode": "aspect_morph_editorial"
+        },
+        "scene_id": "sc_04_allocation_step"
+      },
+      {
+        "beat_id": "beat_05_allocation_step",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_mk_progress_stat",
+          "rem": "none",
+          "stage_mode": "live_clean_bridge"
+        },
+        "scene_id": "sc_05_allocation_step"
+      },
+      {
+        "beat_id": "beat_06_payoff_reveal",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_apple_money_count",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_06_payoff_reveal"
+      },
+      {
+        "beat_id": "beat_08_product_intro",
+        "raw_llm": {
+          "hf": "hf_lt_mask_reveal",
+          "rem": "rem_rc_flip_page",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_lt_mask_reveal",
+          "rem": "rem_viv_particle_field",
+          "stage_mode": "live_depth_matte"
+        },
+        "scene_id": "sc_07_product_intro"
+      },
+      {
+        "beat_id": "beat_09_product_benefit",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_mk_specs_list",
+          "rem": "rem_rc_flip_page",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_08_product_benefit"
+      },
+      {
+        "beat_id": "beat_10_closing_takeaway",
+        "raw_llm": {
+          "hf": "hf_mk_callout_highlight",
+          "rem": "rem_ru_masked_slide",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "reconciled": {
+          "hf": "hf_organic_light_leak",
+          "rem": "rem_ru_masked_slide",
+          "stage_mode": "live_clean_bridge"
+        },
+        "scene_id": "sc_09_closing_takeaway"
+      }
+    ],
+    "reasoning_mode": "HYBRID_LOCAL_LLM_PLUS_DETERMINISTIC_STATE_RECONCILER",
+    "reconciled_override_count": 9,
+    "state_graph_hash": "6355c084918d01bd4def7c921436372c76cde98f57f77c4db3ea24f287df014b"
+  },
+  "numeric_state_trace": {
+    "allow_fractional_cents": false,
+    "conservation_exact": true,
+    "currency_code": "USD",
+    "currency_symbol": "$",
+    "final_remaining_cents": 10000,
+    "integer_dollar_lock": true,
+    "ledger_active": true,
+    "opening_cents": 120000,
+    "scenes": [
+      {
+        "allow_fractional_cents": false,
+        "category": "Bank Balance",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_00_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "$1,200",
+        "display_settled": "$1,200",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 60,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_00_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 120000,
+        "scene_id": "sc_01_hook_contrast",
+        "settled_balance_cents": 120000,
+        "start_frame": 0,
+        "step_amount_cents": 120000,
+        "step_id": "ledger_step_00",
+        "step_type": "opening_balance"
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 138,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_02_negation_tension",
+        "start_frame": 60
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Bills",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_02_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$800",
+        "display_settled": "$400",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 207,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_02_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 120000,
+        "scene_id": "sc_03_allocation_step",
+        "settled_balance_cents": 40000,
+        "start_frame": 138,
+        "step_amount_cents": 80000,
+        "step_id": "ledger_step_01",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Groceries",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_03_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$200",
+        "display_settled": "$200",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 269,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_03_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 40000,
+        "scene_id": "sc_04_allocation_step",
+        "settled_balance_cents": 20000,
+        "start_frame": 234,
+        "step_amount_cents": 20000,
+        "step_id": "ledger_step_02",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Gas",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_04_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$100",
+        "display_settled": "$100",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 344,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_04_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 20000,
+        "scene_id": "sc_05_allocation_step",
+        "settled_balance_cents": 10000,
+        "start_frame": 269,
+        "step_amount_cents": 10000,
+        "step_id": "ledger_step_03",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Remaining",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_05_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "$0",
+        "display_settled": "$100",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 417,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_05_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 10000,
+        "scene_id": "sc_06_payoff_reveal",
+        "settled_balance_cents": 10000,
+        "start_frame": 344,
+        "step_amount_cents": 10000,
+        "step_id": "ledger_step_04",
+        "step_type": "remaining_confirmed"
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 533,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_07_product_intro",
+        "start_frame": 481
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 635,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_08_product_benefit",
+        "start_frame": 533
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 720,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_09_closing_takeaway",
+        "start_frame": 635
+      }
+    ],
+    "schema_version": "2.0.0",
+    "single_numeric_owner_verified": true,
+    "total_allocated_cents": 110000,
+    "violations": []
+  },
+  "objective_pixel_critic": {
+    "abrupt_cutaway_jumps": 0,
+    "boundary_count": 10,
+    "boundary_metrics": [
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 60,
+        "boundary_id": "bnd_00_f060",
+        "decoded_step_mad": 21.99,
+        "from_scene_id": "sc_01_hook_contrast",
+        "handle_frames": 8,
+        "post_4f_mad": 12.12,
+        "pre_4f_mad": 8.52,
+        "to_scene_id": "sc_02_negation_tension"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 138,
+        "boundary_id": "bnd_01_f138",
+        "decoded_step_mad": 4.43,
+        "from_scene_id": "sc_02_negation_tension",
+        "handle_frames": 8,
+        "post_4f_mad": 21.08,
+        "pre_4f_mad": 13.84,
+        "to_scene_id": "sc_03_allocation_step"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 207,
+        "boundary_id": "bnd_02_f207",
+        "decoded_step_mad": 16.22,
+        "from_scene_id": "sc_03_allocation_step",
+        "handle_frames": 0,
+        "post_4f_mad": 6.05,
+        "pre_4f_mad": 17.32,
+        "to_scene_id": "live_hold_f207_234"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 234,
+        "boundary_id": "bnd_03_f234",
+        "decoded_step_mad": 8.99,
+        "from_scene_id": "live_hold_f207_234",
+        "handle_frames": 0,
+        "post_4f_mad": 90.73,
+        "pre_4f_mad": 5.06,
+        "to_scene_id": "sc_04_allocation_step"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 269,
+        "boundary_id": "bnd_04_f269",
+        "decoded_step_mad": 10.21,
+        "from_scene_id": "sc_04_allocation_step",
+        "handle_frames": 8,
+        "post_4f_mad": 8.97,
+        "pre_4f_mad": 8.75,
+        "to_scene_id": "sc_05_allocation_step"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 344,
+        "boundary_id": "bnd_05_f344",
+        "decoded_step_mad": 4.49,
+        "from_scene_id": "sc_05_allocation_step",
+        "handle_frames": 12,
+        "post_4f_mad": 6.48,
+        "pre_4f_mad": 9.65,
+        "to_scene_id": "sc_06_payoff_reveal"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 417,
+        "boundary_id": "bnd_06_f417",
+        "decoded_step_mad": 2.76,
+        "from_scene_id": "sc_06_payoff_reveal",
+        "handle_frames": 12,
+        "post_4f_mad": 3.95,
+        "pre_4f_mad": 6.58,
+        "to_scene_id": "live_hold_f417_481"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 481,
+        "boundary_id": "bnd_07_f481",
+        "decoded_step_mad": 3.2,
+        "from_scene_id": "live_hold_f417_481",
+        "handle_frames": 0,
+        "post_4f_mad": 7.11,
+        "pre_4f_mad": 7.34,
+        "to_scene_id": "sc_07_product_intro"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 533,
+        "boundary_id": "bnd_08_f533",
+        "decoded_step_mad": 22.63,
+        "from_scene_id": "sc_07_product_intro",
+        "handle_frames": 12,
+        "post_4f_mad": 5.75,
+        "pre_4f_mad": 12.7,
+        "to_scene_id": "sc_08_product_benefit"
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 635,
+        "boundary_id": "bnd_09_f635",
+        "decoded_step_mad": 3.98,
+        "from_scene_id": "sc_08_product_benefit",
+        "handle_frames": 12,
+        "post_4f_mad": 12.45,
+        "pre_4f_mad": 7.68,
+        "to_scene_id": "sc_09_closing_takeaway"
+      }
+    ],
+    "boundary_strips_path": "runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001/evidence/boundary_strips.jpg",
+    "findings": [],
+    "frames_inspected": 720,
+    "human_review_required": true,
+    "max_face_washout_luma_delta": 9.12,
+    "objective_pixel_critic_status": "PASS",
+    "schema_version": "2.0.0",
+    "vlm_note": "local_vlm_not_provisioned (text-only Qwen2.5-3B cannot inspect pixels)",
+    "vlm_status": "VISION_CRITIC_NOT_RUN",
+    "worst_washout_frame": 281
+  },
+  "phone_legibility": {
+    "consumer_jargon_leaks": [],
+    "contrast_checks": [
+      {
+        "pair": "ivory_on_forest",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "forest_on_ivory",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "espresso_on_ivory",
+        "ratio": 10.14,
+        "target": 4.5
+      },
+      {
+        "pair": "gold_on_forest",
+        "ratio": 4.55,
+        "target": 3.0
+      }
+    ],
+    "contrast_proxy_ok": true,
+    "passed": true,
+    "phone_scale_width": 360,
+    "scale_factor": 0.5,
+    "schema_version": "1.0.0",
+    "small_font_warnings": []
+  },
+  "product_asset_status": {
+    "assets": [],
+    "matched": false,
+    "product_demo_status": "PRODUCT_DEMO_PENDING",
+    "status": "ASSET_MISSING_CONCEPTUAL"
+  }
+}

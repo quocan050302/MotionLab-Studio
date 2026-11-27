@@ -1,0 +1,197 @@
+{
+  "artifact_hashes": {
+    "audio_timeline.json": "dcb213ee2d414d4dc9271d7c1ed26e12bb94ae7372188ed73d9b7aadbaf2af9c",
+    "benchmark.json": "f1e95476ec88b99f793c73478b792a803a88caa9003eec597b80c9e0848cabd6",
+    "cue_decisions.json": "c31404af58c20363c7ae98dcc7d60948ef09eda4d419a1051c479261efee468d",
+    "effect_execution.json": "45ddf0ae40a21d1bf08677faddd9208048afb5572c7521c288d49dc453e9fb58",
+    "mix_metrics.json": "38e4e1963b9d1165b0e30dfc7479b914488a2f1c798f8e86c98b27d1970840fe",
+    "sound_rationale.json": "1309686adba6f98c410b5cf1e256429842dc7d8685db34ca1e36a03a811cbd50",
+    "story_graph_redacted.json": "61bd282cf93530c4586cbc2566442a792c9ab81551f648fe0299e9839a409341",
+    "storyboard.json": "28870df1a76c270b7eb5287dad587705306a3890ae62b460d50bb75bc69d8bd8",
+    "test_summary.json": "c87437904b293fe62fa355c7dabbbba9e378c1afe463901a6f6e8ad333a0bae8",
+    "visual_quality.json": "839078b5ca81545de6205cf62c28e6b2bc27911ff5cb571db813c1cdd3a1e3a6"
+  },
+  "asset_status": "ASSET_MISSING_CONCEPTUAL",
+  "benchmark_timings": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit",
+      "audio_render_marker_barrier": "REALIZED_POST_RENDER",
+      "batch_worker_peak_tree_rss_mb": 2380.79,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 8,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 0.338,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 8.513,
+      "remotion_code_hash": "2f77131e4dbf68fc91df",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 27
+    },
+    "peak_temp_mb": 90.35,
+    "peak_tree_rss_mb": 226.04,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 8.5857,
+        "temp_mb": 90.35,
+        "tree_rss_mb": 225.58
+      },
+      "generative_director": {
+        "elapsed_s": 107.4495,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.7
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 88.8304,
+        "temp_mb": 8.18,
+        "tree_rss_mb": 219.37
+      },
+      "remotion_scenes": {
+        "elapsed_s": 235.552,
+        "temp_mb": 80.26,
+        "tree_rss_mb": 221.42
+      },
+      "sound_design_mix": {
+        "elapsed_s": 1.7042,
+        "temp_mb": 80.26,
+        "tree_rss_mb": 217.29
+      },
+      "story_graph": {
+        "elapsed_s": 0.0187,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.66
+      },
+      "validation_and_qa": {
+        "elapsed_s": 53.8961,
+        "temp_mb": 90.35,
+        "tree_rss_mb": 226.04
+      },
+      "vision_and_asr": {
+        "elapsed_s": 9.0776,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 201.07
+      },
+      "vision_segmentation": {
+        "elapsed_s": 12.7925,
+        "temp_mb": 2.31,
+        "tree_rss_mb": 212.05
+      }
+    }
+  },
+  "blockers": [
+    "G9_VQ01_HUMAN_VISUAL_AND_LISTENING_REVIEW_PENDING",
+    "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+    "VISION_CRITIC_NOT_RUN",
+    "REAL_HELDOUT_NOT_RUN",
+    "ASSET_MISSING_CONCEPTUAL"
+  ],
+  "branch": "feat/ml-01-zero-api-effects",
+  "creative_status": "PENDING_HUMAN_REVIEW",
+  "critic_status": "VISION_CRITIC_NOT_RUN",
+  "engines_executed": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "engines_requested": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "fallbacks": [],
+  "final_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 11308823,
+    "filename": "Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R2_FINAL_9x16.mp4",
+    "sha256": "2a28819c9cf2777f1da4ab9b75b4781b1d7f01b24ac4c2a69e5dd729ceeec750",
+    "url": null
+  },
+  "foley_provenance": {
+    "library_status": "RECORDED_FOLEY_VERIFIED",
+    "procedural_cues_used": 0,
+    "recorded_cues_used": 13
+  },
+  "heldout_status": "REAL_HELDOUT_NOT_RUN",
+  "imported_primitives_used": [
+    "rem_gtk_line_led",
+    "rem_rc_flip_page",
+    "rem_ru_masked_slide",
+    "rem_ru_parallax",
+    "rem_ru_strikethrough",
+    "rem_ru_track_matte",
+    "rem_ru_waterfall",
+    "rem_viv_aspect_morph",
+    "rem_viv_particle_field",
+    "hf_apple_money_count",
+    "hf_data_chart",
+    "hf_lt_mask_reveal",
+    "hf_mk_progress_stat",
+    "hf_mk_specs_list",
+    "hf_organic_light_leak"
+  ],
+  "input_fps": "24/1",
+  "input_frames": 720,
+  "input_geometry": "720x1280",
+  "label": "ML-01.R5.R2",
+  "listening_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+  "offline_proof_scope": "api_keys_unset_static_ast_zero_remote_runtime_local_models_only",
+  "plan_hash": "ab1bc3dab47414833856485fc8af2935100ce555c19bce0add66fcdcf8244336",
+  "preview_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 4923079,
+    "filename": "preview_9x16.mp4",
+    "sha256": "b6f42816d78fb7c12c763b45a4b12f5dd636049fe4ff8b55cd9a6a5dda82bd08",
+    "url": null
+  },
+  "render_mode": "AUTO_GENERATIVE",
+  "repo": "https://github.com/quocan050302/MotionLab-Studio",
+  "reviewer_approval": null,
+  "run_id": "20261127T094119Z_c56c9ae0_001",
+  "schema_version": "1.0.0",
+  "sonic_score_hash": "3668908a27c2176c2fb00b4a468b28a89649e13d3d050a65d43fd209bef7c00a",
+  "source_sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "story_graph_hash": "059b61e9448b4cb10e8f7fef19abde53d6be85bd195a705854945328558d6ad6",
+  "technical_status": "TECHNICAL_PASS",
+  "test_results": {
+    "doctor": {
+      "command": ".venv/Scripts/python.exe -m motionlab doctor",
+      "elapsed_s": 3.91,
+      "exit_code": 0
+    },
+    "independent_reasoning_eval": {
+      "accuracy": 1.0,
+      "cases_passed": 16,
+      "cases_total": 16,
+      "elapsed_s": 0.0263
+    },
+    "pytest": {
+      "command": ".venv/Scripts/python.exe -m pytest -v tests/ --tb=short",
+      "elapsed_s": 65.72,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 138,
+      "skipped": 0,
+      "subtests_passed": 15
+    },
+    "tested_code_sha": "04ee4faceb107ee3f2470b52f3734c2826d37efe",
+    "tsc": {
+      "command": "renderers/remotion/node_modules/.bin/tsc.cmd --noEmit -p renderers/remotion/tsconfig.json",
+      "elapsed_s": 1.71,
+      "exit_code": 0
+    },
+    "unittest_legacy_overlap": {
+      "command": ".venv/Scripts/python.exe -m unittest discover -s tests -p test_render_*.py -v",
+      "exit_code": 0,
+      "note": "overlapping upstream subset of pytest",
+      "passed": 26
+    },
+    "validate_run": {
+      "checks_passed": 16,
+      "checks_total": 16,
+      "command": ".venv/Scripts/python.exe -m motionlab validate --run runs/olivia_ml01_r5r2/20261127T094119Z_c56c9ae0_001",
+      "elapsed_s": 1.89,
+      "exit_code": 0
+    }
+  },
+  "tested_code_sha": "04ee4faceb107ee3f2470b52f3734c2826d37efe"
+}
