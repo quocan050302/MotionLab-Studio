@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.0.0",
+  "release": "ML-01.R5.R3",
+  "baseline_docs_head": "4aaef79a7b5f24036334d4789a6d3bfe34948f27",
+  "baseline_tested_code_sha": "04ee4faceb107ee3f2470b52f3734c2826d37efe",
+  "tested_code_sha": "80d344e812fd9a2aaeef57e205e3b9dc846ef614",
+  "canonical_run_id": "20261127T120000Z_c56c9ae0_001",
+  "defects": [
+    {
+      "id": "D01",
+      "severity": "P0",
+      "title": "Non-causal candidate ranker ran post-hoc after scenes were already built",
+      "baseline_evidence": "In R5.R2 generative_director.py, SceneSpec objects were constructed first and rank_scene_candidates() ran afterward solely to populate audit metadata; changing candidate rankings had zero effect on rendered scenes.",
+      "fix_modules": [
+        "motionlab/semantic/generative_director.py::direct_generative_storyboard",
+        "motionlab/semantic/narrative_brain.py::rank_global_candidates",
+        "motionlab/composition/generative_schema.py::SceneSpec,StoryboardSpec"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_d01_causal_rank_reversal_changes_compiled_storyboard_and_hash"
+      ],
+      "measured_outcome": "Causal selection runs strictly before scene compilation (causal_selection_before_compile=True); reversing eligible candidate scores alters chosen_candidate_id, stage_mode, compiled layers, selected_graph_hash, and storyboard_hash; canonical run locks 9/9 chosen candidates into actual_engine_usage.json.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D02",
+      "severity": "P0",
+      "title": "rank_scene_candidates crashed on empty candidates and returned ineligible scored[0] when all candidates failed hard constraints",
+      "baseline_evidence": "Reproduced on 4aaef79: rank_scene_candidates([], ...) raised IndexError; all-rejected list returned ineligible candidate 'bad' as chosen.",
+      "fix_modules": [
+        "motionlab/semantic/narrative_brain.py::rank_scene_candidates,rank_global_candidates,_build_replan_candidates"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_d02_rank_scene_candidates_fail_closed_on_empty_and_all_rejected"
+      ],
+      "measured_outcome": "Empty and all-rejected inputs fail closed with NO_ELIGIBLE_CANDIDATE sentinel (eligible=False, zero IndexError); rank_global_candidates performs bounded replan or returns BLOCKED_NO_ELIGIBLE_CANDIDATE; removed _optA_ and blind dual-engine scoring biases.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D03",
+      "severity": "P0",
+      "title": "EvidenceIndex rebuilt synthetic beat-wide transcript instead of accepting real ASR Transcript provenance",
+      "baseline_evidence": "In R5.R2, direct_generative_storyboard() did not accept Transcript and synthesized coarse beat-wide spans claiming word alignment.",
+      "fix_modules": [
+        "motionlab/semantic/narrative_brain.py::EvidenceIndex,build_evidence_index",
+        "motionlab/semantic/generative_director.py::direct_generative_storyboard",
+        "motionlab/composition/r5_engine.py::run_generative_r5_pipeline"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_d03_real_transcript_provenance_vs_approx_fallback"
+      ],
+      "measured_outcome": "r5_engine passes real Whisper Transcript directly into direct_generative_storyboard (real_transcript_supplied=True, timestamp_quality=SEGMENT_APPROX, word_timestamps_exact=False); omitted Transcript falls back honestly to BEAT_LEVEL_APPROX.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D04",
+      "severity": "P0",
+      "title": "Multi-HyperFrames layers per scene silently dropped after first layer",
+      "baseline_evidence": "Reproduced on 4aaef79: compile_scene_hyperframes_html() compiled only the first engine='hyperframes' layer and silently discarded the second HF layer.",
+      "fix_modules": [
+        "motionlab/composition/generative_compiler.py::compile_scene_hyperframes_layers",
+        "motionlab/composition/primitive_adapters.py::hf_apple_money_count(render_mode)",
+        "motionlab/composition/r5_engine.py",
+        "renderers/remotion/src/GenerativeSceneComposition.tsx",
+        "renderers/remotion/scripts/batch_render.mjs"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_multilayer_clock.py::test_d04_multi_hf_layers_compiled_in_z_order_without_dropping"
+      ],
+      "measured_outcome": "Canonical sc_01_hook_contrast and Visual Lab H1 render 2 distinct HF WebMs in exact z-order (ly_00_hf_bg_tokens paper_tokens_only behind MODNet matte + ly_00_hf_fg_hero typography_only above matte), both individually ablation-verified (MAD 1.306 and 11.133).",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D05",
+      "severity": "P0",
+      "title": "Olivia-specific fallback strings left in runtime TSX, HF adapters, and registry metadata",
+      "baseline_evidence": "Grep on 4aaef79 confirmed hardcoded 'The Next Paycheck Plan', '56-page workbook', 'Notion dashboard', '01 / 56', '$1,200 TO SPEND', and '56-page' defaults in GenerativeSceneComposition.tsx, primitive_adapters.py, and primitive_registry.py.",
+      "fix_modules": [
+        "renderers/remotion/src/GenerativeSceneComposition.tsx",
+        "motionlab/composition/primitive_adapters.py",
+        "motionlab/composition/primitive_registry.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_product_grounding.py::test_d05_zero_olivia_hardcodes_in_runtime_adapters_and_tsx"
+      ],
+      "measured_outcome": "Zero Olivia fallback strings remain in TSX, adapters, or generated HTML under empty parameters (verified by test_d05 and tsc --noEmit).",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D06",
+      "severity": "P0",
+      "title": "Weak substring product matching and lack of real image/video byte decode & render binding",
+      "baseline_evidence": "Reproduced on 4aaef79: whitespace query '   ' matched 'Budget Atlas' via weak substring check; fake PNG header bytes passed catalog inspection; rem_rc_flip_page did not render authorized image textures.",
+      "fix_modules": [
+        "motionlab/assets/catalog.py",
+        "motionlab/composition/r5_engine.py",
+        "renderers/remotion/src/GenerativeSceneComposition.tsx::rem_rc_flip_page"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_product_grounding.py::test_d06_strict_exact_matching_corrupt_bytes_and_ambiguity_guards"
+      ],
+      "measured_outcome": "Strict normalized exact matching + ambiguity rejection (AMBIGUOUS_PRODUCT_MATCH) + real PIL/OpenCV >=64x64 decode verification; Visual Lab H4 proves real texture rendering vs conceptual fallback (ablation MAD 17.357, 36.02% pixels); canonical Olivia honestly reports ASSET_MISSING_CONCEPTUAL.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D07",
+      "severity": "P1",
+      "title": "Compiled-prop animation markers were labeled 'realized' without pixel observation",
+      "baseline_evidence": "In R5.R2 semantic_sound.py, extract_realized_animation_markers() only clamped planned frames to compiled durationInFrames without verifying rendered scene artifacts or decoded pixels.",
+      "fix_modules": [
+        "motionlab/audio/semantic_sound.py::AnimationMarker,compile_animation_markers,emit_render_trace_markers,observe_pixel_animation_markers",
+        "motionlab/composition/r5_engine.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_sound_truth.py::test_d07_4tier_marker_truth_never_fakes_observed_pixel"
+      ],
+      "measured_outcome": "Strict 4-tier marker protocol (PLANNED -> COMPILED -> RENDER_EMITTED -> OBSERVED_PIXEL); canonical Olivia run verified 17 OBSERVED_PIXEL + 1 RENDER_EMITTED markers with explicit evidence hashes.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D08",
+      "severity": "P0",
+      "title": "Artificial cue_diff_rms * 0.5 reference floor masked missing cues in final.mp4 during audio QA",
+      "baseline_evidence": "In R5.R2 mixer.py, final_minus_cf_rms was floored by cue_diff_rms * 0.5 from mixed_reference.wav, risking false PASS if final.mp4 dropped SFX while mixed_reference.wav remained intact.",
+      "fix_modules": [
+        "motionlab/audio/mixer.py::validate_final_audio_mix"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_sound_truth.py::test_d08_floor_free_counterfactual_fails_closed_when_final_lacks_cue"
+      ],
+      "measured_outcome": "Removed reference floor completely (reference_floor_used=False); Check B directly verifies decoded final.mp4 via cue-exterior leading+trailing lag alignment against intact and minus-one controls. Tampered source-only MP4 fails closed; canonical Olivia achieves 13/13 PASS (lag=0 on all 13 cues, final drop 46.65-55.71 dB, residual corr 0.9133-0.9998).",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D09",
+      "severity": "P1",
+      "title": "VLM critic status hardcoded without probing local manifest or multimodal CLI",
+      "baseline_evidence": "In R5.R2 visual_critic.py, vlm_status was a static string with no manifest or binary discovery.",
+      "fix_modules": [
+        "motionlab/composition/visual_critic.py::inspect_local_vlm,run_local_vlm_critic",
+        "motionlab/semantic/model_profiles.py::find_local_vlm_binary,inspect_registered_models"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_multimodal_critic.py::test_d09_vlm_adapter_probes_manifest_honestly_and_never_fakes"
+      ],
+      "measured_outcome": "Real manifest + multimodal binary probe cleanly reports VISION_CRITIC_NOT_RUN when no verified local VLM is provisioned and never misrepresents text-only Qwen2.5-3B as a VLM.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D10",
+      "severity": "P0",
+      "title": "Visual critic buffered all decoded frames in RAM (O(N) memory risk on long-form video)",
+      "baseline_evidence": "In R5.R2 visual_critic.py, fin_frames and src_frames accumulated full RGB frame arrays for the entire timeline before computing boundary MADs.",
+      "fix_modules": [
+        "motionlab/composition/visual_critic.py::run_objective_rendered_critic"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_multimodal_critic.py::test_d10_streaming_critic_handles_long_60s_1440f_clip_bounded_ring"
+      ],
+      "measured_outcome": "Rewritten with streaming deque(maxlen=16) ring buffer (streaming_mode=True, peak_ring_buffer_frames=16 across 720f canonical and 1440f stress test).",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D11",
+      "severity": "P0",
+      "title": "Visual critic only sampled single exact boundary frames, missing internal flashes and post-boundary spikes",
+      "baseline_evidence": "In R5.R2 visual_critic.py, single-frame flashes inside scenes and ±6f post-boundary spikes went undetected.",
+      "fix_modules": [
+        "motionlab/composition/visual_critic.py::run_objective_rendered_critic",
+        "motionlab/composition/r5_engine.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_multimodal_critic.py::test_d10_d11_streaming_critic_catches_internal_flash_and_post_boundary_spike"
+      ],
+      "measured_outcome": "Full-timeline internal flash detector + ±6f boundary-window spike audit + bounded 2-round scene-only repair loop wired before marker freeze. Visual Lab H6 proves broken flash caught (2 flashes, 2 severe) vs clean H5 (0 flashes, 0 severe); canonical Olivia has 0 severe findings.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D12",
+      "severity": "P1",
+      "title": "Primitive retrieval used naive bag-of-words without semantic ontology, pre-filtering, or anti-overuse diversity",
+      "baseline_evidence": "In R5.R2 catalog_search.py, retrieval relied on flat token overlap with no capability/license pre-filtering, overuse penalty, or catalog hash.",
+      "fix_modules": [
+        "motionlab/composition/catalog_search.py::search_primitives_hybrid,compute_catalog_index_hash"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_d12_hybrid_ontology_retrieval_anti_overuse_and_catalog_hash"
+      ],
+      "measured_outcome": "Implemented ontology_hybrid_sparse retrieval with concept ontology, IDF sparse scoring, capability/matte/ledger/license pre-filtering, anti-overuse decay, deterministic catalog_index_hash, and honest embedding_model_used=False.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D13",
+      "severity": "P1",
+      "title": "Remotion compiler silently rounded rational FPS (24000/1001) to integer without NTSC handling or fail-closed rejection",
+      "baseline_evidence": "Reproduced on 4aaef79: 24000/1001 rounded silently to 24 and arbitrary irrational rates like 23976/1003 were accepted silently.",
+      "fix_modules": [
+        "motionlab/composition/generative_compiler.py::validate_rational_fps_clock,compile_scene_remotion_props"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_multilayer_clock.py::test_d13_rational_fps_clock_exact_and_fail_closed_unsupported"
+      ],
+      "measured_outcome": "Exact integer clocks labeled EXACT_INTEGER; standard NTSC clocks (24000/1001, 30000/1001, 60000/1001) explicitly labeled RATIONAL_NTSC_RESAMPLED with exact fpsNum/fpsDen props; unsupported irrational clocks fail closed with ValueError.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D14",
+      "severity": "P1",
+      "title": "QA pack builder used blind shutil.rmtree without path containment or atomic staging",
+      "baseline_evidence": "In R5.R2 qa_pack.py, out_dir was deleted directly via shutil.rmtree without containment validation or atomic swap.",
+      "fix_modules": [
+        "motionlab/composition/qa_pack.py::build_qa02_evidence_pack"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_streaming_qa.py::test_d14_d15_qa02_atomic_safe_containment_redaction_and_image_permission"
+      ],
+      "measured_outcome": "Enforces ensure_safe_subpath(allowed_root, out_dir), stages in sibling temp directory, performs atomic rename swap, and rejects traversal/outside-root destinations fail-closed.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D15",
+      "severity": "P1",
+      "title": "QA pack redaction missed free-text host paths/emails and lacked explicit image-sharing consent gating",
+      "baseline_evidence": "In R5.R2 qa_pack.py, string redaction only targeted specific keys and did not gate contact sheet copying behind image_sharing_authorized.",
+      "fix_modules": [
+        "motionlab/composition/qa_pack.py::redact_for_git_pack,build_qa02_evidence_pack"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_streaming_qa.py::test_d14_d15_qa02_atomic_safe_containment_redaction_and_image_permission"
+      ],
+      "measured_outcome": "Deep recursive redaction scrubs POSIX/Windows host paths, emails, and verbatim quote fields; default QA-02 pack enforces CONTACT_SHEET_LOCAL_ONLY, ARTIFACT_LOCAL_ONLY, url=null, and 0 audit leaks.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D16",
+      "severity": "P0",
+      "title": "Vacuous tech_ok pass when ablation_total == 0 or mix_info is None",
+      "baseline_evidence": "In R5.R2 r5_engine.py, ablation_ok defaulted True if ablation_total == 0 and audio_ok passed if mix_info was None even when mix mode had planned cues.",
+      "fix_modules": [
+        "motionlab/composition/r5_engine.py::evaluate_r5_technical_gate",
+        "motionlab/pipeline.py::_validate_generative_r5_run"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_streaming_qa.py::test_d16_hardened_gate_logic_rejects_zero_ablation_and_missing_mix"
+      ],
+      "measured_outcome": "Hardened fail-closed gate rejects ablation_total == 0 when graphic/matte layers are planned, rejects mix_info is None when mixed cues are planned, rejects severe_findings_count > 0, and requires causal chosen_candidate_id match.",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D17",
+      "severity": "P1",
+      "title": "Director LLM cache key omitted prompt, JSON schema, catalog, ROI, model SHA, and binary fingerprint",
+      "baseline_evidence": "In R5.R2 generative_director.py, cache key hashed only story_graph_hash + matte + seed + model_id, risking stale cache hits after prompt/schema/catalog/binary edits.",
+      "fix_modules": [
+        "motionlab/semantic/model_profiles.py::compute_director_cache_key",
+        "motionlab/semantic/generative_director.py"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_d17_director_cache_key_invalidates_on_any_semantic_input_change"
+      ],
+      "measured_outcome": "Canonical SHA-256 director cache key hashes schema version, system prompt, user prompt, dynamic JSON schema, model SHA, binary fingerprint, catalog hash, story_graph_hash, evidence_index_hash, ROI summary, seed, matte, sampling params, and code version (excluding absolute run paths).",
+      "status": "RESOLVED_VERIFIED"
+    },
+    {
+      "id": "D18",
+      "severity": "P1",
+      "title": "Host compute budget & optional model upgrade lacked automated discovery and honest NOT_RUN reporting",
+      "baseline_evidence": "R5.R2 lacked a capability/budget probe and structured model profile benchmarking harness for local LLM/VLM upgrades.",
+      "fix_modules": [
+        "motionlab/semantic/model_profiles.py::inspect_host_compute_budget,inspect_registered_models,run_model_capability_benchmark"
+      ],
+      "verification_tests": [
+        "tests/unit/test_r5r3_causal_director.py::test_36_case_independent_eval_and_model_registry_honesty"
+      ],
+      "measured_outcome": "Automated host budget inspection detects Apple Silicon RAM/disk constraints and honestly records MODEL_UPGRADE_NOT_RUN while retaining verified qwen2_5_3b_instruct_q4_k_m.",
+      "status": "RESOLVED_VERIFIED"
+    }
+  ]
+}

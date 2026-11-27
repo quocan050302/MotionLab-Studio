@@ -1,0 +1,198 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R3 IMPLEMENTATION & VERIFICATION REPORT
+================================================================================
+Repository:             https://github.com/quocan050302/MotionLab-Studio
+Branch:                 feat/ml-01-zero-api-effects
+Base Commit (R5.R2):    4aaef79a7b5f24036334d4789a6d3bfe34948f27 (R5.R2 code: 04ee4faceb107ee3f2470b52f3734c2826d37efe)
+Tested Code Commit:     80d344e812fd9a2aaeef57e205e3b9dc846ef614 (TESTED_SHA = 80d344e)
+Canonical Run ID:       20261127T120000Z_c56c9ae0_001
+Execution Mode:         100% Offline / Zero-API / AUTO_GENERATIVE (Zero Hardcoding)
+Host Environment:       macOS (Apple Silicon), Python 3.13.0, FFmpeg, Remotion, HyperFrames,
+                        Faster-Whisper Small, Qwen2.5-3B-Instruct Q4_K_M (llama-completion Metal),
+                        MODNet ONNX, 29 unique raw local CC0-1.0 Foley WAVs (34 catalog bindings)
+================================================================================
+
+1. EXECUTIVE SUMMARY & HONEST STATUS DISCLOSURES
+--------------------------------------------------------------------------------
+- Technical Verification Status:  TECHNICAL_PASS (17/17 checks in `motionlab validate --run`)
+- Aesthetic / VQ-01 Status:       PENDING_HUMAN_REVIEW (G10 requires human playback & rubric review)
+- Audio Listening Status:         LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY
+- Local Vision Critic Status:     VISION_CRITIC_NOT_RUN (no verified local VLM in models/manifest.json;
+                                  text-only Qwen2.5-3B is NEVER misrepresented as a vision critic)
+- Local LLM Model Upgrade:        MODEL_UPGRADE_NOT_RUN (host free disk ~13 GiB vs 5 GiB reserve;
+                                  verified baseline qwen2_5_3b_instruct_q4_k_m retained)
+- Product Asset Grounding:        ASSET_MISSING_CONCEPTUAL on canonical Olivia run (zero fake UI);
+                                  real image texture binding proven in isolated Visual Lab H4
+- Real Held-Out Video Corpus:     REAL_HELDOUT_NOT_RUN (36-case synthetic/fixture eval suite executed)
+- Motion Curve Model:             analytic_physically_inspired (NOT rigid-body physics simulation)
+- Retrieval Mode:                 ontology_hybrid_sparse (embedding_model_used=False)
+- Audio Asset Intelligence:       FFT spectral/envelope descriptors (audio_embedding_model_used=False)
+- QA-02 Contact Sheet / Media:    CONTACT_SHEET_LOCAL_ONLY, ARTIFACT_LOCAL_ONLY (url=null)
+
+2. IMMUTABLE INPUT & CANONICAL OUTPUT VERIFICATION (AT EXACT 80d344e)
+--------------------------------------------------------------------------------
+Original Input (IMMUTABLE):
+  File:        input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+  Size:        8,650,669 bytes
+  SHA-256:     c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e (VERIFIED UNCHANGED)
+  Stream:      720x1280, 24/1 fps, 720 frames, 30.000s, AAC mono 44100 Hz (1296 packets)
+
+Canonical AUTO_GENERATIVE Output (Local Only — NOT Committed to Git):
+  Run Dir:     runs/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/
+  Final MP4:   final.mp4
+  Hardlink:    Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R3_FINAL_9x16.mp4
+  Size:        11,103,582 bytes
+  SHA-256:     0f6e005bf70d482fff128b5ae3a242c4d18a9a7ec1c8ae194801fb6655b1f1b2
+  Specs:       720x1280, yuv420p, 24/1 fps, 720 frames, 30.000s, single default AAC mixed track
+  Decode QA:   ffmpeg -v error -xerror -> exit 0, stderr_len=0
+  Master Audio: original_audio_master.m4a (master_exact=True, exact packet SHA-256 & count match)
+
+Preview 9:16 Output (Downscaled from final.mp4, audio copied):
+  File:        runs/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/preview_9x16.mp4
+  Size:        4,830,434 bytes
+  SHA-256:     dfd2b2bbc5305708e4d2db1e5a62069b0e9947b70c39f0cd0c17c54c8d95d94d
+  Decode QA:   ffmpeg -v error -xerror -> exit 0, stderr_len=0
+
+3. AUTOMATED TEST & EVALUATION RESULTS (AT EXACT 80d344e)
+--------------------------------------------------------------------------------
+- Full pytest (`python -m pytest -q tests/`):
+    157 passed, 15 subtests passed in 68.26s (0 failed)
+    (+19 new R5.R3 unit/negative tests across 6 focused modules:
+     test_r5r3_causal_director.py, test_r5r3_multilayer_clock.py,
+     test_r5r3_sound_truth.py, test_r5r3_product_grounding.py,
+     test_r5r3_multimodal_critic.py, test_r5r3_streaming_qa.py)
+- Upstream unittest (`python -m unittest discover -s tests -p "test_render_*.py" -v`):
+    Ran 26 tests in 0.008s — OK
+    DISCLOSURE: These 26 upstream tests are already included inside the 157 pytest tests
+    (exact unique test count = 157; NOT double-counted as 183).
+- TypeScript Check (`tsc --noEmit -p renderers/remotion/tsconfig.json`):
+    Exit 0 (0 errors)
+- Doctor (`python -m motionlab doctor --json`):
+    Exit 0 (all local dependencies, binaries, models, and CC0 Foley verified)
+- Hybrid Semantic Evaluation Suite (`run_hybrid_eval_suite(include_live_llm=True, live_case_limit=4)`):
+    * Deterministic Rule Eval (EV01..EV36): 36 / 36 (100.0%)
+    * Live Local Qwen2.5-3B-Instruct (4 cases: EV01, EV02, EV24, EV32):
+        - Status:               EXECUTED_LOCAL_LLM
+        - Raw Schema Compliant: 4 / 4
+        - Raw Niche Matches:    2 / 4 (EV01 finance, EV02 product matched; EV24 education & EV32 gameplay
+                                raw-labeled product — empirically demonstrating why causal hybrid reconciliation
+                                remains essential with 3B local weights)
+        - Reconciled Passed:    4 / 4
+        - Interventions:        safety=12, factual=0, artistic=0, resource=0
+
+4. CAUSAL GLOBAL CREATIVE DIRECTOR & MULTI-LAYER EXECUTION (9 SCENES, 19/19 ABLATIONS)
+--------------------------------------------------------------------------------
+- Reasoning Mode:               HYBRID_CAUSAL_GLOBAL_DIRECTOR
+- Retrieval Mode:               ontology_hybrid_sparse (catalog_index_hash=611621f00c76f639...)
+- Real Transcript Supplied:     True (timestamp_quality=SEGMENT_APPROX, word_timestamps_exact=False)
+- Causal Selection Before Compile: True
+- Global Beam Search:           beam_width=8, status=OK, global_score=663.6, replan_events=0
+- Raw vs Reconciled (Olivia):   9 raw LLM proposals -> 8 safety reconciliations, 1 unchanged
+- Storyboard Hash:              1a52844c376184a92461f520c9f999f702d01f1110697a64059a40957687bb22
+- Selected Graph Hash:          e3fe5c38584b2645e0ed76e9d771d121233531ce43785ddde3f529f09ff54912
+- Story Graph Hash:             7ff7fa01ab169c156509922919560b1c8917e08a5a7e56c2c9f2dfee073cc4e0
+- Reuse Gate:                   PASSED — 15 distinct verified primitives (9 Remotion + 6 HyperFrames)
+                                across 5 verified MIT/Apache-2.0 origin repos (0 unverified)
+- Template Diversity:           9 distinct signatures across 5 stage modes, max_consecutive_identical=1
+- Active-Window Ablations:      19 / 19 VERIFIED (100%)
+
+Per-Scene Execution & Per-Layer Ablation Summary:
+  sc_01_hook_contrast    f000-061  live_depth_matte       2 HF layers | matte:18.864, hf_bg_tokens:1.306, hf_fg_hero:11.133 (ALL OK)
+  sc_02_negation_tension f061-138  live_clean_bridge      0 HF layers | rem:13.351 (OK)
+  sc_03_allocation_step  f138-207  tracked_macro_split    1 HF layer  | fg_hf:15.441, rem:8.888 (ALL OK)
+  sc_04_allocation_step  f234-269  aspect_morph_editorial 1 HF layer  | fg_hf:5.399 (OK)
+  sc_05_allocation_step  f269-344  live_clean_bridge      1 HF layer  | fg_hf:6.494 (OK)
+  sc_06_payoff_reveal    f344-418  full_graphic_cutaway   1 HF layer  | fg_hf:6.488, rem:7.908, trans_in:14.003 (ALL OK)
+  sc_07_product_intro    f482-533  live_depth_matte       1 HF layer  | fg_hf:7.478, matte:18.580, trans_in:24.962 (ALL OK)
+  sc_08_product_benefit  f533-636  full_graphic_cutaway   1 HF layer  | fg_hf:2.962, rem:42.052, trans_in:98.139 (ALL OK)
+  sc_09_closing_takeaway f636-720  live_clean_bridge      1 HF layer  | fg_hf:0.645, rem:12.449 (ALL OK)
+
+5. STREAMING OBJECTIVE CRITIC & BOUNDED REPAIR LOOP (D09, D10, D11)
+--------------------------------------------------------------------------------
+- Streaming Mode:               True (peak_ring_buffer_frames = 16 across 720 frames)
+- Abrupt Cutaway Jumps:         0 (all 10 boundaries smoothly bridged or held)
+- Boundary Window Spikes (±6f): 0
+- Internal Flash Spikes:        0
+- Black / Freeze Frames:        0 / 0
+- Max Face Washout Luma Delta:  9.65 (at f281; threshold <= 22.0, 0 findings)
+- Severe Findings:              0 (initial=0, final=0, repair_rounds=0, status=CLEAN_PASS_NO_REPAIR_NEEDED)
+- Substantive Visual Change:    84.03% of 720 frames
+- Phone 360x640 Median Contrast: 3.52
+
+6. CINEMATIC SOUND INTELLIGENCE & FLOOR-FREE COUNTERFACTUAL AUDIO QA (D07, D08)
+--------------------------------------------------------------------------------
+- 4-Tier Animation Markers:     17 OBSERVED_PIXEL + 1 RENDER_EMITTED (barrier: OBSERVED_PIXEL_POST_RENDER_FROZEN)
+- Audio Asset Intelligence:     29 unique raw CC0 WAV hashes across 34 catalog bindings
+- Staged / Planned / Blocked:   13 / 13 staged, 0 dropped, 0 blocked (cue_ledger_conservation_ok=True)
+- Recorded vs Procedural:       13 / 13 recorded local CC0 Foley (12 unique raw WAVs), 0 procedural fallback
+- Final Decoded Loudness:       -15.2 LUFS integrated, -1.2 dBTP true peak, 0 clipping samples added
+- Master Correlation / Mono:    final_vs_reference_corr = 0.99992, mono_downmix_ratio = 0.9997
+- Counterfactual Method:        true_minus_one_cue_aac_counterfactual (reference_floor_used = False on ALL 13 cues)
+
+Per-Cue Floor-Free Verification Table (13 / 13 PASS):
+  Cue ID                   Frame  Role                Lag   Sync     RefDrop  FinDrop  ResCorr  1-4kHz    Floor
+  scue_00_cash_flick       f002   ILLUSTRATIVE_FOLEY  0     +0.00f   47.00dB  46.98dB  0.9958   -10.11dB  False
+  scue_01_reverse_whoosh   f073   COGNITIVE_EMPHASIS  0     -0.16f   51.29dB  51.32dB  0.9843    -7.32dB  False
+  scue_02_cash_flick       f152   ILLUSTRATIVE_FOLEY  0     +0.00f   47.92dB  47.86dB  0.9915    -9.32dB  False
+  scue_03_tick_accent      f166   GRAPHIC_MOTION      0     +0.00f   55.72dB  55.71dB  0.9961    -1.30dB  False
+  scue_04_paper_rustle     f236   ILLUSTRATIVE_FOLEY  0     +0.00f   47.32dB  47.31dB  0.9886   -13.95dB  False
+  scue_05_tick_accent      f250   GRAPHIC_MOTION      0     +0.00f   53.52dB  53.52dB  0.9993    -9.26dB  False
+  scue_06_envelope_slide   f291   ILLUSTRATIVE_FOLEY  0     +0.00f   50.13dB  48.70dB  0.9133    -9.05dB  False
+  scue_07_tick_accent      f305   GRAPHIC_MOTION      0     +0.00f   52.38dB  52.61dB  0.9969   -25.87dB  False
+  scue_08_soft_impact      f356   COGNITIVE_EMPHASIS  0     -0.00f   52.01dB  52.03dB  0.9998   -25.49dB  False
+  scue_09_shimmer_payoff   f376   COGNITIVE_EMPHASIS  0     +0.00f   46.82dB  46.86dB  0.9982    -8.35dB  False
+  scue_10_soft_whoosh      f486   TRANSITION_BRIDGE   0     +0.00f   50.98dB  50.98dB  0.9918   -10.13dB  False
+  scue_11_page_turn        f566   PRODUCT_TEXTURE     0     +0.00f   46.69dB  46.65dB  0.9946   -13.98dB  False
+  scue_12_bass_settle      f642   COGNITIVE_EMPHASIS  0     +0.00f   52.33dB  52.34dB  0.9983   -30.84dB  False
+
+7. ISOLATED VISUAL LAB PROOFS (ART_DIRECTED_QA — STRICTLY SEPARATE FROM AUTO)
+--------------------------------------------------------------------------------
+Location: runs/r5r3_visual_lab/ (H1..H6 clips + r5r3_visual_lab_sheet.jpg + proof_summary.json)
+- H1 Multi-HF Depth Hook:
+    * h1_hf_bg_tokens (background_graphics behind MODNet matte): verified=True, MAD=1.307, changed=1.994%
+    * h1_hf_fg_hero (foreground_graphics above MODNet matte):    verified=True, MAD=11.085, changed=25.314%
+- H4 Real Authorized Product Texture vs Conceptual Fallback:
+    * real_product_asset_texture ablation: verified=True, MAD=17.357, changed=36.020%
+- H6 Streaming Critic Flash Defect vs Repaired Control:
+    * Broken live clip (1-frame white flash injected): 2 internal flashes, 2 severe findings caught
+    * Clean repaired clip:                             0 internal flashes, 0 severe findings
+    * Streaming mode:                                  True
+
+8. SERIAL PERFORMANCE, RESOURCE & PARITY BENCHMARKS (AT EXACT 80d344e)
+--------------------------------------------------------------------------------
+Run Mode                       Wall(s)  Speedup  PyRSS(MB)  BatchRSS(MB)  HF Hits  Rem Hits  Temp(MB)
+Canonical Cold (w=2, nocache)  302.26s  1.00x    798.50     1730.55       0 / 9    0 / 9     90.73
+Parity (w=1, cache populate)   248.26s  1.22x    702.98     1675.48       0 / 9    0 / 9     90.73
+Warm Cache (w=2)               110.88s  2.73x    980.86     1731.81       9 / 9    7 / 9     90.73
+Incremental 1-Scene (w=2)      114.22s  2.65x    770.16     1976.20       9 / 9    6 / 9     90.73
+
+Canonical Cold Stage Breakdown (302.26s total):
+  vision_and_asr: 8.81s | story_graph: 0.01s | generative_director: 28.70s |
+  vision_segmentation: 10.51s | hyperframes_graphics: 78.21s | remotion_scenes: 110.20s |
+  sound_design_mix: 3.98s | canonical_assembly: 9.20s | validation_and_qa: 32.72s
+
+Deterministic w=1 vs w=2 Parity Checks:
+  - storyboard_hash exact match:     True
+  - selected_graph_hash exact match: True
+  - story_graph_hash exact match:    True
+  - audio_event_ids exact match:     True
+
+Note on Warm Cache 7/9 Remotion Hits:
+  7 non-matte scenes hit Remotion scene cache directly; the 2 live_depth_matte scenes depend on
+  per-run temporary matte WebM filenames/paths and re-rendered cleanly in ~18s, while all 9/9
+  HyperFrames overlays hit cache (0.86s vs 78.21s cold) and generative_director hit D17 cache (1.08s vs 28.70s).
+
+9. ENGINEERING GATE SUMMARY (G0–G10)
+--------------------------------------------------------------------------------
+  G0  Repo/Branch/Baseline Hygiene & Original Input Immutability:   PASS
+  G1  Zero-API Offline Security & AST Network Guard:                PASS
+  G2  Causal Global Director, 36-Case + Live Hybrid Eval & D01-D03: PASS
+  G3  Multi-HF Layer IR, Zero Hardcodes (D05) & Rational Clock:     PASS
+  G4  Authorized Product Grounding (D06) & Visual Lab H1–H6:        PASS
+  G5  4-Tier Markers (D07) & 13/13 Floor-Free Audio QA (D08):       PASS
+  G6  Streaming Critic (D10-D11), Honest VLM (D09) & Repair Loop:   PASS
+  G7  Full Automated Suite (157 pytest, 26 unittest, tsc, doctor):  PASS
+  G8  Canonical 30s Render, validate --run (17/17) & w1/w2 Parity:  PASS
+  G9  Redacted QA-02 Pack (<=2 MiB, 0 leaks, atomic safe) & Docs:   PASS
+  G10 Human Playback & VQ-01 Aesthetic / Listening Approval:        PENDING_HUMAN_REVIEW
+================================================================================

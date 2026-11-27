@@ -1,0 +1,243 @@
+{
+  "artifact_hashes": {
+    "audio_timeline.json": "5854e65367708c5f986e67b322867c570b902034df367f6449efbb550106d731",
+    "benchmark.json": "96bbb0254c8fc88aa36c9e2dc6123a3f3232198d95ae4d66ffed9f1e238aac40",
+    "cue_decisions.json": "1cf11d6c0afa31fc497fe1c6baf510ad41e87aa2ff91db72d2398212859fc9c2",
+    "effect_execution.json": "e061c522e323f401e94da94291189818f38a5bfc4330c63ad7bed6438169894c",
+    "marker_tiers.json": "b0de4cb79f2dcb4be82c4327c1326881da892aecce93268295c59283ae185f38",
+    "mix_metrics.json": "395bec304b2d85ce2912e1c0e396907f7a8c500ed6dd9fdec52558db6fa87f87",
+    "revision_history.json": "fdd365992e788a0766a860ccf6bd3345cd94664de27241157d032750c89a9550",
+    "selected_candidate_trace.json": "bc37e10fa409fc128eb31582c99988715650304cad7f540b1159d0c96784467d",
+    "sound_rationale.json": "b702e0ca7015702f00e3f8e54c0ab379bf45b0355ec48a1623be6dab97273d85",
+    "story_graph_redacted.json": "7fd4125801dd4c588bd07595a4265c0970ad7f6f331bfdd512b3228f7917729e",
+    "storyboard.json": "4f453ec166316b0762ae85429704c39640273766165e4cc61d35abd7d8d1d345",
+    "test_summary.json": "6461e951fa515d99f0f17b93d94e396d0312bed4df751e4d519da2f4979bc98c",
+    "visual_quality.json": "5abf2840deb35d39d0bdc35c24c6c34836a59d59d32c61640847ee13ccd41a47"
+  },
+  "asset_status": "ASSET_MISSING_CONCEPTUAL",
+  "benchmark_timings": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
+      "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
+      "batch_worker_peak_tree_rss_mb": 1730.55,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 9,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 1.142,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 9.89,
+      "remotion_code_hash": "1086d481285ab21083f8",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 28
+    },
+    "peak_temp_mb": 90.73,
+    "peak_tree_rss_mb": 798.5,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 9.2036,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 501.69
+      },
+      "generative_director": {
+        "elapsed_s": 28.7041,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 47.66
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 78.2088,
+        "temp_mb": 8.96,
+        "tree_rss_mb": 56.14
+      },
+      "remotion_scenes": {
+        "elapsed_s": 110.1997,
+        "temp_mb": 80.85,
+        "tree_rss_mb": 105.44
+      },
+      "sound_design_mix": {
+        "elapsed_s": 3.9825,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 325.33
+      },
+      "story_graph": {
+        "elapsed_s": 0.0086,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 798.5
+      },
+      "validation_and_qa": {
+        "elapsed_s": 32.7223,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 731.17
+      },
+      "vision_and_asr": {
+        "elapsed_s": 8.806,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 794.78
+      },
+      "vision_segmentation": {
+        "elapsed_s": 10.507,
+        "temp_mb": 2.39,
+        "tree_rss_mb": 491.31
+      }
+    }
+  },
+  "blockers": [
+    "G10_HUMAN_VQ01_VISUAL_AUDIO_REVIEW_PENDING",
+    "REAL_HELDOUT_FOOTAGE_NOT_PROVISIONED",
+    "LOCAL_VLM_NOT_PROVISIONED",
+    "OWNER_PRODUCT_SCREENSHOT_ASSET_MISSING_CONCEPTUAL_USED"
+  ],
+  "branch": "feat/ml-01-zero-api-effects",
+  "contact_sheet_status": "CONTACT_SHEET_LOCAL_ONLY",
+  "creative_status": "PENDING_HUMAN_REVIEW",
+  "critic_status": "VISION_CRITIC_NOT_RUN",
+  "engines_executed": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "engines_requested": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "fallbacks": [],
+  "final_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 11103582,
+    "filename": "Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R3_FINAL_9x16.mp4",
+    "sha256": "0f6e005bf70d482fff128b5ae3a242c4d18a9a7ec1c8ae194801fb6655b1f1b2",
+    "url": null
+  },
+  "foley_provenance": {
+    "library_status": "RECORDED_FOLEY_VERIFIED",
+    "procedural_cues_used": 0,
+    "recorded_cues_used": 13
+  },
+  "heldout_status": "REAL_HELDOUT_NOT_RUN",
+  "imported_primitives_used": [
+    "rem_gtk_line_led",
+    "rem_rc_flip_page",
+    "rem_ru_masked_slide",
+    "rem_ru_parallax",
+    "rem_ru_strikethrough",
+    "rem_ru_track_matte",
+    "rem_ru_waterfall",
+    "rem_viv_aspect_morph",
+    "rem_viv_particle_field",
+    "hf_apple_money_count",
+    "hf_data_chart",
+    "hf_lt_mask_reveal",
+    "hf_mk_progress_stat",
+    "hf_mk_specs_list",
+    "hf_organic_light_leak"
+  ],
+  "input_fps": "24/1",
+  "input_frames": 720,
+  "input_geometry": "720x1280",
+  "label": "ML-01.R5.R3",
+  "listening_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+  "offline_proof_scope": "api_keys_unset_static_ast_zero_remote_runtime_local_models_only",
+  "pack_type": "QA-02",
+  "plan_hash": "1a52844c376184a92461f520c9f999f702d01f1110697a64059a40957687bb22",
+  "preview_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 4830434,
+    "filename": "preview_9x16.mp4",
+    "sha256": "dfd2b2bbc5305708e4d2db1e5a62069b0e9947b70c39f0cd0c17c54c8d95d94d",
+    "url": null
+  },
+  "remote_review_limitations": "JSON telemetry cannot replace direct motion playback or human phone-speaker listening; final MP4 & preview remain local-only unless an authorized external URL is attached.",
+  "render_mode": "AUTO_GENERATIVE",
+  "repo": "http<local_path>/MotionLab-Studio",
+  "reviewer_approval": null,
+  "run_id": "20261127T120000Z_c56c9ae0_001",
+  "schema_version": "2.0.0",
+  "selected_graph_hash": "e3fe5c38584b2645e0ed76e9d771d121233531ce43785ddde3f529f09ff54912",
+  "sonic_score_hash": "8ccb33fb80c063fb4260af387f180b5c0187c92911561c2c9dd74dbc0b868302",
+  "source_sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "story_graph_hash": "7ff7fa01ab169c156509922919560b1c8917e08a5a7e56c2c9f2dfee073cc4e0",
+  "technical_status": "TECHNICAL_PASS",
+  "test_results": {
+    "eval_deterministic": "36/36",
+    "eval_live_qwen25_3b": {
+      "cases": [
+        {
+          "case_id": "EV01_balance_vs_spendable_exact",
+          "intervention_counts": {
+            "artistic": 0,
+            "factual": 0,
+            "none": 0,
+            "resource": 0,
+            "safety": 6
+          },
+          "raw_niche": "finance",
+          "raw_schema_compliant": true,
+          "reconciled_niche": "finance",
+          "reconciled_scenes": 6
+        },
+        {
+          "case_id": "EV02_non_monetary_page_count",
+          "intervention_counts": {
+            "artistic": 0,
+            "factual": 0,
+            "none": 0,
+            "resource": 0,
+            "safety": 2
+          },
+          "raw_niche": "product",
+          "raw_schema_compliant": true,
+          "reconciled_niche": "product",
+          "reconciled_scenes": 2
+        },
+        {
+          "case_id": "EV24_education_multi_step_no_money",
+          "intervention_counts": {
+            "artistic": 0,
+            "factual": 0,
+            "none": 0,
+            "resource": 0,
+            "safety": 3
+          },
+          "raw_niche": "product",
+          "raw_schema_compliant": true,
+          "reconciled_niche": "product",
+          "reconciled_scenes": 3
+        },
+        {
+          "case_id": "EV32_gameplay_hud_strict_ui_protection",
+          "intervention_counts": {
+            "artistic": 0,
+            "factual": 0,
+            "none": 0,
+            "resource": 0,
+            "safety": 1
+          },
+          "raw_niche": "product",
+          "raw_schema_compliant": true,
+          "reconciled_niche": "product",
+          "reconciled_scenes": 1
+        }
+      ],
+      "cases_tested": 4,
+      "intervention_counts_by_type": {
+        "artistic": 0,
+        "factual": 0,
+        "none": 0,
+        "resource": 0,
+        "safety": 12
+      },
+      "raw_niche_matches": 2,
+      "raw_schema_compliant": 4,
+      "reconciled_passed": 4,
+      "status": "EXECUTED_LOCAL_LLM"
+    },
+    "overlap_disclosure": "The 26 upstream test_render_*.py unittest cases are already included inside the 157 pytest tests (not double-counted).",
+    "overlapping_upstream_unittest_passed": 26,
+    "pytest_elapsed_s": 68.26,
+    "pytest_subtests_passed": 15,
+    "pytest_unique_passed": 157,
+    "tsc_no_emit_rc": 0
+  },
+  "tested_code_sha": "80d344e812fd9a2aaeef57e205e3b9dc846ef614"
+}

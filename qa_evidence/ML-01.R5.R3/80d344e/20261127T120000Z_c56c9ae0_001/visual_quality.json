@@ -1,0 +1,2125 @@
+{
+  "continuity_summary": {
+    "boundaries": [
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 61,
+        "boundary_id": "bnd_00_f061",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_01_hook_contrast",
+        "from_stage_mode": "live_depth_matte",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_01_hook_contrast -> sc_02_negation_tension.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_02_negation_tension",
+        "to_stage_mode": "live_clean_bridge"
+      },
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 138,
+        "boundary_id": "bnd_01_f138",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_02_negation_tension",
+        "from_stage_mode": "live_clean_bridge",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_02_negation_tension -> sc_03_allocation_step.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_03_allocation_step",
+        "to_stage_mode": "tracked_macro_split"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 207,
+        "boundary_id": "bnd_02_f207",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.154,
+        "from_scene_id": "sc_03_allocation_step",
+        "from_stage_mode": "tracked_macro_split",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f207.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "live_hold_f207_234",
+        "to_stage_mode": "live_source_hold"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 234,
+        "boundary_id": "bnd_03_f234",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "live_hold_f207_234",
+        "from_stage_mode": "live_source_hold",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f234.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_04_allocation_step",
+        "to_stage_mode": "aspect_morph_editorial"
+      },
+      {
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 269,
+        "boundary_id": "bnd_04_f269",
+        "bridge_direction": "shared_morph",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_04_allocation_step",
+        "from_stage_mode": "aspect_morph_editorial",
+        "handle_frames": 8,
+        "semantic_rationale": "Shared live coordinate world & persistent ledger carry sc_04_allocation_step -> sc_05_allocation_step.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_05_allocation_step",
+        "to_stage_mode": "live_clean_bridge"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 344,
+        "boundary_id": "bnd_05_f344",
+        "bridge_direction": "incoming_to_next",
+        "expected_position_error_px": 0.013,
+        "from_scene_id": "sc_05_allocation_step",
+        "from_stage_mode": "live_clean_bridge",
+        "handle_frames": 12,
+        "semantic_rationale": "Incoming sheet_sweep sweeps warm ivory cutaway cleanly from live plate at f344.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_06_payoff_reveal",
+        "to_stage_mode": "full_graphic_cutaway"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 418,
+        "boundary_id": "bnd_06_f418",
+        "bridge_direction": "outgoing_from_prev",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_06_payoff_reveal",
+        "from_stage_mode": "full_graphic_cutaway",
+        "handle_frames": 12,
+        "semantic_rationale": "Outgoing paper_fold_out smoothly folds cutaway back to exact source clock at f418.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "live_hold_f418_482",
+        "to_stage_mode": "live_source_hold"
+      },
+      {
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 482,
+        "boundary_id": "bnd_07_f482",
+        "bridge_direction": "quiet_hold",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "live_hold_f418_482",
+        "from_stage_mode": "live_source_hold",
+        "handle_frames": 0,
+        "semantic_rationale": "Natural live breathing hold preserves source speaker clock without jarring jump at f482.",
+        "shared_element_id": "persistent_ledger_balance",
+        "to_scene_id": "sc_07_product_intro",
+        "to_stage_mode": "live_depth_matte"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 533,
+        "boundary_id": "bnd_08_f533",
+        "bridge_direction": "incoming_to_next",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_07_product_intro",
+        "from_stage_mode": "live_depth_matte",
+        "handle_frames": 12,
+        "semantic_rationale": "Incoming line_led sweeps warm ivory cutaway cleanly from live plate at f533.",
+        "shared_element_id": "product_organization_motif",
+        "to_scene_id": "sc_08_product_benefit",
+        "to_stage_mode": "full_graphic_cutaway"
+      },
+      {
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 636,
+        "boundary_id": "bnd_09_f636",
+        "bridge_direction": "outgoing_from_prev",
+        "expected_position_error_px": 0.0,
+        "from_scene_id": "sc_08_product_benefit",
+        "from_stage_mode": "full_graphic_cutaway",
+        "handle_frames": 12,
+        "semantic_rationale": "Outgoing paper_fold_out smoothly folds cutaway back to exact source clock at f636.",
+        "shared_element_id": "product_organization_motif",
+        "to_scene_id": "sc_09_closing_takeaway",
+        "to_stage_mode": "live_clean_bridge"
+      }
+    ],
+    "continuity_hash": "d941c530d802cc72ab8bb6b6ac20b5b2a471fae73db28bfbf262484b774895e7",
+    "continuous_timeline_valid": true,
+    "persistent_element_ids": [
+      "persistent_ledger_balance",
+      "product_organization_motif"
+    ],
+    "track_count": 2
+  },
+  "creative_quality_proxy": {
+    "ablation_layers_total": 19,
+    "ablation_layers_verified": 19,
+    "black_frames": 0,
+    "competitor_reference_status": "REFERENCE_NOT_AVAILABLE",
+    "evidence_files": {
+      "contact_sheet": "<local_path>/MOTIONLAB AIruns/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/contact_sheet.jpg",
+      "frame_metrics_csv": "<local_path>/MOTIONLAB AIruns/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/evidence/frame_metrics_720.csv",
+      "scene_peaks_sheet": "<local_path>/MOTIONLAB AIruns/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg"
+    },
+    "frames_checked": 720,
+    "hard_rejects": [],
+    "human_review_status": "PENDING_HUMAN_REVIEW",
+    "ledger_conservation_exact": true,
+    "phone_360x640_median_contrast_ratio": 3.52,
+    "reuse_gate_passed": true,
+    "schema_version": "1.0.0",
+    "substantive_visual_change_ratio": 0.8403,
+    "technical_proxy_status": "PASS",
+    "template_repetition_audit": {
+      "distinct_signatures": 9,
+      "distinct_stage_modes": [
+        "aspect_morph_editorial",
+        "full_graphic_cutaway",
+        "live_clean_bridge",
+        "live_depth_matte",
+        "tracked_macro_split"
+      ],
+      "flagged_runs": [],
+      "max_consecutive_identical_templates": 1,
+      "passed": true
+    },
+    "vision_critic_note": "No local VLM installed; text-only Qwen2.5-3B is NOT treated as a vision critic.",
+    "vision_critic_status": "VISION_CRITIC_NOT_RUN",
+    "vq01_human_score": null
+  },
+  "layout_summary": {
+    "all_frames_checked": 629,
+    "canvas": {
+      "height": 1280,
+      "width": 720
+    },
+    "layout_sweep_errors": [],
+    "max_eye_mouth_overlap_any_frame": 0.0,
+    "safe_margins_px": {
+      "bottom": 230,
+      "left": 48,
+      "right": 105,
+      "top": 110
+    },
+    "schema_version": "1.0.0",
+    "style_tokens": {
+      "footage_warmth": "warm_natural",
+      "niche": "finance",
+      "palette": {
+        "brass": "#BE9A59",
+        "clay": "#AF745E",
+        "espresso": "#40382E",
+        "forest": "#243B32",
+        "gold": "#BE9A59",
+        "ink_dark": "#1E1B16",
+        "ivory": "#F5F0E6",
+        "sage": "#84977A",
+        "terracotta": "#AF745E"
+      },
+      "sampled_luma": 129.1,
+      "schema_version": "1.0.0",
+      "typography": {
+        "auxiliary_min_px_720": 24,
+        "hero_amount_px_720": [
+          96,
+          150
+        ],
+        "max_families": 2,
+        "max_weights": 3,
+        "sans_family": "Bahnschrift, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "secondary_label_px_720": [
+          32,
+          48
+        ],
+        "serif_family": "Georgia, Cambria, \"Times New Roman\", serif"
+      }
+    },
+    "zero_eye_mouth_collision": true
+  },
+  "narrative_brain_audit": {
+    "attention_arc": [
+      {
+        "beat_id": "beat_00_hook_contrast",
+        "continuity_group": "ledger_world",
+        "emotion": "immediate_curiosity",
+        "focal": "balance_hero",
+        "frame_range": [
+          0,
+          61
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_01_negation_tension",
+        "continuity_group": "ledger_world",
+        "emotion": "sharp_clarity",
+        "focal": "balance_hero",
+        "frame_range": [
+          61,
+          119
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_02_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          138,
+          194
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_03_bridge",
+        "continuity_group": "live_world",
+        "emotion": "reflective_pause",
+        "focal": "live_speaker_expression",
+        "frame_range": [
+          194,
+          234
+        ],
+        "information_burden": "low_rest",
+        "pacing": "breathing_hold",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_04_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          234,
+          269
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_05_allocation_step",
+        "continuity_group": "ledger_world",
+        "emotion": "tactile_proof",
+        "focal": "cash_pool",
+        "frame_range": [
+          269,
+          322
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "focused_build",
+        "speaker_presence": "macro_hands"
+      },
+      {
+        "beat_id": "beat_06_payoff_reveal",
+        "continuity_group": "ledger_world",
+        "emotion": "decisive_realization",
+        "focal": "balance_hero",
+        "frame_range": [
+          344,
+          405
+        ],
+        "information_burden": "high_milestone",
+        "pacing": "decisive_payoff",
+        "speaker_presence": "purposeful_cutaway"
+      },
+      {
+        "beat_id": "beat_07_bridge",
+        "continuity_group": "live_world",
+        "emotion": "reflective_pause",
+        "focal": "live_speaker_expression",
+        "frame_range": [
+          405,
+          482
+        ],
+        "information_burden": "low_rest",
+        "pacing": "breathing_hold",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_08_product_intro",
+        "continuity_group": "solution_world",
+        "emotion": "calm_solution_relief",
+        "focal": "product_organizer",
+        "frame_range": [
+          482,
+          525
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_09_product_benefit",
+        "continuity_group": "solution_world",
+        "emotion": "structured_clarity",
+        "focal": "product_organizer",
+        "frame_range": [
+          533,
+          628
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "measured",
+        "speaker_presence": "purposeful_cutaway"
+      },
+      {
+        "beat_id": "beat_10_closing_takeaway",
+        "continuity_group": "solution_world",
+        "emotion": "warm_confidence",
+        "focal": "live_speaker_and_takeaway",
+        "frame_range": [
+          636,
+          685
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "calm",
+        "speaker_presence": "full_hero"
+      },
+      {
+        "beat_id": "beat_11_cta",
+        "continuity_group": "solution_world",
+        "emotion": "warm_confidence",
+        "focal": "live_speaker_and_takeaway",
+        "frame_range": [
+          685,
+          712
+        ],
+        "information_burden": "single_clear_idea",
+        "pacing": "calm",
+        "speaker_presence": "full_hero"
+      }
+    ],
+    "cache_key_info": {
+      "binary_fingerprint": "0afdfa3f7e17320a",
+      "cache_key": "f5d2037670d51bc76b90db46",
+      "catalog_hash": "611621f00c76f639",
+      "full_hash": "f5d2037670d51bc76b90db46f622f94d3ecffacc570f3f48a2307f6785166165",
+      "prompt_digest": "dd964526825af865",
+      "roi_digest": "ffeff21a78b60066",
+      "schema_digest": "b460b98250eaffe9"
+    },
+    "candidate_rankings": {
+      "sc_01_hook_contrast": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_00_hook_contrast_depth_multilayer_paper",
+            "continuity_rating": 9.0,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [
+              {
+                "layer_role": "background_graphics",
+                "layer_suffix": "hf_bg_tokens",
+                "param_overrides": {
+                  "dark_plate": true,
+                  "render_mode": "paper_tokens_only",
+                  "token_count": 4
+                },
+                "primitive_id": "hf_apple_money_count",
+                "z_order": 15
+              },
+              {
+                "layer_role": "foreground_graphics",
+                "layer_suffix": "hf_fg_hero",
+                "param_overrides": {
+                  "dark_plate": true,
+                  "render_mode": "typography_only",
+                  "token_count": 0
+                },
+                "primitive_id": "hf_apple_money_count",
+                "z_order": 35
+              }
+            ],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": true,
+            "rationale": "True 2-layer depth separation: curved paper tokens float behind MODNet foreground subject while clean hero amount floats above in upper negative space.",
+            "remotion_primitive_id": "rem_viv_particle_field",
+            "rubric_score": 73.5,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "status": "ELIGIBLE",
+            "strategy": "live_depth_dual_hf_paper_and_hero_type",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.4
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_00_hook_contrast_depth_single_hf",
+            "continuity_rating": 8.4,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": true,
+            "rationale": "Full-frame speaker anchor with depth plane and unified balance hero.",
+            "remotion_primitive_id": "rem_viv_particle_field",
+            "rubric_score": 66.1,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "status": "ELIGIBLE",
+            "strategy": "live_depth_hero_paper_tokens",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_00_hook_contrast_clean_counter",
+            "continuity_rating": 7.6,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "none",
+            "preserve_speaker_hero": true,
+            "rationale": "Minimal single-engine live balance counter without depth parallax.",
+            "remotion_primitive_id": "rem_ru_counter",
+            "rubric_score": 62.9,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "live_clean_counter_only",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 7.8
+          },
+          {
+            "candidate_id": "beat_00_hook_contrast_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_ru_counter+['hf_apple_money_count']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_ru_counter",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_00_hook_contrast_depth_multilayer_paper"
+      },
+      "sc_02_negation_tension": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_01_negation_tension_bold_strike",
+            "continuity_rating": 8.8,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "none",
+            "preserve_speaker_hero": true,
+            "rationale": "Open atmospheric editorial strikethrough preserving speaker expression during contradiction.",
+            "remotion_primitive_id": "rem_ru_strikethrough",
+            "rubric_score": 68.2,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "open_editorial_strikethrough_morph",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.2
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_01_negation_tension_hf_strike",
+            "continuity_rating": 8.0,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_strikethrough_replace",
+            "preserve_speaker_hero": true,
+            "rationale": "HyperFrames vector strikethrough alternative.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 64.0,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "hyperframes_vector_strike",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.0
+          },
+          {
+            "candidate_id": "beat_01_negation_tension_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_ru_strikethrough+['hf_strikethrough_replace']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_strikethrough_replace",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_ru_strikethrough",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_01_negation_tension_bold_strike"
+      },
+      "sc_03_allocation_step": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_02_allocation_step_macro_transfer_strip",
+            "continuity_rating": 8.9,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "top_strip",
+            "preserve_speaker_hero": true,
+            "rationale": "Live detail aperture macro paired with proportional deduction strip and single canonical ledger owner.",
+            "remotion_primitive_id": "rem_ru_track_matte",
+            "rubric_score": 68.1,
+            "single_numeric_owner": true,
+            "stage_mode": "tracked_macro_split",
+            "status": "ELIGIBLE",
+            "strategy": "live_macro_and_transfer_strip",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.1
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_02_allocation_step_editorial_breakdown_morph",
+            "continuity_rating": 8.8,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": true,
+            "rationale": "Balanced editorial morph framing live speaker cleanly below proportional cumulative breakdown chart.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 65.95,
+            "single_numeric_owner": true,
+            "stage_mode": "aspect_morph_editorial",
+            "status": "ELIGIBLE",
+            "strategy": "balanced_editorial_breakdown_split",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.3
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_02_allocation_step_open_editorial_rail",
+            "continuity_rating": 8.7,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "compact_editorial_rail",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live shot with compact forest-green editorial rail building toward payoff.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 65.55,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "open_editorial_rail_transfer",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.2
+          },
+          {
+            "candidate_id": "beat_02_allocation_step_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_ru_waterfall+['hf_data_chart']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_02_allocation_step_macro_transfer_strip"
+      },
+      "sc_04_allocation_step": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_04_allocation_step_macro_transfer_strip",
+            "continuity_rating": 8.9,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "top_strip",
+            "preserve_speaker_hero": true,
+            "rationale": "Live detail aperture macro paired with proportional deduction strip and single canonical ledger owner.",
+            "remotion_primitive_id": "rem_ru_track_matte",
+            "rubric_score": 66.35,
+            "single_numeric_owner": true,
+            "stage_mode": "tracked_macro_split",
+            "status": "ELIGIBLE",
+            "strategy": "live_macro_and_transfer_strip",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.4
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_04_allocation_step_editorial_breakdown_morph",
+            "continuity_rating": 8.8,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": true,
+            "rationale": "Balanced editorial morph framing live speaker cleanly below proportional cumulative breakdown chart.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 67.95,
+            "single_numeric_owner": true,
+            "stage_mode": "aspect_morph_editorial",
+            "status": "ELIGIBLE",
+            "strategy": "balanced_editorial_breakdown_split",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.1
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_04_allocation_step_open_editorial_rail",
+            "continuity_rating": 8.7,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "compact_editorial_rail",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live shot with compact forest-green editorial rail building toward payoff.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 65.55,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "open_editorial_rail_transfer",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.2
+          },
+          {
+            "candidate_id": "beat_04_allocation_step_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_ru_waterfall+['hf_data_chart']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_04_allocation_step_editorial_breakdown_morph"
+      },
+      "sc_05_allocation_step": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_05_allocation_step_macro_transfer_strip",
+            "continuity_rating": 8.9,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "top_strip",
+            "preserve_speaker_hero": true,
+            "rationale": "Live detail aperture macro paired with proportional deduction strip and single canonical ledger owner.",
+            "remotion_primitive_id": "rem_ru_track_matte",
+            "rubric_score": 66.35,
+            "single_numeric_owner": true,
+            "stage_mode": "tracked_macro_split",
+            "status": "ELIGIBLE",
+            "strategy": "live_macro_and_transfer_strip",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.4
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_05_allocation_step_editorial_breakdown_morph",
+            "continuity_rating": 8.8,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_data_chart",
+            "preserve_speaker_hero": true,
+            "rationale": "Balanced editorial morph framing live speaker cleanly below proportional cumulative breakdown chart.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 65.95,
+            "single_numeric_owner": true,
+            "stage_mode": "aspect_morph_editorial",
+            "status": "ELIGIBLE",
+            "strategy": "balanced_editorial_breakdown_split",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.3
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_05_allocation_step_open_editorial_rail",
+            "continuity_rating": 8.7,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_progress_stat",
+            "layout_variant": "compact_editorial_rail",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained full-frame live shot with compact forest-green editorial rail building toward payoff.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 67.55,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "open_editorial_rail_transfer",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.0
+          }
+        ],
+        "chosen_candidate_id": "beat_05_allocation_step_open_editorial_rail"
+      },
+      "sc_06_payoff_reveal": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_06_payoff_reveal_ivory_waterfall_bridge",
+            "continuity_rating": 9.4,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Warm ivory architectural sheet sweep + discrete integer payoff + full waterfall + smooth paper-fold return to live speaker.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 65.85,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "ELIGIBLE",
+            "strategy": "shared_sheet_payoff_cutaway_with_exit_fold",
+            "transition_in": "sheet_sweep",
+            "transition_out": "paper_fold_out",
+            "visual_clarity_rating": 9.5
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_06_payoff_reveal_line_led_waterfall",
+            "continuity_rating": 9.0,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Brass line-led aperture sweep into waterfall payoff with paper-fold exit.",
+            "remotion_primitive_id": "rem_ru_waterfall",
+            "rubric_score": 64.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "ELIGIBLE",
+            "strategy": "line_led_payoff_cutaway_with_exit_fold",
+            "transition_in": "line_led",
+            "transition_out": "paper_fold_out",
+            "visual_clarity_rating": 9.0
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_06_payoff_reveal_live_hero_payoff",
+            "continuity_rating": 8.4,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": true,
+            "rationale": "Keeps speaker visible throughout payoff without full waterfall diagram.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 57.6,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "status": "ELIGIBLE",
+            "strategy": "live_speaker_payoff_overlay",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.0
+          },
+          {
+            "candidate_id": "beat_06_payoff_reveal_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "spatial_overlap_collision:rem_ru_counter+['hf_apple_money_count']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_apple_money_count",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_ru_counter",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_06_payoff_reveal_ivory_waterfall_bridge"
+      },
+      "sc_07_product_intro": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_08_product_intro_depth_mask_sweep",
+            "continuity_rating": 9.0,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_lt_mask_reveal",
+            "preserve_speaker_hero": true,
+            "rationale": "Editorial brass-line sweep introducing solution title over depth-separated speaker.",
+            "remotion_primitive_id": "rem_viv_particle_field",
+            "rubric_score": 68.5,
+            "single_numeric_owner": true,
+            "stage_mode": "live_depth_matte",
+            "status": "ELIGIBLE",
+            "strategy": "live_depth_editorial_title_sweep",
+            "transition_in": "line_led",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.2
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_08_product_intro_clean_title_slide",
+            "continuity_rating": 8.2,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "none",
+            "preserve_speaker_hero": true,
+            "rationale": "Restrained single-engine live title slide without depth matte.",
+            "remotion_primitive_id": "rem_ru_masked_slide",
+            "rubric_score": 64.55,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "live_clean_masked_title",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.1
+          },
+          {
+            "candidate_id": "beat_08_product_intro_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_rc_flip_page+['hf_exploded_stack']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_rc_flip_page",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_08_product_intro_depth_mask_sweep"
+      },
+      "sc_08_product_benefit": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_09_product_benefit_flip_and_specs_bridged",
+            "continuity_rating": 9.2,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_specs_list",
+            "preserve_speaker_hero": false,
+            "rationale": "Smooth architectural entry & paper-fold exit bridging real 3D FlipPageTransition (authorized asset or honest conceptual schematic) and open editorial specs list.",
+            "remotion_primitive_id": "rem_rc_flip_page",
+            "rubric_score": 65.3,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "ELIGIBLE",
+            "strategy": "bridged_cutaway_3d_page_flip_and_specs",
+            "transition_in": "line_led",
+            "transition_out": "paper_fold_out",
+            "visual_clarity_rating": 9.4
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_09_product_benefit_exploded_stack",
+            "continuity_rating": 8.4,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Single-engine HyperFrames isometric conceptual stack alternative.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 61.1,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "ELIGIBLE",
+            "strategy": "exploded_component_stack_cutaway",
+            "transition_in": "sheet_sweep",
+            "transition_out": "paper_fold_out",
+            "visual_clarity_rating": 8.2
+          },
+          {
+            "candidate_id": "beat_09_product_benefit_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "spatial_overlap_collision:rem_rc_flip_page+['hf_exploded_stack']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_exploded_stack",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_rc_flip_page",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_09_product_benefit_flip_and_specs_bridged"
+      },
+      "sc_09_closing_takeaway": {
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "candidates": [
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_10_closing_takeaway_editorial_slide_rim",
+            "continuity_rating": 9.1,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_organic_light_leak",
+            "preserve_speaker_hero": true,
+            "rationale": "Full-frame speaker return with open serif takeaway in upper negative space and face-masked peripheral rim glow.",
+            "remotion_primitive_id": "rem_ru_masked_slide",
+            "rubric_score": 68.65,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "clean_editorial_takeaway_edge_rim_glow",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 9.2
+          },
+          {
+            "_replan_attempts": 0,
+            "candidate_id": "beat_10_closing_takeaway_callout_highlight",
+            "continuity_rating": 8.1,
+            "eligible": true,
+            "hard_rejects": [],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_callout_highlight",
+            "preserve_speaker_hero": true,
+            "rationale": "Word-highlighting callout alternative for closing line.",
+            "remotion_primitive_id": "none",
+            "rubric_score": 64.15,
+            "single_numeric_owner": true,
+            "stage_mode": "live_clean_bridge",
+            "status": "ELIGIBLE",
+            "strategy": "speech_synced_callout_takeaway",
+            "transition_in": "none",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.0
+          },
+          {
+            "candidate_id": "beat_10_closing_takeaway_optLLM_raw",
+            "continuity_rating": 8.4,
+            "eligible": false,
+            "from_raw_llm": true,
+            "hard_rejects": [
+              "stage_only_primitive_misused_as_layer:rem_viv_aspect_morph",
+              "unmotivated_cutaway_hiding_speaker",
+              "spatial_overlap_collision:rem_viv_aspect_morph+['hf_mk_callout_highlight']"
+            ],
+            "hf_layers": [],
+            "hyperframes_primitive_id": "hf_mk_callout_highlight",
+            "preserve_speaker_hero": false,
+            "rationale": "Raw local LLM structured JSON proposal evaluated directly under the same rubric and hard guards.",
+            "remotion_primitive_id": "rem_viv_aspect_morph",
+            "rubric_score": 0.0,
+            "single_numeric_owner": true,
+            "stage_mode": "full_graphic_cutaway",
+            "status": "REJECTED_HARD_CONSTRAINT",
+            "strategy": "raw_local_llm_proposal",
+            "transition_in": "flip_page",
+            "transition_out": "none",
+            "visual_clarity_rating": 8.6
+          }
+        ],
+        "chosen_candidate_id": "beat_10_closing_takeaway_editorial_slide_rim"
+      }
+    },
+    "catalog_index_hash": "611621f00c76f63963f30bf543fa63c7aae59486f0262da162a71bc05c85d26b",
+    "causal_selection_before_compile": true,
+    "evidence_index_hash": "d8ab854820641975ac2ac796e02459f2a4374bc6f9904ddf74af439a5df422b1",
+    "global_beam_search": {
+      "beam_width": 8,
+      "engines_covered_globally": [
+        "hyperframes",
+        "remotion"
+      ],
+      "global_score": 663.6,
+      "replan_events": [],
+      "status": "OK"
+    },
+    "intervention_counts_by_type": {
+      "artistic": 0,
+      "factual": 0,
+      "none": 1,
+      "resource": 0,
+      "safety": 8
+    },
+    "narrative_contract": {
+      "allow_fractional_cents": false,
+      "central_conflict": "<redacted_sha256:26af5c4e791a2b3a len=38>",
+      "constraints": [
+        "zero_invented_numbers_or_savings_guarantees",
+        "integer_dollar_display_locked",
+        "single_canonical_ledger_state_owner",
+        "preserve_source_voice_unity_and_timeline",
+        "protect_eyes_mouth_and_reels_safe_zones",
+        "conceptual_product_illustration_only"
+      ],
+      "cta_summary": "Link in my profile.",
+      "has_authorized_product_asset": false,
+      "hook_question": "<redacted_sha256:2ee514c35292bc46 len=49>",
+      "inferred_niche": "finance",
+      "is_hypothetical_example": true,
+      "narrative_pattern": "financial_conservation",
+      "niche_confidence": 0.92,
+      "payoff_takeaway": "$100 actually left to spend in this example",
+      "playbook_rule_ids": [
+        "PB-01",
+        "PB-02",
+        "PB-03",
+        "PB-04",
+        "PB-05",
+        "PB-06",
+        "PB-07"
+      ],
+      "product_value_proposition": "Position The Next Paycheck Plan (Notion dashboard, 56-page workbook) strictly as an organization tool without unverified savings guarantees.",
+      "proof_mechanism": "Step-by-step integer-cent deduction (3 committed categories).",
+      "schema_version": "3.0.0",
+      "tone": "premium_editorial_quiet_luxury",
+      "video_purpose": "Illustrate the gap between opening balance ($1,200) and truly spendable funds ($100) in an example."
+    },
+    "playbook_rules": [
+      {
+        "category": "numeric_integrity",
+        "niches": [
+          "finance",
+          "product",
+          "education"
+        ],
+        "origin": "defect_ledger:D01_R1,D05_R1",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Never interpolate arbitrary fractional cents when spoken amounts are whole integers; lock integer-dollar display mode unless source evidence explicitly speaks fractional cents.",
+        "rule_id": "PB-01",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "single_numeric_owner",
+        "niches": [
+          "finance"
+        ],
+        "origin": "defect_ledger:D03_R1",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Maintain ONE canonical visible currency counter per beat; never pair an independent bottom ribbon counter against an active top allocation counter displaying conflicting intermediate numbers.",
+        "rule_id": "PB-02",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "continuous_bridges",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D06_R1,D11_R3",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Every transition between full-frame graphic cutaway and live footage MUST have an explicit rendered incoming or outgoing bridge (paper fold, soft mask unveil, or shared-element morph) rather than an unmotivated hard cut.",
+        "rule_id": "PB-03",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "editorial_hierarchy",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "editorial_rubric:VQ01",
+        "provenance_class": "human_approved_aesthetic",
+        "rule": "Avoid repetitive dark rounded card templates and tiny speaker inset boxes; keep live speaker as full-frame human anchor and reserve cutaways for high-value teaching milestones.",
+        "rule_id": "PB-04",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "semantic_sound_integrity",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D07_R3,D08_R3",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Match sound role to actual visual/semantic context (never engine rev on budget gas, never cash flick on negation or non-monetary counts, never silent cue drops, protect 1-4kHz dialogue).",
+        "rule_id": "PB-05",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "face_contrast_protection",
+        "niches": [
+          "finance",
+          "product",
+          "storytelling",
+          "education",
+          "lifestyle",
+          "cinematic"
+        ],
+        "origin": "defect_ledger:D08_R1",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Never apply bright full-frame light leaks over the speaker's face (max edge glow <= 0.22 opacity with clear center face mask) and keep all text clear of eyes/mouth and phone safe zones.",
+        "rule_id": "PB-06",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      },
+      {
+        "category": "product_asset_truth",
+        "niches": [
+          "product",
+          "finance",
+          "education"
+        ],
+        "origin": "defect_ledger:D05_R3,D06_R3",
+        "provenance_class": "defect_derived_mechanical",
+        "rule": "Display real product UI ONLY from owner-authorized verified ProductAssetCatalog entries; otherwise render honest conceptual illustration explicitly marked ASSET_MISSING_CONCEPTUAL.",
+        "rule_id": "PB-07",
+        "scope": "global_generic",
+        "status": "HUMAN_APPROVED"
+      }
+    ],
+    "product_asset_match": {
+      "assets": [],
+      "matched": false,
+      "product_demo_status": "PRODUCT_DEMO_PENDING",
+      "status": "ASSET_MISSING_CONCEPTUAL"
+    },
+    "raw_llm_proposals_count": 9,
+    "raw_vs_reconciled_overrides": [
+      {
+        "beat_id": "beat_00_hook_contrast",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_apple_money_count",
+          "rem": "rem_ru_counter",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_01_hook_contrast",
+        "selected": {
+          "candidate_id": "beat_00_hook_contrast_depth_multilayer_paper",
+          "hf": [
+            "hf_apple_money_count",
+            "hf_apple_money_count"
+          ],
+          "rem": "rem_viv_particle_field",
+          "stage_mode": "live_depth_matte"
+        }
+      },
+      {
+        "beat_id": "beat_01_negation_tension",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_strikethrough_replace",
+          "rem": "rem_ru_strikethrough",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_02_negation_tension",
+        "selected": {
+          "candidate_id": "beat_01_negation_tension_bold_strike",
+          "hf": [],
+          "rem": "rem_ru_strikethrough",
+          "stage_mode": "live_clean_bridge"
+        }
+      },
+      {
+        "beat_id": "beat_02_allocation_step",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_data_chart",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_03_allocation_step",
+        "selected": {
+          "candidate_id": "beat_02_allocation_step_macro_transfer_strip",
+          "hf": [
+            "hf_mk_progress_stat"
+          ],
+          "rem": "rem_ru_track_matte",
+          "stage_mode": "tracked_macro_split"
+        }
+      },
+      {
+        "beat_id": "beat_04_allocation_step",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_data_chart",
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_04_allocation_step",
+        "selected": {
+          "candidate_id": "beat_04_allocation_step_editorial_breakdown_morph",
+          "hf": [
+            "hf_data_chart"
+          ],
+          "rem": "none",
+          "stage_mode": "aspect_morph_editorial"
+        }
+      },
+      {
+        "beat_id": "beat_06_payoff_reveal",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_apple_money_count",
+          "rem": "rem_ru_counter",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_06_payoff_reveal",
+        "selected": {
+          "candidate_id": "beat_06_payoff_reveal_ivory_waterfall_bridge",
+          "hf": [
+            "hf_apple_money_count"
+          ],
+          "rem": "rem_ru_waterfall",
+          "stage_mode": "full_graphic_cutaway"
+        }
+      },
+      {
+        "beat_id": "beat_08_product_intro",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_rc_flip_page",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_07_product_intro",
+        "selected": {
+          "candidate_id": "beat_08_product_intro_depth_mask_sweep",
+          "hf": [
+            "hf_lt_mask_reveal"
+          ],
+          "rem": "rem_viv_particle_field",
+          "stage_mode": "live_depth_matte"
+        }
+      },
+      {
+        "beat_id": "beat_09_product_benefit",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_exploded_stack",
+          "rem": "rem_rc_flip_page",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_08_product_benefit",
+        "selected": {
+          "candidate_id": "beat_09_product_benefit_flip_and_specs_bridged",
+          "hf": [
+            "hf_mk_specs_list"
+          ],
+          "rem": "rem_rc_flip_page",
+          "stage_mode": "full_graphic_cutaway"
+        }
+      },
+      {
+        "beat_id": "beat_10_closing_takeaway",
+        "intervention_type": "safety",
+        "raw_llm": {
+          "hf": "hf_mk_callout_highlight",
+          "rem": "rem_viv_aspect_morph",
+          "stage_mode": "full_graphic_cutaway"
+        },
+        "scene_id": "sc_09_closing_takeaway",
+        "selected": {
+          "candidate_id": "beat_10_closing_takeaway_editorial_slide_rim",
+          "hf": [
+            "hf_organic_light_leak"
+          ],
+          "rem": "rem_ru_masked_slide",
+          "stage_mode": "live_clean_bridge"
+        }
+      }
+    ],
+    "real_transcript_supplied": true,
+    "reasoning_mode": "HYBRID_CAUSAL_GLOBAL_DIRECTOR",
+    "reconciled_override_count": 8,
+    "retrieval_mode": "ontology_hybrid_sparse",
+    "selected_graph_hash": "e3fe5c38584b2645e0ed76e9d771d121233531ce43785ddde3f529f09ff54912",
+    "selection_trace": [
+      {
+        "beat_ids": [
+          "beat_00_hook_contrast"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_00_hook_contrast_depth_multilayer_paper",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_00_rem",
+            "primitive_id": "rem_viv_particle_field",
+            "role": "background_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_00_hf_bg_tokens",
+            "primitive_id": "hf_apple_money_count",
+            "role": "background_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_00_hf_fg_hero",
+            "primitive_id": "hf_apple_money_count",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 73.5,
+        "scene_id": "sc_01_hook_contrast",
+        "stage_mode": "live_depth_matte",
+        "strategy": "live_depth_dual_hf_paper_and_hero_type",
+        "transition_in": "none",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_01_negation_tension"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_01_negation_tension_bold_strike",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_01_rem",
+            "primitive_id": "rem_ru_strikethrough",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 68.2,
+        "scene_id": "sc_02_negation_tension",
+        "stage_mode": "live_clean_bridge",
+        "strategy": "open_editorial_strikethrough_morph",
+        "transition_in": "none",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_02_allocation_step"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_02_allocation_step_macro_transfer_strip",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_02_rem",
+            "primitive_id": "rem_ru_track_matte",
+            "role": "foreground_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_02_hf",
+            "primitive_id": "hf_mk_progress_stat",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 68.1,
+        "scene_id": "sc_03_allocation_step",
+        "stage_mode": "tracked_macro_split",
+        "strategy": "live_macro_and_transfer_strip",
+        "transition_in": "none",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_04_allocation_step"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_04_allocation_step_editorial_breakdown_morph",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_03_hf",
+            "primitive_id": "hf_data_chart",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 67.95,
+        "scene_id": "sc_04_allocation_step",
+        "stage_mode": "aspect_morph_editorial",
+        "strategy": "balanced_editorial_breakdown_split",
+        "transition_in": "none",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_05_allocation_step"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_05_allocation_step_open_editorial_rail",
+        "intervention_type": "none",
+        "layers": [
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_04_hf",
+            "primitive_id": "hf_mk_progress_stat",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 67.55,
+        "scene_id": "sc_05_allocation_step",
+        "stage_mode": "live_clean_bridge",
+        "strategy": "open_editorial_rail_transfer",
+        "transition_in": "none",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_06_payoff_reveal"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_06_payoff_reveal_ivory_waterfall_bridge",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_05_rem",
+            "primitive_id": "rem_ru_waterfall",
+            "role": "background_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_05_hf",
+            "primitive_id": "hf_apple_money_count",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 65.85,
+        "scene_id": "sc_06_payoff_reveal",
+        "stage_mode": "full_graphic_cutaway",
+        "strategy": "shared_sheet_payoff_cutaway_with_exit_fold",
+        "transition_in": "sheet_sweep",
+        "transition_out": "paper_fold_out"
+      },
+      {
+        "beat_ids": [
+          "beat_08_product_intro"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_08_product_intro_depth_mask_sweep",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_06_rem",
+            "primitive_id": "rem_viv_particle_field",
+            "role": "background_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_06_hf",
+            "primitive_id": "hf_lt_mask_reveal",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 68.5,
+        "scene_id": "sc_07_product_intro",
+        "stage_mode": "live_depth_matte",
+        "strategy": "live_depth_editorial_title_sweep",
+        "transition_in": "line_led",
+        "transition_out": "none"
+      },
+      {
+        "beat_ids": [
+          "beat_09_product_benefit"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_09_product_benefit_flip_and_specs_bridged",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_07_rem",
+            "primitive_id": "rem_rc_flip_page",
+            "role": "background_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_07_hf",
+            "primitive_id": "hf_mk_specs_list",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 65.3,
+        "scene_id": "sc_08_product_benefit",
+        "stage_mode": "full_graphic_cutaway",
+        "strategy": "bridged_cutaway_3d_page_flip_and_specs",
+        "transition_in": "line_led",
+        "transition_out": "paper_fold_out"
+      },
+      {
+        "beat_ids": [
+          "beat_10_closing_takeaway",
+          "beat_11_cta"
+        ],
+        "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+        "chosen_candidate_id": "beat_10_closing_takeaway_editorial_slide_rim",
+        "intervention_type": "safety",
+        "layers": [
+          {
+            "engine": "remotion",
+            "layer_id": "ly_08_rem",
+            "primitive_id": "rem_ru_masked_slide",
+            "role": "foreground_graphics"
+          },
+          {
+            "engine": "hyperframes",
+            "layer_id": "ly_08_hf",
+            "primitive_id": "hf_organic_light_leak",
+            "role": "foreground_graphics"
+          }
+        ],
+        "replan_attempts": 0,
+        "rubric_score": 68.65,
+        "scene_id": "sc_09_closing_takeaway",
+        "stage_mode": "live_clean_bridge",
+        "strategy": "clean_editorial_takeaway_edge_rim_glow",
+        "transition_in": "none",
+        "transition_out": "none"
+      }
+    ],
+    "state_graph_hash": "25cd8b7edf661f33996c830842e685c62d9764d1a47f37b1e99eecf7cd9e3b54",
+    "timestamp_quality": "SEGMENT_APPROX",
+    "word_timestamps_exact": false
+  },
+  "numeric_state_trace": {
+    "allow_fractional_cents": false,
+    "conservation_exact": true,
+    "currency_code": "USD",
+    "currency_symbol": "$",
+    "final_remaining_cents": 10000,
+    "integer_dollar_lock": true,
+    "ledger_active": true,
+    "opening_cents": 120000,
+    "scenes": [
+      {
+        "allow_fractional_cents": false,
+        "category": "Bank Balance",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_00_hf_fg_hero"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "$1,200",
+        "display_settled": "$1,200",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 61,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_00_hf_fg_hero",
+        "opening_cents": 120000,
+        "prev_balance_cents": 120000,
+        "scene_id": "sc_01_hook_contrast",
+        "settled_balance_cents": 120000,
+        "start_frame": 0,
+        "step_amount_cents": 120000,
+        "step_id": "ledger_step_00",
+        "step_type": "opening_balance"
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 138,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_02_negation_tension",
+        "start_frame": 61
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Bills",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_02_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$800",
+        "display_settled": "$400",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 207,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_02_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 120000,
+        "scene_id": "sc_03_allocation_step",
+        "settled_balance_cents": 40000,
+        "start_frame": 138,
+        "step_amount_cents": 80000,
+        "step_id": "ledger_step_01",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Groceries",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_03_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$200",
+        "display_settled": "$200",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 269,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_03_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 40000,
+        "scene_id": "sc_04_allocation_step",
+        "settled_balance_cents": 20000,
+        "start_frame": 234,
+        "step_amount_cents": 20000,
+        "step_id": "ledger_step_02",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Gas",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_04_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "-$100",
+        "display_settled": "$100",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 344,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_04_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 20000,
+        "scene_id": "sc_05_allocation_step",
+        "settled_balance_cents": 10000,
+        "start_frame": 269,
+        "step_amount_cents": 10000,
+        "step_id": "ledger_step_03",
+        "step_type": "allocation"
+      },
+      {
+        "allow_fractional_cents": false,
+        "category": "Remaining",
+        "conservation_exact": true,
+        "counter_layers_present": [
+          "ly_05_hf"
+        ],
+        "currency_symbol": "$",
+        "display_delta": "$0",
+        "display_settled": "$100",
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 418,
+        "integer_step_only": true,
+        "is_deficit": false,
+        "ledger_owned": true,
+        "numeric_owner_layer": "ly_05_hf",
+        "opening_cents": 120000,
+        "prev_balance_cents": 10000,
+        "scene_id": "sc_06_payoff_reveal",
+        "settled_balance_cents": 10000,
+        "start_frame": 344,
+        "step_amount_cents": 10000,
+        "step_id": "ledger_step_04",
+        "step_type": "remaining_confirmed"
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 533,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_07_product_intro",
+        "start_frame": 482
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 636,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_08_product_benefit",
+        "start_frame": 533
+      },
+      {
+        "duplicate_counters_detected": false,
+        "end_frame_exclusive": 720,
+        "ledger_owned": false,
+        "numeric_owner_layer": null,
+        "scene_id": "sc_09_closing_takeaway",
+        "start_frame": 636
+      }
+    ],
+    "schema_version": "2.0.0",
+    "single_numeric_owner_verified": true,
+    "total_allocated_cents": 110000,
+    "violations": []
+  },
+  "objective_pixel_critic": {
+    "abrupt_cutaway_jumps": 0,
+    "black_frames_detected": 0,
+    "boundary_count": 10,
+    "boundary_metrics": [
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 61,
+        "boundary_id": "bnd_00_f061",
+        "decoded_step_mad": 21.97,
+        "from_scene_id": "sc_01_hook_contrast",
+        "handle_frames": 8,
+        "post_4f_mad": 10.99,
+        "post_4f_source_relative_mad": 7.95,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 8.52,
+        "source_step_mad": 1.53,
+        "to_scene_id": "sc_02_negation_tension",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 20.44,
+        "window_pm6_max_step_mad": 21.97
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 138,
+        "boundary_id": "bnd_01_f138",
+        "decoded_step_mad": 3.99,
+        "from_scene_id": "sc_02_negation_tension",
+        "handle_frames": 8,
+        "post_4f_mad": 20.25,
+        "post_4f_source_relative_mad": 13.86,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 13.35,
+        "source_step_mad": 3.55,
+        "to_scene_id": "sc_03_allocation_step",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 6.85,
+        "window_pm6_max_step_mad": 10.09
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 207,
+        "boundary_id": "bnd_02_f207",
+        "decoded_step_mad": 15.63,
+        "from_scene_id": "sc_03_allocation_step",
+        "handle_frames": 0,
+        "post_4f_mad": 5.52,
+        "post_4f_source_relative_mad": 0.03,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 16.39,
+        "source_step_mad": 1.79,
+        "to_scene_id": "live_hold_f207_234",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 13.84,
+        "window_pm6_max_step_mad": 15.63
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 234,
+        "boundary_id": "bnd_03_f234",
+        "decoded_step_mad": 8.08,
+        "from_scene_id": "live_hold_f207_234",
+        "handle_frames": 0,
+        "post_4f_mad": 90.62,
+        "post_4f_source_relative_mad": 84.67,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 4.48,
+        "source_step_mad": 2.5,
+        "to_scene_id": "sc_04_allocation_step",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 60.69,
+        "window_pm6_max_step_mad": 63.34
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "SHARED_ELEMENT_MORPH",
+        "boundary_frame": 269,
+        "boundary_id": "bnd_04_f269",
+        "decoded_step_mad": 9.13,
+        "from_scene_id": "sc_04_allocation_step",
+        "handle_frames": 8,
+        "post_4f_mad": 8.17,
+        "post_4f_source_relative_mad": 4.91,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 8.16,
+        "source_step_mad": 3.29,
+        "to_scene_id": "sc_05_allocation_step",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 37.38,
+        "window_pm6_max_step_mad": 39.4
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 344,
+        "boundary_id": "bnd_05_f344",
+        "decoded_step_mad": 3.88,
+        "from_scene_id": "sc_05_allocation_step",
+        "handle_frames": 12,
+        "post_4f_mad": 58.47,
+        "post_4f_source_relative_mad": 52.78,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 8.64,
+        "source_step_mad": 2.05,
+        "to_scene_id": "sc_06_payoff_reveal",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 19.12,
+        "window_pm6_max_step_mad": 21.89
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 418,
+        "boundary_id": "bnd_06_f418",
+        "decoded_step_mad": 2.53,
+        "from_scene_id": "sc_06_payoff_reveal",
+        "handle_frames": 12,
+        "post_4f_mad": 3.41,
+        "post_4f_source_relative_mad": -0.07,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 5.07,
+        "source_step_mad": 1.39,
+        "to_scene_id": "live_hold_f418_482",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 33.97,
+        "window_pm6_max_step_mad": 36.25
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "QUIET_HOLD",
+        "boundary_frame": 482,
+        "boundary_id": "bnd_07_f482",
+        "decoded_step_mad": 3.72,
+        "from_scene_id": "live_hold_f418_482",
+        "handle_frames": 0,
+        "post_4f_mad": 7.11,
+        "post_4f_source_relative_mad": 0.14,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 4.15,
+        "source_step_mad": 2.85,
+        "to_scene_id": "sc_07_product_intro",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 2.72,
+        "window_pm6_max_step_mad": 4.1
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 533,
+        "boundary_id": "bnd_08_f533",
+        "decoded_step_mad": 21.75,
+        "from_scene_id": "sc_07_product_intro",
+        "handle_frames": 12,
+        "post_4f_mad": 5.19,
+        "post_4f_source_relative_mad": 0.11,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 11.96,
+        "source_step_mad": 3.18,
+        "to_scene_id": "sc_08_product_benefit",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 18.57,
+        "window_pm6_max_step_mad": 21.75
+      },
+      {
+        "abrupt_cutaway_jump_flagged": false,
+        "boundary_class": "CUTAWAY_BRIDGE",
+        "boundary_frame": 636,
+        "boundary_id": "bnd_09_f636",
+        "decoded_step_mad": 3.64,
+        "from_scene_id": "sc_08_product_benefit",
+        "handle_frames": 12,
+        "post_4f_mad": 11.36,
+        "post_4f_source_relative_mad": 5.25,
+        "post_boundary_spike_flagged": false,
+        "pre_4f_mad": 7.52,
+        "source_step_mad": 3.24,
+        "to_scene_id": "sc_09_closing_takeaway",
+        "window_flash_flagged": false,
+        "window_pm6_max_source_relative_step_mad": 28.13,
+        "window_pm6_max_step_mad": 30.27
+      }
+    ],
+    "boundary_strips_path": "<local_path>/MOTIONLAB AIruns/olivia_ml01_r5r3/20261127T120000Z_c56c9ae0_001/evidence/boundary_strips.jpg",
+    "boundary_window_spikes": 0,
+    "findings": [],
+    "frames_inspected": 720,
+    "human_review_required": true,
+    "internal_flash_count": 0,
+    "internal_flashes": [],
+    "max_face_washout_luma_delta": 9.65,
+    "mismatched_source_dim_frames": 0,
+    "objective_pixel_critic_status": "PASS",
+    "peak_ring_buffer_frames": 16,
+    "schema_version": "3.0.0",
+    "severe_findings_count": 0,
+    "streaming_mode": true,
+    "vlm_note": "local_vlm_not_provisioned_in_manifest (text-only Qwen2.5-3B cannot inspect pixels)",
+    "vlm_status": "VISION_CRITIC_NOT_RUN",
+    "worst_washout_frame": 281
+  },
+  "phone_legibility": {
+    "consumer_jargon_leaks": [],
+    "contrast_checks": [
+      {
+        "pair": "ivory_on_forest",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "forest_on_ivory",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "espresso_on_ivory",
+        "ratio": 10.14,
+        "target": 4.5
+      },
+      {
+        "pair": "gold_on_forest",
+        "ratio": 4.55,
+        "target": 3.0
+      }
+    ],
+    "contrast_proxy_ok": true,
+    "passed": true,
+    "phone_scale_width": 360,
+    "scale_factor": 0.5,
+    "schema_version": "1.0.0",
+    "small_font_warnings": []
+  },
+  "product_asset_status": {
+    "assets": [],
+    "matched": false,
+    "product_demo_status": "PRODUCT_DEMO_PENDING",
+    "status": "ASSET_MISSING_CONCEPTUAL"
+  }
+}

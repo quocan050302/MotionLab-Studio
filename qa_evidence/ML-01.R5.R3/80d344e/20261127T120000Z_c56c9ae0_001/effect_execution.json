@@ -1,0 +1,437 @@
+{
+  "dual_engine_active": true,
+  "edition": "ml-01.r5.r3",
+  "engines_used": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "mode": "AUTO_GENERATIVE",
+  "reuse_gate": {
+    "actual_rendered_engines": [
+      "ffmpeg",
+      "hyperframes",
+      "remotion"
+    ],
+    "distinct_origin_repos": [
+      "GTKottman/remotion-transitions",
+      "RenderComp/free-remotion-templates",
+      "heygen-com/hyperframes",
+      "riaz37/remotion-ui",
+      "vivmagarwal/remotion-effects-library"
+    ],
+    "distinct_verified_total": 15,
+    "hyperframes_primitives": [
+      "hf_apple_money_count",
+      "hf_data_chart",
+      "hf_lt_mask_reveal",
+      "hf_mk_progress_stat",
+      "hf_mk_specs_list",
+      "hf_organic_light_leak"
+    ],
+    "passed": true,
+    "remotion_primitives": [
+      "rem_gtk_line_led",
+      "rem_rc_flip_page",
+      "rem_ru_masked_slide",
+      "rem_ru_parallax",
+      "rem_ru_strikethrough",
+      "rem_ru_track_matte",
+      "rem_ru_waterfall",
+      "rem_viv_aspect_morph",
+      "rem_viv_particle_field"
+    ],
+    "requirements": {
+      "min_distinct_total": 4,
+      "min_per_engine": 2
+    },
+    "unverified_or_unknown": []
+  },
+  "scenes": [
+    {
+      "ablation": {
+        "foreground_subject_matte": {
+          "changed_pixel_ratio": 0.51822,
+          "mad": 18.864,
+          "sample_frame": 30,
+          "verified": true,
+          "window": "peak"
+        },
+        "hf_layer:ly_00_hf_bg_tokens": {
+          "changed_pixel_ratio": 0.01994,
+          "mad": 1.306,
+          "sample_frame": 12,
+          "verified": true,
+          "window": "peak_multilayer"
+        },
+        "hf_layer:ly_00_hf_fg_hero": {
+          "changed_pixel_ratio": 0.2531,
+          "mad": 11.133,
+          "sample_frame": 30,
+          "verified": true,
+          "window": "peak_multilayer"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_00_hook_contrast_depth_multilayer_paper",
+      "frame_range": [
+        0,
+        61
+      ],
+      "hf_artifact_sha256": "ad19caa3b219a8e3bd70ad70c475a30afe462b4cbbd56f546fa43d1c10add2cc",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "ad19caa3b219a8e3bd70ad70c475a30afe462b4cbbd56f546fa43d1c10add2cc",
+          "layer_id": "ly_00_hf_bg_tokens",
+          "layer_role": "background_graphics",
+          "primitive_id": "hf_apple_money_count",
+          "render_mode": "paper_tokens_only",
+          "z_order": 15
+        },
+        {
+          "artifact_sha256": "c546d544dfce7d386cb471edfa7b2cc7154c07696ad4d5667b04cdbc4a03fea5",
+          "layer_id": "ly_00_hf_fg_hero",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_apple_money_count",
+          "render_mode": "typography_only",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_apple_money_count",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "38b00c6a56857a736e024b5f08f565e2a2cd81676d8a4d9a94bb9990d866634b",
+      "role": "hook_contrast",
+      "scene_id": "sc_01_hook_contrast",
+      "stage_mode": "live_depth_matte",
+      "used_matte_alpha": true
+    },
+    {
+      "ablation": {
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.29705,
+          "mad": 13.351,
+          "sample_frame": 38,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_01_negation_tension_bold_strike",
+      "frame_range": [
+        61,
+        138
+      ],
+      "hf_artifact_sha256": null,
+      "hf_layers_executed": [],
+      "hf_primitive_id": null,
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "8374dbe608af7645bddd34a8e5199d1a242986f25626b62e10e973bcc6498aa3",
+      "role": "negation_tension",
+      "scene_id": "sc_02_negation_tension",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.14213,
+          "mad": 15.441,
+          "sample_frame": 34,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.14085,
+          "mad": 8.888,
+          "sample_frame": 34,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_02_allocation_step_macro_transfer_strip",
+      "frame_range": [
+        138,
+        207
+      ],
+      "hf_artifact_sha256": "8bce747cf0fb5f1beacdcca109e54ff45a49d28553db50a4b93334db56d74c4d",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "8bce747cf0fb5f1beacdcca109e54ff45a49d28553db50a4b93334db56d74c4d",
+          "layer_id": "ly_02_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_mk_progress_stat",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_mk_progress_stat",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "40b9fef72da49cf96b86a92b23201fdfeb9469b17face9d00f7713b8a05afb99",
+      "role": "allocation_step",
+      "scene_id": "sc_03_allocation_step",
+      "stage_mode": "tracked_macro_split",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.06451,
+          "mad": 5.399,
+          "sample_frame": 17,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_04_allocation_step_editorial_breakdown_morph",
+      "frame_range": [
+        234,
+        269
+      ],
+      "hf_artifact_sha256": "0e6fd14100995c322e4de44da2cd0350dffad50e6774fee8cc34a3b1a122b19c",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "0e6fd14100995c322e4de44da2cd0350dffad50e6774fee8cc34a3b1a122b19c",
+          "layer_id": "ly_03_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_data_chart",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_data_chart",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "687919f7aa35d286f0757bea112a697486701ff3b98d687c3b1820d5231b7678",
+      "role": "allocation_step",
+      "scene_id": "sc_04_allocation_step",
+      "stage_mode": "aspect_morph_editorial",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.14093,
+          "mad": 6.494,
+          "sample_frame": 37,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_05_allocation_step_open_editorial_rail",
+      "frame_range": [
+        269,
+        344
+      ],
+      "hf_artifact_sha256": "f91b5d74e254d8e087feded3b623da91a074d2d6c3c81765f7ff7d1c5490f888",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "f91b5d74e254d8e087feded3b623da91a074d2d6c3c81765f7ff7d1c5490f888",
+          "layer_id": "ly_04_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_mk_progress_stat",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_mk_progress_stat",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "e2b00b96258cf989f2ea1428827e20efc6f55a0b6fbfa685804aae13bf097a70",
+      "role": "allocation_step",
+      "scene_id": "sc_05_allocation_step",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.06145,
+          "mad": 6.488,
+          "sample_frame": 37,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.06181,
+          "mad": 7.908,
+          "sample_frame": 37,
+          "verified": true,
+          "window": "peak"
+        },
+        "transition_in": {
+          "changed_pixel_ratio": 0.09863,
+          "mad": 14.003,
+          "sample_frame": 6,
+          "verified": true,
+          "window": "entry"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_06_payoff_reveal_ivory_waterfall_bridge",
+      "frame_range": [
+        344,
+        418
+      ],
+      "hf_artifact_sha256": "f3e9f6c04c2986ea6c1a4a020419ec03659355817b2c1e13ea65cbfafe7a829c",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "f3e9f6c04c2986ea6c1a4a020419ec03659355817b2c1e13ea65cbfafe7a829c",
+          "layer_id": "ly_05_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_apple_money_count",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_apple_money_count",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "6d187b88fabfc671d1981623ead1713f14c37e401cdb8a238aca29648ff853ae",
+      "role": "payoff_reveal",
+      "scene_id": "sc_06_payoff_reveal",
+      "stage_mode": "full_graphic_cutaway",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.23289,
+          "mad": 7.478,
+          "sample_frame": 25,
+          "verified": true,
+          "window": "peak"
+        },
+        "foreground_subject_matte": {
+          "changed_pixel_ratio": 0.53347,
+          "mad": 18.58,
+          "sample_frame": 25,
+          "verified": true,
+          "window": "peak"
+        },
+        "transition_in": {
+          "changed_pixel_ratio": 0.69352,
+          "mad": 24.962,
+          "sample_frame": 6,
+          "verified": true,
+          "window": "entry"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_08_product_intro_depth_mask_sweep",
+      "frame_range": [
+        482,
+        533
+      ],
+      "hf_artifact_sha256": "c5c0b6b3ebaeadddea79b1f5bcc54908b53ad436800c2aae65d7ece78a021505",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "c5c0b6b3ebaeadddea79b1f5bcc54908b53ad436800c2aae65d7ece78a021505",
+          "layer_id": "ly_06_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_lt_mask_reveal",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_lt_mask_reveal",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "28614ed9e3bef33ee7a74379b2439487c6000ddc113b9eaa864bab1f475d2bfd",
+      "role": "product_intro",
+      "scene_id": "sc_07_product_intro",
+      "stage_mode": "live_depth_matte",
+      "used_matte_alpha": true
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.02358,
+          "mad": 2.962,
+          "sample_frame": 51,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.4762,
+          "mad": 42.052,
+          "sample_frame": 46,
+          "verified": true,
+          "window": "peak"
+        },
+        "transition_in": {
+          "changed_pixel_ratio": 0.89274,
+          "mad": 98.139,
+          "sample_frame": 6,
+          "verified": true,
+          "window": "entry"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_09_product_benefit_flip_and_specs_bridged",
+      "frame_range": [
+        533,
+        636
+      ],
+      "hf_artifact_sha256": "3c53b9a9fc71a02fbf0c221a57476a09ec0b1dbaefca7871de926fdb24d2f2b8",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "3c53b9a9fc71a02fbf0c221a57476a09ec0b1dbaefca7871de926fdb24d2f2b8",
+          "layer_id": "ly_07_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_mk_specs_list",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_mk_specs_list",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "bad0882f4fd3faef3d13a57cf1beb7890fdd2c4cbaa1e1984a4f1eca06f802ab",
+      "role": "product_benefit",
+      "scene_id": "sc_08_product_benefit",
+      "stage_mode": "full_graphic_cutaway",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.0,
+          "mad": 0.645,
+          "sample_frame": 42,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.285,
+          "mad": 12.449,
+          "sample_frame": 42,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "candidate_provenance": "HYBRID_GLOBAL_RANKED",
+      "chosen_candidate_id": "beat_10_closing_takeaway_editorial_slide_rim",
+      "frame_range": [
+        636,
+        720
+      ],
+      "hf_artifact_sha256": "bb252f0771a0600aab503338c413108dec1d200d40134d747f2b00f9220b52dd",
+      "hf_layers_executed": [
+        {
+          "artifact_sha256": "bb252f0771a0600aab503338c413108dec1d200d40134d747f2b00f9220b52dd",
+          "layer_id": "ly_08_hf",
+          "layer_role": "foreground_graphics",
+          "primitive_id": "hf_organic_light_leak",
+          "render_mode": "combined",
+          "z_order": 35
+        }
+      ],
+      "hf_primitive_id": "hf_organic_light_leak",
+      "product_asset_bound": false,
+      "remotion_artifact_sha256": "b4d2a8711cc46c120fc7bcc729aa3f31d2d2df5310106e9d137a97f0256c5bae",
+      "role": "closing_takeaway",
+      "scene_id": "sc_09_closing_takeaway",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    }
+  ],
+  "selected_graph_hash": "e3fe5c38584b2645e0ed76e9d771d121233531ce43785ddde3f529f09ff54912"
+}

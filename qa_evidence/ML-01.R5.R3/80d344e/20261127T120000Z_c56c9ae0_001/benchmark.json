@@ -1,0 +1,106 @@
+{
+  "optimization_summary": {
+    "cold_w2_wall_s": 302.26,
+    "incremental_1scene_w2_wall_s": 114.22,
+    "parity_checks": {
+      "inc_vs_cold_speedup": 2.65,
+      "w1_vs_w2_audio_events_exact": true,
+      "w1_vs_w2_selected_graph_hash_exact": true,
+      "w1_vs_w2_story_graph_hash_exact": true,
+      "w1_vs_w2_storyboard_hash_exact": true,
+      "warm_vs_cold_speedup": 2.73
+    },
+    "visual_lab_ablations": {
+      "H1:h1_hf_bg_tokens(background_graphics)": {
+        "changed_pixel_ratio": 0.01994,
+        "mad": 1.307,
+        "verified": true
+      },
+      "H1:h1_hf_fg_hero(foreground_graphics)": {
+        "changed_pixel_ratio": 0.25314,
+        "mad": 11.085,
+        "verified": true
+      },
+      "H4:real_product_asset_texture": {
+        "changed_pixel_ratio": 0.3602,
+        "mad": 17.357,
+        "verified": true
+      }
+    },
+    "visual_lab_h6_critic": {
+      "broken_internal_flashes": 2,
+      "broken_severe_findings": 2,
+      "repaired_internal_flashes": 0,
+      "repaired_severe_findings": 0,
+      "streaming_mode": true
+    },
+    "w1_parity_wall_s": 248.26,
+    "warm_w2_wall_s": 110.88
+  },
+  "resource_stats": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
+      "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
+      "batch_worker_peak_tree_rss_mb": 1730.55,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 9,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 1.142,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 9.89,
+      "remotion_code_hash": "1086d481285ab21083f8",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 28
+    },
+    "peak_temp_mb": 90.73,
+    "peak_tree_rss_mb": 798.5,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 9.2036,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 501.69
+      },
+      "generative_director": {
+        "elapsed_s": 28.7041,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 47.66
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 78.2088,
+        "temp_mb": 8.96,
+        "tree_rss_mb": 56.14
+      },
+      "remotion_scenes": {
+        "elapsed_s": 110.1997,
+        "temp_mb": 80.85,
+        "tree_rss_mb": 105.44
+      },
+      "sound_design_mix": {
+        "elapsed_s": 3.9825,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 325.33
+      },
+      "story_graph": {
+        "elapsed_s": 0.0086,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 798.5
+      },
+      "validation_and_qa": {
+        "elapsed_s": 32.7223,
+        "temp_mb": 90.73,
+        "tree_rss_mb": 731.17
+      },
+      "vision_and_asr": {
+        "elapsed_s": 8.806,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 794.78
+      },
+      "vision_segmentation": {
+        "elapsed_s": 10.507,
+        "temp_mb": 2.39,
+        "tree_rss_mb": 491.31
+      }
+    }
+  }
+}

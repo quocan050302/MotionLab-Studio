@@ -1,0 +1,81 @@
+{
+  "eval_deterministic": "36/36",
+  "eval_live_qwen25_3b": {
+    "cases": [
+      {
+        "case_id": "EV01_balance_vs_spendable_exact",
+        "intervention_counts": {
+          "artistic": 0,
+          "factual": 0,
+          "none": 0,
+          "resource": 0,
+          "safety": 6
+        },
+        "raw_niche": "finance",
+        "raw_schema_compliant": true,
+        "reconciled_niche": "finance",
+        "reconciled_scenes": 6
+      },
+      {
+        "case_id": "EV02_non_monetary_page_count",
+        "intervention_counts": {
+          "artistic": 0,
+          "factual": 0,
+          "none": 0,
+          "resource": 0,
+          "safety": 2
+        },
+        "raw_niche": "product",
+        "raw_schema_compliant": true,
+        "reconciled_niche": "product",
+        "reconciled_scenes": 2
+      },
+      {
+        "case_id": "EV24_education_multi_step_no_money",
+        "intervention_counts": {
+          "artistic": 0,
+          "factual": 0,
+          "none": 0,
+          "resource": 0,
+          "safety": 3
+        },
+        "raw_niche": "product",
+        "raw_schema_compliant": true,
+        "reconciled_niche": "product",
+        "reconciled_scenes": 3
+      },
+      {
+        "case_id": "EV32_gameplay_hud_strict_ui_protection",
+        "intervention_counts": {
+          "artistic": 0,
+          "factual": 0,
+          "none": 0,
+          "resource": 0,
+          "safety": 1
+        },
+        "raw_niche": "product",
+        "raw_schema_compliant": true,
+        "reconciled_niche": "product",
+        "reconciled_scenes": 1
+      }
+    ],
+    "cases_tested": 4,
+    "intervention_counts_by_type": {
+      "artistic": 0,
+      "factual": 0,
+      "none": 0,
+      "resource": 0,
+      "safety": 12
+    },
+    "raw_niche_matches": 2,
+    "raw_schema_compliant": 4,
+    "reconciled_passed": 4,
+    "status": "EXECUTED_LOCAL_LLM"
+  },
+  "overlap_disclosure": "The 26 upstream test_render_*.py unittest cases are already included inside the 157 pytest tests (not double-counted).",
+  "overlapping_upstream_unittest_passed": 26,
+  "pytest_elapsed_s": 68.26,
+  "pytest_subtests_passed": 15,
+  "pytest_unique_passed": 157,
+  "tsc_no_emit_rc": 0
+}
