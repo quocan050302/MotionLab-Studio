@@ -1,0 +1,307 @@
+{
+  "dual_engine_active": true,
+  "edition": "ml-01.r5",
+  "engines_used": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "mode": "AUTO_GENERATIVE",
+  "reuse_gate": {
+    "actual_rendered_engines": [
+      "ffmpeg",
+      "hyperframes",
+      "remotion"
+    ],
+    "distinct_origin_repos": [
+      "GTKottman/remotion-transitions",
+      "RenderComp/free-remotion-templates",
+      "heygen-com/hyperframes",
+      "riaz37/remotion-ui",
+      "vivmagarwal/remotion-effects-library"
+    ],
+    "distinct_verified_total": 16,
+    "hyperframes_primitives": [
+      "hf_apple_money_count",
+      "hf_data_chart",
+      "hf_lt_mask_reveal",
+      "hf_mk_progress_stat",
+      "hf_mk_specs_list",
+      "hf_organic_light_leak"
+    ],
+    "passed": true,
+    "remotion_primitives": [
+      "rem_gtk_frame_morph",
+      "rem_gtk_line_led",
+      "rem_rc_flip_page",
+      "rem_ru_masked_slide",
+      "rem_ru_parallax",
+      "rem_ru_strikethrough",
+      "rem_ru_track_matte",
+      "rem_ru_waterfall",
+      "rem_viv_aspect_morph",
+      "rem_viv_particle_field"
+    ],
+    "requirements": {
+      "min_distinct_total": 4,
+      "min_per_engine": 2
+    },
+    "unverified_or_unknown": []
+  },
+  "scenes": [
+    {
+      "ablation": {
+        "background_graphics": {
+          "changed_pixel_ratio": 0.25471,
+          "mad": 10.885,
+          "sample_frame": 30,
+          "verified": true,
+          "window": "peak"
+        },
+        "foreground_subject_matte": {
+          "changed_pixel_ratio": 0.52371,
+          "mad": 18.947,
+          "sample_frame": 30,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        0,
+        60
+      ],
+      "hf_artifact_sha256": "3de463b2905ec30754a661696de1697e8a7583acdc752e1dc9cfbdf9e4ae6d6f",
+      "hf_primitive_id": "hf_apple_money_count",
+      "remotion_artifact_sha256": "286cd98f002e70b2ffad22ebefe9e46583b76ea9a9482a6b4d74693b7dad1c9a",
+      "role": "hook_contrast",
+      "scene_id": "sc_01_hook_contrast",
+      "stage_mode": "live_depth_matte",
+      "used_matte_alpha": true
+    },
+    {
+      "ablation": {
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.25921,
+          "mad": 9.537,
+          "sample_frame": 39,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        60,
+        138
+      ],
+      "hf_artifact_sha256": null,
+      "hf_primitive_id": null,
+      "remotion_artifact_sha256": "87f1ecd5eae116590c45868254537854c992c7ffd984dad52cac76a676f68f2e",
+      "role": "negation_tension",
+      "scene_id": "sc_02_negation_tension",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.13928,
+          "mad": 15.443,
+          "sample_frame": 34,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.14113,
+          "mad": 8.907,
+          "sample_frame": 34,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        138,
+        207
+      ],
+      "hf_artifact_sha256": "8f199afcb2f66650c17664ac767ee8d424e5a06e40f74074d02e846e64a3cfc2",
+      "hf_primitive_id": "hf_mk_progress_stat",
+      "remotion_artifact_sha256": "81765f97f766424a71367977c456c3ea92401c385cb9fd1eaf07aacb5e3d3b55",
+      "role": "allocation_step",
+      "scene_id": "sc_03_allocation_step",
+      "stage_mode": "tracked_macro_split",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.06471,
+          "mad": 5.098,
+          "sample_frame": 17,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        234,
+        269
+      ],
+      "hf_artifact_sha256": "f68e13d6d248eee2b46340b783704ce9e906d8d66709a089d7e7e2c9d7cee8ac",
+      "hf_primitive_id": "hf_data_chart",
+      "remotion_artifact_sha256": "d3d8c245997f667a6b056995c23522b4d4e07d4941f50be4f4e7a8f41fc60b79",
+      "role": "allocation_step",
+      "scene_id": "sc_04_allocation_step",
+      "stage_mode": "aspect_morph_editorial",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.13807,
+          "mad": 16.108,
+          "sample_frame": 37,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        269,
+        344
+      ],
+      "hf_artifact_sha256": "b93d9ed4f4dde813fc2f11022533c0cd272c582dce53bd93183da5217b01a821",
+      "hf_primitive_id": "hf_mk_progress_stat",
+      "remotion_artifact_sha256": "8a8b98cac4e06588f6ced470a9f4fd6aac80c226534eb99b51be3989e8c8349d",
+      "role": "allocation_step",
+      "scene_id": "sc_05_allocation_step",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.06836,
+          "mad": 5.97,
+          "sample_frame": 36,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.06019,
+          "mad": 7.559,
+          "sample_frame": 36,
+          "verified": true,
+          "window": "peak"
+        },
+        "transition_in": {
+          "changed_pixel_ratio": 0.29984,
+          "mad": 12.215,
+          "sample_frame": 6,
+          "verified": true,
+          "window": "entry"
+        }
+      },
+      "frame_range": [
+        344,
+        417
+      ],
+      "hf_artifact_sha256": "0ffcda5071a05ea81bc986bb190828c3e16197be612eba5f41ca55757aeee250",
+      "hf_primitive_id": "hf_apple_money_count",
+      "remotion_artifact_sha256": "9cfc4d07b67ff7e12d585e3b6720f1aa359515c8ca88da535b74ffab6e7f9cb2",
+      "role": "payoff_reveal",
+      "scene_id": "sc_06_payoff_reveal",
+      "stage_mode": "full_graphic_cutaway",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.23213,
+          "mad": 7.515,
+          "sample_frame": 26,
+          "verified": true,
+          "window": "peak"
+        },
+        "foreground_subject_matte": {
+          "changed_pixel_ratio": 0.53641,
+          "mad": 18.201,
+          "sample_frame": 26,
+          "verified": true,
+          "window": "peak"
+        },
+        "transition_in": {
+          "changed_pixel_ratio": 0.70022,
+          "mad": 25.081,
+          "sample_frame": 6,
+          "verified": true,
+          "window": "entry"
+        }
+      },
+      "frame_range": [
+        481,
+        533
+      ],
+      "hf_artifact_sha256": "9273345e448cde2d4986e55cf9594098850bc56db9d7b1dccc386412e54f88e3",
+      "hf_primitive_id": "hf_lt_mask_reveal",
+      "remotion_artifact_sha256": "15898f3c1509cd6356086b99835040cf6f1326fbbcd5e14a3883aacf79d718a3",
+      "role": "product_intro",
+      "scene_id": "sc_07_product_intro",
+      "stage_mode": "live_depth_matte",
+      "used_matte_alpha": true
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.02505,
+          "mad": 2.981,
+          "sample_frame": 51,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.48794,
+          "mad": 42.157,
+          "sample_frame": 46,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        533,
+        635
+      ],
+      "hf_artifact_sha256": "43cd5d56cc88e4aea20d85531b51826fc52dc1c9bc71eb10c7a61590b316650f",
+      "hf_primitive_id": "hf_mk_specs_list",
+      "remotion_artifact_sha256": "45287cfa07e619746eb754682e2b1fb6ee18b334ddde278976ed58c3c29ea8c4",
+      "role": "product_benefit",
+      "scene_id": "sc_08_product_benefit",
+      "stage_mode": "full_graphic_cutaway",
+      "used_matte_alpha": false
+    },
+    {
+      "ablation": {
+        "foreground_graphics": {
+          "changed_pixel_ratio": 0.85112,
+          "mad": 26.203,
+          "sample_frame": 42,
+          "verified": true,
+          "window": "peak"
+        },
+        "remotion_primitive": {
+          "changed_pixel_ratio": 0.27596,
+          "mad": 8.835,
+          "sample_frame": 42,
+          "verified": true,
+          "window": "peak"
+        }
+      },
+      "frame_range": [
+        635,
+        720
+      ],
+      "hf_artifact_sha256": "7fbf7a53d71f5fd8bb15069296d3ce305ba89fa869d113724127516f57c49ad7",
+      "hf_primitive_id": "hf_organic_light_leak",
+      "remotion_artifact_sha256": "cb8e0f18295fc0d7ab306f5f263034646dce0cd666eb41f1dd18119ec0b7ba27",
+      "role": "closing_takeaway",
+      "scene_id": "sc_09_closing_takeaway",
+      "stage_mode": "live_clean_bridge",
+      "used_matte_alpha": false
+    }
+  ]
+}

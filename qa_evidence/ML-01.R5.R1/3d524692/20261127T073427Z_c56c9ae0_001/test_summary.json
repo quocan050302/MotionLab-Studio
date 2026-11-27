@@ -1,0 +1,12 @@
+{
+  "doctor_foley_status": "RECORDED_FOLEY_VERIFIED",
+  "doctor_primitives_verified": 20,
+  "legacy_overlap_disclosed": true,
+  "legacy_upstream_unittest_ok": 26,
+  "pytest_elapsed_s": 68.9,
+  "pytest_failed": 0,
+  "pytest_skipped": 0,
+  "pytest_subtests_passed": 15,
+  "pytest_unique_passed": 122,
+  "tsc_exit_code": 0
+}

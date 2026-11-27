@@ -1,0 +1,174 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R1 IMPLEMENTATION & VERIFICATION REPORT
+PREMIUM ART DIRECTION · SEMANTIC SOUND DIRECTOR · CC0 FOLEY · RENDER OPTIMIZATION
+================================================================================
+Date (UTC)                  : 2026-11-27
+Repository                  : https://github.com/quocan050302/MotionLab-Studio
+Target Branch               : feat/ml-01-zero-api-effects
+Prior Audited R5 HEAD       : 303df5bf84140873a83e8b1dbaccad0a8c13293e
+Prior R5 Tested Code SHA    : 0842f4ee01153d72f145c07be9b2f21d107765a9
+R5.R1 TESTED_CODE_SHA       : 3d524692313e2dd535df30e1e8012393b415bb49
+Upstream Origin (Read-Only) : browser-use/video-use @ 43cfc566833548093455c9d4a46bd69913b7e552 (MIT)
+Host Environment            : Windows-11-10.0.26300-SP0 | Python 3.12.10 | 12 CPUs | 31.75 GiB RAM
+Runtime Mode                : 100% OFFLINE / ZERO-API (cloud API keys unset; zero remote runtime fetches)
+
+--------------------------------------------------------------------------------
+1. MANDATORY IMMUTABLE PRIMARY INPUT & CANONICAL DELIVERABLES
+--------------------------------------------------------------------------------
+Original Input (IMMUTABLE, verified before & after all runs):
+  Path   : input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+  SHA256 : c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+  Specs  : H.264 720x1280 (9:16), 24/1 fps, 720 frames, 30.000s; AAC mono 44100 Hz, 1296 packets
+
+Canonical Automatic Generalization Final (`AUTO_GENERATIVE`, ZERO Olivia hardcoding):
+  CLI Command :
+    .\.venv\Scripts\python.exe -m motionlab edit \
+      --input "input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4" \
+      --profile auto --offline --composition generative --enable-remotion \
+      --audio-mode mix --preview-9x16 --seed 42 --max-workers 2 --no-cache \
+      --output runs/olivia_ml01_r5r1
+    (All cloud API env vars unset)
+  Run ID         : 20261127T073427Z_c56c9ae0_001
+  Final MP4      : runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R1_FINAL_9x16.mp4
+  Final SHA-256  : dcf0b5d7d01db2c217dbeef5bd466c297522001981987ef15779e9b46e3b53e3 (hardlinked inode to final.mp4)
+  Preview 9:16   : runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/preview_9x16.mp4 (540x960, 720f, stream-copied final audio)
+  Preview SHA256 : da9efb9faa564929181c75655b32a9d3e1f19d1d38a9385b072451ab2d6956ea
+  Evidence       : contact_sheet.jpg, evidence/scene_peaks_phone_scale.jpg, layout.json, continuity.json,
+                   evidence/frame_protection.csv, evidence/phone_legibility.json, evidence/sound_rationale.json,
+                   evidence/animation_markers.json, evidence/cue_alignment.csv, evidence/audio_event_qa.json
+
+Separate Art-Directed QA Visual Lab Proofs (Strictly isolated from AUTO):
+  H1-H4 Proof Clips & R5 vs R5.R1 Phone Compare Sheet:
+    runs/r5r1_visual_lab/h1_h4_r5_vs_r5r1_phone_compare.jpg
+    runs/r5r1_visual_lab/{H1_hook_money,H2_alloc_bills,H2_alloc_groceries,H3_payoff_nodark,H4_closing_cta}.mp4
+  Historical R5 QA References (NEVER used as input):
+    R5 AUTO Final   : edb254660aa692d891f699df56597f078099d7c0de97a40ee5e861ce91ece096
+    R5 QA Benchmark : 3662f8e941ed6dc1ef6fb6df533c6d2cb5b847e5d4b90d0bc43f7acc688eae19
+    R4 Final        : NOT_AVAILABLE_LOCALLY (historical SHA 3f008e07...ec71)
+
+--------------------------------------------------------------------------------
+2. HONEST RELEASE GATE TABLE (G0 - G8 — STATUSES STRICTLY SEPARATED)
+--------------------------------------------------------------------------------
+Gate | Status                         | Verified Evidence
+-----+--------------------------------+-----------------------------------------------------------------
+G0   | PASS                           | Clean ancestry on feat/ml-01-zero-api-effects from 303df5bf;
+     |                                | original input verified immutable; 20/20 imported mechanisms intact.
+G1   | PASS                           | Real offline Faster-Whisper ASR + integer-cent StoryGraph
+     |                                | ($1,200 - $800 - $200 - $100 = $100 exact) + local Qwen2.5-3B
+     |                                | director + zero Olivia hardcoding in AUTO runtime.
+G2   | PASS (TECHNICAL) /             | H1-H4 proof clips & full 9-scene AUTO visually inspected at 360px;
+     | PENDING_HUMAN_REVIEW           | all 10 baseline defects D01-D10 fixed; 16/20 imported mechanisms
+     |                                | rendered live across all 5 repos; zero_eye_mouth_collision=True
+     |                                | (max overlap 0.0 across all 720 frames); 0 consumer jargon leaks.
+G3   | RECORDED_FOLEY_VERIFIED /      | Two-Pass SemanticSoundDirector + AnimationMarker alignment +
+     | LISTENING_NOT_RUN              | 29 verified CC0-1.0 48kHz 24-bit WAV assets from wyzowl/sfx-kit
+     |                                | (commit 92780e7ab0cd); 11/11 final mixed cues use CC0 WAVs
+     |                                | (0 DSP fallback); master_exact=True (1296 pkts), LUFS -15.2,
+     |                                | True Peak -1.4 dBTP, 0 clipping added, mono_compat=0.9997,
+     |                                | 11/11 single-cue ablation OK. Human listening still pending.
+G4   | PASS                           | Single-browser Remotion batch worker + content-addressed bundle,
+     |                                | scene & HyperFrames caches: Remotion cold 330.33s -> 227.89s
+     |                                | (-31.0%), full cold 611.55s -> 520.58s (-14.9%), full warm-1
+     |                                | 312.61s (-48.9%), HF warm 110.05s -> 1.04s (-99.1%), peak temp
+     |                                | 84.77 MB -> 42.48 MB (-50%), cold==warm final SHA256 BIT-EXACT!
+G5   | PASS                           | 122/122 unique pytest PASSED (0 failed, 0 skipped) + 26/26 legacy
+     |                                | upstream unittest OK (overlap disclosed) + tsc --noEmit exit 0 +
+     |                                | 17/17 (100%) active-window ablation layers verified (fixed 13/15).
+G6   | PASS (REAL_HELDOUT_NOT_RUN)    | 5-niche corpus, UI protection, filename independence, and semantic
+     |                                | sound counterexamples verified; real held-out footage absent.
+G7   | PASS (ARTIFACT_LOCAL_ONLY)     | Redacted QA-01 pack under qa_evidence/ML-01.R5.R1/3d524692/
+     |                                | strictly <=2 MiB, relative paths only, 0 MP4/WAV/secrets in Git.
+G8   | PENDING_HUMAN_REVIEW           | Owner visual/listening review & VQ-01 score (>=80/100, >=7/10 each)
+     |                                | required before production release approval.
+
+--------------------------------------------------------------------------------
+3. DEFECT RESOLUTION AUDIT (D01 - D10 FROM defects.json)
+--------------------------------------------------------------------------------
+D01 [FIXED] Repetitive dark rounded espresso boxes -> Replaced with open borderless editorial scrims,
+            warm-ivory architectural strips, and seamless borderless ivory cutaways.
+D02 [FIXED] "(derived)" QA jargon leak -> Removed from consumer text; enforced fail-closed in both
+            evaluate_phone_legibility() and validate_storyboard_spec() (0 leaks).
+D03 [FIXED] Flat green "$" rectangles -> Replaced with curated 3-4 layered warm-linen paper banknote
+            tokens with sage engraved border, 3D tilt, soft drop shadow & curved arc paths.
+D04 [FIXED] Dark espresso FrameMorph iris (f348) -> Replaced with luminous warm ivory (#F5F0E6) morph.
+D05 [FIXED] Empty void & empty green kicker dot in aspect_morph_editorial -> Balanced split (y=0.48,
+            h=0.43), open borderless breakdown typography, and empty-kicker guard in AspectMorphCard.tsx.
+D06 [FIXED] Shallow speech_act -> sfx lookup -> Replaced with Two-Pass SemanticSoundDirector
+            (SoundRole enums, rejected_candidates, 5 QuietSpans, exact AnimationMarker sync).
+D07 [FIXED] Empty recorded foley library -> Provisioned 29 verified CC0-1.0 48kHz 24-bit WAV files
+            from wyzowl/sfx-kit (34 family/variant bindings, SHA-256 checked, gitignored binaries) +
+            upgraded mixer QA with 1-4kHz speech masking, peak lag, mono-downmix & single-cue ablation.
+D08 [FIXED] Midpoint-only ablation (13/15) -> Active-window entry/peak/settle ablation: 17/17 (100%).
+D09 [FIXED] Missing Reels safe-zone & all-frame face sweep -> Implemented art_direction.py exporting
+            layout.json, continuity.json, evidence/frame_protection.csv (0.0 eye/mouth overlap across 720f).
+D10 [FIXED] 33 cold Remotion CLI startups (~330s) -> Single-browser persistent batch_render.mjs +
+            content-addressed bundle/scene/HF caches (-31% Remotion cold, -48.9% full warm-1).
+
+--------------------------------------------------------------------------------
+4. REPRESENTATIVE SEMANTIC SOUND DIRECTOR DECISIONS (FROM sound_rationale.json)
+--------------------------------------------------------------------------------
+1. sc_01_hook_contrast (f2, "Just because you have $1,200 in your bank account"):
+   - Selected: ILLUSTRATIVE_FOLEY / cash_flick (`wyzowl_money-notes.wav`, CC0-1.0) at marker `reveal_start`.
+   - Rejected: `cash_register_chaching` ("Avoid cartoon casino/register cliche on opening bank balance").
+2. sc_02_negation_tension (f72, "doesn't mean you have $1,200 to spend."):
+   - Selected: COGNITIVE_EMPHASIS / reverse_whoosh (`wyzowl_reverse-whoosh-short-strong.wav`, CC0-1.0) at `impact`.
+   - Rejected: `cash_flick` ("Negated logical contradiction: happy cash foley contradicts meaning") & `error_buzzer`.
+3. sc_04_allocation_step (f236, "200 for groceries") & sc_05_allocation_step ("and 100 for gas"):
+   - Selected: distinct tactile textures (`paper_rustle` -> `envelope_slide` + `tick_accent` on `counter_settle`).
+   - Rejected: `checkout_beep` on groceries ("No physical grocery scanner visible") & `engine_rev` on gas ("financial budget category, not a vehicle scene").
+4. sc_08_product_benefit ("a Notion dashboard and a 56-page workbook..."):
+   - Selected: PRODUCT_TEXTURE / page_turn (`wyzowl_props-page-turn.wav`, CC0-1.0) aligned to 3D `page_contact`.
+   - Rejected: `cash_flick` ("Non-monetary count '56-page workbook' must NEVER trigger money/cash foley").
+5. Intentional QuietSpans (5 explicit quiet spans recorded):
+   - Natural breathing pause (`f417..481`, `17.375s..20.042s`): lets `$100` payoff register before solution.
+   - Final CTA ("Link in my profile"): rejected `notification_ding`; keeps closing voice completely clear.
+
+Note on Audio Alignment: 10/11 cues landed within <=0.5 frames peak lag; `sfx_02_paper_rustle` (`wyzowl_foley-paper-slide.wav`) has an energy envelope crest ~6 frames after `sync.at=0.006s` (natural gradual slide buildup rather than a hard impulse). All 11/11 cues passed SNR (+31.4 to +38.9 dB over codec floor), speech-band check, and single-cue ablation with 0 added clipping.
+
+--------------------------------------------------------------------------------
+5. COMPARABLE RENDER PERFORMANCE BENCHMARK (SAME WINDOWS HOST, SAME 720x1280@24fps)
+--------------------------------------------------------------------------------
+Stage                 | R5 Cold (Baseline) | R5.R1 Cold (--no-cache) | R5.R1 Warm-1 (Cache ON)
+----------------------+--------------------+-------------------------+------------------------
+vision_and_asr        |    12.30 s         |       9.04 s            |       0.76 s (-91.6%)
+story_graph           |     0.03 s         |       0.02 s            |       0.02 s
+generative_director   |   116.84 s         |     106.65 s            |     100.20 s (1st cache populate)
+vision_segmentation   |    12.77 s         |      13.36 s            |      11.43 s
+sound_design_mix      |     1.90 s         |       4.10 s (24b CC0)  |       3.63 s
+hyperframes_graphics  |    90.39 s         |     110.05 s (8 blocks) |       1.04 s (8/8 HIT, -99.1%)
+remotion_scenes       |   330.33 s (33 CLI)|     227.89 s (1 browser)|     148.43 s (7/9 HIT, -55.1% vs R5)
+canonical_assembly    |     7.37 s         |       7.21 s            |       7.10 s
+validation_and_qa     |    39.62 s         |      42.25 s (17 abls)  |      39.98 s
+----------------------+--------------------+-------------------------+------------------------
+TOTAL WALL TIME       |   611.55 s         |     520.58 s (-14.9%)   |     312.61 s (-48.9% vs R5)
+Peak Temp Disk        |    84.77 MB        |      42.48 MB (-49.9%)  |      40.70 MB
+Remotion Bundle Time  |   repeated x33     |       8.12 s (1x)       |       0.001 s (REUSED)
+Browser Launches      |       33           |         1               |         1
+Batch Peak Tree RSS   |  1298.86 MB (asm)  |    2378.63 MB (Chromium)|    1986.69 MB (Chromium)
+Output SHA-256 Match  |  edb25466...096    |    dcf0b5d7...53e3      |    dcf0b5d7...53e3 (BIT-EXACT!)
+
+--------------------------------------------------------------------------------
+6. TEST SUITE SUMMARY (TIED TO TESTED_CODE_SHA 3d524692313e2dd535df30e1e8012393b415bb49)
+--------------------------------------------------------------------------------
+- pytest -v tests/ --tb=short : 122 passed, 15 subtests passed, 0 failed, 0 skipped in 68.90s (Exit 0)
+    * 9 new ML-01.R5.R1 unit/negative tests (test_r5r1_semantic_sound.py, test_r5r1_layout_and_cache.py)
+    * 22 ML-01.R5 unit/integration/corpus tests
+    * 65 ML-01 HEAD/R1-R4 unit/integration/e2e/regression tests
+    * 26 legacy upstream browser-use/video-use tests (tests/test_render_*.py)
+- unittest discover -s tests -p "test_render_*.py" -v : 26/26 OK in 0.017s (Exit 0, exact overlap disclosed)
+- npx tsc --noEmit (renderers/remotion) : Exit 0
+- motionlab doctor : 20/20 verified primitives, RECORDED_FOLEY_VERIFIED (34), 3/3 engines, 3/3 local models
+
+--------------------------------------------------------------------------------
+7. QA-01 EVIDENCE PACK & OPEN BLOCKERS / NEXT STEPS
+--------------------------------------------------------------------------------
+- QA-01 Tracked Redacted Pack : qa_evidence/ML-01.R5.R1/3d524692/20261127T073427Z_c56c9ae0_001/
+  (<=2 MiB, relative paths only, raw spoken transcript redacted, zero MP4/WAV blobs in Git, ARTIFACT_LOCAL_ONLY)
+- Remaining Blockers for Production Release Approval (Disclosed Honestly):
+  1. G8 Human Visual & Listening Review (PENDING_HUMAN_REVIEW / LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY):
+     Owner must inspect Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R1_FINAL_9x16.mp4 & preview_9x16.mp4
+     at mobile volume/headphones, score VQ-01 (>=80/100, each >=7/10), and confirm A/B preference over R5/R4.
+  2. Owner Product Asset (ASSET_MISSING_CONCEPTUAL): Provide authorized Notion dashboard / 56-page workbook
+     assets if real product visuals are desired instead of the honest conceptual schematic.
+  3. Local VLM Critic (VISION_CRITIC_NOT_RUN) & Real Held-Out Clips (REAL_HELDOUT_NOT_RUN).
+================================================================================

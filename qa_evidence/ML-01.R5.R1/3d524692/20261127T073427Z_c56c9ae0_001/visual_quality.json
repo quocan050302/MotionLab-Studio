@@ -1,0 +1,125 @@
+{
+  "continuity_summary": {
+    "persistent_element_ids": [
+      "persistent_ledger_balance",
+      "product_organization_motif"
+    ],
+    "track_count": 9
+  },
+  "creative_quality_proxy": {
+    "ablation_layers_total": 17,
+    "ablation_layers_verified": 17,
+    "black_frames": 0,
+    "competitor_reference_status": "REFERENCE_NOT_AVAILABLE",
+    "evidence_files": {
+      "contact_sheet": "runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/contact_sheet.jpg",
+      "frame_metrics_csv": "runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/evidence/frame_metrics_720.csv",
+      "scene_peaks_sheet": "runs/olivia_ml01_r5r1/20261127T073427Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg"
+    },
+    "frames_checked": 720,
+    "hard_rejects": [],
+    "human_review_status": "PENDING_HUMAN_REVIEW",
+    "ledger_conservation_exact": true,
+    "phone_360x640_median_contrast_ratio": 3.14,
+    "reuse_gate_passed": true,
+    "schema_version": "1.0.0",
+    "substantive_visual_change_ratio": 0.8556,
+    "technical_proxy_status": "PASS",
+    "template_repetition_audit": {
+      "distinct_signatures": 9,
+      "distinct_stage_modes": [
+        "aspect_morph_editorial",
+        "full_graphic_cutaway",
+        "live_clean_bridge",
+        "live_depth_matte",
+        "tracked_macro_split"
+      ],
+      "flagged_runs": [],
+      "max_consecutive_identical_templates": 1,
+      "passed": true
+    },
+    "vision_critic_note": "No local VLM installed; text-only Qwen2.5-3B is NOT treated as a vision critic.",
+    "vision_critic_status": "VISION_CRITIC_NOT_RUN",
+    "vq01_human_score": null
+  },
+  "layout_summary": {
+    "all_frames_checked": 629,
+    "canvas": {
+      "height": 1280,
+      "width": 720
+    },
+    "layout_sweep_errors": [],
+    "max_eye_mouth_overlap_any_frame": 0.0,
+    "safe_margins_px": {
+      "bottom": 230,
+      "left": 48,
+      "right": 105,
+      "top": 110
+    },
+    "schema_version": "1.0.0",
+    "style_tokens": {
+      "footage_warmth": "warm_natural",
+      "niche": "finance",
+      "palette": {
+        "brass": "#BE9A59",
+        "clay": "#AF745E",
+        "espresso": "#40382E",
+        "forest": "#243B32",
+        "gold": "#BE9A59",
+        "ink_dark": "#1E1B16",
+        "ivory": "#F5F0E6",
+        "sage": "#84977A",
+        "terracotta": "#AF745E"
+      },
+      "sampled_luma": 129.2,
+      "schema_version": "1.0.0",
+      "typography": {
+        "auxiliary_min_px_720": 24,
+        "hero_amount_px_720": [
+          96,
+          150
+        ],
+        "max_families": 2,
+        "max_weights": 3,
+        "sans_family": "Bahnschrift, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "secondary_label_px_720": [
+          32,
+          48
+        ],
+        "serif_family": "Georgia, Cambria, \"Times New Roman\", serif"
+      }
+    },
+    "zero_eye_mouth_collision": true
+  },
+  "phone_legibility": {
+    "consumer_jargon_leaks": [],
+    "contrast_checks": [
+      {
+        "pair": "ivory_on_forest",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "forest_on_ivory",
+        "ratio": 10.59,
+        "target": 4.5
+      },
+      {
+        "pair": "espresso_on_ivory",
+        "ratio": 10.14,
+        "target": 4.5
+      },
+      {
+        "pair": "gold_on_forest",
+        "ratio": 4.55,
+        "target": 3.0
+      }
+    ],
+    "contrast_proxy_ok": true,
+    "passed": true,
+    "phone_scale_width": 360,
+    "scale_factor": 0.5,
+    "schema_version": "1.0.0",
+    "small_font_warnings": []
+  }
+}

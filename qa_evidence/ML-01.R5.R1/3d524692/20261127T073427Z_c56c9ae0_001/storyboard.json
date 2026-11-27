@@ -1,0 +1,1808 @@
+{
+  "core_value_proposition": "organize your money",
+  "director_model_id": "qwen2_5_3b_instruct_q4_k_m",
+  "fps_den": 1,
+  "fps_num": 24,
+  "height": 1280,
+  "mode": "AUTO_GENERATIVE",
+  "niche": "finance",
+  "niche_confidence": 1.0,
+  "palette": {
+    "brass": "#BE9A59",
+    "clay": "#AF745E",
+    "espresso": "#40382E",
+    "forest": "#243B32",
+    "gold": "#BE9A59",
+    "ivory": "#F5F0E6",
+    "sage": "#84977A",
+    "terracotta": "#AF745E"
+  },
+  "raw_director_response_sha256": "4715faa3a87bd47a1a2890ea5b7165e0eee0d7e2cd99e8959bdc40a95f8fadca",
+  "retrieved_candidates": {
+    "beat_00_hook_contrast": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_apple_money_count",
+        "reasons": [
+          "tag_match:balance,counter,finance,hook",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 14.5,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_counter",
+        "reasons": [
+          "tag_match:balance,counter,finance,hook"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_waterfall",
+        "reasons": [
+          "tag_match:allocation,finance,ledger,waterfall",
+          "verified_ledger_compatible"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "financial_waterfall"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_data_chart",
+        "reasons": [
+          "tag_match:allocation,finance,ledger",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_data_chart"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_parallax",
+        "reasons": [
+          "tag_match:depth,hook,parallax",
+          "matte_occlusion_ready"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 9.0,
+        "status": "VERIFIED",
+        "visual_family": "spatial_parallax"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_progress_stat",
+        "reasons": [
+          "tag_match:allocation,finance",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 7.0,
+        "status": "VERIFIED",
+        "visual_family": "proportional_stat"
+      }
+    ],
+    "beat_01_negation_tension": [
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_strikethrough",
+        "reasons": [
+          "tag_match:contradiction,contradiction_contrast,contrast,replace"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_type_contrast"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_strikethrough_replace",
+        "reasons": [
+          "tag_match:contradiction,contrast,replace,strikethrough"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_type_contrast"
+      }
+    ],
+    "beat_02_allocation_step": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_apple_money_count",
+        "reasons": [
+          "tag_match:balance,counter,finance,money",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_waterfall",
+        "reasons": [
+          "tag_match:allocation,finance,ledger,waterfall",
+          "verified_ledger_compatible"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "financial_waterfall"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_counter",
+        "reasons": [
+          "tag_match:balance,counter,finance,money"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_data_chart",
+        "reasons": [
+          "tag_match:allocation,finance,ledger",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_data_chart"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_progress_stat",
+        "reasons": [
+          "tag_match:allocation,finance",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 7.0,
+        "status": "VERIFIED",
+        "visual_family": "proportional_stat"
+      },
+      {
+        "commit_sha": "f2781731e1",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-effects-library",
+        "primitive_id": "rem_viv_aspect_morph",
+        "reasons": [
+          "tag_match:finance"
+        ],
+        "repo": "vivmagarwal/remotion-effects-library",
+        "score": 2.5,
+        "status": "VERIFIED",
+        "visual_family": "editorial_layout_morph"
+      }
+    ],
+    "beat_04_allocation_step": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_apple_money_count",
+        "reasons": [
+          "tag_match:balance,counter,finance,money",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_waterfall",
+        "reasons": [
+          "tag_match:allocation,finance,ledger,waterfall",
+          "verified_ledger_compatible"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "financial_waterfall"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_counter",
+        "reasons": [
+          "tag_match:balance,counter,finance,money"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_data_chart",
+        "reasons": [
+          "tag_match:allocation,finance,ledger",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_data_chart"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_progress_stat",
+        "reasons": [
+          "tag_match:allocation,finance",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 7.0,
+        "status": "VERIFIED",
+        "visual_family": "proportional_stat"
+      },
+      {
+        "commit_sha": "f2781731e1",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-effects-library",
+        "primitive_id": "rem_viv_aspect_morph",
+        "reasons": [
+          "tag_match:finance"
+        ],
+        "repo": "vivmagarwal/remotion-effects-library",
+        "score": 2.5,
+        "status": "VERIFIED",
+        "visual_family": "editorial_layout_morph"
+      }
+    ],
+    "beat_05_allocation_step": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_apple_money_count",
+        "reasons": [
+          "tag_match:balance,counter,finance,money",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_waterfall",
+        "reasons": [
+          "tag_match:allocation,finance,ledger,waterfall",
+          "verified_ledger_compatible"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.0,
+        "status": "VERIFIED",
+        "visual_family": "financial_waterfall"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_counter",
+        "reasons": [
+          "tag_match:balance,counter,finance,money"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_data_chart",
+        "reasons": [
+          "tag_match:allocation,finance,ledger",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_data_chart"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_progress_stat",
+        "reasons": [
+          "tag_match:allocation,finance",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 7.0,
+        "status": "VERIFIED",
+        "visual_family": "proportional_stat"
+      },
+      {
+        "commit_sha": "f2781731e1",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-effects-library",
+        "primitive_id": "rem_viv_aspect_morph",
+        "reasons": [
+          "tag_match:finance"
+        ],
+        "repo": "vivmagarwal/remotion-effects-library",
+        "score": 2.5,
+        "status": "VERIFIED",
+        "visual_family": "editorial_layout_morph"
+      }
+    ],
+    "beat_06_payoff_reveal": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_apple_money_count",
+        "reasons": [
+          "tag_match:balance,counter,finance,money",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 14.5,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_waterfall",
+        "reasons": [
+          "tag_match:allocation,finance,ledger,remaining",
+          "verified_ledger_compatible"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 14.5,
+        "status": "VERIFIED",
+        "visual_family": "financial_waterfall"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_counter",
+        "reasons": [
+          "tag_match:balance,counter,finance,money"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "numeric_counter"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_data_chart",
+        "reasons": [
+          "tag_match:allocation,finance,ledger",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_data_chart"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_progress_stat",
+        "reasons": [
+          "tag_match:allocation,finance,remaining",
+          "verified_ledger_compatible"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 9.5,
+        "status": "VERIFIED",
+        "visual_family": "proportional_stat"
+      },
+      {
+        "commit_sha": "f2781731e1",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-effects-library",
+        "primitive_id": "rem_viv_particle_field",
+        "reasons": [
+          "tag_match:particles,payoff"
+        ],
+        "repo": "vivmagarwal/remotion-effects-library",
+        "score": 5.0,
+        "status": "VERIFIED",
+        "visual_family": "spatial_particles"
+      }
+    ],
+    "beat_08_product_intro": [
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_lt_mask_reveal",
+        "reasons": [
+          "tag_match:mask,plan,product_intro,reveal"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_mask_reveal"
+      },
+      {
+        "commit_sha": "f648980e52",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "free-remotion-templates",
+        "primitive_id": "rem_rc_flip_page",
+        "reasons": [
+          "tag_match:plan,product,reveal"
+        ],
+        "repo": "RenderComp/free-remotion-templates",
+        "score": 7.5,
+        "status": "VERIFIED",
+        "visual_family": "product_page_flip"
+      },
+      {
+        "commit_sha": "58df899996",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-transitions",
+        "primitive_id": "rem_gtk_line_led",
+        "reasons": [
+          "tag_match:product,reveal"
+        ],
+        "repo": "GTKottman/remotion-transitions",
+        "score": 5.0,
+        "status": "VERIFIED",
+        "visual_family": "seamless_transition"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_masked_slide",
+        "reasons": [
+          "tag_match:reveal,title"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 5.0,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_type_reveal"
+      },
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_track_matte",
+        "reasons": [
+          "tag_match:mask,reveal"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 5.0,
+        "status": "VERIFIED",
+        "visual_family": "occlusion_matte"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_exploded_stack",
+        "reasons": [
+          "tag_match:product"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 2.5,
+        "status": "VERIFIED",
+        "visual_family": "spatial_product_stack"
+      }
+    ],
+    "beat_09_product_benefit": [
+      {
+        "commit_sha": "f648980e52",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "free-remotion-templates",
+        "primitive_id": "rem_rc_flip_page",
+        "reasons": [
+          "tag_match:dashboard,flip,organize,page"
+        ],
+        "repo": "RenderComp/free-remotion-templates",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "product_page_flip"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_exploded_stack",
+        "reasons": [
+          "tag_match:dashboard,organize,stack,workbook"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "spatial_product_stack"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_specs_list",
+        "reasons": [
+          "tag_match:dashboard,organize,specs,workbook"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "product_feature_list"
+      }
+    ],
+    "beat_10_closing_takeaway": [
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_masked_slide",
+        "reasons": [
+          "tag_match:headline,kinetic,purpose,takeaway"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_type_reveal"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_callout_highlight",
+        "reasons": [
+          "tag_match:callout,purpose,takeaway"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 7.5,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_callout_sweep"
+      }
+    ],
+    "beat_11_cta": [
+      {
+        "commit_sha": "27e51ae809",
+        "engine": "remotion",
+        "license": "MIT",
+        "origin_slug": "remotion-ui",
+        "primitive_id": "rem_ru_masked_slide",
+        "reasons": [
+          "tag_match:cta,headline,kinetic,purpose"
+        ],
+        "repo": "riaz37/remotion-ui",
+        "score": 12.5,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_type_reveal"
+      },
+      {
+        "commit_sha": "4fca68b235",
+        "engine": "hyperframes",
+        "license": "Apache-2.0",
+        "origin_slug": "heygen-hyperframes",
+        "primitive_id": "hf_mk_callout_highlight",
+        "reasons": [
+          "tag_match:callout,cta,purpose,takeaway"
+        ],
+        "repo": "heygen-com/hyperframes",
+        "score": 10.0,
+        "status": "VERIFIED",
+        "visual_family": "kinetic_callout_sweep"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        },
+        {
+          "asset_id": "modnet_fg",
+          "asset_kind": "modnet_matte",
+          "provenance": "modnet_photographic_portrait_matting.onnx",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_00",
+          "kind": "ledger_step",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:2ee514c35292bc46 len=49>",
+          "word_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        }
+      ],
+      "end_frame_exclusive": 60,
+      "expected_visual_change": "live_depth_matte with ['rem_viv_particle_field', 'hf_apple_money_count']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_00_rem",
+          "layer_role": "background_graphics",
+          "motion_tracks": [],
+          "params": {
+            "colors": [
+              "#BE9A59",
+              "#F5F0E6",
+              "#84977A"
+            ],
+            "connect": false,
+            "count": 48,
+            "speed": 0.15
+          },
+          "primitive_id": "rem_viv_particle_field",
+          "z_order": 10
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_00_hf",
+          "layer_role": "background_graphics",
+          "motion_tracks": [],
+          "params": {
+            "caption": "",
+            "currency_symbol": "$",
+            "dark_plate": true,
+            "eyebrow": "BANK BALANCE",
+            "from_cents": 0,
+            "hero_px": 124,
+            "to_cents": 120000,
+            "token_count": 4,
+            "y_anchor": "8.6%"
+          },
+          "primitive_id": "hf_apple_money_count",
+          "z_order": 15
+        }
+      ],
+      "parameters": {
+        "bg_blur_px": 2.0,
+        "bg_dim": 0.78,
+        "parallax_travel_px": 26
+      },
+      "persistent_ledger_step_id": "ledger_step_00",
+      "rationale": "",
+      "requires_matte": true,
+      "role": "hook_contrast",
+      "scene_id": "sc_01_hook_contrast",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_00_cash_flick",
+          "family": "cash_flick",
+          "gain_db": -4.5,
+          "pan": -0.12,
+          "rationale": "aligned_to_hook_contrast",
+          "target_frame": 2,
+          "variant": 0,
+          "word_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      ],
+      "stage_mode": "live_depth_matte",
+      "start_frame": 0,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_hook_contrast",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "Just $1,200 left",
+      "word_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_01",
+          "kind": "negation_tension",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:26af5c4e791a2b3a len=38>",
+          "word_ids": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        }
+      ],
+      "end_frame_exclusive": 138,
+      "expected_visual_change": "live_clean_bridge with ['rem_ru_strikethrough']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_01_rem",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "dark_card": false,
+            "eyebrow": "SPENDABILITY CHECK",
+            "font_size": 46,
+            "from_text": "$1,200 TO SPEND",
+            "to_text": "BALANCE \u2260 SPENDABLE",
+            "y_pct": 8.6
+          },
+          "primitive_id": "rem_ru_strikethrough",
+          "z_order": 30
+        }
+      ],
+      "parameters": {},
+      "persistent_ledger_step_id": null,
+      "rationale": "",
+      "requires_matte": false,
+      "role": "negation_tension",
+      "scene_id": "sc_02_negation_tension",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_01_reverse_whoosh",
+          "family": "reverse_whoosh",
+          "gain_db": -5.5,
+          "pan": 0.12,
+          "rationale": "aligned_to_negation_tension",
+          "target_frame": 65,
+          "variant": 1,
+          "word_ids": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ]
+        }
+      ],
+      "stage_mode": "live_clean_bridge",
+      "start_frame": 60,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_negation_tension",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "Not all $1,200",
+      "word_ids": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_02",
+          "kind": "ledger_step",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:fe28cfd6a374a79e len=27>",
+          "word_ids": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21
+          ]
+        }
+      ],
+      "end_frame_exclusive": 207,
+      "expected_visual_change": "tracked_macro_split with ['rem_ru_track_matte', 'hf_mk_progress_stat']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_02_rem",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "detail_zoom": 1.6,
+            "label": "LIVE DETAIL",
+            "x_frac": 0.43,
+            "y_frac": 0.46
+          },
+          "primitive_id": "rem_ru_track_matte",
+          "z_order": 30
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_02_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "amount_cents": 80000,
+            "caption": "$400 left",
+            "category": "BILLS",
+            "currency_symbol": "$",
+            "dark_plate": false,
+            "denom_cents": 120000,
+            "is_deduction": true,
+            "remaining_cents": 40000,
+            "y_px": 110
+          },
+          "primitive_id": "hf_mk_progress_stat",
+          "z_order": 35
+        }
+      ],
+      "parameters": {},
+      "persistent_ledger_step_id": "ledger_step_01",
+      "rationale": "",
+      "requires_matte": false,
+      "role": "allocation_step",
+      "scene_id": "sc_03_allocation_step",
+      "show_persistent_ribbon": true,
+      "sound_intents": [
+        {
+          "cue_id": "cue_02_cash_flick",
+          "family": "cash_flick",
+          "gain_db": -5.5,
+          "pan": -0.12,
+          "rationale": "aligned_to_allocation_step",
+          "target_frame": 153,
+          "variant": 2,
+          "word_ids": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21
+          ]
+        },
+        {
+          "cue_id": "cue_02_settle",
+          "family": "tick_accent",
+          "gain_db": -6.0,
+          "pan": 0.12,
+          "rationale": "derived_balance_settle",
+          "target_frame": 169,
+          "variant": 0,
+          "word_ids": [
+            19,
+            20,
+            21
+          ]
+        }
+      ],
+      "stage_mode": "tracked_macro_split",
+      "start_frame": 138,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_allocation_step",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "800 for bills",
+      "word_ids": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_03",
+          "kind": "ledger_step",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:b7a5cce8974c53da len=17>",
+          "word_ids": [
+            22,
+            23,
+            24
+          ]
+        }
+      ],
+      "end_frame_exclusive": 269,
+      "expected_visual_change": "aspect_morph_editorial with ['hf_data_chart']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_03_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "currency_symbol": "$",
+            "denom_cents": 120000,
+            "items": [
+              {
+                "cents": 80000,
+                "color": "#AF745E",
+                "label": "Bills"
+              },
+              {
+                "cents": 20000,
+                "color": "#BE9A59",
+                "label": "Groceries"
+              },
+              {
+                "cents": 20000,
+                "color": "#243B32",
+                "label": "Remaining"
+              }
+            ],
+            "title": "PROPORTIONAL BREAKDOWN",
+            "y_px": 112
+          },
+          "primitive_id": "hf_data_chart",
+          "z_order": 35
+        }
+      ],
+      "parameters": {
+        "header_title": "",
+        "kicker": "",
+        "lines": [],
+        "shifted_h_frac": 0.43,
+        "shifted_y_frac": 0.48
+      },
+      "persistent_ledger_step_id": "ledger_step_02",
+      "rationale": "",
+      "requires_matte": false,
+      "role": "allocation_step",
+      "scene_id": "sc_04_allocation_step",
+      "show_persistent_ribbon": true,
+      "sound_intents": [
+        {
+          "cue_id": "cue_03_cash_flick",
+          "family": "cash_flick",
+          "gain_db": -5.5,
+          "pan": 0.12,
+          "rationale": "aligned_to_allocation_step",
+          "target_frame": 236,
+          "variant": 0,
+          "word_ids": [
+            22,
+            23,
+            24
+          ]
+        }
+      ],
+      "stage_mode": "aspect_morph_editorial",
+      "start_frame": 234,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_allocation_step",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "200 for groceries",
+      "word_ids": [
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_04",
+          "kind": "ledger_step",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:4f200dfbd504dc03 len=16>",
+          "word_ids": [
+            25,
+            26,
+            27,
+            28
+          ]
+        }
+      ],
+      "end_frame_exclusive": 344,
+      "expected_visual_change": "live_clean_bridge with ['hf_mk_progress_stat']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_04_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "amount_cents": 10000,
+            "caption": "$100 left",
+            "category": "GAS",
+            "currency_symbol": "$",
+            "dark_plate": false,
+            "denom_cents": 120000,
+            "is_deduction": true,
+            "remaining_cents": 10000,
+            "y_px": 110
+          },
+          "primitive_id": "hf_mk_progress_stat",
+          "z_order": 35
+        }
+      ],
+      "parameters": {},
+      "persistent_ledger_step_id": "ledger_step_03",
+      "rationale": "",
+      "requires_matte": false,
+      "role": "allocation_step",
+      "scene_id": "sc_05_allocation_step",
+      "show_persistent_ribbon": true,
+      "sound_intents": [
+        {
+          "cue_id": "cue_04_paper_rustle",
+          "family": "paper_rustle",
+          "gain_db": -5.5,
+          "pan": -0.12,
+          "rationale": "aligned_to_allocation_step",
+          "target_frame": 292,
+          "variant": 1,
+          "word_ids": [
+            25,
+            26,
+            27,
+            28
+          ]
+        },
+        {
+          "cue_id": "cue_04_settle",
+          "family": "tick_accent",
+          "gain_db": -6.0,
+          "pan": 0.12,
+          "rationale": "derived_balance_settle",
+          "target_frame": 308,
+          "variant": 2,
+          "word_ids": [
+            26,
+            27,
+            28
+          ]
+        }
+      ],
+      "stage_mode": "live_clean_bridge",
+      "start_frame": 269,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_allocation_step",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "100 for gas",
+      "word_ids": [
+        25,
+        26,
+        27,
+        28
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_05",
+          "kind": "ledger_step",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:e72c2866b75e40c8 len=33>",
+          "word_ids": [
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ]
+        }
+      ],
+      "end_frame_exclusive": 417,
+      "expected_visual_change": "full_graphic_cutaway with ['rem_ru_waterfall', 'hf_apple_money_count']",
+      "intentional_cutaway": true,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_05_rem",
+          "layer_role": "background_graphics",
+          "motion_tracks": [],
+          "params": {
+            "chart_height": 440,
+            "currency_symbol": "$",
+            "dark_surface": false,
+            "steps": [
+              {
+                "color": "#40382E",
+                "isTotal": true,
+                "label": "Balance",
+                "value": 1200.0
+              },
+              {
+                "color": "#AF745E",
+                "label": "Bills",
+                "value": -800.0
+              },
+              {
+                "color": "#BE9A59",
+                "label": "Groceries",
+                "value": -200.0
+              },
+              {
+                "color": "#84977A",
+                "label": "Gas",
+                "value": -100.0
+              },
+              {
+                "color": "#243B32",
+                "isTotal": true,
+                "label": "Left",
+                "value": 100.0
+              }
+            ],
+            "subtitle": "$1,200 \u2192 $100",
+            "title": "EXAMPLE ALLOCATION",
+            "y_pct": 38
+          },
+          "primitive_id": "rem_ru_waterfall",
+          "z_order": 10
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_05_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "accent_color": "#BE9A59",
+            "caption": "after these expenses ($1,200 example)",
+            "currency_symbol": "$",
+            "dark_plate": false,
+            "eyebrow": "REMAINING TO SPEND",
+            "from_cents": 120000,
+            "hero_px": 148,
+            "to_cents": 10000,
+            "token_count": 3,
+            "y_anchor": "8.8%"
+          },
+          "primitive_id": "hf_apple_money_count",
+          "z_order": 35
+        }
+      ],
+      "parameters": {
+        "bg_color": "#F5F0E6"
+      },
+      "persistent_ledger_step_id": "ledger_step_04",
+      "rationale": "",
+      "requires_matte": false,
+      "role": "payoff_reveal",
+      "scene_id": "sc_06_payoff_reveal",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_05_soft_impact",
+          "family": "soft_impact",
+          "gain_db": -4.5,
+          "pan": 0.0,
+          "rationale": "aligned_to_payoff_reveal",
+          "target_frame": 346,
+          "variant": 2,
+          "word_ids": [
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ]
+        },
+        {
+          "cue_id": "cue_05_resolve",
+          "family": "shimmer_payoff",
+          "gain_db": -6.0,
+          "pan": 0.0,
+          "rationale": "milestone_resolve",
+          "target_frame": 368,
+          "variant": 2,
+          "word_ids": [
+            32,
+            33,
+            34
+          ]
+        }
+      ],
+      "stage_mode": "full_graphic_cutaway",
+      "start_frame": 344,
+      "transition_in": {
+        "duration_frames": 12,
+        "kind": "frame_morph",
+        "rationale": "bridge_into_payoff_reveal",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "You have $100 left",
+      "word_ids": [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        },
+        {
+          "asset_id": "modnet_fg",
+          "asset_kind": "modnet_matte",
+          "provenance": "modnet_photographic_portrait_matting.onnx",
+          "status": "VERIFIED"
+        },
+        {
+          "asset_id": "product_concept",
+          "asset_kind": "conceptual_schematic",
+          "provenance": "grounded_asr_no_owner_screenshot",
+          "status": "ASSET_MISSING_CONCEPTUAL"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_06",
+          "kind": "product_intro",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:bb14ecb0f7b7140a len=44>",
+          "word_ids": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42
+          ]
+        }
+      ],
+      "end_frame_exclusive": 533,
+      "expected_visual_change": "live_depth_matte with ['rem_viv_particle_field', 'hf_lt_mask_reveal']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_06_rem",
+          "layer_role": "background_graphics",
+          "motion_tracks": [],
+          "params": {
+            "colors": [
+              "#BE9A59",
+              "#F5F0E6",
+              "#84977A"
+            ],
+            "connect": false,
+            "count": 48,
+            "speed": 0.15
+          },
+          "primitive_id": "rem_viv_particle_field",
+          "z_order": 10
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_06_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "headline": "The Next Paycheck Plan",
+            "subtitle": "ORGANIZE YOUR MONEY",
+            "y_px": 110
+          },
+          "primitive_id": "hf_lt_mask_reveal",
+          "z_order": 35
+        }
+      ],
+      "parameters": {
+        "bg_blur_px": 2.0,
+        "bg_dim": 0.78,
+        "parallax_travel_px": 26
+      },
+      "persistent_ledger_step_id": null,
+      "rationale": "",
+      "requires_matte": true,
+      "role": "product_intro",
+      "scene_id": "sc_07_product_intro",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_06_soft_whoosh",
+          "family": "soft_whoosh",
+          "gain_db": -5.5,
+          "pan": -0.12,
+          "rationale": "aligned_to_product_intro",
+          "target_frame": 486,
+          "variant": 0,
+          "word_ids": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40
+          ]
+        }
+      ],
+      "stage_mode": "live_depth_matte",
+      "start_frame": 481,
+      "transition_in": {
+        "duration_frames": 12,
+        "kind": "line_led",
+        "rationale": "bridge_into_product_intro",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "The Next Paycheck Plan",
+      "word_ids": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        },
+        {
+          "asset_id": "product_concept",
+          "asset_kind": "conceptual_schematic",
+          "provenance": "grounded_asr_no_owner_screenshot",
+          "status": "ASSET_MISSING_CONCEPTUAL"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_07",
+          "kind": "product_benefit",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:10056e2f5274ea0c len=75>",
+          "word_ids": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56
+          ]
+        }
+      ],
+      "end_frame_exclusive": 635,
+      "expected_visual_change": "full_graphic_cutaway with ['rem_rc_flip_page', 'hf_mk_specs_list']",
+      "intentional_cutaway": true,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_07_rem",
+          "layer_role": "background_graphics",
+          "motion_tracks": [],
+          "params": {
+            "label_after": "56-page workbook",
+            "label_before": "The Next Paycheck Plan",
+            "sub_after": "+ Notion dashboard",
+            "sub_before": "CONCEPTUAL PRODUCT OVERVIEW",
+            "y_frac": 0.075
+          },
+          "primitive_id": "rem_rc_flip_page",
+          "z_order": 10
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_07_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "rows": [
+              {
+                "label": "Notion dashboard",
+                "value": "Conceptual overview"
+              },
+              {
+                "label": "56-page workbook",
+                "value": "Conceptual overview"
+              }
+            ],
+            "title": "THE NEXT PAYCHECK PLAN",
+            "y_px": 728
+          },
+          "primitive_id": "hf_mk_specs_list",
+          "z_order": 35
+        }
+      ],
+      "parameters": {
+        "bg_color": "#F5F0E6"
+      },
+      "persistent_ledger_step_id": null,
+      "rationale": "",
+      "requires_matte": false,
+      "role": "product_benefit",
+      "scene_id": "sc_08_product_benefit",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_07_page_turn",
+          "family": "page_turn",
+          "gain_db": -4.5,
+          "pan": 0.12,
+          "rationale": "aligned_to_product_benefit",
+          "target_frame": 538,
+          "variant": 1,
+          "word_ids": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ]
+        }
+      ],
+      "stage_mode": "full_graphic_cutaway",
+      "start_frame": 533,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_product_benefit",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "Notion dashboard and 56-page workbook",
+      "word_ids": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ]
+    },
+    {
+      "asset_refs": [
+        {
+          "asset_id": "src_video",
+          "asset_kind": "source_video",
+          "provenance": "c56c9ae0b6273a32",
+          "status": "VERIFIED"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_id": "clm_08",
+          "kind": "closing_takeaway",
+          "provenance": "verbatim_spoken",
+          "verbatim_quote": "<redacted_sha256:02186d0726cede09 len=73>",
+          "word_ids": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65
+          ]
+        }
+      ],
+      "end_frame_exclusive": 720,
+      "expected_visual_change": "live_clean_bridge with ['rem_ru_masked_slide', 'hf_organic_light_leak']",
+      "intentional_cutaway": false,
+      "layers": [
+        {
+          "engine": "remotion",
+          "layer_id": "ly_08_rem",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "dark_card": false,
+            "eyebrow": "BEFORE YOUR NEXT PAYDAY",
+            "font_size": 50,
+            "lines": [
+              "Give every dollar",
+              "a purpose"
+            ],
+            "serif": true,
+            "subline": "Link in my profile.",
+            "y_pct": 6.8
+          },
+          "primitive_id": "rem_ru_masked_slide",
+          "z_order": 30
+        },
+        {
+          "engine": "hyperframes",
+          "layer_id": "ly_08_hf",
+          "layer_role": "foreground_graphics",
+          "motion_tracks": [],
+          "params": {
+            "opacity": 0.48
+          },
+          "primitive_id": "hf_organic_light_leak",
+          "z_order": 35
+        }
+      ],
+      "parameters": {},
+      "persistent_ledger_step_id": null,
+      "rationale": "",
+      "requires_matte": false,
+      "role": "closing_takeaway",
+      "scene_id": "sc_09_closing_takeaway",
+      "show_persistent_ribbon": false,
+      "sound_intents": [
+        {
+          "cue_id": "cue_08_bass_settle",
+          "family": "bass_settle",
+          "gain_db": -5.5,
+          "pan": 0.0,
+          "rationale": "aligned_to_closing_takeaway",
+          "target_frame": 640,
+          "variant": 2,
+          "word_ids": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62
+          ]
+        },
+        {
+          "cue_id": "cue_08_resolve",
+          "family": "shimmer_payoff",
+          "gain_db": -6.0,
+          "pan": 0.0,
+          "rationale": "milestone_resolve",
+          "target_frame": 662,
+          "variant": 2,
+          "word_ids": [
+            63,
+            64,
+            65
+          ]
+        }
+      ],
+      "stage_mode": "live_clean_bridge",
+      "start_frame": 635,
+      "transition_in": {
+        "duration_frames": 0,
+        "kind": "none",
+        "rationale": "bridge_into_closing_takeaway",
+        "shared_element_id": ""
+      },
+      "unit_ids": [],
+      "viewer_takeaway": "Give every dollar a purpose",
+      "word_ids": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69
+      ]
+    }
+  ],
+  "schema_version": "2.0.0",
+  "seed": 42,
+  "source_hash": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "story_graph_hash": "059b61e9448b4cb10e8f7fef19abde53d6be85bd195a705854945328558d6ad6",
+  "storyboard_hash": "74cc7fea986be1115637985f7397778de3be9c718c7295bd577c8f01c3e25925",
+  "total_frames": 720,
+  "transcript_hash": "da8b2641d9416f304b25da64d18c705968a91307e4a7b71e487d38e196ba473b",
+  "validation_notes": [
+    "role_guard_drop_product_prim:beat_02_allocation_step:hf_exploded_stack",
+    "role_guard_drop_product_prim:beat_04_allocation_step:hf_exploded_stack",
+    "role_guard_drop_product_prim:beat_05_allocation_step:hf_exploded_stack",
+    "role_guard_drop_product_prim:beat_06_payoff_reveal:hf_exploded_stack",
+    "role_guard_drop_ledger_prim:beat_09_product_benefit:rem_ru_waterfall"
+  ],
+  "warnings": [],
+  "width": 720
+}

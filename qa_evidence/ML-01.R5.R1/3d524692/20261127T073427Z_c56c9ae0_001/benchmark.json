@@ -1,0 +1,79 @@
+{
+  "optimization_summary": {
+    "cold_vs_warm_final_sha256_identical": true,
+    "r5_cold_remotion_s": 330.33,
+    "r5_cold_total_s": 611.55,
+    "r5r1_cold_remotion_s": 227.89,
+    "r5r1_cold_remotion_speedup_pct": 31.0,
+    "r5r1_cold_total_s": 520.58,
+    "r5r1_cold_total_speedup_pct": 14.9,
+    "r5r1_warm_hf_s": 1.04,
+    "r5r1_warm_remotion_s": 148.43,
+    "r5r1_warm_total_s": 312.61,
+    "r5r1_warm_total_speedup_vs_r5_pct": 48.9
+  },
+  "resource_stats": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_settle",
+      "batch_worker_peak_tree_rss_mb": 2378.63,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 8,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 0.422,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 8.117,
+      "remotion_code_hash": "1ff7f71c1cc3e192e654",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9
+    },
+    "peak_temp_mb": 42.48,
+    "peak_tree_rss_mb": 225.05,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 7.2077,
+        "temp_mb": 42.48,
+        "tree_rss_mb": 212.91
+      },
+      "generative_director": {
+        "elapsed_s": 106.6471,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 202.68
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 110.0546,
+        "temp_mb": 6.38,
+        "tree_rss_mb": 224.41
+      },
+      "remotion_scenes": {
+        "elapsed_s": 227.8894,
+        "temp_mb": 32.56,
+        "tree_rss_mb": 225.05
+      },
+      "sound_design_mix": {
+        "elapsed_s": 4.104,
+        "temp_mb": 2.31,
+        "tree_rss_mb": 223.48
+      },
+      "story_graph": {
+        "elapsed_s": 0.0165,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 202.68
+      },
+      "validation_and_qa": {
+        "elapsed_s": 42.2529,
+        "temp_mb": 42.48,
+        "tree_rss_mb": 212.83
+      },
+      "vision_and_asr": {
+        "elapsed_s": 9.0425,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 202.41
+      },
+      "vision_segmentation": {
+        "elapsed_s": 13.3606,
+        "temp_mb": 2.31,
+        "tree_rss_mb": 208.49
+      }
+    }
+  }
+}
