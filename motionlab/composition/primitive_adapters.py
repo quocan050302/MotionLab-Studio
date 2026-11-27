@@ -25,16 +25,18 @@ HF_IMPORTED_DIR = PROJECT_ROOT / "renderers" / "hyperframes" / "imported" / "hey
 
 DEFAULT_EDITORIAL_PALETTE = {
     "ivory": "#F5F0E6",
-    "espresso": "#292822",
-    "forest": "#365B49",
-    "sage": "#A4B39A",
-    "brass": "#C6A46A",
-    "clay": "#B85D43",
-    "ink_dark": "#1E1D18",
+    "espresso": "#40382E",
+    "forest": "#243B32",
+    "sage": "#84977A",
+    "gold": "#BE9A59",
+    "brass": "#BE9A59",
+    "terracotta": "#AF745E",
+    "clay": "#AF745E",
+    "ink_dark": "#1C1A16",
 }
 
-_SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
-_SERIF = 'Georgia, "Times New Roman", serif'
+_SANS = 'Bahnschrift, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+_SERIF = 'Georgia, Cambria, "Times New Roman", serif'
 
 
 def _esc(val: Any) -> str:
@@ -121,17 +123,26 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_apple_money_count":
         # Adapted directly from heygen-com/hyperframes `apple-money-count` (Apache-2.0)
+        # R5.R1 Premium Art Direction: Open full-bleed editorial typography (ZERO dark rounded pill box!)
+        # + tactile multi-layered linen paper banknote tokens gliding on curved paths.
         from_cents = int(parameters.get("from_cents", 0))
         to_cents = int(parameters.get("to_cents", 120000))
         sym = str(parameters.get("currency_symbol", "$"))
         eyebrow = str(parameters.get("eyebrow", "BANK BALANCE"))
         caption = str(parameters.get("caption", ""))
-        token_count = max(0, min(18, int(parameters.get("token_count", 10))))
-        y_pos = str(parameters.get("y_anchor", "14%"))  # upper safe zone clear of face or centered on cutaway
+        token_count = max(0, min(6, int(parameters.get("token_count", 4))))
+        y_pos = str(parameters.get("y_anchor", "8.8%"))
         dark_plate = bool(parameters.get("dark_plate", transparent))
-        fg_col = pal["ivory"] if dark_plate else pal["espresso"]
+        fg_col = pal["ivory"] if dark_plate else pal["forest"]
         accent_col = str(parameters.get("accent_color") or pal["brass"])
-        hero_px = int(parameters.get("hero_px", 104 if width <= 720 else 132))
+        cap_col = pal["ivory"] if dark_plate else pal["espresso"]
+        hero_px = int(parameters.get("hero_px", 122 if dark_plate else 146))
+        scrim_css = (
+            "position:absolute;left:0;right:0;top:0;height:360px;z-index:2;pointer-events:none;"
+            "background:linear-gradient(180deg, rgba(24,22,18,0.72) 0%, rgba(24,22,18,0.40) 58%, rgba(24,22,18,0.0) 100%);"
+            if dark_plate
+            else "display:none;"
+        )
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,46 +153,61 @@ def build_adapted_hyperframes_html(
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #root {{ position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; font-family: {_SANS}; }}
+  .top-scrim {{ {scrim_css} }}
   .stage-wrap {{
-    position: absolute; left: 48px; right: 48px; top: {y_pos}; z-index: 5;
-    display: flex; flex-direction: column; align-items: center; text-align: center;
+    position: absolute; left: 48px; right: 105px; top: {y_pos}; z-index: 5;
+    display: flex; flex-direction: column; align-items: {"flex-start" if dark_plate else "center"};
+    text-align: {"left" if dark_plate else "center"};
   }}
   .plate {{
-    display: flex; flex-direction: column; align-items: center;
-    padding: {"26px 40px 28px" if dark_plate else "18px 24px"};
-    border-radius: 26px;
-    background: {"rgba(41, 40, 34, 0.86)" if dark_plate else "transparent"};
-    border: {"2px solid " + accent_col if dark_plate else "none"};
-    box-shadow: {"0 22px 54px rgba(20, 18, 14, 0.44)" if dark_plate else "none"};
+    display: flex; flex-direction: column; align-items: {"flex-start" if dark_plate else "center"};
+    padding: 0; background: transparent; border: none; box-shadow: none;
   }}
+  .eyebrow-row {{
+    display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+  }}
+  .gold-rule {{ width: 36px; height: 3px; background: {accent_col}; border-radius: 2px; }}
   .eyebrow {{
     font-size: 26px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
-    color: {accent_col}; margin-bottom: 8px;
+    color: {accent_col};
+    text-shadow: {"0 2px 10px rgba(0,0,0,0.45)" if dark_plate else "none"};
   }}
   .amount {{
-    color: {fg_col}; font-size: {hero_px}px; font-weight: 900; line-height: 0.96;
-    font-variant-numeric: tabular-nums; white-space: nowrap;
-    text-shadow: {"0 8px 28px rgba(0,0,0,0.45)" if dark_plate else "0 4px 16px rgba(41,40,34,0.12)"};
+    color: {fg_col}; font-size: {hero_px}px; font-weight: 900; line-height: 0.94;
+    letter-spacing: -0.025em; font-variant-numeric: tabular-nums; white-space: nowrap;
+    text-shadow: {"0 10px 30px rgba(15,13,10,0.58), 0 2px 6px rgba(15,13,10,0.45)" if dark_plate else "0 4px 16px rgba(36,59,50,0.10)"};
   }}
   .caption {{
-    margin-top: 10px; font-size: 28px; font-weight: 600; color: {pal["sage"] if dark_plate else pal["forest"]};
+    margin-top: 10px; font-size: 30px; font-weight: 600; color: {cap_col};
+    opacity: 0.92;
+    text-shadow: {"0 2px 10px rgba(0,0,0,0.45)" if dark_plate else "none"};
   }}
-  .money-burst {{ position: absolute; inset: 0; pointer-events: none; z-index: 1; }}
-  .money-icon.bill {{
-    position: absolute; left: 50%; top: 24%; width: 72px; height: 38px; border-radius: 8px;
-    background: {pal["forest"]}; border: 2px solid {accent_col};
-    display: grid; place-items: center; opacity: 0;
-    box-shadow: 0 10px 22px rgba(20,18,14,0.32);
+  .money-burst {{ position: absolute; inset: 0; pointer-events: none; z-index: 3; perspective: 640px; }}
+  .paper-note {{
+    position: absolute; left: 46%; top: 44%; width: 108px; height: 54px; border-radius: 5px;
+    background: linear-gradient(135deg, #F4EEE0 0%, #E3DBC6 55%, #D5CEB8 100%);
+    border: 1.5px solid #84977A;
+    box-shadow: 0 14px 26px rgba(22, 20, 16, 0.30), inset 0 0 0 4px rgba(132, 151, 122, 0.24);
+    display: flex; align-items: center; justify-content: center; opacity: 0;
   }}
-  .money-icon .mark {{ color: {pal["ivory"]}; font-size: 20px; font-weight: 800; }}
+  .paper-note::before {{
+    content: ""; position: absolute; inset: 5px; border: 1px solid rgba(36, 59, 50, 0.38); border-radius: 3px;
+  }}
+  .paper-note .seal {{
+    width: 30px; height: 30px; border-radius: 15px;
+    border: 1.5px solid rgba(36, 59, 50, 0.45); background: rgba(132, 151, 122, 0.20);
+    display: grid; place-items: center;
+    color: {pal["forest"]}; font-family: {_SERIF}; font-size: 18px; font-weight: 700;
+  }}
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="{comp_id}" data-start="0" data-duration="{dur_s:.4f}" data-width="{width}" data-height="{height}" data-fps="{fps_i}">
+  <div class="top-scrim"></div>
   <div id="moneyBurst" class="money-burst"></div>
   <div class="stage-wrap">
     <div id="plate" class="plate">
-      <div id="eyebrow" class="eyebrow">{_esc(eyebrow)}</div>
+      <div class="eyebrow-row"><span class="gold-rule"></span><div id="eyebrow" class="eyebrow">{_esc(eyebrow)}</div></div>
       <div id="amount" class="amount">{_esc(format_cents(from_cents, sym))}</div>
       {f'<div id="caption" class="caption">{_esc(caption)}</div>' if caption else ''}
     </div>
@@ -205,41 +231,48 @@ def build_adapted_hyperframes_html(
   }}
 
   const icons = [];
-  const specs = [];
-  for (let i = 0; i < {token_count}; i++) {{
+  const specs = [
+    {{ sx: -160, sy: 140, ex: -195, ey: -185, rot: -16, rx: 14, ry: -18, delay: 0.02 }},
+    {{ sx: 145, sy: 160, ex: 185, ey: -165, rot: 14, rx: -12, ry: 16, delay: 0.07 }},
+    {{ sx: -90, sy: 190, ex: -130, ey: -120, rot: -9, rx: 10, ry: 14, delay: 0.12 }},
+    {{ sx: 110, sy: 180, ex: 150, ey: -105, rot: 11, rx: -14, ry: -12, delay: 0.16 }},
+    {{ sx: -40, sy: 210, ex: -220, ey: -95, rot: -20, rx: 16, ry: -10, delay: 0.20 }},
+    {{ sx: 60, sy: 210, ex: 210, ey: -75, rot: 18, rx: -10, ry: 18, delay: 0.24 }},
+  ].slice(0, {token_count});
+
+  specs.forEach((s) => {{
     const el = document.createElement("div");
-    el.className = "money-icon bill";
-    el.innerHTML = '<span class="mark">' + SYM + '</span>';
+    el.className = "paper-note";
+    el.innerHTML = '<span class="seal">' + SYM + '</span>';
     burstEl.appendChild(el);
-    icons.push(el);
-    const angle = (i / Math.max(1, {token_count})) * Math.PI * 2 + 0.35;
-    const rx = 210 + (i % 3) * 44;
-    const ry = 95 + (i % 4) * 28;
-    specs.push({{ x: Math.cos(angle) * rx, y: Math.sin(angle) * ry, rot: ((i * 31) % 50) - 25, delay: i * 0.025 }});
-  }}
+    icons.push({{ el, s }});
+  }});
 
   const state = {{ c: FROM_CENTS }};
   const tl = gsap.timeline({{ paused: true }});
-  gsap.set("#plate", {{ opacity: 0, y: 24, scale: 0.94 }});
-  gsap.set(icons, {{ x: 0, y: 0, xPercent: -50, yPercent: -50, opacity: 0, scale: 0.25 }});
+  gsap.set("#plate", {{ opacity: 0, y: 22 }});
+  icons.forEach(({{ el, s }}) => {{
+    gsap.set(el, {{ x: s.sx, y: s.sy, rotation: s.rot * 0.4, rotationX: s.rx, rotationY: s.ry, opacity: 0, scale: 0.72 }});
+  }});
 
-  tl.to("#plate", {{ opacity: 1, y: 0, scale: 1.0, duration: Math.min(0.38, DUR * 0.20), ease: "power3.out" }}, 0.04);
-  const countDur = Math.min(0.85, Math.max(0.32, DUR * 0.36));
+  tl.to("#plate", {{ opacity: 1, y: 0, duration: Math.min(0.32, DUR * 0.18), ease: "power3.out" }}, 0.03);
+  const countDur = Math.min(0.76, Math.max(0.30, DUR * 0.34));
   tl.to(state, {{
     c: TO_CENTS, duration: countDur, ease: "power3.out",
     onUpdate: () => {{ amountEl.textContent = fmtCents(state.c); }},
     onComplete: () => {{ amountEl.textContent = fmtCents(TO_CENTS); }},
-  }}, 0.10);
-  // Subtle landing settle pop from upstream apple-money-count
-  tl.to("#amount", {{ scale: 1.045, duration: 0.12, ease: "power2.out" }}, 0.10 + countDur);
-  tl.to("#amount", {{ scale: 1.0, duration: 0.18, ease: "power2.inOut" }}, 0.22 + countDur);
+  }}, 0.08);
+  tl.to("#amount", {{ scale: 1.04, duration: 0.11, ease: "power2.out" }}, 0.08 + countDur);
+  tl.to("#amount", {{ scale: 1.0, duration: 0.16, ease: "power2.inOut" }}, 0.19 + countDur);
 
-  icons.forEach((el, idx) => {{
-    const s = specs[idx];
-    tl.to(el, {{ x: s.x, y: s.y, rotation: s.rot, opacity: 0.78, scale: 0.88, duration: 0.52, ease: "power3.out" }}, 0.14 + s.delay);
-    tl.to(el, {{ opacity: 0, y: s.y - 26, duration: 0.42, ease: "power2.in" }}, Math.max(0.7, DUR * 0.65) + s.delay * 0.5);
+  icons.forEach(({{ el, s }}) => {{
+    tl.to(el, {{
+      x: s.ex, y: s.ey, rotation: s.rot, rotationX: s.rx * 0.3, rotationY: s.ry * 0.3,
+      opacity: 0.88, scale: 0.96, duration: 0.56, ease: "power3.out"
+    }}, 0.08 + s.delay);
+    tl.to(el, {{ opacity: 0, y: s.ey - 28, duration: 0.38, ease: "power2.in" }}, Math.max(0.68, DUR * 0.64) + s.delay * 0.4);
   }});
-  tl.to("#plate", {{ opacity: 0, y: -14, duration: Math.min(0.32, DUR * 0.16), ease: "power2.in" }}, Math.max(0.2, DUR - 0.34));
+  tl.to("#plate", {{ opacity: 0, y: -12, duration: Math.min(0.28, DUR * 0.14), ease: "power2.in" }}, Math.max(0.2, DUR - 0.30));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -248,18 +281,18 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_mk_progress_stat":
         # Adapted directly from heygen-com/hyperframes `mk-progress-stat` (Apache-2.0)
-        # Strictly proportional track fill = amount_cents / denom_cents (NEVER index-based!)
+        # R5.R1: Clean warm-ivory architectural ledger strip inside Reels safe zone (ZERO dark rounded card & ZERO '(derived)' jargon!)
         amount_cents = int(parameters.get("amount_cents", 80000))
         denom_cents = max(1, int(parameters.get("denom_cents", 120000)))
         remaining_cents = int(parameters.get("remaining_cents", denom_cents - amount_cents))
         sym = str(parameters.get("currency_symbol", "$"))
         is_deduction = bool(parameters.get("is_deduction", True))
         category = str(parameters.get("category", "BILLS"))
-        caption = str(parameters.get("caption", f"Balance left: {format_cents(remaining_cents, sym)}"))
+        raw_cap = str(parameters.get("caption", f"{format_cents(remaining_cents, sym)} left"))
+        caption = raw_cap.replace("(derived)", "").replace("derived", "").strip()
         fill_ratio = max(0.02, min(1.0, abs(amount_cents) / denom_cents))
         bar_col = str(parameters.get("bar_color") or (pal["clay"] if is_deduction else pal["forest"]))
-        y_top = int(parameters.get("y_px", int(height * 0.085)))
-        dark_plate = bool(parameters.get("dark_plate", transparent))
+        y_top = max(96, int(parameters.get("y_px", 110)))
         sign_prefix = "-" if (is_deduction and amount_cents > 0) else ""
         return f"""<!DOCTYPE html>
 <html lang="en">
@@ -272,39 +305,39 @@ def build_adapted_hyperframes_html(
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #mk-ps-root {{
     --mk-font: {_SANS};
-    --mk-ink: {pal["ivory"] if dark_plate else pal["espresso"]};
-    --mk-ink-dim: {pal["brass"] if dark_plate else pal["forest"]};
+    --mk-ink: {pal["forest"]};
+    --mk-ink-dim: {pal["espresso"]};
     --mk-accent: {bar_col};
     position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css};
   }}
   #mk-ps-group {{
-    position: absolute; left: 48px; right: 48px; top: {y_top}px;
+    position: absolute; left: 48px; right: 105px; top: {y_top}px;
     font-family: var(--mk-font);
-    padding: 28px 32px; border-radius: 24px;
-    background: {"rgba(41, 40, 34, 0.90)" if dark_plate else pal["ivory"]};
-    border: 2px solid {bar_col};
-    box-shadow: 0 18px 46px rgba(20, 18, 14, 0.36);
+    padding: 20px 24px 20px 26px; border-radius: 10px;
+    background: rgba(245, 240, 230, 0.94);
+    border-left: 6px solid {bar_col};
+    box-shadow: 0 14px 34px rgba(24, 22, 18, 0.24);
   }}
-  .top-row {{ display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }}
+  .top-row {{ display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }}
   #mk-ps-num {{
-    font-weight: 900; font-size: 86px; line-height: 1.0; letter-spacing: -0.02em;
+    font-weight: 900; font-size: 84px; line-height: 0.98; letter-spacing: -0.025em;
     color: var(--mk-ink); font-variant-numeric: tabular-nums;
   }}
   #mk-ps-label {{
-    font-weight: 800; font-size: 36px; letter-spacing: 0.06em; text-transform: uppercase;
+    font-weight: 800; font-size: 34px; letter-spacing: 0.08em; text-transform: uppercase;
     color: {bar_col};
   }}
   #mk-ps-track {{
-    position: relative; margin-top: 22px; width: 100%; height: 14px; border-radius: 7px;
-    background: rgba(245, 240, 230, 0.18); overflow: hidden;
+    position: relative; margin-top: 16px; width: 100%; height: 14px; border-radius: 4px;
+    background: rgba(64, 56, 46, 0.14); overflow: hidden;
   }}
   #mk-ps-fill {{
-    position: absolute; inset: 0; border-radius: 7px; background: var(--mk-accent);
+    position: absolute; inset: 0; border-radius: 4px; background: var(--mk-accent);
     transform-origin: left center;
   }}
-  .meta-row {{ display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }}
-  #mk-ps-caption {{ font-weight: 700; font-size: 28px; color: var(--mk-ink-dim); font-variant-numeric: tabular-nums; }}
-  #mk-ps-share {{ font-weight: 700; font-size: 26px; color: rgba(245,240,230,0.82); font-variant-numeric: tabular-nums; }}
+  .meta-row {{ display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }}
+  #mk-ps-caption {{ font-weight: 700; font-size: 28px; color: var(--mk-ink); font-variant-numeric: tabular-nums; }}
+  #mk-ps-share {{ font-weight: 700; font-size: 25px; color: var(--mk-ink-dim); font-variant-numeric: tabular-nums; }}
 </style>
 </head>
 <body>
@@ -336,18 +369,18 @@ def build_adapted_hyperframes_html(
     return SIGN + SYM + w.toLocaleString("en-US");
   }}
   var tl = gsap.timeline({{ paused: true }});
-  gsap.set(group, {{ opacity: 0, y: 26 }});
+  gsap.set(group, {{ opacity: 0, x: -20 }});
   gsap.set(fill, {{ scaleX: 0 }});
-  tl.to(group, {{ opacity: 1, y: 0, duration: Math.min(0.36, DUR * 0.18), ease: "power3.out" }}, 0.04);
+  tl.to(group, {{ opacity: 1, x: 0, duration: Math.min(0.32, DUR * 0.16), ease: "power3.out" }}, 0.03);
   var st = {{ v: 0 }};
-  var animDur = Math.min(0.75, Math.max(0.35, DUR * 0.34));
+  var animDur = Math.min(0.70, Math.max(0.32, DUR * 0.32));
   tl.to(st, {{
     v: TARGET, duration: animDur, ease: "power2.out",
     onUpdate: function () {{ num.textContent = fmt(st.v); }},
     onComplete: function () {{ num.textContent = fmt(TARGET); }},
-  }}, 0.12);
-  tl.to(fill, {{ scaleX: RATIO, duration: animDur, ease: "power2.out" }}, 0.12);
-  tl.to(group, {{ opacity: 0, y: -16, duration: Math.min(0.32, DUR * 0.16), ease: "power2.in" }}, Math.max(0.2, DUR - 0.34));
+  }}, 0.10);
+  tl.to(fill, {{ scaleX: RATIO, duration: animDur, ease: "power2.out" }}, 0.10);
+  tl.to(group, {{ opacity: 0, y: -12, duration: Math.min(0.28, DUR * 0.14), ease: "power2.in" }}, Math.max(0.2, DUR - 0.30));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -356,12 +389,13 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_mk_specs_list":
         # Adapted directly from heygen-com/hyperframes `mk-specs-list` (Apache-2.0)
+        # R5.R1: Open editorial specification block seamlessly integrated onto warm ivory cutaway (ZERO heavy black box!)
         title = str(parameters.get("title", "INCLUDED IN THE PLAN"))
         rows = parameters.get("rows") or [
             {"label": "Notion dashboard", "value": "Organize every dollar"},
             {"label": "56-page workbook", "value": "Step-by-step system"},
         ]
-        y_top = int(parameters.get("y_px", int(height * 0.09)))
+        y_top = int(parameters.get("y_px", 720))
         rows_json = _j(rows[:4])
         return f"""<!DOCTYPE html>
 <html lang="en">
@@ -374,27 +408,27 @@ def build_adapted_hyperframes_html(
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #mk-sl-root {{
     --mk-font: {_SANS};
-    --mk-ink: {pal["ivory"]};
-    --mk-ink-dim: {pal["sage"]};
+    --mk-ink: {pal["forest"]};
+    --mk-ink-dim: {pal["espresso"]};
     --mk-accent: {pal["brass"]};
     position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css};
     font-family: var(--mk-font);
   }}
   #mk-sl-card {{
-    position: absolute; left: 48px; right: 48px; top: {y_top}px;
-    padding: 30px 34px; border-radius: 26px;
-    background: rgba(41, 40, 34, 0.90); border: 2px solid {pal["brass"]};
-    box-shadow: 0 22px 54px rgba(18, 16, 12, 0.44);
+    position: absolute; left: 54px; right: 54px; top: {y_top}px;
+    padding: 18px 8px 12px;
+    background: transparent;
+    border-top: 2px solid {pal["brass"]};
   }}
   #mk-sl-title {{
     font-size: 24px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
-    color: {pal["brass"]}; margin-bottom: 22px;
+    color: {pal["terracotta"] if "terracotta" in pal else pal["clay"]}; margin-bottom: 20px;
   }}
-  #mk-sl-col {{ display: flex; flex-direction: column; gap: 24px; }}
+  #mk-sl-col {{ display: flex; flex-direction: column; gap: 22px; }}
   .mk-sl-row {{ opacity: 0; }}
-  .mk-sl-label {{ font-weight: 800; font-size: 40px; line-height: 1.1; color: var(--mk-ink); }}
-  .mk-sl-value {{ margin-top: 6px; font-weight: 500; font-size: 28px; color: var(--mk-ink-dim); }}
-  .mk-sl-line {{ position: relative; margin-top: 14px; height: 4px; background: rgba(245,240,230,0.16); border-radius: 2px; overflow: hidden; }}
+  .mk-sl-label {{ font-family: {_SERIF}; font-weight: 700; font-size: 44px; line-height: 1.08; color: var(--mk-ink); }}
+  .mk-sl-value {{ margin-top: 6px; font-weight: 600; font-size: 28px; color: var(--mk-ink-dim); opacity: 0.85; }}
+  .mk-sl-line {{ position: relative; margin-top: 14px; height: 3px; background: rgba(36,59,50,0.14); border-radius: 2px; overflow: hidden; }}
   .mk-sl-line-fill {{ position: absolute; inset: 0; background: var(--mk-accent); transform-origin: left center; }}
 </style>
 </head>
@@ -427,16 +461,16 @@ def build_adapted_hyperframes_html(
     col.appendChild(row);
   }});
   var tl = gsap.timeline({{ paused: true }});
-  gsap.set("#mk-sl-card", {{ opacity: 0, y: 20 }});
-  tl.to("#mk-sl-card", {{ opacity: 1, y: 0, duration: 0.32, ease: "power3.out" }}, 0.02);
+  gsap.set("#mk-sl-card", {{ opacity: 0, y: 18 }});
+  tl.to("#mk-sl-card", {{ opacity: 1, y: 0, duration: 0.30, ease: "power3.out" }}, 0.02);
   ROWS.forEach(function (r, i) {{
-    var t0 = 0.14 + i * Math.min(0.45, DUR * 0.22);
-    gsap.set("#mk-sl-row-" + i, {{ opacity: 0, x: -32 }});
+    var t0 = 0.14 + i * Math.min(0.42, DUR * 0.20);
+    gsap.set("#mk-sl-row-" + i, {{ opacity: 0, x: -28 }});
     gsap.set("#mk-sl-fill-" + i, {{ scaleX: 0 }});
-    tl.to("#mk-sl-row-" + i, {{ opacity: 1, x: 0, duration: 0.48, ease: "power3.out" }}, t0);
-    tl.to("#mk-sl-fill-" + i, {{ scaleX: 1, duration: 0.56, ease: "power2.inOut" }}, t0 + 0.10);
+    tl.to("#mk-sl-row-" + i, {{ opacity: 1, x: 0, duration: 0.44, ease: "power3.out" }}, t0);
+    tl.to("#mk-sl-fill-" + i, {{ scaleX: 1, duration: 0.52, ease: "power2.inOut" }}, t0 + 0.08);
   }});
-  tl.to("#mk-sl-card", {{ opacity: 0, y: -16, duration: 0.30, ease: "power2.in" }}, Math.max(0.25, DUR - 0.34));
+  tl.to("#mk-sl-card", {{ opacity: 0, y: -12, duration: 0.28, ease: "power2.in" }}, Math.max(0.25, DUR - 0.32));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -517,9 +551,10 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_lt_mask_reveal":
         # Adapted directly from heygen-com/hyperframes `lt-mask-reveal` (Apache-2.0)
+        # R5.R1: Open full-bleed upper editorial title reveal (soft atmospheric scrim, ZERO rounded dark box!)
         headline = str(parameters.get("headline", "The Next Paycheck Plan"))
         subtitle = str(parameters.get("subtitle", "ORGANIZE YOUR MONEY"))
-        y_top = int(parameters.get("y_px", int(height * 0.09)))
+        y_top = max(96, int(parameters.get("y_px", 110)))
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -530,21 +565,30 @@ def build_adapted_hyperframes_html(
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #root {{ position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; font-family: {_SANS}; }}
+  .scrim {{
+    position: absolute; left: 0; right: 0; top: 0; height: 340px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(24,26,22,0.72) 0%, rgba(24,26,22,0.34) 62%, transparent 100%);
+  }}
   .lt {{
-    position: absolute; left: 48px; right: 48px; top: {y_top}px;
-    padding: 26px 32px; border-radius: 22px;
-    background: rgba(41, 40, 34, 0.90);
-    display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
-    box-shadow: 0 20px 50px rgba(18, 16, 12, 0.42);
+    position: absolute; left: 48px; right: 105px; top: {y_top}px;
+    padding: 0; background: transparent;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
   }}
   .lt-namewrap {{ position: relative; overflow: hidden; padding: 4px 0; max-width: 100%; }}
-  .lt-name {{ font-family: {_SERIF}; font-size: 50px; font-weight: 700; color: {pal["ivory"]}; line-height: 1.08; }}
-  .lt-sweep {{ position: absolute; top: 0; bottom: 0; left: 0; width: 10px; background: {pal["brass"]}; border-radius: 3px; }}
-  .lt-role {{ font-size: 26px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {pal["brass"]}; }}
+  .lt-name {{
+    font-family: {_SERIF}; font-size: 54px; font-weight: 700; color: {pal["ivory"]}; line-height: 1.06;
+    text-shadow: 0 6px 22px rgba(14,12,10,0.58);
+  }}
+  .lt-sweep {{ position: absolute; top: 0; bottom: 0; left: 0; width: 6px; background: {pal["brass"]}; border-radius: 2px; }}
+  .lt-role {{
+    font-size: 26px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+    color: {pal["brass"]}; text-shadow: 0 2px 10px rgba(0,0,0,0.48);
+  }}
 </style>
 </head>
 <body>
 <div id="root" data-composition-id="{comp_id}" data-start="0" data-duration="{dur_s:.4f}" data-width="{width}" data-height="{height}" data-fps="{fps_i}">
+  <div class="scrim"></div>
   <div id="lt" class="lt">
     <div class="lt-namewrap" id="lt-wrap">
       <div id="lt-name" class="lt-name">{_esc(headline)}</div>
@@ -560,20 +604,20 @@ def build_adapted_hyperframes_html(
   var nameEl = document.getElementById("lt-name");
   var sweep = document.getElementById("lt-sweep");
   var role = document.getElementById("lt-role");
-  var travel = Math.max(220, document.getElementById("lt-wrap").clientWidth || {width - 160});
+  var travel = Math.max(220, document.getElementById("lt-wrap").clientWidth || {width - 180});
   gsap.set("#lt", {{ opacity: 0 }});
   gsap.set(nameEl, {{ clipPath: "inset(0 100% 0 0)" }});
   gsap.set(sweep, {{ x: 0, opacity: 0 }});
-  gsap.set(role, {{ y: 14, opacity: 0 }});
+  gsap.set(role, {{ y: 12, opacity: 0 }});
   tl.to("#lt", {{ opacity: 1, duration: 0.18, ease: "power2.out" }}, 0.02);
-  tl.to(sweep, {{ opacity: 1, duration: 0.10 }}, 0.08);
-  tl.to(sweep, {{ x: travel, duration: 0.52, ease: "power2.inOut" }}, 0.10);
-  tl.to(nameEl, {{ clipPath: "inset(0 0% 0 0)", duration: 0.48, ease: "power2.inOut" }}, 0.14);
-  tl.to(sweep, {{ opacity: 0, duration: 0.12 }}, 0.58);
-  tl.to(role, {{ y: 0, opacity: 1, duration: 0.42, ease: "power3.out" }}, 0.46);
-  tl.to(role, {{ opacity: 0, duration: 0.24, ease: "power2.in" }}, Math.max(0.3, DUR - 0.38));
-  tl.to(nameEl, {{ clipPath: "inset(0 0 0 100%)", duration: 0.30, ease: "power2.in" }}, Math.max(0.35, DUR - 0.34));
-  tl.to("#lt", {{ opacity: 0, duration: 0.20 }}, Math.max(0.4, DUR - 0.22));
+  tl.to(sweep, {{ opacity: 1, duration: 0.08 }}, 0.06);
+  tl.to(sweep, {{ x: travel, duration: 0.48, ease: "power2.inOut" }}, 0.08);
+  tl.to(nameEl, {{ clipPath: "inset(0 0% 0 0)", duration: 0.44, ease: "power2.inOut" }}, 0.12);
+  tl.to(sweep, {{ opacity: 0, duration: 0.12 }}, 0.54);
+  tl.to(role, {{ y: 0, opacity: 1, duration: 0.38, ease: "power3.out" }}, 0.42);
+  tl.to(role, {{ opacity: 0, duration: 0.22, ease: "power2.in" }}, Math.max(0.3, DUR - 0.34));
+  tl.to(nameEl, {{ clipPath: "inset(0 0 0 100%)", duration: 0.28, ease: "power2.in" }}, Math.max(0.35, DUR - 0.30));
+  tl.to("#lt", {{ opacity: 0, duration: 0.18 }}, Math.max(0.4, DUR - 0.20));
   window.__timelines["{comp_id}"] = tl;
 </script>
 </body>
@@ -701,7 +745,7 @@ def build_adapted_hyperframes_html(
             {"label": "Gas", "cents": 10000, "color": pal["sage"]},
             {"label": "Left", "cents": 10000, "color": pal["forest"]},
         ]
-        y_top = int(parameters.get("y_px", int(height * 0.08)))
+        y_top = max(96, int(parameters.get("y_px", 112)))
         bars_html = []
         tweens_js = []
         for idx, it in enumerate(items[:5]):
@@ -711,14 +755,14 @@ def build_adapted_hyperframes_html(
             bars_html.append(
                 f'<div class="bar-row" id="row_{idx}">'
                 f'<div class="bar-head"><span class="bar-lbl">{_esc(it.get("label", ""))}</span>'
-                f'<span class="bar-val">{_esc(format_cents(c, sym))}</span></div>'
+                f'<span class="bar-val">{_esc(format_cents(c, sym))} <span class="bar-pct">({int(round(pct))}%)</span></span></div>'
                 f'<div class="bar-track"><div class="bar-fill" id="fill_{idx}" style="background:{_esc(col)}; width:{pct:.2f}%"></div></div>'
                 f'</div>'
             )
-            t0 = round(0.14 + idx * 0.16, 3)
+            t0 = round(0.12 + idx * 0.14, 3)
             tweens_js.append(f'gsap.set("#row_{idx}", {{ opacity: 0, y: 14 }}); gsap.set("#fill_{idx}", {{ scaleX: 0 }});')
-            tweens_js.append(f'tl.to("#row_{idx}", {{ opacity: 1, y: 0, duration: 0.34, ease: "power3.out" }}, {t0});')
-            tweens_js.append(f'tl.to("#fill_{idx}", {{ scaleX: 1, duration: 0.56, ease: "power2.out" }}, {t0 + 0.08:.3f});')
+            tweens_js.append(f'tl.to("#row_{idx}", {{ opacity: 1, y: 0, duration: 0.32, ease: "power3.out" }}, {t0});')
+            tweens_js.append(f'tl.to("#fill_{idx}", {{ scaleX: 1, duration: 0.52, ease: "power2.out" }}, {t0 + 0.08:.3f});')
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -730,21 +774,25 @@ def build_adapted_hyperframes_html(
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; }}
   #root {{ position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css}; font-family: {_SANS}; }}
   .chart-card {{
-    position: absolute; left: 48px; right: 48px; top: {y_top}px;
-    padding: 28px 32px; border-radius: 26px;
-    background: rgba(41, 40, 34, 0.92); border: 2px solid {pal["brass"]};
-    box-shadow: 0 20px 52px rgba(18, 16, 12, 0.45);
+    position: absolute; left: 48px; right: 56px; top: {y_top}px;
+    padding: 8px 4px;
+    background: transparent; border: none;
   }}
-  .chart-hdr {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }}
-  .chart-title {{ font-size: 24px; font-weight: 800; letter-spacing: 0.14em; color: {pal["brass"]}; text-transform: uppercase; }}
-  .chart-denom {{ font-size: 24px; font-weight: 700; color: rgba(245,240,230,0.75); font-variant-numeric: tabular-nums; }}
-  .bar-row {{ margin-bottom: 16px; }}
+  .chart-hdr {{
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 14px; margin-bottom: 24px;
+    border-bottom: 2px solid {pal["brass"]};
+  }}
+  .chart-title {{ font-size: 26px; font-weight: 800; letter-spacing: 0.14em; color: {pal["forest"]}; text-transform: uppercase; }}
+  .chart-denom {{ font-size: 26px; font-weight: 700; color: {pal["espresso"]}; font-variant-numeric: tabular-nums; }}
+  .bar-row {{ margin-bottom: 24px; }}
   .bar-row:last-child {{ margin-bottom: 0; }}
-  .bar-head {{ display: flex; justify-content: space-between; margin-bottom: 8px; }}
-  .bar-lbl {{ font-size: 30px; font-weight: 700; color: {pal["ivory"]}; }}
-  .bar-val {{ font-size: 32px; font-weight: 800; color: {pal["ivory"]}; font-variant-numeric: tabular-nums; }}
-  .bar-track {{ width: 100%; height: 18px; border-radius: 9px; background: rgba(245,240,230,0.16); overflow: hidden; }}
-  .bar-fill {{ height: 100%; border-radius: 9px; transform-origin: left center; }}
+  .bar-head {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }}
+  .bar-lbl {{ font-family: {_SERIF}; font-size: 38px; font-weight: 700; color: {pal["forest"]}; }}
+  .bar-val {{ font-size: 40px; font-weight: 900; color: {pal["espresso"]}; font-variant-numeric: tabular-nums; }}
+  .bar-pct {{ font-size: 24px; font-weight: 600; color: {pal["sage"]}; }}
+  .bar-track {{ width: 100%; height: 22px; border-radius: 5px; background: rgba(64,56,46,0.12); overflow: hidden; }}
+  .bar-fill {{ height: 100%; border-radius: 5px; transform-origin: left center; }}
 </style>
 </head>
 <body>

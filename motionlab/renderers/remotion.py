@@ -542,3 +542,83 @@ class RemotionRenderer(BaseRenderer):
             "ffprobe": probe,
             "stdout_tail": (proc.stdout or "")[-300:].strip(),
         }
+
+    def compute_code_hash(self) -> str:
+        """Compute deterministic content hash over all Remotion TSX/TS sources + package.json/lock."""
+        h = hashlib.sha256()
+        src_root = self.project_dir / "src"
+        files: list[Path] = []
+        if src_root.is_dir():
+            files.extend(sorted(p for p in src_root.rglob("*") if p.is_file() and p.suffix in (".ts", ".tsx", ".css", ".json")))
+        for extra in ("package.json", "package-lock.json", "tsconfig.json"):
+            ep = self.project_dir / extra
+            if ep.is_file():
+                files.append(ep)
+        for fp in files:
+            rel = str(fp.relative_to(self.project_dir)).replace("\\", "/")
+            h.update(rel.encode("utf-8"))
+            h.update(fp.read_bytes())
+        return h.hexdigest()[:20]
+
+    def render_batch_jobs(
+        self,
+        *,
+        jobs: list[dict[str, Any]],
+        public_mounts: list[dict[str, str]],
+        work_dir: Path,
+        bundle_cache_root: Path | None = None,
+        timeout_s: float = 600.0,
+    ) -> dict[str, Any]:
+        """Render multiple Remotion scenes & ablation stills in ONE persistent Chromium browser + ONE cached bundle.
+
+        Falls back fail-closed if `batch_render.mjs` or local Node is missing.
+        """
+        cap = self.probe_capability()
+        if not cap.get("available"):
+            raise RendererError(f"Remotion unavailable: {cap.get('reason')}")
+        node_bin = shutil.which("node")
+        batch_script = self.project_dir / "scripts" / "batch_render.mjs"
+        if not node_bin or not batch_script.is_file():
+            raise RendererError(f"Remotion batch worker unavailable (node={node_bin}, script={batch_script})")
+
+        work_dir = work_dir.resolve()
+        work_dir.mkdir(parents=True, exist_ok=True)
+        code_hash = self.compute_code_hash()
+        b_root = (bundle_cache_root or (PROJECT_ROOT / ".cache" / "motionlab_r5" / "remotion_bundles")).resolve()
+        bundle_dir = b_root / f"bundle_{code_hash}"
+        serve_dir = work_dir / "remotion_serve"
+        result_path = work_dir / "batch_result.json"
+        manifest_path = work_dir / "batch_manifest.json"
+
+        atomic_write_json(
+            manifest_path,
+            {
+                "entryPoint": str(self.entry_point),
+                "bundleCacheDir": str(bundle_dir),
+                "codeHash": code_hash,
+                "serveDir": str(serve_dir),
+                "browserExecutable": self.browser_exe,
+                "publicMounts": public_mounts,
+                "jobs": jobs,
+                "resultPath": str(result_path),
+            },
+        )
+
+        rem_tmp = (PROJECT_ROOT / ".cache" / "remotion_tmp").resolve()
+        rem_tmp.mkdir(parents=True, exist_ok=True)
+        env = _sanitized_offline_env()
+        env["REMOTION_TMP"] = str(rem_tmp)
+        env["TMPDIR"] = str(rem_tmp)
+        env["TEMP"] = str(rem_tmp)
+        env["TMP"] = str(rem_tmp)
+
+        cmd = [node_bin, str(batch_script), f"--manifest={manifest_path}"]
+        with GLOBAL_JOB_SEMAPHORE:
+            proc, stats = run_managed_subprocess(cmd, timeout_s=timeout_s, cwd=self.project_dir, env=env, check=False)
+        if proc.returncode != 0 or not result_path.is_file():
+            tail = ((proc.stderr or "") + "\n" + (proc.stdout or ""))[-1000:].strip()
+            raise RendererError(f"Remotion batch worker failed (exit {proc.returncode}): {tail}")
+
+        summary = json.loads(result_path.read_text(encoding="utf-8"))
+        summary["peak_tree_rss_mb"] = stats.get("peak_tree_rss_mb", 0.0)
+        return summary

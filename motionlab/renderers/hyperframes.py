@@ -394,8 +394,10 @@ class HyperFramesRenderer(BaseRenderer):
         fmt: str = "webm",
         extra_assets: dict[str, Path] | None = None,
         timeout_s: float = 180.0,
+        cache_dir: Path | None = None,
+        use_cache: bool = False,
     ) -> dict[str, Any]:
-        """Render any standalone offline HyperFrames HTML composition (VP9 WebM alpha or H.264 MP4)."""
+        """Render any standalone offline HyperFrames HTML composition (VP9 WebM alpha or H.264 MP4) with optional content-addressed cache."""
         cap = self.probe_capability()
         if not cap.get("available"):
             raise RendererError(f"HyperFrames unavailable: {cap.get('reason')}")
@@ -403,6 +405,46 @@ class HyperFramesRenderer(BaseRenderer):
         slot_dir.mkdir(parents=True, exist_ok=True)
         out_path = out_path.resolve()
         out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Compute strict content-addressed cache key covering version + GSAP bytes + normalized HTML + fps + format + extra assets
+        cache_key = ""
+        cached_artifact: Path | None = None
+        if cache_dir is not None:
+            kh = hashlib.sha256()
+            kh.update(f"hf_v={cap.get('version','unknown')}|fps={round(float(fps),4)}|fmt={fmt}|".encode("utf-8"))
+            kh.update(html.encode("utf-8"))
+            kh.update(self.gsap_js.read_bytes())
+            if extra_assets:
+                for rel_name in sorted(extra_assets.keys()):
+                    kh.update(rel_name.encode("utf-8"))
+                    kh.update(extra_assets[rel_name].read_bytes())
+            cache_key = kh.hexdigest()[:24]
+            c_root = cache_dir.resolve()
+            c_root.mkdir(parents=True, exist_ok=True)
+            cached_artifact = c_root / f"hf_{cache_key}.{fmt}"
+            if use_cache and cached_artifact.is_file():
+                try:
+                    probe = self.verify_artifact(cached_artifact)
+                    shutil.copy2(cached_artifact, out_path)
+                    ch = hashlib.sha256()
+                    with out_path.open("rb") as fh:
+                        while chunk := fh.read(1 << 20):
+                            ch.update(chunk)
+                    return {
+                        "engine": self.name,
+                        "artifact_path": str(out_path),
+                        "artifact_sha256": ch.hexdigest(),
+                        "size_bytes": int(out_path.stat().st_size),
+                        "lint_exit_code": 0,
+                        "elapsed_s": 0.01,
+                        "peak_tree_rss_mb": 0.0,
+                        "cache_hit": True,
+                        "cache_key": cache_key,
+                        "ffprobe": probe,
+                    }
+                except Exception:
+                    cached_artifact.unlink(missing_ok=True)
+
         shutil.copy2(self.gsap_js, slot_dir / "gsap.min.js")
         if extra_assets:
             for rel_name, src_p in extra_assets.items():
@@ -450,6 +492,13 @@ class HyperFramesRenderer(BaseRenderer):
         with out_path.open("rb") as fh:
             while chunk := fh.read(1 << 20):
                 h.update(chunk)
+        if cached_artifact is not None:
+            tmp_c = cached_artifact.with_suffix(f".{fmt}.partial")
+            try:
+                shutil.copy2(out_path, tmp_c)
+                os.replace(tmp_c, cached_artifact)
+            except Exception:
+                tmp_c.unlink(missing_ok=True)
         return {
             "engine": self.name,
             "slot_dir": str(slot_dir),
@@ -459,6 +508,8 @@ class HyperFramesRenderer(BaseRenderer):
             "lint_rc": lint_res.returncode,
             "elapsed_s": r_stats["elapsed_s"],
             "peak_tree_rss_mb": r_stats.get("peak_tree_rss_mb", 0.0),
+            "cache_hit": False,
+            "cache_key": cache_key,
             "ffprobe": probe,
         }
 

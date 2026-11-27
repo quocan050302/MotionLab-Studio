@@ -1,14 +1,14 @@
-# MotionLab Studio — ML-01.R5 (Zero-API Local Generative Motion & Repository-Reuse Engine)
+# MotionLab Studio — ML-01.R5.R1 (Zero-API Premium Art Direction, Semantic Sound & Repository-Reuse Engine)
 
-**MotionLab Studio (`ML-01.R5`)** is an independent, 100% local, zero-API automatic video effects and generative motion-design CLI built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
+**MotionLab Studio (`ML-01.R5.R1`)** is an independent, 100% local, zero-API automatic video effects and generative motion-design CLI built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
 
-Feed a raw MP4 (with existing visuals and voice audio), run **one local offline CLI command**, and MotionLab performs local offline ASR (`faster-whisper`), verified integer-cent StoryGraph extraction, local LLM scene planning (`llama.cpp` + `Qwen2.5-3B-Instruct`), local portrait matting (`MODNet ONNX`), dual-engine rendering (**Remotion MIT imported components + HyperFrames Apache-2.0 imported modules + FFmpeg streaming compositor**), voice-priority SFX mixing, and full technical validation — **100% offline with \$0 per-edit API cost**.
+Feed a raw MP4 (with existing visuals and voice audio), run **one local offline CLI command**, and MotionLab performs local offline ASR (`faster-whisper`), verified integer-cent StoryGraph extraction, local LLM scene planning (`llama.cpp` + `Qwen2.5-3B-Instruct`), all-frame Reels safe-zone & face/eye protection (`art_direction.py`), Two-Pass Semantic Sound Direction (`semantic_sound.py`) synced to compiled animation markers, local portrait matting (`MODNet ONNX`), single-browser dual-engine rendering (**Remotion MIT imported components + HyperFrames Apache-2.0 imported modules + FFmpeg streaming compositor**), voice-priority CC0-1.0 Foley mixing, active-window ablation QA, and full technical validation — **100% offline with \$0 per-edit API cost**.
 
 > **Scope, Licensing & Honesty Disclosures**
 > - **Zero runtime cloud/paid APIs:** No OpenAI, Anthropic, ElevenLabs, Google, Gemini, or remote render API is invoked at runtime. All cloud API keys are ignored/stripped and zero remote CDN/font assets are fetched.
 > - **Repository Reuse First:** Ships **20 verified imported motion mechanisms** across **5 verified MIT/Apache-2.0 upstream repositories** (`11` Remotion MIT + `9` HyperFrames Apache-2.0), recorded in [`third_party/motion_sources.lock.json`](./third_party/motion_sources.lock.json) and [`third_party/imported_primitive_manifest.json`](./third_party/imported_primitive_manifest.json).
-> - **Audio contract:** The original audio track is preserved untouched (`original_audio_master.m4a`, bit-exact packets and SHA-256). In `--audio-mode mix`, voice stays at unity (`1.0`, zero EQ/NR/pitch/tempo/automation), music is OFF by default, and short tactile SFX are mixed via local voice-RMS calibrated gain staging. Current built-in sound cues use local physical-modeling DSP synthesis (`PARTIAL_FOLEY_ASSETS` unless licensed recorded foley WAV packs are supplied in `--assets-dir`).
-> - **Technical vs Aesthetic gates:** Automated validation certifies technical integrity (`TECHNICAL_PASS`), while visual/audio taste remains human review (`PENDING_HUMAN_REVIEW`, VQ-01 rubric). No local VLM is installed (`VISION_CRITIC_NOT_RUN`), and synthetic corpus tests do not replace real held-out footage (`REAL_HELDOUT_NOT_RUN`).
+> - **Audio & CC0-1.0 Foley contract:** The original audio track is preserved untouched (`original_audio_master.m4a`, bit-exact packets and SHA-256). In `--audio-mode mix`, voice stays at unity (`1.0`, zero EQ/NR/pitch/tempo/automation) and music is OFF by default. Run `python scripts/provision_cc0_foley.py` once during bootstrap to download the curated 29-file 48 kHz 24-bit **CC0-1.0** SFX/Foley pack from `wyzowl/sfx-kit` (WAV binaries stay gitignored; exact SHA-256 checksums live in `assets/sfx_foley/manifest.json`). If local WAVs are absent, MotionLab honestly falls back to `PARTIAL_FOLEY_ASSETS` (`procedural_dsp_synthesis`).
+> - **Technical vs Aesthetic gates:** Automated validation certifies technical integrity (`TECHNICAL_PASS`), while visual/audio taste remains human review (`PENDING_HUMAN_REVIEW`, VQ-01 rubric). No local VLM is installed (`VISION_CRITIC_NOT_RUN`), automated playback listening is not a human listener (`LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`), and synthetic corpus tests do not replace real held-out footage (`REAL_HELDOUT_NOT_RUN`).
 > - **Renderer licenses:** FFmpeg (`LGPL/GPL` external binary), HyperFrames (`Apache-2.0`), GSAP (`Standard No-Charge License`), and Remotion (`Remotion License` — free for individuals and organizations up to 3 people; organizations with >=4 people require a Remotion Company License or `--disable-remotion`). See [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
 
 ---
@@ -18,13 +18,14 @@ Feed a raw MP4 (with existing visuals and voice audio), run **one local offline 
 ```powershell
 cd MotionLab-AI-ML01
 
-# 1. One-time online bootstrap (installs pinned .venv, local Node renderers, and local AI models)
+# 1. One-time online bootstrap (installs pinned .venv, local Node renderers, local AI models & CC0-1.0 Foley WAVs)
 powershell -ExecutionPolicy Bypass -Scope Process -File .\scripts\bootstrap.ps1
+.\.venv\Scripts\python.exe scripts\provision_cc0_foley.py
 
-# 2. Verify local engines, 20 imported primitives, models, resources, and licenses offline
+# 2. Verify local engines, 20 imported primitives, CC0 foley, models, resources, and licenses offline
 .\.venv\Scripts\python.exe -m motionlab doctor
 
-# 3. Canonical ML-01.R5 Generative Edit (100% offline, dual-engine Remotion + HyperFrames, voice+SFX mix, 9:16 preview)
+# 3. Canonical ML-01.R5.R1 Generative Edit (100% offline, dual-engine Remotion + HyperFrames, voice+SFX mix, 9:16 preview)
 .\.venv\Scripts\python.exe -m motionlab edit `
   --input "input\raw.mp4" `
   --profile auto `
@@ -38,8 +39,9 @@ powershell -ExecutionPolicy Bypass -Scope Process -File .\scripts\bootstrap.ps1
   --output "runs"
 
 # 4. Inspect outputs in runs\<run_id>\:
-#    final.mp4, preview_9x16.mp4, contact_sheet.jpg, evidence\scene_peaks_phone_scale.jpg,
-#    validation.json, audio_qa.json, actual_engine_usage.json, README.md
+#    final.mp4, preview_9x16.mp4, contact_sheet.jpg, layout.json, continuity.json,
+#    evidence\scene_peaks_phone_scale.jpg, evidence\sound_rationale.json,
+#    evidence\frame_protection.csv, evidence\audio_event_qa.json, validation.json, README.md
 ```
 
 ### Linux / macOS
@@ -139,7 +141,10 @@ runs/<run_id>/final.mp4 + preview_9x16.mp4 (direct downscale from final) + compl
 | Remotion | `GTKottman/remotion-transitions` | MIT | `rem_gtk_frame_morph`, `rem_gtk_line_led` |
 | HyperFrames | `heygen-com/hyperframes` (`0.9.101`) | Apache-2.0 | `hf_apple_money_count`, `hf_mk_progress_stat`, `hf_mk_specs_list`, `hf_mk_callout_highlight`, `hf_lt_mask_reveal`, `hf_strikethrough_replace`, `hf_organic_light_leak`, `hf_data_chart`, `hf_exploded_stack` |
 
-Full provenance, upstream commit SHAs, file paths, adaptation notes, and Visual Benchmark Lab (`B01`–`B08`) results are documented in:
+Full provenance, upstream commit SHAs, file paths, adaptation notes, and Visual Benchmark Lab (`B01`–`B08`, `H1`–`H4`) results are documented in:
+- [`docs/ML01_R5R1_BASELINE.txt`](./docs/ML01_R5R1_BASELINE.txt) & [`defects.json`](./defects.json)
+- [`docs/ML01_R5R1_ADR.md`](./docs/ML01_R5R1_ADR.md)
+- [`docs/ML01_R5R1_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5R1_IMPLEMENTATION_REPORT.txt)
 - [`docs/ML01_R5_LINEAGE_RECONCILIATION.md`](./docs/ML01_R5_LINEAGE_RECONCILIATION.md)
 - [`docs/ML01_R5_REPO_SURVEY.md`](./docs/ML01_R5_REPO_SURVEY.md)
 - [`docs/ML01_R5_REUSE_REPORT.txt`](./docs/ML01_R5_REUSE_REPORT.txt)
@@ -147,6 +152,7 @@ Full provenance, upstream commit SHAs, file paths, adaptation notes, and Visual 
 - [`docs/ML01_R5_ADR.md`](./docs/ML01_R5_ADR.md)
 - [`docs/ML01_R5_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5_IMPLEMENTATION_REPORT.txt)
 - [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)
+- Redacted `<=2 MiB` QA-01 evidence packs: [`qa_evidence/ML-01.R5.R1/`](./qa_evidence/ML-01.R5.R1/)
 
 ---
 

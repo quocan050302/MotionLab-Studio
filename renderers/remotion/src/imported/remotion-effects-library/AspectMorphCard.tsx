@@ -162,34 +162,38 @@ export const AspectMorphCard: React.FC<Props> = ({
   return (
     <AbsoluteFill style={{backgroundColor: paperColor, fontFamily, overflow: 'hidden'}}>
       {/* Header stays put; it is the fixed thing the card moves against. */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 60,
-          top: 108,
-          fontFamily: displayFamily,
-          fontSize: 42,
-          fontWeight: 800,
-          letterSpacing: '0.2em',
-          color: theme.paperInk,
-          opacity: interpolate(frame, [0, 18], [0, 1], {
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-          }),
-        }}
-      >
-        {title}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: 60,
-          top: 168,
-          height: 5,
-          width: 132,
-          backgroundColor: accentColor,
-        }}
-      />
+      {title ? (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              left: 60,
+              top: 108,
+              fontFamily: displayFamily,
+              fontSize: 42,
+              fontWeight: 800,
+              letterSpacing: '0.2em',
+              color: theme.paperInk,
+              opacity: interpolate(frame, [0, 18], [0, 1], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              }),
+            }}
+          >
+            {title}
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: 60,
+              top: 168,
+              height: 5,
+              width: 132,
+              backgroundColor: accentColor,
+            }}
+          />
+        </>
+      ) : null}
 
       {/* The text beat lives in the space the card gives up. It fades with the
           same `shift`, so it can never be visible while the card is covering it. */}
@@ -206,21 +210,23 @@ export const AspectMorphCard: React.FC<Props> = ({
           translate: `0px ${(1 - shift) * 40}px`,
         }}
       >
-        <div
-          style={{
-            display: 'inline-block',
-            fontSize: 28,
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            color: paperColor,
-            backgroundColor: accentColor,
-            padding: '10px 20px',
-            borderRadius: 8 * round,
-            marginBottom: 34,
-          }}
-        >
-          {active?.kicker ?? ''}
-        </div>
+        {active?.kicker ? (
+          <div
+            style={{
+              display: 'inline-block',
+              fontSize: 28,
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              color: paperColor,
+              backgroundColor: accentColor,
+              padding: '10px 20px',
+              borderRadius: 8 * round,
+              marginBottom: 34,
+            }}
+          >
+            {active.kicker}
+          </div>
+        ) : null}
         {(active?.lines ?? []).map((line, i) => (
           <div
             key={i}

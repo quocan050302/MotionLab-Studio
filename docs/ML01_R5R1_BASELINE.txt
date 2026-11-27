@@ -1,0 +1,56 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R1 BASELINE AUDIT & PERFORMANCE SNAPSHOT
+================================================================================
+Audit Timestamp (UTC)      : 2026-11-27T07:11:00Z
+Repository                 : https://github.com/quocan050302/MotionLab-Studio
+Branch                     : feat/ml-01-zero-api-effects
+Audited Base HEAD          : 303df5bf84140873a83e8b1dbaccad0a8c13293e
+Prior R5 Tested Code SHA   : 0842f4ee01153d72f145c07be9b2f21d107765a9
+Upstream Origin (Read-Only): browser-use/video-use @ 43cfc566833548093455c9d4a46bd69913b7e552 (MIT)
+Host Machine               : Windows-11-10.0.26300-SP0 | Python 3.12.10 | 12 CPUs | 31.75 GiB RAM | 40.33 GiB disk free
+
+--------------------------------------------------------------------------------
+1. VERIFIED INPUT & REFERENCE HASHES (BEFORE ANY R5.R1 CHANGES)
+--------------------------------------------------------------------------------
+Original Input (IMMUTABLE):
+  Path   : input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+  SHA256 : c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+  Bytes  : 8,650,669
+  Format : H.264 720x1280 (9:16), 24/1 fps, 720 frames, 30.000s; AAC mono 44100 Hz, 1296 packets
+
+QA-Only Historical References (NEVER used as input to AUTO):
+  R5 AUTO Final      : runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5_FINAL_9x16.mp4
+                       SHA256 edb254660aa692d891f699df56597f078099d7c0de97a40ee5e861ce91ece096 (11,328,694 bytes) — VERIFIED ON DISK
+  R5 QA Benchmark    : runs/olivia_ml01_r5_benchmark/20261127T044158Z_benchmark_c56c9ae0/art_directed_benchmark.mp4
+                       SHA256 3662f8e941ed6dc1ef6fb6df533c6d2cb5b847e5d4b90d0bc43f7acc688eae19 (11,055,876 bytes) — VERIFIED ON DISK
+  R4 Final           : NOT_AVAILABLE_LOCALLY (SHA256 3f008e0750d131ecfa9a04869061c7307880ff05d05fd4661cd6d33a0cf4ec71 reported in history)
+
+--------------------------------------------------------------------------------
+2. R5 BASELINE CAPABILITIES & HONEST LIMITATIONS (AUDITED ON HEAD 303df5b)
+--------------------------------------------------------------------------------
+- Tests (verified on 0842f4ee): 113 unique pytest PASSED (+15 subtests, 0 failed, 0 skipped; includes 26 legacy upstream tests in tests/test_render_*.py), npx tsc --noEmit exit 0.
+- Imported Reuse Library: 20/20 verified mechanisms across 5 MIT/Apache-2.0 repos (11 Remotion MIT + 9 HyperFrames Apache-2.0); 16 used in R5 AUTO final.
+- Cold Full 30s Render Baseline (R5 AUTO, Windows, w=2, --no-cache):
+    Total Wall Time     : 611.55 s (~10.2 min)
+    Remotion Stage      : 330.33 s (9 scene renders + 24 midpoint stills via 33 cold CLI invocations)
+    HyperFrames Stage   :  90.39 s (7 VP9 alpha blocks, no per-overlay content cache)
+    Generative Director : 116.84 s (Qwen2.5-3B-Instruct Q4_K_M CPU)
+    Vision + ASR        :  12.30 s (Faster-Whisper Small + ROI)
+    MODNet Matting      :  12.77 s
+    Sound Design Mix    :   1.90 s
+    Assembly + QA       :  46.99 s
+    Watchdog Peak RSS   : 1298.86 MB | Peak Temp Disk: 84.77 MB
+- Open R5 Limitations Targeted by R5.R1 (full structured ledger in defects.json):
+    D01 [HIGH]   Repetitive dark rounded espresso cards across Remotion & HyperFrames overlays.
+    D02 [HIGH]   Consumer QA vocabulary leak ("(derived)") rendered in hf_mk_progress_stat captions.
+    D03 [HIGH]   Flat generic green "$" rectangle tokens instead of tactile layered paper banknotes.
+    D04 [HIGH]   Dark espresso FrameMorph iris transition (f348) briefly obscures payoff reveal.
+    D05 [MEDIUM] Empty white/ivory void above boxed speaker in aspect_morph_editorial (f234-269).
+    D06 [HIGH]   Shallow speech-act -> sfx_family table lacking semantic SoundRole, rejected rationale,
+                 explicit QuietSpan records, and rendered animation-marker alignment.
+    D07 [HIGH]   Empty recorded foley library (PARTIAL_FOLEY_ASSETS, recorded=0); audio QA lacks
+                 single-cue ablation and speech-band masking inspection.
+    D08 [MEDIUM] Midpoint-only ablation missed entry wipe accents (13/15 AUTO, 14/15 benchmark).
+    D09 [MEDIUM] No all-frame conservative Reels safe-zone & eye/mouth/hand sweep (layout.json/continuity.json).
+    D10 [HIGH]   33 separate cold Remotion CLI/Chromium startups (~330s) & no content-addressed scene/HF cache.
+================================================================================

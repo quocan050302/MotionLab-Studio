@@ -35,8 +35,8 @@ import { FrameMorphBridge } from "./imported/remotion-transitions/FrameMorphTran
 import { LineLedBridge } from "./imported/remotion-transitions/LineLedTransition";
 import { sceneEnvelope } from "./composition/easing";
 
-const EDITORIAL_SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif';
-const EDITORIAL_SERIF = 'Georgia, "Times New Roman", serif';
+const EDITORIAL_SANS = 'Bahnschrift, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif';
+const EDITORIAL_SERIF = 'Georgia, Cambria, "Times New Roman", serif';
 
 export interface PaletteTokens {
   ivory: string;
@@ -49,11 +49,11 @@ export interface PaletteTokens {
 
 const DEFAULT_PALETTE: PaletteTokens = {
   ivory: "#F5F0E6",
-  espresso: "#292822",
-  forest: "#365B49",
-  sage: "#A4B39A",
-  brass: "#C6A46A",
-  clay: "#B85D43",
+  espresso: "#40382E",
+  forest: "#243B32",
+  sage: "#84977A",
+  brass: "#BE9A59",
+  clay: "#AF745E",
 };
 
 export interface GenerativePrimitiveNode {
@@ -290,22 +290,22 @@ const RenderImportedPrimitive: React.FC<{
             left: 36,
             right: 36,
             top: `${yPct}%`,
-            padding: "28px 20px 22px",
-            borderRadius: 28,
-            backgroundColor: darkSurface ? "rgba(41,40,34,0.92)" : pal.ivory,
-            border: `2px solid ${pal.brass}`,
-            boxShadow: "0 24px 56px rgba(20,18,14,0.28)",
+            padding: "20px 12px 16px",
+            borderRadius: darkSurface ? 12 : 0,
+            backgroundColor: darkSurface ? "rgba(36,59,50,0.92)" : "transparent",
+            borderTop: `2px solid ${pal.brass}`,
+            borderBottom: `1.5px solid rgba(190,154,89,0.45)`,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
-          <div style={{ width: "100%", paddingLeft: 16, paddingRight: 16, marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <div style={{ width: "100%", paddingLeft: 12, paddingRight: 12, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 26, fontWeight: 800, letterSpacing: "0.14em", color: darkSurface ? pal.brass : pal.forest, textTransform: "uppercase" }}>
               {title}
             </span>
             {subtitle ? (
-              <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 700, color: darkSurface ? pal.ivory : pal.espresso, fontVariantNumeric: "tabular-nums" }}>
+              <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 26, fontWeight: 800, color: darkSurface ? pal.ivory : pal.espresso, fontVariantNumeric: "tabular-nums" }}>
                 {subtitle}
               </span>
             ) : null}
@@ -316,10 +316,10 @@ const RenderImportedPrimitive: React.FC<{
             height={chartH}
             upColor={pal.forest}
             downColor={pal.clay}
-            totalColor={darkSurface ? pal.brass : pal.espresso}
-            gridColor={darkSurface ? "rgba(245,240,230,0.16)" : "rgba(41,40,34,0.14)"}
+            totalColor={darkSurface ? pal.brass : pal.forest}
+            gridColor={darkSurface ? "rgba(245,240,230,0.16)" : "rgba(64,56,46,0.14)"}
             labelColor={darkSurface ? "rgba(245,240,230,0.88)" : pal.espresso}
-            inkColor={darkSurface ? pal.ivory : pal.espresso}
+            inkColor={darkSurface ? pal.ivory : pal.forest}
             showConnectors={true}
             showValues={true}
             showAxis={true}
@@ -337,64 +337,66 @@ const RenderImportedPrimitive: React.FC<{
     case "rem_ru_strikethrough": {
       const fromText = String(p.from_text ?? "$1,200 TO SPEND");
       const toText = String(p.to_text ?? "BALANCE ≠ SPENDABLE");
-      const eyebrow = String(p.eyebrow ?? "DON'T CONFUSE THEM");
-      const fontSize = Number(p.font_size ?? 54);
-      const yPct = Number(p.y_pct ?? 11);
-      const darkCard = Boolean(p.dark_card ?? true);
+      const eyebrow = String(p.eyebrow ?? "REALITY CHECK");
+      const fontSize = Number(p.font_size ?? 48);
+      const yPct = Number(p.y_pct ?? 8.8);
       const op = interpolate(frame, [0, 6, durationInFrames - 8, durationInFrames - 1], [0, 1, 1, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       });
       return (
-        <div
-          style={{
-            position: "absolute",
-            left: 44,
-            right: 44,
-            top: `${yPct}%`,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            opacity: op,
-          }}
-        >
+        <AbsoluteFill style={{ opacity: op, pointerEvents: "none" }}>
+          {/* Open editorial atmospheric upper scrim — ZERO rounded pill box! */}
           <div
             style={{
-              width: "100%",
-              padding: "28px 26px 32px",
-              borderRadius: 26,
-              backgroundColor: darkCard ? "rgba(41,40,34,0.92)" : pal.ivory,
-              border: `2.5px solid ${pal.brass}`,
-              boxShadow: "0 22px 54px rgba(18,16,12,0.42)",
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 360,
+              background: "linear-gradient(180deg, rgba(24,22,18,0.74) 0%, rgba(24,22,18,0.38) 64%, rgba(24,22,18,0) 100%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: 48,
+              right: 105,
+              top: `${yPct}%`,
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              gap: 12,
+              alignItems: "flex-start",
+              gap: 10,
             }}
           >
             {eyebrow ? (
-              <div style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 800, letterSpacing: "0.16em", color: pal.brass, textTransform: "uppercase" }}>
-                {eyebrow}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ width: 28, height: 3, backgroundColor: pal.brass, display: "inline-block" }} />
+                <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 800, letterSpacing: "0.16em", color: pal.brass, textTransform: "uppercase", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
+                  {eyebrow}
+                </span>
               </div>
             ) : null}
-            <StrikethroughReplace
-              from={fromText}
-              to={toText}
-              delayInFrames={Number(p.delay_frames ?? 6)}
-              strikeDurationInFrames={Number(p.strike_frames ?? 12)}
-              holdInFrames={Number(p.hold_frames ?? 4)}
-              departDurationInFrames={10}
-              replaceDelayInFrames={8}
-              replaceDurationInFrames={14}
-              color={darkCard ? pal.ivory : pal.espresso}
-              strikeColor={String(p.strike_color ?? pal.clay)}
-              replaceColor={String(p.replace_color ?? pal.brass)}
-              fontSize={fontSize}
-              fontWeight={800}
-              fontFamily={EDITORIAL_SANS}
-            />
+            <div style={{ textShadow: "0 6px 22px rgba(14,12,10,0.58)" }}>
+              <StrikethroughReplace
+                from={fromText}
+                to={toText}
+                delayInFrames={Number(p.delay_frames ?? 6)}
+                strikeDurationInFrames={Number(p.strike_frames ?? 12)}
+                holdInFrames={Number(p.hold_frames ?? 4)}
+                departDurationInFrames={10}
+                replaceDelayInFrames={8}
+                replaceDurationInFrames={14}
+                color={pal.ivory}
+                strikeColor={String(p.strike_color ?? pal.clay)}
+                replaceColor={String(p.replace_color ?? pal.brass)}
+                fontSize={fontSize}
+                fontWeight={900}
+                fontFamily={EDITORIAL_SANS}
+              />
+            </div>
           </div>
-        </div>
+        </AbsoluteFill>
       );
     }
 
@@ -402,31 +404,44 @@ const RenderImportedPrimitive: React.FC<{
       const lines = (p.lines as string[] | undefined) || [String(p.text ?? "Give every dollar a purpose")];
       const eyebrow = String(p.eyebrow ?? "");
       const subline = String(p.subline ?? "");
-      const fontSize = Number(p.font_size ?? 58);
-      const yPct = Number(p.y_pct ?? 12);
-      const darkCard = Boolean(p.dark_card ?? true);
+      const fontSize = Number(p.font_size ?? 52);
+      const yPct = Number(p.y_pct ?? 8.6);
       const op = interpolate(frame, [0, 6, durationInFrames - 8, durationInFrames - 1], [0, 1, 1, 0], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       });
       return (
-        <div style={{ position: "absolute", left: 48, right: 48, top: `${yPct}%`, opacity: op }}>
+        <AbsoluteFill style={{ opacity: op, pointerEvents: "none" }}>
+          {/* Soft upper editorial gradient scrim — NO rounded box cage & strictly clear of speaker eyes/mouth! */}
           <div
             style={{
-              padding: darkCard ? "28px 32px" : "8px 0",
-              borderRadius: 24,
-              backgroundColor: darkCard ? "rgba(41,40,34,0.90)" : "transparent",
-              borderLeft: darkCard ? `6px solid ${pal.brass}` : "none",
-              boxShadow: darkCard ? "0 20px 50px rgba(18,16,12,0.44)" : "none",
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 390,
+              background: "linear-gradient(180deg, rgba(22,20,16,0.80) 0%, rgba(22,20,16,0.46) 66%, rgba(22,20,16,0) 100%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: 48,
+              right: 105,
+              top: `${yPct}%`,
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              gap: 12,
+              alignItems: "flex-start",
+              gap: 10,
+              textShadow: "0 6px 22px rgba(14,12,10,0.58)",
             }}
           >
             {eyebrow ? (
-              <div style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 800, letterSpacing: "0.16em", color: pal.brass, textTransform: "uppercase" }}>
-                {eyebrow}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ width: 28, height: 3, backgroundColor: pal.brass, display: "inline-block" }} />
+                <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 24, fontWeight: 800, letterSpacing: "0.14em", color: pal.brass, textTransform: "uppercase" }}>
+                  {eyebrow}
+                </span>
               </div>
             ) : null}
             <MaskedSlideReveal
@@ -435,18 +450,18 @@ const RenderImportedPrimitive: React.FC<{
               durationInFrames={Number(p.reveal_frames ?? 14)}
               delayInFrames={Number(p.delay_frames ?? 3)}
               fontSize={fontSize}
-              fontWeight={800}
+              fontWeight={700}
               fontFamily={Boolean(p.serif ?? true) ? EDITORIAL_SERIF : EDITORIAL_SANS}
-              color={String(p.color ?? (darkCard ? pal.ivory : pal.espresso))}
-              textAlign="center"
+              color={String(p.color ?? pal.ivory)}
+              textAlign="left"
             />
             {subline ? (
-              <div style={{ marginTop: 6, fontFamily: EDITORIAL_SANS, fontSize: 28, fontWeight: 700, letterSpacing: "0.08em", color: pal.brass, textTransform: "uppercase" }}>
+              <div style={{ marginTop: 4, fontFamily: EDITORIAL_SANS, fontSize: 26, fontWeight: 700, letterSpacing: "0.08em", color: pal.brass }}>
                 {subline}
               </div>
             ) : null}
           </div>
-        </div>
+        </AbsoluteFill>
       );
     }
 
@@ -595,10 +610,10 @@ const RenderImportedPrimitive: React.FC<{
     case "rem_ru_track_matte": {
       // Real SVG luminance/alpha TrackMatte from riaz37/remotion-ui (MIT) revealing a live macro crop!
       if (!sourceFile) return null;
-      const boxW = Math.round(width * 0.44);
-      const boxH = Math.round(height * 0.23);
-      const xPos = Math.round(width * Number(p.x_frac ?? 0.51));
-      const yPos = Math.round(height * Number(p.y_frac ?? 0.50));
+      const boxW = Math.round(width * 0.43);
+      const boxH = Math.round(height * 0.21);
+      const xPos = Math.round(width * Number(p.x_frac ?? 0.43));
+      const yPos = Math.round(height * Number(p.y_frac ?? 0.46));
       const zoom = Number(p.detail_zoom ?? 1.6);
       const cx = taskAnchor?.cx ?? 0.5;
       const cy = Math.min(0.86, (taskAnchor?.cy ?? 0.72) + 0.06);
@@ -607,7 +622,7 @@ const RenderImportedPrimitive: React.FC<{
       const offX = Math.min(0, Math.max(boxW - scaledW, boxW / 2 - cx * scaledW));
       const offY = Math.min(0, Math.max(boxH - scaledH, boxH / 2 - cy * scaledH));
       const revealP = spring({ frame, fps, config: { damping: 18, stiffness: 150 }, durationInFrames: 16 });
-      const radius = Math.round(Math.min(boxW, boxH) * 0.48 * revealP);
+      const radius = Math.round(Math.min(18, Math.min(boxW, boxH) * 0.14 * revealP));
       const label = String(p.label ?? "LIVE DETAIL");
 
       return (
@@ -697,20 +712,20 @@ const PersistentLedgerRibbon: React.FC<{ ledger: PersistentLedgerState; pal: Pal
       style={{
         position: "absolute",
         left: 48,
-        right: 48,
-        bottom: 205,
+        right: 105,
+        bottom: 232,
         opacity: op,
-        padding: "16px 22px",
-        borderRadius: 18,
-        backgroundColor: "rgba(41,40,34,0.90)",
-        border: `2px solid ${pal.brass}`,
-        boxShadow: "0 14px 36px rgba(15,13,10,0.42)",
+        padding: "14px 20px",
+        borderRadius: 10,
+        backgroundColor: "rgba(245, 240, 230, 0.94)",
+        borderLeft: `5px solid ${curPct <= 15 ? pal.clay : pal.forest}`,
+        boxShadow: "0 12px 28px rgba(18,16,12,0.28)",
         fontFamily: EDITORIAL_SANS,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
-        <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "0.1em", color: pal.brass, textTransform: "uppercase" }}>
-          {ledger.currentCategory ? `AFTER ${ledger.currentCategory}` : "REMAINING BALANCE"}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: "0.10em", color: pal.espresso, textTransform: "uppercase" }}>
+          {ledger.currentCategory ? `AFTER ${ledger.currentCategory}` : "LEFT TO SPEND"}
         </span>
         <Counter
           from={ledger.prevBalanceCents / 100}
@@ -723,15 +738,15 @@ const PersistentLedgerRibbon: React.FC<{ ledger: PersistentLedgerState; pal: Pal
           fontSize={42}
           fontWeight={900}
           fontFamily={EDITORIAL_SANS}
-          color={pal.ivory}
+          color={pal.forest}
         />
       </div>
-      <div style={{ width: "100%", height: 12, borderRadius: 6, backgroundColor: "rgba(245,240,230,0.18)", overflow: "hidden" }}>
+      <div style={{ width: "100%", height: 10, borderRadius: 4, backgroundColor: "rgba(64,56,46,0.14)", overflow: "hidden" }}>
         <div
           style={{
             width: `${curPct.toFixed(2)}%`,
             height: "100%",
-            borderRadius: 6,
+            borderRadius: 4,
             backgroundColor: curPct <= 15 ? pal.clay : pal.forest,
           }}
         />
@@ -766,10 +781,10 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
     const lines = (params.lines as string[] | undefined) || [];
     const restRect = { x: 0, y: 0, w: width, h: height };
     const shiftedRect = {
-      x: 42,
-      y: Math.round(height * Number(params.shifted_y_frac ?? 0.50)),
-      w: width - 84,
-      h: Math.round(height * Number(params.shifted_h_frac ?? 0.40)),
+      x: 28,
+      y: Math.round(height * Number(params.shifted_y_frac ?? 0.48)),
+      w: width - 56,
+      h: Math.round(height * Number(params.shifted_h_frac ?? 0.43)),
     };
     const holdF = Math.max(12, durationInFrames - 22);
     sceneContent = (
@@ -1007,7 +1022,7 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
 
   // Optional timeline-preserving entrance transition bridge (GTKottman FrameMorph / LineLed or FlipPage)
   const trFrames = Math.max(4, Math.min(18, Number(props.transitionInFrames ?? 12)));
-  if (props.transitionIn && props.transitionIn !== "none" && frame < trFrames && props.sourceFile) {
+  if (ex !== "transition_in" && props.transitionIn && props.transitionIn !== "none" && frame < trFrames && props.sourceFile) {
     const trP = frame / Math.max(1, trFrames - 1);
     const livePrev = (
       <AbsoluteFill>
@@ -1015,7 +1030,8 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
       </AbsoluteFill>
     );
     if (props.transitionIn === "frame_morph") {
-      return <FrameMorphBridge progress={trP} background={pal.espresso} size={0.62} exiting={livePrev} entering={sceneContent} />;
+      // R5.R1 Fix D04: Warm luminous ivory paper morph — NEVER a dark black/espresso circular hole!
+      return <FrameMorphBridge progress={trP} background={pal.ivory} size={0.86} exiting={livePrev} entering={sceneContent} />;
     }
     if (props.transitionIn === "line_led") {
       return <LineLedBridge progress={trP} color={pal.brass} thickness={6} orientation="horizontal" exiting={livePrev} entering={sceneContent} />;

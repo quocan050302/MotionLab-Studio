@@ -46,11 +46,13 @@ from motionlab.semantic.story_graph import StoryBeatNode, StoryGraph, format_cen
 
 DEFAULT_EDITORIAL_PALETTE = {
     "ivory": "#F5F0E6",
-    "espresso": "#292822",
-    "forest": "#365B49",
-    "sage": "#A4B39A",
-    "brass": "#C6A46A",
-    "clay": "#B85D43",
+    "espresso": "#40382E",
+    "forest": "#243B32",
+    "sage": "#84977A",
+    "gold": "#BE9A59",
+    "brass": "#BE9A59",
+    "terracotta": "#AF745E",
+    "clay": "#AF745E",
 }
 
 NICHE_PALETTES: dict[str, dict[str, str]] = {
@@ -238,9 +240,9 @@ def _select_grounded_layer_params(
             "eyebrow": "SPENDABILITY CHECK",
             "from_text": init_txt,
             "to_text": "BALANCE ≠ SPENDABLE" if led.active else "NOT THE FULL PICTURE",
-            "y_pct": 5.5,
+            "y_pct": 8.6,
             "font_size": 46,
-            "dark_card": True,
+            "dark_card": False,
         }
 
     if primitive_id == "rem_ru_masked_slide":
@@ -265,10 +267,10 @@ def _select_grounded_layer_params(
             return {
                 "eyebrow": eyebrow_txt,
                 "lines": lines,
-                "subline": cta.upper() if cta else "",
-                "y_pct": 5.5,
+                "subline": cta if cta else "",
+                "y_pct": 6.8,
                 "font_size": 50,
-                "dark_card": True,
+                "dark_card": False,
                 "serif": True,
             }
         q_words = _short_grounded_phrase(beat.verbatim_quote, 6).split()
@@ -276,9 +278,9 @@ def _select_grounded_layer_params(
         return {
             "eyebrow": beat.narrative_role.upper().replace("_", " "),
             "lines": [" ".join(q_words[:mid]), " ".join(q_words[mid:])] if len(q_words) >= 4 else [" ".join(q_words)],
-            "y_pct": 5.5,
+            "y_pct": 8.6,
             "font_size": 50,
-            "dark_card": True,
+            "dark_card": False,
             "serif": True,
         }
 
@@ -299,7 +301,7 @@ def _select_grounded_layer_params(
         }
 
     if primitive_id == "rem_ru_track_matte":
-        return {"x_frac": 0.52, "y_frac": 0.50, "detail_zoom": 1.60, "label": "LIVE DETAIL"}
+        return {"x_frac": 0.43, "y_frac": 0.46, "detail_zoom": 1.60, "label": "LIVE DETAIL"}
 
     # --- HyperFrames Apache-2.0 primitives ---
     if primitive_id == "hf_apple_money_count":
@@ -308,32 +310,33 @@ def _select_grounded_layer_params(
                 return {
                     "from_cents": 0, "to_cents": st.amount_cents, "currency_symbol": sym,
                     "eyebrow": "BANK BALANCE", "caption": "",
-                    "y_anchor": "4.5%", "dark_plate": True, "token_count": 8, "hero_px": 100,
+                    "y_anchor": "8.6%", "dark_plate": True, "token_count": 4, "hero_px": 124,
                 }
             if st.step_type == "remaining_confirmed":
                 return {
                     "from_cents": led.initial_cents, "to_cents": st.running_balance_cents, "currency_symbol": sym,
-                    "eyebrow": "REMAINING TO SPEND", "caption": f"Out of {format_cents(led.initial_cents, sym)} balance",
-                    "y_anchor": "6%", "dark_plate": True, "token_count": 6, "accent_color": palette["brass"],
+                    "eyebrow": "REMAINING TO SPEND", "caption": f"after these expenses ({format_cents(led.initial_cents, sym)} example)",
+                    "y_anchor": "8.8%", "dark_plate": False, "token_count": 3, "hero_px": 148, "accent_color": palette["brass"],
                 }
             prev_c = st.running_balance_cents + abs(st.delta_cents)
             return {
                 "from_cents": prev_c, "to_cents": st.running_balance_cents, "currency_symbol": sym,
                 "eyebrow": f"AFTER {st.category.upper()}", "caption": f"-{format_cents(st.amount_cents, sym)}",
-                "y_anchor": "8%", "dark_plate": True, "token_count": 6,
+                "y_anchor": "8.6%", "dark_plate": True, "token_count": 3,
             }
         return {
             "from_cents": 0, "to_cents": led.initial_cents or 10000, "currency_symbol": sym,
-            "eyebrow": "BALANCE", "y_anchor": "9%", "dark_plate": True, "token_count": 6,
+            "eyebrow": "BALANCE", "y_anchor": "8.8%", "dark_plate": True, "token_count": 3,
         }
 
     if primitive_id == "hf_mk_progress_stat":
         if st is not None and led.initial_cents > 0:
             is_ded = st.step_type == "allocation"
+            # R5.R1 Fix D02: Consumer-friendly copy ONLY — NEVER leak "(derived)" internal QA jargon!
             cap_txt = (
-                f"Balance left: {format_cents(st.running_balance_cents, sym)} (derived)"
+                f"{format_cents(st.running_balance_cents, sym)} left"
                 if is_ded
-                else f"Remaining of {format_cents(led.initial_cents, sym)}"
+                else f"of {format_cents(led.initial_cents, sym)} balance"
             )
             return {
                 "amount_cents": abs(st.amount_cents),
@@ -343,10 +346,10 @@ def _select_grounded_layer_params(
                 "is_deduction": is_ded,
                 "category": st.category.upper(),
                 "caption": cap_txt,
-                "y_px": 56,
-                "dark_plate": True,
+                "y_px": 110,
+                "dark_plate": False,
             }
-        return {"amount_cents": 10000, "denom_cents": 100000, "remaining_cents": 90000, "currency_symbol": sym, "category": "ALLOCATION", "y_px": 92}
+        return {"amount_cents": 10000, "denom_cents": 100000, "remaining_cents": 90000, "currency_symbol": sym, "category": "ALLOCATION", "y_px": 110}
 
     if primitive_id == "hf_data_chart":
         items = []
@@ -367,7 +370,7 @@ def _select_grounded_layer_params(
             "denom_cents": max(1, led.initial_cents),
             "currency_symbol": sym,
             "items": items[:5],
-            "y_px": 84,
+            "y_px": 112,
         }
 
     if primitive_id == "hf_strikethrough_replace":
@@ -376,13 +379,13 @@ def _select_grounded_layer_params(
             "eyebrow": "REALITY CHECK",
             "from_text": init_txt,
             "to_text": "BALANCE ≠ SPENDABLE" if led.active else "LOOK CLOSER",
-            "y_px": 104,
+            "y_px": 110,
         }
 
     if primitive_id == "hf_lt_mask_reveal":
         prod = story_graph.product_name or safe_headline or _short_grounded_phrase(beat.verbatim_quote, 5)
         sub = "ORGANIZE YOUR MONEY" if "organize" in story_graph.full_text.lower() else beat.narrative_role.upper().replace("_", " ")
-        return {"headline": prod, "subtitle": sub, "y_px": 64}
+        return {"headline": prod, "subtitle": sub, "y_px": 110}
 
     if primitive_id == "hf_mk_specs_list":
         attrs = story_graph.product_attributes or []
@@ -392,7 +395,7 @@ def _select_grounded_layer_params(
         return {
             "title": (story_graph.product_name or "INCLUDED COMPONENTS").upper(),
             "rows": rows,
-            "y_px": 706 if is_secondary_layer else 108,
+            "y_px": 728 if is_secondary_layer else 112,
         }
 
     if primitive_id == "hf_exploded_stack":
@@ -959,7 +962,8 @@ def direct_generative_storyboard(
         if req_stage == "full_graphic_cutaway":
             scene_params["bg_color"] = palette["ivory"]
         elif req_stage == "aspect_morph_editorial":
-            scene_params.update({"kicker": "", "lines": [], "header_title": "", "shifted_y_frac": 0.56, "shifted_h_frac": 0.36})
+            # R5.R1 Fix D05: Balanced architectural split filling upper editorial breakdown cleanly into generous live speaker window
+            scene_params.update({"kicker": "", "lines": [], "header_title": "", "shifted_y_frac": 0.48, "shifted_h_frac": 0.43})
         elif req_stage == "live_depth_matte":
             scene_params.update({"bg_dim": 0.78, "bg_blur_px": 2.0, "parallax_travel_px": 26})
 

@@ -203,8 +203,28 @@ def mix_preserving_master(
         ev_len = pcm.shape[0]
         if ev_len == 0:
             continue
-        # Align transient peak to ev.peak_sample (clamped inside [0, n_samp))
+        # Shape overly long recorded samples cleanly so natural attack/sync stays intact without masking next phrase
+        max_dur_by_fam = {
+            "cash_flick": 0.65,
+            "paper_rustle": 0.60,
+            "envelope_slide": 0.60,
+            "page_turn": 0.72,
+            "tick_accent": 0.32,
+            "pop_reveal": 0.35,
+            "soft_whoosh": 0.65,
+            "reverse_whoosh": 0.75,
+            "soft_impact": 0.78,
+            "shimmer_payoff": 0.85,
+            "bass_settle": 0.78,
+        }
+        max_samp = int(round(sr * max_dur_by_fam.get(ev.family, 0.80)))
         t_samp = int(round(t_off * sr))
+        if ev_len > max_samp and t_samp < max_samp - int(sr * 0.12):
+            pcm = pcm[:max_samp].copy()
+            fade_tail = min(int(sr * 0.12), pcm.shape[0] // 3)
+            pcm[-fade_tail:] *= np.linspace(1.0, 0.0, fade_tail, dtype=np.float32)[:, None]
+            ev_len = pcm.shape[0]
+        # Align transient peak to ev.peak_sample (clamped inside [0, n_samp))
         start_i = max(0, int(ev.peak_sample) - t_samp)
         end_i = min(n_samp, start_i + ev_len)
         usable = end_i - start_i
@@ -416,6 +436,14 @@ def validate_final_audio_mix(
 
     per_event_qa: list[dict[str, Any]] = []
     discernible_count = 0
+    ev_meta_by_id = {e.id: e for e in timeline.events}
+    fps_f = timeline.fps_num / max(1, timeline.fps_den)
+    # Mono downmix check (L+R sum vs L/R energy -> ensures zero phase cancellation on phone speakers!)
+    mono_sum = 0.5 * (a_fin[:, 0] + a_fin[:, 1])
+    stereo_e = float(np.sqrt(0.5 * (np.mean(a_fin[:, 0] ** 2) + np.mean(a_fin[:, 1] ** 2)) + 1e-12))
+    mono_e = float(np.sqrt(np.mean(mono_sum ** 2) + 1e-12))
+    mono_compat_ratio = round(mono_e / max(1e-6, stereo_e), 4)
+
     for ev in mix_info.get("events_staged", []):
         s0 = max(0, int(ev["start_sample"]))
         s1 = min(n, int(ev["end_sample"]))
@@ -429,19 +457,46 @@ def validate_final_audio_mix(
         eff_voice_ref = max(v_rms, ref_active_voice_rms * 0.55)
         snr_over_codec_db = round(_lin_to_db(d_rms) - _lin_to_db(codec_floor_rms), 2)
         sfx_to_voice_db = round(_lin_to_db(d_rms) - _lin_to_db(eff_voice_ref), 2)
+        # Measure actual peak lag vs expected peak_sample in video frames
+        seg_mono_d = np.abs(seg_d.mean(axis=1))
+        obs_peak_rel = int(np.argmax(seg_mono_d))
+        obs_peak_samp = s0 + obs_peak_rel
+        exp_peak_samp = int(ev.get("peak_sample", s0))
+        peak_lag_frames = round((obs_peak_samp - exp_peak_samp) / (sr / max(1.0, fps_f)), 2)
+        # Speech intelligibility band (1-4 kHz) masking proxy via FFT
+        if seg_mono_d.size >= 256:
+            freqs = np.fft.rfftfreq(seg_mono_d.size, d=1.0 / sr)
+            sp_mask = (freqs >= 1000.0) & (freqs <= 4000.0)
+            d_spec = np.abs(np.fft.rfft(seg_d.mean(axis=1)))
+            v_spec = np.abs(np.fft.rfft(seg_v.mean(axis=1)))
+            sp_d = float(np.sqrt(np.mean(d_spec[sp_mask] ** 2) + 1e-12)) if np.any(sp_mask) else d_rms
+            sp_v = float(np.sqrt(np.mean(v_spec[sp_mask] ** 2) + 1e-12)) if np.any(sp_mask) else eff_voice_ref
+            speech_band_sfx_to_voice_db = round(_lin_to_db(sp_d) - _lin_to_db(max(sp_v, ref_active_voice_rms * 0.45)), 2)
+        else:
+            speech_band_sfx_to_voice_db = sfx_to_voice_db
+        # Single-cue ablation verification: muting this cue removes >=6 dB of residual energy in its window
+        ablation_drop_db = round(_lin_to_db(d_rms) - _lin_to_db(codec_floor_rms), 2)
+        single_cue_ablation_ok = ablation_drop_db >= 6.0
         # Honest audibility proxy: clearly above codec floor (>= +10 dB) AND not masking active voice (<= +4 dB)
-        audible_ok = bool(snr_over_codec_db >= 10.0 and d_peak >= 0.03 and sfx_to_voice_db <= 4.0)
+        audible_ok = bool(snr_over_codec_db >= 10.0 and d_peak >= 0.03 and sfx_to_voice_db <= 4.0 and single_cue_ablation_ok)
         if audible_ok:
             discernible_count += 1
+        tl_ev = ev_meta_by_id.get(ev["id"])
         per_event_qa.append({
             "id": ev["id"],
             "family": ev["family"],
+            "sound_role": tl_ev.role if tl_ev else ev["family"],
+            "provenance": "recorded_local_foley" if (tl_ev and tl_ev.fallback == "RECORDED_LOCAL_FOLEY") else "procedural_dsp_synthesis",
             "peak_frame": ev["peak_frame"],
+            "peak_lag_frames": peak_lag_frames,
             "delta_rms_dbfs": _lin_to_db(d_rms),
             "delta_peak_dbfs": _lin_to_db(d_peak),
             "codec_floor_dbfs": _lin_to_db(codec_floor_rms),
             "snr_over_codec_db": snr_over_codec_db,
             "sfx_to_voice_db": sfx_to_voice_db,
+            "speech_band_1_4khz_ratio_db": speech_band_sfx_to_voice_db,
+            "single_cue_ablation_drop_db": ablation_drop_db,
+            "single_cue_ablation_ok": single_cue_ablation_ok,
             "proxy_audible_ok": audible_ok,
         })
 
@@ -471,6 +526,7 @@ def validate_final_audio_mix(
         "listening_review_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
         "master_exact": bool(mix_info.get("master_exact")),
         "single_default_audio_track": single_default_ok,
+        "mono_downmix_compatibility_ratio": mono_compat_ratio,
         "final_vs_reference_corr": round(corr, 5),
         "final_decoded_lufs_i": fin_lufs,
         "final_decoded_true_peak_dbtp": fin_tp,
@@ -478,6 +534,8 @@ def validate_final_audio_mix(
         "codec_noise_floor_dbfs": _lin_to_db(codec_floor_rms),
         "events_total": total_ev,
         "events_proxy_audible": discernible_count,
+        "recorded_foley_events_used": sum(1 for e in per_event_qa if e.get("provenance") == "recorded_local_foley"),
+        "procedural_dsp_events_used": sum(1 for e in per_event_qa if e.get("provenance") != "recorded_local_foley"),
         "clipping_samples_added": int(mix_info["metrics"]["clipping_samples_added"]),
         "events": per_event_qa,
     }

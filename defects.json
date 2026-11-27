@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "audit_head_sha": "303df5bf84140873a83e8b1dbaccad0a8c13293e",
+  "source_sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "r5_auto_sha256": "edb254660aa692d891f699df56597f078099d7c0de97a40ee5e861ce91ece096",
+  "r5_benchmark_sha256": "3662f8e941ed6dc1ef6fb6df533c6d2cb5b847e5d4b90d0bc43f7acc688eae19",
+  "defects": [
+    {
+      "defect_id": "D01",
+      "severity": "HIGH",
+      "area": "art_direction",
+      "observed_frames": "f0..60, f60..138, f138..207, f269..344, f481..533, f635..720",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg",
+      "code_location": "motionlab/composition/primitive_adapters.py & renderers/remotion/src/GenerativeSceneComposition.tsx",
+      "description": "Repeated dark rounded espresso cards (rgba(41,40,34,0.90), border-radius 24-26px, brass border) wrap almost every scene overlay.",
+      "acceptance_target": "Open full-bleed editorial typography, varied typographic bands, warm ivory/forest/sage/gold palette tokens, <=2 visually equivalent card layouts across 30s."
+    },
+    {
+      "defect_id": "D02",
+      "severity": "HIGH",
+      "area": "semantic_copy",
+      "observed_frames": "f138..207, f269..344",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg",
+      "code_location": "motionlab/semantic/generative_director.py:334",
+      "description": "Internal provenance label '(derived)' leaked into consumer-facing caption ('Balance left: $400 (derived)').",
+      "acceptance_target": "Zero QA/schema jargon ('derived', 'provenance', 'computed') in any rendered text; internal derivation preserved strictly in ledger_claims.json."
+    },
+    {
+      "defect_id": "D03",
+      "severity": "HIGH",
+      "area": "money_motion",
+      "observed_frames": "f0..60, f344..417",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/contact_sheet.jpg",
+      "code_location": "motionlab/composition/primitive_adapters.py:170-176",
+      "description": "Banknote tokens render as flat small green rectangles with '$' mark instead of tactile layered paper tokens with curved trajectories and contact shadow.",
+      "acceptance_target": "Multi-layered paper-grain illustrative note tokens with perspective tilt, soft contact shadow, and coherent curved paths (3-5 tokens max, no casino rain)."
+    },
+    {
+      "defect_id": "D04",
+      "severity": "HIGH",
+      "area": "transitions",
+      "observed_frames": "f344..356 (especially f348)",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/contact_sheet.jpg",
+      "code_location": "renderers/remotion/src/GenerativeSceneComposition.tsx:1018",
+      "description": "FrameMorphBridge uses dark espresso background creating a dark circular iris hole before payoff reveal.",
+      "acceptance_target": "Bright warm ivory (#F5F0E6) editorial morph bridge / shared-element ledger handoff with zero dark curtain obscuring main takeaway."
+    },
+    {
+      "defect_id": "D05",
+      "severity": "MEDIUM",
+      "area": "composition_layout",
+      "observed_frames": "f234..269",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/evidence/scene_peaks_phone_scale.jpg",
+      "code_location": "motionlab/semantic/generative_director.py:962 & GenerativeSceneComposition.tsx:768-773",
+      "description": "aspect_morph_editorial leaves a large empty cream gap between top chart and boxed speaker window.",
+      "acceptance_target": "Balanced architectural split with proportional editorial breakdown filling upper safe zone cleanly and generous wide speaker framing below."
+    },
+    {
+      "defect_id": "D06",
+      "severity": "HIGH",
+      "area": "semantic_sound_director",
+      "observed_frames": "f0..720",
+      "evidence": "motionlab/semantic/generative_director.py:878-940",
+      "code_location": "motionlab/semantic/generative_director.py & motionlab/composition/generative_compiler.py",
+      "description": "Sound cues chosen by shallow speech_act lookup at fixed sf+5 offset without semantic SoundRole enum, rejected-candidate rationale, explicit QuietSpan reasoning, or animation-marker sync.",
+      "acceptance_target": "Two-pass SemanticSoundDirector assigning typed SoundRole enums, rejected-candidate explanations, QuietSpans, and exact compiled animation-marker frames."
+    },
+    {
+      "defect_id": "D07",
+      "severity": "HIGH",
+      "area": "foley_and_audio_qa",
+      "observed_frames": "f0..720",
+      "evidence": "assets/sfx_foley/manifest.json & motionlab/audio/mixer.py",
+      "code_location": "assets/sfx_foley/manifest.json & motionlab/audio/mixer.py",
+      "description": "Recorded foley library has 0 WAV assets (PARTIAL_FOLEY_ASSETS); audio QA lacks per-cue ablation, speech-band masking ratio, and mono-downmix check.",
+      "acceptance_target": "Attempt verified CC0 recorded WAV provisioning (honest PARTIAL_FOLEY_ASSETS if unavailable) + add single-cue ablation, 1-4kHz speech masking ratio, peak-lag, and mono-downmix checks."
+    },
+    {
+      "defect_id": "D08",
+      "severity": "MEDIUM",
+      "area": "ablation_verification",
+      "observed_frames": "sc_01 f0..12, sc_07 f481..493",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/actual_engine_usage.json",
+      "code_location": "motionlab/composition/r5_engine.py:453",
+      "description": "Midpoint-only ablation sampled entry transitions after they already completed (13/15 AUTO, 14/15 benchmark).",
+      "acceptance_target": "Active-window ablation sampling each layer/transition at its verified active peak frame (entry wipe at entry midpoint, flip at mid-flip, sustained at scene midpoint)."
+    },
+    {
+      "defect_id": "D09",
+      "severity": "MEDIUM",
+      "area": "safe_zones_and_continuity",
+      "observed_frames": "f0..720",
+      "evidence": "motionlab/composition/r5_engine.py:390-405",
+      "code_location": "motionlab/composition/art_direction.py (new)",
+      "description": "No formal Reels safe-zone solver (L>=48, R>=105, T>=110, B>=230), no all-frame face/eye/mouth/hand collision sweep, and no exported SharedElementState continuity tracks.",
+      "acceptance_target": "Implement art_direction.py exporting layout.json, continuity.json, design_candidates.json, and frame_protection.csv with 0 face/eye/mouth overlaps."
+    },
+    {
+      "defect_id": "D10",
+      "severity": "HIGH",
+      "area": "render_optimization",
+      "observed_frames": "f0..720",
+      "evidence": "runs/olivia_ml01_r5/20261127T052515Z_c56c9ae0_001/resource_stats.json (Remotion 330.33s, HF 90.39s)",
+      "code_location": "motionlab/renderers/remotion.py & motionlab/renderers/hyperframes.py",
+      "description": "33 separate cold Remotion CLI/Chromium launches and zero content-addressed per-scene/per-overlay render caches cause 611.55s cold runtime.",
+      "acceptance_target": "Single-bundle + persistent-browser Remotion batch worker + content-addressed Remotion scene & HyperFrames overlay caches with strict invalidation keys, zero visual downgrade."
+    }
+  ]
+}

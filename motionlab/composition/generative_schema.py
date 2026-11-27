@@ -285,11 +285,13 @@ def validate_storyboard_spec(
                     if kf.frame < 0 or kf.frame > (sc.end_frame_exclusive - sc.start_frame):
                         errors.append(f"keyframe_out_of_scene:{sc.scene_id}:{kf.frame}")
 
-            # Collect display text strings for semantic grounding audit
+            # Collect display text strings for semantic grounding & consumer QA-jargon audit
             for tk in ("eyebrow", "title", "subtitle", "caption", "headline", "text", "from_text", "to_text", "label_before", "label_after", "category"):
                 v = ly.params.get(tk)
                 if isinstance(v, str) and v.strip():
                     all_texts.append(v.strip())
+                    if "(derived)" in v.lower() or "derived_arithmetic" in v.lower() or "verbatim_spoken" in v.lower():
+                        errors.append(f"consumer_qa_jargon_leak:{sc.scene_id}.{ly.layer_id}.{tk}")
             if isinstance(ly.params.get("lines"), list):
                 all_texts.extend(str(x) for x in ly.params["lines"] if x)
 

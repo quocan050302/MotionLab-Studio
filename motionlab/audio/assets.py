@@ -126,7 +126,10 @@ def inspect_foley_library(foley_dir: Path | None = None) -> dict[str, Any]:
 
 
 def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100) -> tuple[np.ndarray, float] | None:
-    """Load a SHA-256-verified local recorded WAV file as float32 stereo PCM (resampled cleanly if needed)."""
+    """Load a SHA-256-verified local recorded WAV file (16-bit, 24-bit, or 32-bit PCM) as float32 stereo PCM."""
+    from math import gcd
+    from scipy.signal import resample_poly
+
     fp = Path(asset_entry.get("resolved_path", ""))
     if not fp.is_file():
         return None
@@ -134,24 +137,35 @@ def load_recorded_foley_pcm(asset_entry: dict[str, Any], target_sr: int = 44100)
         sr = wf.getframerate()
         ch = wf.getnchannels()
         sw = wf.getsampwidth()
-        raw = wf.readframes(wf.getnframes())
+        n_frames = wf.getnframes()
+        raw = wf.readframes(n_frames)
     if sw == 2:
         pcm = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
+    elif sw == 3:
+        # Unpack 24-bit little-endian signed PCM cleanly into float32 [-1.0, 1.0]
+        b = np.frombuffer(raw, dtype=np.uint8).reshape((-1, 3))
+        i32 = (b[:, 0].astype(np.int32) | (b[:, 1].astype(np.int32) << 8) | (b[:, 2].astype(np.int32) << 16))
+        i32 = np.where(i32 & 0x800000, i32 - 0x1000000, i32)
+        pcm = i32.astype(np.float32) / 8388608.0
+    elif sw == 4:
+        pcm = np.frombuffer(raw, dtype=np.int32).astype(np.float32) / 2147483648.0
     else:
         return None
     if ch == 1:
         pcm = np.stack([pcm, pcm], axis=1)
     else:
         pcm = pcm.reshape((-1, ch))[:, :2]
-    if sr != target_sr and pcm.shape[0] > 4:
-        n_new = max(4, int(round(pcm.shape[0] * target_sr / sr)))
-        x_old = np.linspace(0.0, 1.0, pcm.shape[0], dtype=np.float32)
-        x_new = np.linspace(0.0, 1.0, n_new, dtype=np.float32)
-        pcm = np.stack([np.interp(x_new, x_old, pcm[:, 0]), np.interp(x_new, x_old, pcm[:, 1])], axis=1).astype(np.float32)
+    if sr != target_sr and pcm.shape[0] > 8:
+        g = gcd(int(target_sr), int(sr))
+        up, down = int(target_sr) // g, int(sr) // g
+        pcm = np.stack(
+            [resample_poly(pcm[:, 0], up, down), resample_poly(pcm[:, 1], up, down)],
+            axis=1,
+        ).astype(np.float32)
     peak = float(np.max(np.abs(pcm)))
     if peak > 1e-5:
-        pcm = pcm * (0.85 / peak)
+        pcm = pcm * (0.88 / peak)
     t_samp = int(asset_entry.get("transient_sample", 0))
-    t_off = float(t_samp) / max(1, int(asset_entry.get("original_sample_rate", target_sr)))
-    return pcm.astype(np.float32), t_off
+    t_off = float(t_samp) / max(1, int(asset_entry.get("original_sample_rate", sr)))
+    return pcm.astype(np.float32), round(t_off, 5)
 

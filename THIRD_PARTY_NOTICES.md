@@ -51,6 +51,10 @@ Model weights and native inference binaries are downloaded via one-time explicit
 - **GSAP (`gsap@3.15.1`):** Standard "No Charge" License (<https://gsap.com/standard-license>, **NOT MIT**). Vendored locally as `./gsap.min.js`; zero runtime CDN fetches.
 
 ## 6. Audio & Media Assets
-- **Default SFX:** Local physical-modeling procedural DSP (`procedural_dsp_synthesis`, MIT). Honestly reported as `PARTIAL_FOLEY_ASSETS` unless owner-supplied verified CC0/commercial recorded WAVs are placed in `assets/sfx_foley/` with SHA-256 hashes in `assets/sfx_foley/manifest.json`.
+- **Verified CC0-1.0 Local Foley / SFX Pack (`assets/sfx_foley/manifest.json`):**
+  - **Source:** `wyzowl/sfx-kit` (<https://github.com/wyzowl/sfx-kit>), pinned commit `92780e7ab0cdfb557497a988089c47f46e8c7412`.
+  - **License:** **CC0 1.0 Universal (Public Domain)** — free for commercial and non-commercial use without attribution; verbatim upstream license saved in `assets/sfx_foley/LICENSE.wyzowl-sfx-kit.txt`.
+  - **Provisioning:** Curated 48 kHz 24-bit WAV assets (`money-notes`, `foley-paper-touch`, `foley-paper-slide`, `foley-card-slide`, `foley-card-touch`, `props-page-turn`, `whoosh-*`, `reverse-whoosh-*`, `data-tick`, `data-number-land`, `impact-*`, `pop-*`, `shimmer-*`, `boom-*`) are downloaded one-time via `scripts/provision_cc0_foley.py`, SHA-256 verified at runtime, and gitignored (`assets/sfx_foley/*.wav`) so no binary audio blobs bloat Git history.
+  - **Fallback Honesty:** If local CC0 WAV binaries are absent, MotionLab automatically falls back to local physical-modeling procedural DSP (`procedural_dsp_synthesis`, MIT) and honestly reports `PARTIAL_FOLEY_ASSETS`.
 - **Music & Subtitles:** Disabled by default (`--music off`, zero auto-captions).
 - **Legacy Cloud Helpers (`helpers/transcribe.py`):** Upstream MIT ElevenLabs helpers remain isolated and are **NEVER** imported or executed by MotionLab Studio runtime.
