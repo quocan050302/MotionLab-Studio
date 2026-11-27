@@ -655,7 +655,7 @@ def run_hybrid_eval_suite(
         "cases": [],
     }
     if include_live_llm:
-        from motionlab.config import EditConfig
+        from motionlab.config import AnalysisConfig, EditConfig
         from motionlab.semantic.generative_director import direct_generative_storyboard
         from motionlab.semantic.local_model import inspect_llm_model
 
@@ -670,7 +670,7 @@ def run_hybrid_eval_suite(
                 "EV32_gameplay_hud_strict_ui_protection",
             ][: max(1, int(live_case_limit))]
             fx_map = {f["case_id"]: f for f in build_independent_eval_fixtures()}
-            cfg = EditConfig(offline=True, composition_mode="generative", allow_remotion=True, allow_hyperframes=True, cache_enabled=False, seed=42)
+            cfg = EditConfig(offline=True, composition_mode="generative", allow_remotion=True, allow_hyperframes=True, analysis=AnalysisConfig(use_cache=False), seed=42)
             for cid in pick_ids:
                 fx = fx_map.get(cid)
                 if not fx:
