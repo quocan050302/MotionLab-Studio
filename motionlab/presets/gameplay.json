@@ -1,0 +1,15 @@
+{
+  "name": "gameplay",
+  "description": "Preserves HUD/edges; avoids zoom on high-motion segments; allows mild grading and real-cut transitions.",
+  "max_events_per_15s": 3,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 3.0,
+  "repeat_effect_cooldown_s": 6.0,
+  "same_family_cooldown_s": 2.5,
+  "intensity_multiplier": 0.70,
+  "allow_layout_masks": false,
+  "allow_face_transforms": false,
+  "protect_edges_strict": true,
+  "preferred_families": ["color_optical", "transition", "camera"],
+  "blocked_effects": ["subject_punch_in", "subject_follow_pan", "tilt_micro", "full_to_inset", "inset_to_full", "split_composition", "circular_focus_mask", "geometric_window", "offset_layer_echo", "edge_lines", "pulse_border", "foreground_frame_accent"]
+}

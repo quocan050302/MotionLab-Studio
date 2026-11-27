@@ -1,0 +1,15 @@
+{
+  "name": "product",
+  "description": "Controlled masks/layout accents and crisp contrast without obscuring salient product pixels or inventing UI.",
+  "max_events_per_15s": 5,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 2.0,
+  "repeat_effect_cooldown_s": 5.0,
+  "same_family_cooldown_s": 2.0,
+  "intensity_multiplier": 1.0,
+  "allow_layout_masks": true,
+  "allow_face_transforms": false,
+  "protect_edges_strict": false,
+  "preferred_families": ["mask_layout", "camera", "color_optical", "motion_graphics", "transition"],
+  "blocked_effects": ["split_composition"]
+}

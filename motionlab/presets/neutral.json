@@ -1,0 +1,15 @@
+{
+  "name": "neutral",
+  "description": "Conservative universal baseline: subtle grading, gentle camera drift/holds, restrained peripheral accents.",
+  "max_events_per_15s": 4,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 2.5,
+  "repeat_effect_cooldown_s": 5.0,
+  "same_family_cooldown_s": 2.2,
+  "intensity_multiplier": 0.85,
+  "allow_layout_masks": true,
+  "allow_face_transforms": false,
+  "protect_edges_strict": false,
+  "preferred_families": ["color_optical", "camera", "motion_graphics", "transition"],
+  "blocked_effects": ["split_composition", "offset_layer_echo", "directional_shapes", "ambient_particles"]
+}

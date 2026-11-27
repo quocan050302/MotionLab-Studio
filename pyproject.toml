@@ -1,23 +1,38 @@
 [project]
-name = "video-use"
+name = "motionlab-ai-ml01"
 version = "0.1.0"
-description = "Conversation-driven video editor skill for Claude Code"
+description = "MotionLab AI (ML-01) — Zero-API Automatic Video Effects Engine (based on browser-use/video-use)"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "requests",
-    "librosa",
-    "matplotlib",
-    "pillow",
-    "numpy",
+    "numpy>=2.0,<3",
+    "pillow>=11.0",
+    "opencv-python-headless>=4.10,<5",
+    "scipy>=1.14",
+    "psutil>=6.0",
 ]
 
 [project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+legacy = [
+    "requests",
+    "librosa",
+    "matplotlib",
+]
 animations = ["manim"]
+
+[project.scripts]
+motionlab = "motionlab.cli:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = []
+[tool.setuptools.packages.find]
+include = ["motionlab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

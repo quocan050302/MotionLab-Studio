@@ -1,0 +1,15 @@
+{
+  "name": "cinematic",
+  "description": "Restrained filmic color, gentle push/pull/drift camera moves, clean transitions, no forced particles.",
+  "max_events_per_15s": 4,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 2.8,
+  "repeat_effect_cooldown_s": 6.0,
+  "same_family_cooldown_s": 2.5,
+  "intensity_multiplier": 0.90,
+  "allow_layout_masks": true,
+  "allow_face_transforms": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["color_optical", "camera", "transition", "mask_layout"],
+  "blocked_effects": ["split_composition", "directional_shapes", "ambient_particles", "pulse_border", "waveform_accent", "offset_layer_echo"]
+}

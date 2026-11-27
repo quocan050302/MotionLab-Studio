@@ -1,0 +1,15 @@
+{
+  "name": "tutorial",
+  "description": "Screen-recording safe: preserves text readability, cursor, and UI; avoids unnecessary crops or overlays.",
+  "max_events_per_15s": 2,
+  "max_transitions_per_15s": 1,
+  "strong_accent_cooldown_s": 4.0,
+  "repeat_effect_cooldown_s": 7.0,
+  "same_family_cooldown_s": 3.0,
+  "intensity_multiplier": 0.60,
+  "allow_layout_masks": false,
+  "allow_face_transforms": false,
+  "protect_edges_strict": true,
+  "preferred_families": ["color_optical", "transition", "camera"],
+  "blocked_effects": ["subject_punch_in", "subject_follow_pan", "tilt_micro", "settle_bounce", "depth_shadow_push", "rounded_mask_reveal", "circular_focus_mask", "diagonal_mask_sweep", "split_composition", "full_to_inset", "inset_to_full", "foreground_frame_accent", "offset_layer_echo", "geometric_window", "edge_lines", "ring_accent", "directional_shapes", "ambient_particles", "pulse_border", "film_grain_subtle", "soft_glow"]
+}

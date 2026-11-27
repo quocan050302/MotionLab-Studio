@@ -1,0 +1,15 @@
+{
+  "name": "talking-head",
+  "description": "Subject-safe zoom/holds, peripheral accents, clean skin-safe grading, zero face obstruction.",
+  "max_events_per_15s": 5,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 2.2,
+  "repeat_effect_cooldown_s": 5.0,
+  "same_family_cooldown_s": 2.0,
+  "intensity_multiplier": 0.95,
+  "allow_layout_masks": true,
+  "allow_face_transforms": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "motion_graphics", "color_optical", "transition", "mask_layout"],
+  "blocked_effects": ["split_composition", "offset_layer_echo", "tilt_micro", "circular_focus_mask"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "storytelling",
+  "description": "Longer holds, subtle mood grading, smooth dissolves, minimal graphic clutter.",
+  "max_events_per_15s": 4,
+  "max_transitions_per_15s": 2,
+  "strong_accent_cooldown_s": 3.0,
+  "repeat_effect_cooldown_s": 6.0,
+  "same_family_cooldown_s": 2.5,
+  "intensity_multiplier": 0.85,
+  "allow_layout_masks": true,
+  "allow_face_transforms": true,
+  "protect_edges_strict": false,
+  "preferred_families": ["camera", "color_optical", "transition", "mask_layout"],
+  "blocked_effects": ["split_composition", "directional_shapes", "pulse_border", "waveform_accent", "offset_layer_echo"]
+}
