@@ -576,14 +576,14 @@ def _sample_visual_observation(roi_tracks: dict[str, Any] | None, sf: int, ef: i
         span_kfs = [min(kfs, key=lambda k: abs(int(k.get("frame", 0)) - mid))]
     if not span_kfs:
         return {"has_face": False, "has_task": False, "face_conf": 0.0, "task_conf": 0.0}
-    face_c = sum(float(k["face"]["conf"]) for k in span_kfs) / len(span_kfs)
-    task_c = sum(float(k["task"]["conf"]) for k in span_kfs) / len(span_kfs)
+    face_c = sum(float((k.get("face") or {}).get("conf", 0.0)) for k in span_kfs) / len(span_kfs)
+    task_c = sum(float((k.get("task") or {}).get("conf", 0.0)) for k in span_kfs) / len(span_kfs)
     mid_k = span_kfs[len(span_kfs) // 2]
     return {
         "has_face": bool(roi_tracks.get("has_face_track") and face_c >= 0.4),
         "has_task": bool(roi_tracks.get("has_task_track") and task_c >= 0.35),
-        "face_box": mid_k["face"],
-        "task_box": mid_k["task"],
+        "face_box": mid_k.get("face") or {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0, "conf": 0.0},
+        "task_box": mid_k.get("task") or {"x": 0.0, "y": 0.0, "w": 0.0, "h": 0.0, "conf": 0.0},
         "face_conf": round(face_c, 3),
         "task_conf": round(task_c, 3),
         "tabletop_guard_y": roi_tracks.get("tabletop_guard_y"),
