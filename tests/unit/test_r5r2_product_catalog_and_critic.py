@@ -26,7 +26,8 @@ class TestR5R2ProductCatalogAndCritic(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             cdir = Path(td)
             ok_img = cdir / "demo.png"
-            ok_img.write_bytes(b"\x89PNG\r\n\x1a\nFAKE_DEMO_OK")
+            from PIL import Image
+            Image.new("RGB", (128, 128), (36, 59, 50)).save(ok_img, "PNG")
             ok_sha = hashlib.sha256(ok_img.read_bytes()).hexdigest()
 
             manifest = {

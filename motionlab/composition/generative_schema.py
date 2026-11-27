@@ -16,7 +16,7 @@ from motionlab.composition.primitive_registry import UnifiedPrimitiveRegistry, l
 from motionlab.schemas import SchemaValidationError, canonical_hash, ensure_finite, sanitize_native
 from motionlab.semantic.story_graph import StoryGraph, validate_claim_graph
 
-GENERATIVE_SCHEMA_VERSION = "2.0.0"
+GENERATIVE_SCHEMA_VERSION = "3.0.0"
 
 VALID_STAGE_MODES = (
     "live_depth_matte",
@@ -26,7 +26,7 @@ VALID_STAGE_MODES = (
     "live_clean_bridge",
 )
 VALID_LAYER_ROLES = ("background_graphics", "foreground_graphics", "hero_stage")
-VALID_TRANSITIONS = ("none", "frame_morph", "line_led", "flip_page")
+VALID_TRANSITIONS = ("none", "frame_morph", "line_led", "flip_page", "sheet_sweep")
 VALID_EASINGS = ("linear", "ease_out_cubic", "ease_in_out_cubic", "spring_editorial", "bezier_reveal")
 
 MAX_SCENES = 20
@@ -153,6 +153,11 @@ class SceneSpec:
     parameters: dict[str, Any] = field(default_factory=dict)
     expected_visual_change: str = ""
     rationale: str = ""
+    # R5.R3 Causal Selection & Product Grounding Provenance (backward-compatible defaults)
+    chosen_candidate_id: str = ""
+    candidate_provenance: str = ""  # "LLM_DIRECT" | "HYBRID_GLOBAL_RANKED" | "REPLAN_SAFE_FALLBACK" | "ART_DIRECTED_QA"
+    selection_rationale: str = ""
+    product_asset_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return sanitize_native(asdict(self))
@@ -161,7 +166,7 @@ class SceneSpec:
 @dataclass
 class StoryboardSpec:
     schema_version: str
-    mode: str  # "AUTO_GENERATIVE" | "ART_DIRECTED_BENCHMARK"
+    mode: str  # "AUTO_GENERATIVE" | "ART_DIRECTED_BENCHMARK" | "ART_DIRECTED_QA"
     source_hash: str
     transcript_hash: str
     story_graph_hash: str
@@ -182,6 +187,11 @@ class StoryboardSpec:
     validation_notes: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     storyboard_hash: str = ""
+    # R5.R3 Causal Global Selection Lock & Retrieval Provenance
+    selected_graph_hash: str = ""
+    selection_trace: list[dict[str, Any]] = field(default_factory=list)
+    retrieval_mode: str = "ontology_hybrid_sparse"
+    catalog_index_hash: str = ""
 
     def compute_hash(self) -> str:
         payload = self.to_dict()

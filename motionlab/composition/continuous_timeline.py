@@ -190,9 +190,11 @@ def build_canonical_numeric_state_trace(
             continue
 
         # Identify which layer(s) render live numeric currency counters so we enforce ONE single owner!
+        # Exclude pure background `paper_tokens_only` decorative layers that render zero digits!
         counter_layers = [
             ly.layer_id for ly in sc.layers
             if ly.primitive_id in ("hf_apple_money_count", "hf_mk_progress_stat", "rem_ru_counter", "hf_data_chart")
+            and str(ly.params.get("render_mode", "combined")).lower() != "paper_tokens_only"
         ]
         if sc.show_persistent_ribbon:
             counter_layers.append("persistent_ledger_ribbon")
@@ -487,3 +489,192 @@ def compile_continuous_timeline(
     }
     doc["continuity_hash"] = canonical_hash(doc)
     return doc
+
+
+# ---------------------------------------------------------------------------
+# Phase A6 (ML-01.R5.R3): Analytic Physically-Inspired Motion State & Material Solver
+# (Explicitly labeled `analytic_physically_inspired`, NEVER misrepresented as real physics simulation!)
+# ---------------------------------------------------------------------------
+
+MATERIAL_MOTION_PRESETS: dict[str, dict[str, Any]] = {
+    "linen_paper": {
+        "damping": 0.78,
+        "overshoot_max": 0.035,
+        "flutter_amp_deg": 4.2,
+        "flutter_freq_hz": 2.4,
+        "shadow_blur_base_px": 14.0,
+        "motion_model": "analytic_physically_inspired",
+    },
+    "solid_card": {
+        "damping": 0.88,
+        "overshoot_max": 0.018,
+        "flutter_amp_deg": 1.1,
+        "flutter_freq_hz": 1.2,
+        "shadow_blur_base_px": 18.0,
+        "motion_model": "analytic_physically_inspired",
+    },
+    "glass_plate": {
+        "damping": 0.94,
+        "overshoot_max": 0.008,
+        "flutter_amp_deg": 0.0,
+        "flutter_freq_hz": 0.0,
+        "shadow_blur_base_px": 22.0,
+        "motion_model": "analytic_physically_inspired",
+    },
+    "elastic_accent": {
+        "damping": 0.64,
+        "overshoot_max": 0.06,
+        "flutter_amp_deg": 2.0,
+        "flutter_freq_hz": 3.1,
+        "shadow_blur_base_px": 10.0,
+        "motion_model": "analytic_physically_inspired",
+    },
+}
+
+
+def sample_motion_path(
+    start_xy: tuple[float, float],
+    control_xy: tuple[float, float],
+    end_xy: tuple[float, float],
+    u: float,
+    *,
+    easing: str = "ease_out_cubic",
+) -> dict[str, float]:
+    """Sample deterministic quadratic Bezier arc with exact analytic tangent and velocity."""
+    t = _ease_val(max(0.0, min(1.0, float(u))), easing)
+    inv = 1.0 - t
+    x = inv * inv * start_xy[0] + 2.0 * inv * t * control_xy[0] + t * t * end_xy[0]
+    y = inv * inv * start_xy[1] + 2.0 * inv * t * control_xy[1] + t * t * end_xy[1]
+    dx = 2.0 * inv * (control_xy[0] - start_xy[0]) + 2.0 * t * (end_xy[0] - control_xy[0])
+    dy = 2.0 * inv * (control_xy[1] - start_xy[1]) + 2.0 * t * (end_xy[1] - control_xy[1])
+    speed = math.hypot(dx, dy)
+    angle_deg = math.degrees(math.atan2(dy, dx)) if speed > 1e-6 else 0.0
+    return {
+        "x": round(x, 5),
+        "y": round(y, 5),
+        "vx": round(dx, 5),
+        "vy": round(dy, 5),
+        "speed": round(speed, 5),
+        "tangent_deg": round(angle_deg, 3),
+    }
+
+
+def build_material_motion(material: str, u: float, speed: float = 0.0) -> dict[str, Any]:
+    """Compute analytic depth shadow, flutter/flex angle, and contact settle for a material preset."""
+    preset = MATERIAL_MOTION_PRESETS.get(material, MATERIAL_MOTION_PRESETS["linen_paper"])
+    t = max(0.0, min(1.0, float(u)))
+    env = math.sin(t * math.pi)
+    flex_deg = round(preset["flutter_amp_deg"] * math.sin(t * math.pi * max(0.5, preset["flutter_freq_hz"])) * env, 4)
+    depth_z = round(0.15 + 0.55 * env, 4)
+    shadow_blur = round(preset["shadow_blur_base_px"] * (0.65 + 0.85 * depth_z), 2)
+    motion_blur_px = round(min(6.0, abs(float(speed)) * 4.0), 2)
+    return {
+        "material": material if material in MATERIAL_MOTION_PRESETS else "linen_paper",
+        "motion_model": "analytic_physically_inspired",
+        "flex_deg": flex_deg,
+        "depth_z": depth_z,
+        "shadow_blur_px": shadow_blur,
+        "motion_blur_px": motion_blur_px,
+    }
+
+
+def evaluate_motion_state(
+    track: SharedElementTrack | dict[str, Any],
+    global_frame: int,
+    *,
+    fps: float = 24.0,
+    material: str = "linen_paper",
+) -> dict[str, Any]:
+    """Evaluate position + finite-difference analytic velocity, acceleration, depth, pivot, and paper flex."""
+    f = int(global_frame)
+    s_cur = evaluate_shared_state(track, f)
+    s_prev = evaluate_shared_state(track, f - 1)
+    s_next = evaluate_shared_state(track, f + 1)
+    dt = 1.0 / max(1.0, float(fps))
+    vx = (s_next["x"] - s_prev["x"]) / (2.0 * dt)
+    vy = (s_next["y"] - s_prev["y"]) / (2.0 * dt)
+    ax = (s_next["x"] - 2.0 * s_cur["x"] + s_prev["x"]) / (dt * dt)
+    ay = (s_next["y"] - 2.0 * s_cur["y"] + s_prev["y"]) / (dt * dt)
+    speed = math.hypot(vx, vy)
+    start_f = track.start_frame if isinstance(track, SharedElementTrack) else int(track.get("start_frame", 0))
+    end_f = track.end_frame_exclusive if isinstance(track, SharedElementTrack) else int(track.get("end_frame_exclusive", max(start_f + 1, f + 1)))
+    u = (f - start_f) / max(1.0, float(end_f - start_f))
+    mat = build_material_motion(material, u, speed=speed)
+    return {
+        **s_cur,
+        "vx": round(vx, 5),
+        "vy": round(vy, 5),
+        "ax": round(ax, 5),
+        "ay": round(ay, 5),
+        "speed": round(speed, 5),
+        "pivot_x": round(s_cur["x"] + s_cur["w"] * 0.5, 5),
+        "pivot_y": round(s_cur["y"] + s_cur["h"] * 0.5, 5),
+        "depth_z": mat["depth_z"],
+        "flex_deg": mat["flex_deg"],
+        "shadow_blur_px": mat["shadow_blur_px"],
+        "motion_blur_px": mat["motion_blur_px"],
+        "material": mat["material"],
+        "motion_model": "analytic_physically_inspired",
+    }
+
+
+def resolve_contact_event(
+    track: SharedElementTrack | dict[str, Any],
+    *,
+    fps: float = 24.0,
+    settle_speed_thresh: float = 0.02,
+) -> dict[str, Any]:
+    """Identify deterministic release/peak-velocity/settle frames along a SharedElementTrack."""
+    start_f = track.start_frame if isinstance(track, SharedElementTrack) else int(track.get("start_frame", 0))
+    end_f = track.end_frame_exclusive if isinstance(track, SharedElementTrack) else int(track.get("end_frame_exclusive", start_f + 1))
+    peak_f = start_f
+    peak_v = -1.0
+    settle_f = min(end_f - 1, start_f + 8)
+    for f in range(start_f, max(start_f + 1, end_f)):
+        st = evaluate_motion_state(track, f, fps=fps)
+        if st["speed"] > peak_v:
+            peak_v = st["speed"]
+            peak_f = f
+    for f in range(peak_f + 1, max(peak_f + 2, end_f)):
+        st = evaluate_motion_state(track, f, fps=fps)
+        if st["speed"] <= settle_speed_thresh:
+            settle_f = f
+            break
+    return {
+        "release_frame": start_f,
+        "peak_velocity_frame": peak_f,
+        "settle_contact_frame": settle_f,
+        "peak_speed": round(max(0.0, peak_v), 5),
+        "motion_model": "analytic_physically_inspired",
+    }
+
+
+def validate_track_continuity(
+    track: SharedElementTrack | dict[str, Any],
+    *,
+    canvas_w: int = 720,
+    canvas_h: int = 1280,
+    max_step_px: float = 48.0,
+) -> dict[str, Any]:
+    """Verify finite values, bounded per-frame displacement, and zero NaN across entire track span."""
+    start_f = track.start_frame if isinstance(track, SharedElementTrack) else int(track.get("start_frame", 0))
+    end_f = track.end_frame_exclusive if isinstance(track, SharedElementTrack) else int(track.get("end_frame_exclusive", start_f + 1))
+    max_jump = 0.0
+    errors: list[str] = []
+    prev = evaluate_shared_state(track, start_f)
+    for f in range(start_f + 1, max(start_f + 1, end_f)):
+        cur = evaluate_shared_state(track, f)
+        for k, v in cur.items():
+            if not math.isfinite(float(v)):
+                errors.append(f"non_finite:{k}@f{f}")
+        jump = math.hypot((cur["x"] - prev["x"]) * canvas_w, (cur["y"] - prev["y"]) * canvas_h)
+        if jump > max_jump:
+            max_jump = jump
+        if jump > max_step_px:
+            errors.append(f"discontinuity_jump:{jump:.1f}px>{max_step_px}px@f{f}")
+        prev = cur
+    return {
+        "valid": len(errors) == 0,
+        "max_step_px": round(max_jump, 3),
+        "errors": errors,
+    }

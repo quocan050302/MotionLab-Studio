@@ -114,7 +114,7 @@ _PRIMITIVE_META: dict[str, dict[str, Any]] = {
     },
     "rem_rc_flip_page": {
         "roles": ["workbook_page_flip", "product_reveal", "chapter_turn"],
-        "intent_tags": ["workbook", "page", "flip", "book", "product", "plan", "dashboard", "reveal", "56-page", "organize"],
+        "intent_tags": ["workbook", "page", "pages", "manual", "flip", "book", "product", "plan", "dashboard", "reveal", "organize"],
         "supports_alpha": False, "requires_matte": False, "requires_ledger": False,
         "parameter_schema": {"label_before": "string", "label_after": "string", "color_before": "hex", "color_after": "hex"},
     },

@@ -1,0 +1,63 @@
+==============================================================================
+MOTIONLAB STUDIO — ML-01.R5.R3 PRE-MODIFICATION BASELINE SNAPSHOT (A0)
+==============================================================================
+Date (UTC)                 : 2026-11-27
+Repository                 : https://github.com/quocan050302/MotionLab-Studio
+Branch                     : feat/ml-01-zero-api-effects
+Baseline Audited HEAD      : 4aaef79a7b5f24036334d4789a6d3bfe34948f27
+R5.R2 Reported Tested SHA  : 04ee4faceb107ee3f2470b52f3734c2826d37efe
+Upstream Reference         : browser-use/video-use @ 43cfc566833548093455c9d4a46bd69913b7e552 (MIT, read-only)
+Prior Local R4 Backup Ref  : backup/local-ml01-r4 @ 6bcdb94 (preserved locally, untouched)
+
+1. HOST HARDWARE & RUNTIME ENVIRONMENT
+------------------------------------------------------------------------------
+OS / Arch                  : macOS 14.4.1 (arm64, Apple M1 Pro)
+Logical CPUs               : 8
+Total RAM                  : 16.0 GiB
+Free Disk (Start of A0)    : 12.80 GiB (strict >= 5.0 GiB reserve enforced; no multi-GB model download)
+Python / Venv              : .venv (Python 3.13, scipy 1.18.1, onnxruntime 1.23.2, faster-whisper)
+FFmpeg                     : 6.0 (libx264, libvpx-vp9, aac)
+Remotion                   : 4.0.547 + local Chrome + 11/11 verified MIT imported primitives
+HyperFrames                : 0.9.98 installed (package.json ^0.9.101) + GSAP 3.15.1 + 9/9 verified Apache-2.0 primitives
+Recorded Foley Library     : RECORDED_FOLEY_VERIFIED — 29 unique CC0-1.0 48kHz 24-bit WAVs / 34 family bindings
+Local Provisioned Models   :
+  - ASR    : faster-whisper-small (MIT, SHA 3e305921...) — available=True
+  - LLM    : qwen2_5_3b_instruct_q4_k_m (Apache-2.0, SHA 626b4a66..., llama-completion Metal) — available=True
+  - Vision : modnet_photographic_portrait_matting.onnx (Apache-2.0, SHA 07c308cf...) — available=True
+  - VLM    : NOT PROVISIONED (VISION_CRITIC_NOT_RUN; text-only 3B LLM never treated as vision critic)
+  - 7B-8B  : NOT PROVISIONED due to local 12.8 GiB free disk budget (MODEL_UPGRADE_NOT_RUN)
+
+2. IMMUTABLE CANONICAL SOURCE INPUT VERIFICATION
+------------------------------------------------------------------------------
+Path       : input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+SHA-256    : c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+Bytes      : 8,650,669
+Geometry   : 720x1280 @ 24/1 fps | 720 frames | 30.000s | AAC mono 44.1 kHz (1296 packets)
+
+3. BASELINE VERIFICATION BEFORE R5.R3 MODIFICATIONS
+------------------------------------------------------------------------------
+- .venv/bin/python -m pytest -q tests/         : EXIT 0 | 138 passed, 15 subtests passed in 57.89s
+- renderers/remotion/node_modules/.bin/tsc     : EXIT 0 | 0 TypeScript errors
+- .venv/bin/python -m motionlab doctor --json  : EXIT 0 | 40 legacy + 20/20 imported + 34 CC0 Foley + 3 local models OK
+
+4. EMPIRICAL PRE-FIX DEFECT REPRODUCTION SUMMARY (D01-D18)
+------------------------------------------------------------------------------
+D01 (P0) : generative_director.py:1070-1168 validates storyboard BEFORE calling rank_scene_candidates() purely for brain_audit telemetry; chosen candidate never drives render.
+D02 (P0) : narrative_brain.py:1193 reproduced empirically -> rank_scene_candidates([]) raises IndexError; all-rejected returns ineligible scored[0] ("bad").
+D03 (P0) : generative_director.py:1077-1113 fabricates synthetic_tr with beat-wide start/end on every word and word_timestamps_exact=True, language_probability=0.99.
+D04 (P0) : generative_compiler.py:87-104 reproduced empirically -> 2-HF-layer scene only compiles hf_layers[0] ("hf_apple_money_count"); second layer silently dropped.
+D05 (P0) : Grep audit confirmed Olivia hardcoded defaults in BOTH GenerativeSceneComposition.tsx (lines 185, 281, 505, 507, 508, 566, 1111, 1121) AND motionlab/composition/primitive_adapters.py (lines 129, 343, 504, 505, 664, 854, 940, 941) + primitive_registry.py:117 ("56-page").
+D06 (P0) : catalog.py:135-138 reproduced empirically -> match_product_assets_for_name("   ") returned matched=True (AUTHORIZED_PRODUCT_ASSET_MATCHED) via empty substring match; no decoded media byte check or Remotion pixel binding.
+D07 (P0) : semantic_sound.py:619-648 extract_realized_animation_markers only clamps props to durationInFrames without pixel observation or 4-tier provenance.
+D08 (P0) : mixer.py:554 effective_rms=min(cue_diff_rms, max(fin_minus_cf_rms, cue_diff_rms*0.5)) applies reference floor that can mask missing cue in final.mp4.
+D09 (P1) : visual_critic.py:28-34 inspect_local_vlm() hardcoded available=False with no real manifest/binary adapter.
+D10 (P1) : visual_critic.py:52-63 appends every BGR frame of final.mp4 and source.mp4 into fin_frames/src_frames lists in RAM.
+D11 (P1) : visual_critic.py:84 only flags is_cutaway_edge and step_mad > 65.0, ignoring post_4f_mad spikes (e.g. R2 f234=90.73) and internal flashes.
+D12 (P1) : catalog_search.py keyword token matching only; narrative_brain.py:1161,1181 biases dual-engine (+7) and _optA_ (+4).
+D13 (P1) : generative_compiler.py:123 reproduced empirically -> 24000/1001 silently rounded to fps=24 with no fpsNum/fpsDen clock propagation.
+D14 (P1) : qa_pack.py:60 defaults include_contact_sheet=False & ARTIFACT_LOCAL_ONLY; needs QA-02 schema & explicit permission controls.
+D15 (P1) : qa_pack.py:69-70 blindly runs shutil.rmtree(pack_dir) without path containment or atomic unique pack creation.
+D16 (P1) : r5_engine.py:812,824 tech_ok allows ablation_total==0 and mix_info is None even when active graphics/mix requested.
+D17 (P1) : generative_director.py:573-585 cache_key omits prompt text digest, JSON schema digest, ROI summary, binary SHA, and sampling parameters.
+D18 (P1) : Audio asset intelligence lacks spectral/envelope descriptor indexing; human listening & VQ-01 remain honestly PENDING_HUMAN_REVIEW.
+==============================================================================

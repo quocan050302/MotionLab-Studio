@@ -14,6 +14,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Easing,
+  Img,
   OffthreadVideo,
   interpolate,
   spring,
@@ -62,9 +63,20 @@ const DEFAULT_PALETTE: PaletteTokens = {
 };
 
 export interface GenerativePrimitiveNode {
+  layerId?: string;
   primitiveId: string;
   layerRole: "background_graphics" | "foreground_graphics" | "hero_stage";
+  zOrder?: number;
   params: Record<string, unknown>;
+}
+
+export interface HfLayerSlot {
+  layerId: string;
+  primitiveId?: string;
+  file: string;
+  layerRole: "background_graphics" | "foreground_graphics";
+  zOrder: number;
+  opacity?: number;
 }
 
 export interface PersistentLedgerState {
@@ -86,6 +98,7 @@ export interface PersistentLedgerState {
 
 export interface GenerativeSceneProps {
   sceneId: string;
+  chosenCandidateId?: string;
   stageMode:
     | "live_depth_matte"
     | "aspect_morph_editorial"
@@ -95,6 +108,10 @@ export interface GenerativeSceneProps {
   width: number;
   height: number;
   fps: number;
+  fpsNum?: number;
+  fpsDen?: number;
+  fpsFloat?: number;
+  clockMode?: string;
   durationInFrames: number;
   entryFrames: number;
   exitFrames: number;
@@ -103,6 +120,9 @@ export interface GenerativeSceneProps {
   propAlphaFile: string | null;
   hfGraphicFile: string | null;
   hfLayerRole: "background_graphics" | "foreground_graphics";
+  hfLayers?: HfLayerSlot[];
+  productAssetFile?: string | null;
+  productAssetMeta?: Record<string, unknown> | null;
   transitionIn?: "none" | "frame_morph" | "line_led" | "flip_page" | "sheet_sweep";
   transitionInFrames?: number;
   transitionOut?: "none" | "paper_fold_out" | "line_led_out";
@@ -116,6 +136,7 @@ export interface GenerativeSceneProps {
   faceAnchor?: { cx: number; cy: number; w: number; h: number };
   parameters?: Record<string, unknown>;
   excludeLayerRole?: string | null;
+  excludeLayerId?: string | null;
 }
 
 export const DEFAULT_GENERATIVE_SCENE_PROPS: GenerativeSceneProps = {
@@ -124,6 +145,10 @@ export const DEFAULT_GENERATIVE_SCENE_PROPS: GenerativeSceneProps = {
   width: 720,
   height: 1280,
   fps: 24,
+  fpsNum: 24,
+  fpsDen: 1,
+  fpsFloat: 24,
+  clockMode: "exact_integer",
   durationInFrames: 72,
   entryFrames: 8,
   exitFrames: 8,
@@ -132,12 +157,16 @@ export const DEFAULT_GENERATIVE_SCENE_PROPS: GenerativeSceneProps = {
   propAlphaFile: null,
   hfGraphicFile: null,
   hfLayerRole: "foreground_graphics",
+  hfLayers: [],
+  productAssetFile: null,
+  productAssetMeta: null,
   transitionIn: "none",
   transitionInFrames: 12,
   palette: DEFAULT_PALETTE,
   primitives: [],
   parameters: {},
   excludeLayerRole: null,
+  excludeLayerId: null,
 };
 
 function mergePalette(p?: Partial<PaletteTokens>): PaletteTokens {
@@ -173,8 +202,11 @@ const RenderImportedPrimitive: React.FC<{
   durationInFrames: number;
   ledger?: PersistentLedgerState;
   sourceFile?: string | null;
+  productAssetFile?: string | null;
+  productAssetMeta?: Record<string, unknown> | null;
+  excludeLayerRole?: string | null;
   taskAnchor?: { cx: number; cy: number; w: number; h: number };
-}> = ({ node, pal, width, height, durationInFrames, ledger, sourceFile, taskAnchor }) => {
+}> = ({ node, pal, width, height, durationInFrames, ledger, sourceFile, productAssetFile, productAssetMeta, excludeLayerRole, taskAnchor }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = node.params || {};
@@ -182,7 +214,7 @@ const RenderImportedPrimitive: React.FC<{
   switch (node.primitiveId) {
     case "rem_ru_counter": {
       const fromVal = Number(p.from_value ?? (ledger ? ledger.prevBalanceCents / 100 : 0));
-      const toVal = Number(p.to_value ?? (ledger ? ledger.nextBalanceCents / 100 : 1200));
+      const toVal = Number(p.to_value ?? (ledger ? ledger.nextBalanceCents / 100 : 0));
       const prefix = String(p.prefix ?? ledger?.currencySymbol ?? "$");
       const suffix = String(p.suffix ?? "");
       const eyebrow = String(p.eyebrow ?? "");
@@ -277,14 +309,9 @@ const RenderImportedPrimitive: React.FC<{
 
     case "rem_ru_waterfall": {
       const sym = String(p.currency_symbol ?? ledger?.currencySymbol ?? "$");
-      const rawSteps = (p.steps as WaterfallStep[] | undefined) || ledger?.steps || [
-        { label: "Balance", value: 1200, isTotal: true, color: pal.espresso },
-        { label: "Bills", value: -800, color: pal.clay },
-        { label: "Groceries", value: -200, color: pal.brass },
-        { label: "Gas", value: -100, color: pal.sage },
-        { label: "Left", value: 100, isTotal: true, color: pal.forest },
-      ];
-      const title = String(p.title ?? "PAYCHECK WATERFALL");
+      const rawSteps = (p.steps as WaterfallStep[] | undefined) || ledger?.steps || [];
+      if (rawSteps.length === 0) return null;
+      const title = String(p.title ?? "PROPORTIONAL BREAKDOWN");
       const subtitle = String(p.subtitle ?? "");
       const chartW = Math.min(width - 72, Number(p.chart_width ?? 648));
       const chartH = Number(p.chart_height ?? 430);
@@ -344,9 +371,10 @@ const RenderImportedPrimitive: React.FC<{
     }
 
     case "rem_ru_strikethrough": {
-      const fromText = String(p.from_text ?? "$1,200 TO SPEND");
-      const toText = String(p.to_text ?? "BALANCE ≠ SPENDABLE");
-      const eyebrow = String(p.eyebrow ?? "REALITY CHECK");
+      const fromText = String(p.from_text ?? "");
+      const toText = String(p.to_text ?? "");
+      if (!fromText && !toText) return null;
+      const eyebrow = String(p.eyebrow ?? "");
       const fontSize = Number(p.font_size ?? 56);
       const yPct = Number(p.y_pct ?? 8.4);
       const op = interpolate(frame, [0, 5, durationInFrames - 8, durationInFrames - 1], [0, 1, 1, 0], {
@@ -410,7 +438,9 @@ const RenderImportedPrimitive: React.FC<{
     }
 
     case "rem_ru_masked_slide": {
-      const lines = (p.lines as string[] | undefined) || [String(p.text ?? "Give every dollar a purpose")];
+      const rawLines = (p.lines as string[] | undefined) || (p.text ? [String(p.text)] : []);
+      const lines = rawLines.filter((s) => Boolean(String(s || "").trim()));
+      if (lines.length === 0) return null;
       const eyebrow = String(p.eyebrow ?? "");
       const subline = String(p.subline ?? "");
       const fontSize = Number(p.font_size ?? 52);
@@ -502,10 +532,18 @@ const RenderImportedPrimitive: React.FC<{
 
     case "rem_rc_flip_page": {
       // Real 3D perspective book page flip from RenderComp/free-remotion-templates (MIT)
-      const labelBefore = String(p.label_before ?? "The Next Paycheck Plan");
-      const subBefore = String(p.sub_before ?? "CONCEPTUAL PRODUCT OVERVIEW");
-      const labelAfter = String(p.label_after ?? "56-page workbook");
-      const subAfter = String(p.sub_after ?? "+ Notion dashboard · Organize your money");
+      // R5.R3 Fixes D05 & D06: ZERO Olivia defaults; renders ACTUAL authorized product asset texture when provided,
+      // or clean truthful conceptual schematic labeled CONCEPTUAL SCHEMATIC when asset is missing!
+      const labelBefore = String(p.label_before ?? "").trim();
+      const subBefore = String(p.sub_before ?? (productAssetFile ? "AUTHORIZED PRODUCT PREVIEW" : "CONCEPTUAL PRODUCT OVERVIEW")).trim();
+      const labelAfter = String(p.label_after ?? "").trim();
+      const subAfter = String(p.sub_after ?? "").trim();
+      const pageBadge = String(p.page_badge ?? "").trim();
+      const hasRealAsset = Boolean(productAssetFile) && excludeLayerRole !== "product_asset";
+      const isVideoAsset = Boolean(productAssetFile && /\.(mp4|webm|mov)$/i.test(productAssetFile));
+      const assetCaption = String((productAssetMeta && productAssetMeta.usage_constraints) || (productAssetMeta && productAssetMeta.asset_type) || "AUTHORIZED ASSET").toUpperCase();
+      if (!labelBefore && !labelAfter && !hasRealAsset) return null;
+
       const flipDelay = Number(p.flip_delay ?? Math.max(10, Math.round(durationInFrames * 0.28)));
       const flipDur = Number(p.flip_duration ?? Math.max(16, Math.round(durationInFrames * 0.34)));
       const boxW = Math.round(width * 0.84);
@@ -536,7 +574,7 @@ const RenderImportedPrimitive: React.FC<{
           </div>
           <div>
             <div style={{ fontFamily: EDITORIAL_SERIF, fontSize: 54, fontWeight: 700, lineHeight: 1.1, color: pal.espresso }}>
-              {labelBefore}
+              {labelBefore || labelAfter || "Overview"}
             </div>
             <div style={{ marginTop: 20, height: 5, width: 140, borderRadius: 3, backgroundColor: pal.brass }} />
           </div>
@@ -547,7 +585,42 @@ const RenderImportedPrimitive: React.FC<{
         </AbsoluteFill>
       );
 
-      const afterPage = (
+      const afterPage = hasRealAsset && productAssetFile ? (
+        <AbsoluteFill
+          style={{
+            backgroundColor: pal.espresso,
+            border: `3px solid ${pal.brass}`,
+            borderRadius: 24,
+            overflow: "hidden",
+          }}
+        >
+          {isVideoAsset ? (
+            <OffthreadVideo src={staticFile(productAssetFile)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <Img src={staticFile(productAssetFile)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          )}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              padding: "16px 24px",
+              background: "linear-gradient(180deg, rgba(22,20,16,0) 0%, rgba(22,20,16,0.84) 100%)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+            }}
+          >
+            <span style={{ fontFamily: EDITORIAL_SERIF, fontSize: 32, fontWeight: 700, color: pal.ivory }}>
+              {labelAfter || labelBefore}
+            </span>
+            <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 18, fontWeight: 800, letterSpacing: "0.10em", color: pal.brass }}>
+              {assetCaption.slice(0, 24)}
+            </span>
+          </div>
+        </AbsoluteFill>
+      ) : (
         <AbsoluteFill
           style={{
             background: `linear-gradient(155deg, ${pal.espresso} 0%, #1F1E19 100%)`,
@@ -563,17 +636,21 @@ const RenderImportedPrimitive: React.FC<{
             <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 20, fontWeight: 800, letterSpacing: "0.14em", color: pal.brass, textTransform: "uppercase" }}>
               CONCEPTUAL SCHEMATIC
             </span>
-            <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 22, fontWeight: 800, color: pal.sage }}>01 / 56</span>
+            {pageBadge ? (
+              <span style={{ fontFamily: EDITORIAL_SANS, fontSize: 22, fontWeight: 800, color: pal.sage }}>{pageBadge}</span>
+            ) : null}
           </div>
           <div>
             <div style={{ fontFamily: EDITORIAL_SERIF, fontSize: 50, fontWeight: 700, lineHeight: 1.12, color: pal.ivory }}>
-              {labelAfter}
+              {labelAfter || labelBefore}
             </div>
-            <div style={{ marginTop: 14, fontFamily: EDITORIAL_SANS, fontSize: 28, fontWeight: 600, color: pal.sage }}>
-              {subAfter}
-            </div>
+            {subAfter ? (
+              <div style={{ marginTop: 14, fontFamily: EDITORIAL_SANS, fontSize: 28, fontWeight: 600, color: pal.sage }}>
+                {subAfter}
+              </div>
+            ) : null}
           </div>
-          {/* Clean abstract conceptual ledger rows (explicitly NOT fake Notion UI!) */}
+          {/* Clean abstract conceptual organizer lines (explicitly NOT fake product UI!) */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[0.82, 0.54, 0.36].map((frac, idx) => (
               <div key={idx} style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -771,21 +848,56 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
   const env = sceneEnvelope(frame, durationInFrames, props.entryFrames, props.exitFrames);
   const params = props.parameters || {};
   const ex = props.excludeLayerRole || null;
+  const exId = props.excludeLayerId || null;
 
-  const bgNodes = (props.primitives || []).filter((n) => n.layerRole === "background_graphics");
-  const fgNodes = (props.primitives || []).filter((n) => n.layerRole !== "background_graphics");
+  const bgNodes = (props.primitives || []).filter((n) => n.layerRole === "background_graphics" && (!exId || n.layerId !== exId));
+  const fgNodes = (props.primitives || []).filter((n) => n.layerRole !== "background_graphics" && (!exId || n.layerId !== exId));
 
-  const showHfBg = Boolean(props.hfGraphicFile) && props.hfLayerRole === "background_graphics" && ex !== "background_graphics";
-  const showHfFg = Boolean(props.hfGraphicFile) && props.hfLayerRole === "foreground_graphics" && ex !== "foreground_graphics";
+  // Ordered Multi-Layer HyperFrames resolution (Fixes D04 — composites ALL HF layers in exact zOrder!)
+  const resolvedHfLayers: HfLayerSlot[] =
+    props.hfLayers && props.hfLayers.length > 0
+      ? [...props.hfLayers].sort((a, b) => (a.zOrder ?? 20) - (b.zOrder ?? 20))
+      : props.hfGraphicFile
+        ? [{ layerId: `${props.sceneId}_hf_legacy`, file: props.hfGraphicFile, layerRole: props.hfLayerRole, zOrder: 25, opacity: 1 }]
+        : [];
+  const visibleHfBg = resolvedHfLayers.filter(
+    (ly) => ly.layerRole === "background_graphics" && ex !== "background_graphics" && (!exId || ly.layerId !== exId)
+  );
+  const visibleHfFg = resolvedHfLayers.filter(
+    (ly) => ly.layerRole !== "background_graphics" && ex !== "foreground_graphics" && (!exId || ly.layerId !== exId)
+  );
   const showFgMatte = Boolean(props.fgAlphaFile) && ex !== "foreground_subject_matte";
   const showProp = Boolean(props.propAlphaFile) && ex !== "prop_cutout_matte";
   const showRemPrims = ex !== "remotion_primitive";
+
+  const renderPrimNode = (n: GenerativePrimitiveNode, keyPrefix: string, idx: number) => (
+    <RenderImportedPrimitive
+      key={`${keyPrefix}_${n.layerId || n.primitiveId}_${idx}`}
+      node={n}
+      pal={pal}
+      width={width}
+      height={height}
+      durationInFrames={durationInFrames}
+      ledger={props.ledger}
+      sourceFile={props.sourceFile}
+      productAssetFile={props.productAssetFile}
+      productAssetMeta={props.productAssetMeta}
+      excludeLayerRole={ex}
+      taskAnchor={props.taskAnchor}
+    />
+  );
+
+  const renderHfSlots = (slots: HfLayerSlot[]) =>
+    slots.map((ly) => (
+      <AbsoluteFill key={ly.layerId} style={{ pointerEvents: "none", opacity: ly.opacity ?? 1 }}>
+        <OffthreadVideo src={staticFile(ly.file)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </AbsoluteFill>
+    ));
 
   let sceneContent: React.ReactNode;
 
   if (props.stageMode === "aspect_morph_editorial" && props.sourceFile) {
     // REAL imported AspectMorphCard (vivmagarwal/remotion-effects-library, MIT)!
-    // Live footage smoothly morphs its layout rectangle downward with objectFit: cover (zero squash, zero duplicate blurry card!)
     const kicker = String(params.kicker ?? "");
     const lines = (params.lines as string[] | undefined) || [];
     const restRect = { x: 0, y: 0, w: width, h: height };
@@ -799,6 +911,7 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
     sceneContent = (
       <AbsoluteFill style={{ backgroundColor: pal.ivory }}>
         <PaperGrainOverlay />
+        {renderHfSlots(visibleHfBg)}
         <AspectMorphCard
           title={String(params.header_title ?? "")}
           paperColor={pal.ivory}
@@ -817,26 +930,8 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
             />
           }
         />
-        {showRemPrims
-          ? fgNodes.map((n, i) => (
-              <RenderImportedPrimitive
-                key={`${n.primitiveId}_${i}`}
-                node={n}
-                pal={pal}
-                width={width}
-                height={height}
-                durationInFrames={durationInFrames}
-                ledger={props.ledger}
-                sourceFile={props.sourceFile}
-                taskAnchor={props.taskAnchor}
-              />
-            ))
-          : null}
-        {showHfFg && props.hfGraphicFile ? (
-          <AbsoluteFill style={{ pointerEvents: "none" }}>
-            <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </AbsoluteFill>
-        ) : null}
+        {showRemPrims ? fgNodes.map((n, i) => renderPrimNode(n, "am", i)) : null}
+        {renderHfSlots(visibleHfFg)}
       </AbsoluteFill>
     );
   } else if (props.stageMode === "full_graphic_cutaway") {
@@ -844,50 +939,14 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
     sceneContent = (
       <AbsoluteFill style={{ backgroundColor: bgColor, overflow: "hidden" }}>
         <PaperGrainOverlay opacity={0.04} />
-        {showRemPrims
-          ? bgNodes.map((n, i) => (
-              <RenderImportedPrimitive
-                key={`bg_${n.primitiveId}_${i}`}
-                node={n}
-                pal={pal}
-                width={width}
-                height={height}
-                durationInFrames={durationInFrames}
-                ledger={props.ledger}
-                sourceFile={props.sourceFile}
-                taskAnchor={props.taskAnchor}
-              />
-            ))
-          : null}
-        {showHfBg && props.hfGraphicFile ? (
-          <AbsoluteFill>
-            <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </AbsoluteFill>
-        ) : null}
-        {showRemPrims
-          ? fgNodes.map((n, i) => (
-              <RenderImportedPrimitive
-                key={`fg_${n.primitiveId}_${i}`}
-                node={n}
-                pal={pal}
-                width={width}
-                height={height}
-                durationInFrames={durationInFrames}
-                ledger={props.ledger}
-                sourceFile={props.sourceFile}
-                taskAnchor={props.taskAnchor}
-              />
-            ))
-          : null}
-        {showHfFg && props.hfGraphicFile ? (
-          <AbsoluteFill>
-            <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </AbsoluteFill>
-        ) : null}
+        {showRemPrims ? bgNodes.map((n, i) => renderPrimNode(n, "bg", i)) : null}
+        {renderHfSlots(visibleHfBg)}
+        {showRemPrims ? fgNodes.map((n, i) => renderPrimNode(n, "fg", i)) : null}
+        {renderHfSlots(visibleHfFg)}
       </AbsoluteFill>
     );
   } else if (props.stageMode === "live_depth_matte" && props.sourceFile) {
-    // REAL imported ParallaxLayers (riaz37/remotion-ui, MIT) with MODNet foreground occlusion!
+    // REAL imported ParallaxLayers (riaz37/remotion-ui, MIT) with MODNet foreground occlusion & multi-layer HF support!
     const bgDim = 1 - (1 - Number(params.bg_dim ?? 0.78)) * env;
     const bgBlur = Math.min(3.5, Number(params.bg_blur_px ?? 2.2)) * env;
     const travel = Number(params.parallax_travel_px ?? 26);
@@ -903,41 +962,16 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
         ),
       },
       ...(showRemPrims && bgNodes.length > 0
-        ? [
-            {
-              depth: 0.55,
-              content: (
-                <AbsoluteFill>
-                  {bgNodes.map((n, i) => (
-                    <RenderImportedPrimitive
-                      key={`bg_${n.primitiveId}_${i}`}
-                      node={n}
-                      pal={pal}
-                      width={width}
-                      height={height}
-                      durationInFrames={durationInFrames}
-                      ledger={props.ledger}
-                      sourceFile={props.sourceFile}
-                      taskAnchor={props.taskAnchor}
-                    />
-                  ))}
-                </AbsoluteFill>
-              ),
-            },
-          ]
+        ? [{ depth: 0.55, content: <AbsoluteFill>{bgNodes.map((n, i) => renderPrimNode(n, "bg", i))}</AbsoluteFill> }]
         : []),
-      ...(showHfBg && props.hfGraphicFile
-        ? [
-            {
-              depth: 0.62,
-              content: (
-                <AbsoluteFill>
-                  <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </AbsoluteFill>
-              ),
-            },
-          ]
-        : []),
+      ...visibleHfBg.map((ly, idx) => ({
+        depth: 0.62 + idx * 0.04,
+        content: (
+          <AbsoluteFill style={{ opacity: ly.opacity ?? 1 }}>
+            <OffthreadVideo src={staticFile(ly.file)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </AbsoluteFill>
+        ),
+      })),
       ...(showFgMatte && props.fgAlphaFile
         ? [
             {
@@ -955,33 +989,15 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
     sceneContent = (
       <AbsoluteFill style={{ backgroundColor: pal.espresso, overflow: "hidden" }}>
         <ParallaxLayers layers={layers} travel={travel} angle={12} zoom={0.032} backgroundColor={pal.espresso} />
-        {showRemPrims
-          ? fgNodes.map((n, i) => (
-              <RenderImportedPrimitive
-                key={`fg_${n.primitiveId}_${i}`}
-                node={n}
-                pal={pal}
-                width={width}
-                height={height}
-                durationInFrames={durationInFrames}
-                ledger={props.ledger}
-                sourceFile={props.sourceFile}
-                taskAnchor={props.taskAnchor}
-              />
-            ))
-          : null}
-        {showHfFg && props.hfGraphicFile ? (
-          <AbsoluteFill style={{ pointerEvents: "none" }}>
-            <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </AbsoluteFill>
-        ) : null}
+        {showRemPrims ? fgNodes.map((n, i) => renderPrimNode(n, "fg", i)) : null}
+        {renderHfSlots(visibleHfFg)}
         {props.ledger?.active && Boolean(params.show_persistent_ribbon) ? (
           <PersistentLedgerRibbon ledger={props.ledger} pal={pal} durationInFrames={durationInFrames} />
         ) : null}
       </AbsoluteFill>
     );
   } else {
-    // tracked_macro_split OR live_clean_bridge
+    // tracked_macro_split OR live_clean_bridge (supports BOTH background + foreground HF layers cleanly!)
     const liftY = -22 * env;
     const liftScale = 1 + 0.14 * env;
     sceneContent = (
@@ -991,6 +1007,7 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
             <OffthreadVideo src={staticFile(props.sourceFile)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </AbsoluteFill>
         ) : null}
+        {renderHfSlots(visibleHfBg)}
         {showProp && props.propAlphaFile ? (
           <AbsoluteFill
             style={{
@@ -1002,26 +1019,8 @@ export const MotionLabGenerativeScene: React.FC<GenerativeSceneProps> = (props) 
             <OffthreadVideo src={staticFile(props.propAlphaFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </AbsoluteFill>
         ) : null}
-        {showRemPrims
-          ? [...bgNodes, ...fgNodes].map((n, i) => (
-              <RenderImportedPrimitive
-                key={`n_${n.primitiveId}_${i}`}
-                node={n}
-                pal={pal}
-                width={width}
-                height={height}
-                durationInFrames={durationInFrames}
-                ledger={props.ledger}
-                sourceFile={props.sourceFile}
-                taskAnchor={props.taskAnchor}
-              />
-            ))
-          : null}
-        {showHfFg && props.hfGraphicFile ? (
-          <AbsoluteFill style={{ pointerEvents: "none" }}>
-            <OffthreadVideo src={staticFile(props.hfGraphicFile)} transparent muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </AbsoluteFill>
-        ) : null}
+        {showRemPrims ? [...bgNodes, ...fgNodes].map((n, i) => renderPrimNode(n, "n", i)) : null}
+        {renderHfSlots(visibleHfFg)}
         {props.ledger?.active && Boolean(params.show_persistent_ribbon) ? (
           <PersistentLedgerRibbon ledger={props.ledger} pal={pal} durationInFrames={durationInFrames} />
         ) : null}
@@ -1108,7 +1107,7 @@ export const MotionLabUpstreamSmoke: React.FC<UpstreamSmokeProps> = ({ primitive
     case "rem_ru_counter":
       return (
         <AbsoluteFill style={{ backgroundColor: pal.espresso, alignItems: "center", justifyContent: "center" }}>
-          <Counter from={0} to={1200} prefix="$" roll={true} durationInFrames={28} fontSize={120} color={pal.ivory} fontFamily={EDITORIAL_SANS} />
+          <Counter from={0} to={500} prefix="$" roll={true} durationInFrames={28} fontSize={120} color={pal.ivory} fontFamily={EDITORIAL_SANS} />
         </AbsoluteFill>
       );
     case "rem_ru_waterfall":
@@ -1118,11 +1117,11 @@ export const MotionLabUpstreamSmoke: React.FC<UpstreamSmokeProps> = ({ primitive
             width={width - 48}
             height={440}
             steps={[
-              { label: "Start", value: 1200, isTotal: true, color: pal.espresso },
-              { label: "Bills", value: -800, color: pal.clay },
-              { label: "Food", value: -200, color: pal.brass },
-              { label: "Gas", value: -100, color: pal.sage },
-              { label: "Left", value: 100, isTotal: true, color: pal.forest },
+              { label: "Start", value: 500, isTotal: true, color: pal.espresso },
+              { label: "Fixed", value: -300, color: pal.clay },
+              { label: "Var A", value: -100, color: pal.brass },
+              { label: "Var B", value: -50, color: pal.sage },
+              { label: "Net", value: 50, isTotal: true, color: pal.forest },
             ]}
             upColor={pal.forest}
             downColor={pal.clay}
@@ -1138,13 +1137,13 @@ export const MotionLabUpstreamSmoke: React.FC<UpstreamSmokeProps> = ({ primitive
     case "rem_ru_strikethrough":
       return (
         <AbsoluteFill style={{ backgroundColor: pal.espresso, alignItems: "center", justifyContent: "center" }}>
-          <StrikethroughReplace from="$1,200 TO SPEND" to="ONLY $100 LEFT" color={pal.ivory} strikeColor={pal.clay} replaceColor={pal.brass} fontSize={54} fontFamily={EDITORIAL_SANS} />
+          <StrikethroughReplace from="OLD ASSUMPTION" to="CLEAR REALITY" color={pal.ivory} strikeColor={pal.clay} replaceColor={pal.brass} fontSize={54} fontFamily={EDITORIAL_SANS} />
         </AbsoluteFill>
       );
     case "rem_ru_masked_slide":
       return (
         <AbsoluteFill style={{ backgroundColor: pal.ivory, alignItems: "center", justifyContent: "center", padding: 48 }}>
-          <MaskedSlideReveal lines={["Give every dollar", "a purpose"]} fontSize={68} color={pal.espresso} fontFamily={EDITORIAL_SERIF} />
+          <MaskedSlideReveal lines={["Clear visual", "storytelling"]} fontSize={68} color={pal.espresso} fontFamily={EDITORIAL_SERIF} />
         </AbsoluteFill>
       );
     case "rem_ru_track_matte":
@@ -1184,7 +1183,7 @@ export const MotionLabUpstreamSmoke: React.FC<UpstreamSmokeProps> = ({ primitive
     case "rem_viv_particle_field":
       return <ParticleField count={72} colors={[pal.brass, pal.ivory, pal.sage]} backgroundColor={pal.espresso} title="DEPTH" subtitle="closed-form particles" />;
     case "rem_rc_flip_page":
-      return <FlipPageTransition colorBefore={pal.ivory} colorAfter={pal.forest} labelBefore="PLAN" labelAfter="56p" textColor={pal.espresso} flipDelay={12} flipDuration={28} />;
+      return <FlipPageTransition colorBefore={pal.ivory} colorAfter={pal.forest} labelBefore="COVER" labelAfter="GUIDE" textColor={pal.espresso} flipDelay={12} flipDuration={28} />;
     case "rem_gtk_frame_morph":
       return (
         <FrameMorphBridge

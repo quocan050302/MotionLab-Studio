@@ -147,7 +147,7 @@ def inspect_foley_library(foley_dir: Path | None = None, bypass_cache: bool = Fa
 
 
 def analyze_waveform_envelope(pcm: np.ndarray, sr: int) -> dict[str, Any]:
-    """Measure exact onset, energy crest, peak sample, RMS, and processed PCM SHA-256 on float32 stereo PCM."""
+    """Measure exact onset, energy crest, peak, decay, spectral centroid, band energies, roughness & processed SHA-256."""
     if pcm.size == 0:
         return {
             "n_frames": 0,
@@ -157,8 +157,17 @@ def analyze_waveform_envelope(pcm: np.ndarray, sr: int) -> dict[str, Any]:
             "peak_sample": 0,
             "rms_dbfs": -120.0,
             "peak_dbfs": -120.0,
+            "crest_factor_db": 0.0,
+            "decay_ms": 0.0,
+            "spectral_centroid_hz": 0.0,
+            "low_band_energy_ratio": 0.0,
+            "speech_band_energy_ratio": 0.0,
+            "high_band_energy_ratio": 0.0,
+            "roughness_proxy": 0.0,
+            "is_mono_identical": True,
             "processed_pcm_sha256": hashlib.sha256(b"").hexdigest(),
         }
+    is_mono_id = bool(pcm.ndim == 1 or np.allclose(pcm[:, 0], pcm[:, 1], atol=1e-5))
     mono = 0.5 * (pcm[:, 0] + pcm[:, 1]) if pcm.ndim == 2 else pcm
     abs_m = np.abs(mono)
     peak_val = float(np.max(abs_m))
@@ -166,6 +175,11 @@ def analyze_waveform_envelope(pcm: np.ndarray, sr: int) -> dict[str, Any]:
     onset_thresh = max(1e-4, peak_val * 0.10)
     onset_hits = np.flatnonzero(abs_m >= onset_thresh)
     onset_idx = int(onset_hits[0]) if onset_hits.size > 0 else 0
+
+    # Decay duration: from peak_idx to last sample >= 10% of peak
+    tail_hits = np.flatnonzero(abs_m[peak_idx:] >= max(1e-4, peak_val * 0.10))
+    decay_samples = int(tail_hits[-1]) if tail_hits.size > 0 else 0
+    decay_ms = round(decay_samples * 1000.0 / max(1, sr), 2)
 
     # Smoothed 12ms RMS energy envelope crest (captures perceived energy climax of slides/swishes cleanly!)
     win = max(16, min(mono.size, int(round(sr * 0.012))))
@@ -178,14 +192,46 @@ def analyze_waveform_envelope(pcm: np.ndarray, sr: int) -> dict[str, Any]:
         crest_idx = peak_idx
 
     rms_val = float(np.sqrt(np.mean(mono.astype(np.float64) ** 2) + 1e-12))
+    rms_db = round(20.0 * float(np.log10(max(1e-7, rms_val))), 2)
+    peak_db = round(20.0 * float(np.log10(max(1e-7, peak_val))), 2)
+    crest_factor_db = round(peak_db - rms_db, 2)
+
+    # Measured spectral descriptors via real FFT (strictly DSP waveform measurement, NEVER claiming neural audio captioning!)
+    centroid_hz = 0.0
+    low_ratio = 0.0
+    speech_ratio = 0.0
+    high_ratio = 0.0
+    roughness = 0.0
+    if mono.size >= 64:
+        win_h = np.hanning(mono.size).astype(np.float64)
+        spec = np.abs(np.fft.rfft(mono.astype(np.float64) * win_h))
+        pwr = spec ** 2
+        freqs = np.fft.rfftfreq(mono.size, d=1.0 / max(1, sr))
+        tot_p = float(np.sum(pwr)) + 1e-12
+        centroid_hz = round(float(np.sum(freqs * pwr) / tot_p), 1)
+        low_ratio = round(float(np.sum(pwr[freqs < 300.0]) / tot_p), 4)
+        speech_ratio = round(float(np.sum(pwr[(freqs >= 1000.0) & (freqs <= 4000.0)]) / tot_p), 4)
+        high_ratio = round(float(np.sum(pwr[freqs > 4000.0]) / tot_p), 4)
+        # Roughness proxy: high-frequency zero-crossing / envelope modulation rate
+        zcr = float(np.mean(np.abs(np.diff(np.signbit(mono).astype(np.int8)))))
+        roughness = round(min(1.0, zcr * 4.0), 4)
+
     return {
         "n_frames": int(pcm.shape[0]),
         "duration_s": round(float(pcm.shape[0]) / max(1, sr), 5),
         "onset_sample": onset_idx,
         "crest_sample": int(min(pcm.shape[0] - 1, crest_idx)),
         "peak_sample": peak_idx,
-        "rms_dbfs": round(20.0 * float(np.log10(max(1e-7, rms_val))), 2),
-        "peak_dbfs": round(20.0 * float(np.log10(max(1e-7, peak_val))), 2),
+        "rms_dbfs": rms_db,
+        "peak_dbfs": peak_db,
+        "crest_factor_db": crest_factor_db,
+        "decay_ms": decay_ms,
+        "spectral_centroid_hz": centroid_hz,
+        "low_band_energy_ratio": low_ratio,
+        "speech_band_energy_ratio": speech_ratio,
+        "high_band_energy_ratio": high_ratio,
+        "roughness_proxy": roughness,
+        "is_mono_identical": is_mono_id,
         "processed_pcm_sha256": hashlib.sha256(np.ascontiguousarray(pcm, dtype=np.float32).tobytes()).hexdigest(),
     }
 
@@ -275,11 +321,73 @@ def prepare_recorded_foley_asset(
         "peak_sample": env["peak_sample"],
         "n_frames": env["n_frames"],
         "duration_s": env["duration_s"],
+        "measured_descriptors": {
+            "rms_dbfs": env["rms_dbfs"],
+            "peak_dbfs": env["peak_dbfs"],
+            "crest_factor_db": env["crest_factor_db"],
+            "decay_ms": env["decay_ms"],
+            "spectral_centroid_hz": env["spectral_centroid_hz"],
+            "low_band_energy_ratio": env["low_band_energy_ratio"],
+            "speech_band_energy_ratio": env["speech_band_energy_ratio"],
+            "high_band_energy_ratio": env["high_band_energy_ratio"],
+            "roughness_proxy": env["roughness_proxy"],
+            "is_mono_identical": env["is_mono_identical"],
+        },
         "processed_pcm_sha256": env["processed_pcm_sha256"],
     }
     if raw_sha:
         _PCM_CACHE[ckey] = {**prepared, "pcm": pcm.copy()}
     return prepared
+
+
+def build_audio_asset_intelligence(
+    foley_dir: Path | None = None,
+    target_sr: int = 44100,
+) -> dict[str, Any]:
+    """Phase A7.1: Index verified recorded Foley by deduplicated raw SHA-256 with measured waveform descriptors.
+
+    Strictly separates `measured_descriptors` (NumPy/SciPy FFT & envelope) from `human_tags` (manifest metadata)
+    and honestly reports `audio_embedding_model_used=False`.
+    """
+    lib = inspect_foley_library(foley_dir=foley_dir)
+    by_raw_sha: dict[str, dict[str, Any]] = {}
+    for entry in lib.get("assets", []):
+        sha = str(entry.get("sha256", ""))
+        if not sha:
+            continue
+        if sha not in by_raw_sha:
+            prep = prepare_recorded_foley_asset(entry, target_sr=target_sr)
+            by_raw_sha[sha] = {
+                "raw_asset_sha256": sha,
+                "relative_path": entry.get("relative_path", ""),
+                "license": entry.get("license", ""),
+                "creator": entry.get("creator", ""),
+                "provenance": "recorded_local_foley",
+                "bound_asset_ids": [entry["asset_id"]],
+                "bound_families": [entry["family"]],
+                "human_tags": {
+                    "family": entry.get("family", ""),
+                    "description": entry.get("description", ""),
+                    "attribution": entry.get("attribution", ""),
+                },
+                "measured_descriptors": prep["measured_descriptors"] if prep else {},
+                "duration_s": prep["duration_s"] if prep else float(entry.get("duration_s", 0.0)),
+                "processed_pcm_sha256": prep["processed_pcm_sha256"] if prep else "",
+            }
+        else:
+            by_raw_sha[sha]["bound_asset_ids"].append(entry["asset_id"])
+            if entry["family"] not in by_raw_sha[sha]["bound_families"]:
+                by_raw_sha[sha]["bound_families"].append(entry["family"])
+
+    return {
+        "schema_version": "3.0.0",
+        "library_status": lib["status"],
+        "audio_embedding_model_used": False,
+        "descriptor_method": "numpy_scipy_fft_envelope_analysis",
+        "total_bindings": lib["recorded_assets_verified"],
+        "unique_raw_wav_count": len(by_raw_sha),
+        "unique_assets": list(by_raw_sha.values()),
+    }
 
 
 def load_recorded_foley_by_asset_id(

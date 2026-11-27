@@ -546,19 +546,95 @@ def _run_true_counterfactual_ablation_window(
     cue_diff_rms = float(np.sqrt(np.mean(cf_delta_cue ** 2) + 1e-12))
     cue_diff_peak = float(np.max(np.abs(cf_delta_cue))) if cf_delta_cue.size else 0.0
     bg_diff_rms = float(np.sqrt(np.mean(cf_delta_bg ** 2) + 1e-12)) if cf_delta_bg.size >= 32 else 1e-4
+    identifiability_drop_db = round(_lin_to_db(cue_diff_rms) - _lin_to_db(max(bg_diff_rms, 1e-4)), 2)
 
-    # Also verify decoded final.mp4 matches dec_in in this window (proves final MP4 actually carries cue_k!)
-    fin_win_diff = a_fin_full[s0 : s0 + (end_c - rel_s0)] - dec_cf[rel_s0:end_c]
-    fin_minus_cf_rms = float(np.sqrt(np.mean(fin_win_diff ** 2) + 1e-12)) if fin_win_diff.size else 0.0
-    # Conservative drop: min of (intact-cf vs bg) and (final_mp4-cf vs bg)
-    effective_rms = min(cue_diff_rms, max(fin_minus_cf_rms, cue_diff_rms * 0.5))
-    drop_db = round(_lin_to_db(effective_rms) - _lin_to_db(max(bg_diff_rms, 1e-4)), 2)
+    # Check B (Fixes D08 — ZERO reference floor!): Directly verify decoded `final.mp4` against BOTH
+    # intact control (`dec_in`) and minus-one control (`dec_cf`) with bounded AAC priming lag alignment!
+    seg_len = end_c - rel_s0
+    best_lag = 0
+    best_dist = float("inf")
+    max_lag = min(128, max(8, seg_len // 4))
+    in_seg = dec_in[rel_s0:end_c]
+    cf_seg = dec_cf[rel_s0:end_c]
+
+    def _context_align_dist(lag: int) -> float | None:
+        f0 = s0 + lag
+        f1 = f0 + seg_len
+        if f0 < 0 or f1 > a_fin_full.shape[0]:
+            return None
+        errs: list[float] = []
+        # Leading cue-exterior context (never clamp w0+lag to 0 — avoids false lag=-128 on t~0 cues!)
+        if rel_s0 >= 128 and (w0 + lag) >= 0 and (w0 + lag + rel_s0) <= a_fin_full.shape[0]:
+            errs.append(float(np.mean((a_fin_full[w0 + lag : w0 + lag + rel_s0] - dec_in[0:rel_s0]) ** 2)))
+        # Trailing cue-exterior context (always present even for cues starting at frame 0..2!)
+        trail_avail = min(m_len - end_c, a_fin_full.shape[0] - (w0 + lag + end_c))
+        if trail_avail >= 128 and (w0 + lag + end_c) >= 0:
+            errs.append(float(np.mean((a_fin_full[w0 + lag + end_c : w0 + lag + end_c + trail_avail] - dec_in[end_c : end_c + trail_avail]) ** 2)))
+        if errs:
+            return float(np.mean(errs))
+        return float(np.mean((a_fin_full[f0:f1] - in_seg) ** 2))
+
+    for lag in range(-max_lag, max_lag + 1, 2):
+        dist = _context_align_dist(lag)
+        if dist is None:
+            continue
+        if dist < best_dist - 1e-12 or (abs(dist - best_dist) <= 1e-12 and abs(lag) < abs(best_lag)):
+            best_dist = dist
+            best_lag = lag
+    # Refine lag to exact ±1 sample
+    for lag in range(max(-max_lag, best_lag - 2), min(max_lag, best_lag + 2) + 1):
+        dist = _context_align_dist(lag)
+        if dist is None:
+            continue
+        if dist < best_dist - 1e-12 or (abs(dist - best_dist) <= 1e-12 and abs(lag) < abs(best_lag)):
+            best_dist = dist
+            best_lag = lag
+
+    f0_al = max(0, min(a_fin_full.shape[0] - seg_len, s0 + best_lag))
+    fin_seg = a_fin_full[f0_al : f0_al + seg_len]
+    fin_minus_cf = fin_seg - cf_seg
+    fin_minus_in = fin_seg - in_seg
+
+    fin_minus_cf_rms = float(np.sqrt(np.mean(fin_minus_cf ** 2) + 1e-12)) if fin_minus_cf.size else 0.0
+    fin_minus_cf_peak = float(np.max(np.abs(fin_minus_cf))) if fin_minus_cf.size else 0.0
+    fin_minus_in_rms = float(np.sqrt(np.mean(fin_minus_in ** 2) + 1e-12)) if fin_minus_in.size else 0.0
+
+    # Pure decoded final drop (NO `cue_diff_rms * 0.5` artificial floor!)
+    final_drop_db = round(_lin_to_db(fin_minus_cf_rms) - _lin_to_db(max(bg_diff_rms, 1e-4)), 2)
+
+    # Cue-specific residual correlation proves the energy in `final.mp4` is THIS cue (not noise or another cue!)
+    x_res = fin_minus_cf.mean(axis=1)
+    y_res = cf_delta_cue.mean(axis=1)
+    if x_res.size >= 16 and float(x_res.std()) > 1e-6 and float(y_res.std()) > 1e-6:
+        residual_corr = round(float(np.corrcoef(x_res, y_res)[0, 1]), 4)
+    else:
+        residual_corr = 0.0
+
+    final_closer_to_intact = bool(fin_minus_in_rms < fin_minus_cf_rms * 0.72)
+    final_presence_verified = bool(
+        identifiability_drop_db >= 6.0
+        and final_drop_db >= 6.0
+        and fin_minus_cf_peak >= 0.015
+        and final_closer_to_intact
+        and residual_corr >= 0.45
+    )
+
+    drop_db = round(min(identifiability_drop_db, final_drop_db), 2)
     return {
         "counterfactual_rms_dbfs": _lin_to_db(cue_diff_rms),
+        "identifiability_drop_db": identifiability_drop_db,
         "final_vs_counterfactual_rms_dbfs": _lin_to_db(fin_minus_cf_rms),
+        "final_vs_intact_rms_dbfs": _lin_to_db(fin_minus_in_rms),
+        "final_ablation_drop_db": final_drop_db,
+        "final_minus_cf_peak": round(fin_minus_cf_peak, 5),
+        "residual_correlation": residual_corr,
+        "final_closer_to_intact": final_closer_to_intact,
+        "aligned_lag_samples": int(best_lag),
         "counterfactual_bg_floor_dbfs": _lin_to_db(max(bg_diff_rms, 1e-4)),
         "ablation_drop_db": drop_db,
-        "ablation_delta_peak": round(cue_diff_peak, 5),
+        "ablation_delta_peak": round(min(cue_diff_peak, fin_minus_cf_peak), 5),
+        "final_presence_verified": final_presence_verified,
+        "reference_floor_used": False,
     }
 
 
@@ -695,8 +771,8 @@ def validate_final_audio_mix(
                     ev_id=ev["id"],
                 )
                 ablation_drop_db = float(cf_res["ablation_drop_db"])
-                ablation_method = "true_minus_one_cue_aac_counterfactual"
-                single_cue_ablation_ok = bool(ablation_drop_db >= 6.0 and cf_res["ablation_delta_peak"] >= 0.015)
+                ablation_method = "true_minus_one_cue_aac_counterfactual_floor_free"
+                single_cue_ablation_ok = bool(cf_res.get("final_presence_verified", False))
             else:
                 cf_res = {}
                 ablation_drop_db = 0.0

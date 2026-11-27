@@ -141,6 +141,9 @@ SOUND_FAMILY_CATALOG: dict[str, dict[str, Any]] = {
 DISALLOWED_CLICHE_FAMILIES = ("cash_register_chaching", "slot_machine_coins", "error_buzzer", "engine_rev", "notification_ding")
 
 
+VALID_MARKER_TIERS = ("PLANNED", "COMPILED", "RENDER_EMITTED", "OBSERVED_PIXEL", "OBSERVED_AUDIO")
+
+
 @dataclass
 class AnimationMarker:
     marker_id: str
@@ -151,6 +154,11 @@ class AnimationMarker:
     source_element_id: str
     engine: str
     rationale: str = ""
+    # R5.R3 4-Tier Marker Truth Protocol (Fixes D07 — NEVER mislabel compiled props as pixel observation!)
+    marker_tier: str = "PLANNED"
+    evidence_hash: str = ""
+    confidence: float = 1.0
+    uncertainty_frames: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return sanitize_native(asdict(self))
@@ -616,25 +624,39 @@ def extract_sonic_opportunities(
     return opportunities
 
 
-def extract_realized_animation_markers(
+def compile_animation_markers(
     storyboard: StoryboardSpec,
     story_graph: StoryGraph,
     compiled_scene_props: dict[str, dict[str, Any]] | None = None,
 ) -> list[AnimationMarker]:
-    """Post-render barrier marker extractor verifying realized frame timings from compiled scene props."""
+    """Tier 2 (`COMPILED`): Bind planned animation markers onto exact compiled scene props timestamps.
+
+    Fixes D07: Honestly labels markers as `COMPILED` (NEVER claims `OBSERVED_PIXEL` from props alone!).
+    """
     markers = extract_rendered_animation_markers(storyboard, story_graph)
-    if not compiled_scene_props:
-        return markers
-    realized: list[AnimationMarker] = []
+    out: list[AnimationMarker] = []
     for m in markers:
-        props = compiled_scene_props.get(m.scene_id)
+        props = (compiled_scene_props or {}).get(m.scene_id)
         if not props:
-            realized.append(m)
+            out.append(AnimationMarker(
+                marker_id=m.marker_id,
+                scene_id=m.scene_id,
+                marker_type=m.marker_type,
+                local_frame=m.local_frame,
+                global_frame=m.global_frame,
+                source_element_id=m.source_element_id,
+                engine=m.engine,
+                rationale=m.rationale,
+                marker_tier="PLANNED",
+                evidence_hash=storyboard.storyboard_hash[:16] if storyboard.storyboard_hash else "",
+                confidence=0.85,
+                uncertainty_frames=1,
+            ))
             continue
         dur = int(props.get("durationInFrames", 24))
         g0 = int(props.get("globalStartFrame", m.global_frame - m.local_frame))
         clamped_loc = max(0, min(dur - 1, int(m.local_frame)))
-        realized.append(AnimationMarker(
+        out.append(AnimationMarker(
             marker_id=m.marker_id,
             scene_id=m.scene_id,
             marker_type=m.marker_type,
@@ -642,9 +664,151 @@ def extract_realized_animation_markers(
             global_frame=g0 + clamped_loc,
             source_element_id=m.source_element_id,
             engine=m.engine,
-            rationale=f"[REALIZED_POST_RENDER] {m.rationale}",
+            rationale=f"[COMPILED] {m.rationale}",
+            marker_tier="COMPILED",
+            evidence_hash=canonical_hash({"scene": m.scene_id, "dur": dur, "g0": g0, "loc": clamped_loc})[:16],
+            confidence=0.92,
+            uncertainty_frames=1,
         ))
-    return realized
+    return out
+
+
+def emit_render_trace_markers(
+    storyboard: StoryboardSpec,
+    story_graph: StoryGraph,
+    compiled_scene_props: dict[str, dict[str, Any]],
+    rendered_scenes: dict[str, dict[str, Any]],
+) -> list[AnimationMarker]:
+    """Tier 3 (`RENDER_EMITTED`): Verify rendered scene artifact exists with matching frame count & SHA-256.
+
+    Still NOT pixel observation (tier stays `RENDER_EMITTED`, never promoted to `OBSERVED_PIXEL` without decoded pixel diff!).
+    """
+    import cv2
+
+    compiled = compile_animation_markers(storyboard, story_graph, compiled_scene_props)
+    emitted: list[AnimationMarker] = []
+    frame_count_cache: dict[str, int] = {}
+    for m in compiled:
+        rinfo = rendered_scenes.get(m.scene_id)
+        art_p = Path(rinfo["artifact_path"]) if (rinfo and rinfo.get("artifact_path")) else None
+        if art_p is None or not art_p.is_file():
+            emitted.append(m)
+            continue
+        if m.scene_id not in frame_count_cache:
+            cap = cv2.VideoCapture(str(art_p))
+            frame_count_cache[m.scene_id] = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            cap.release()
+        actual_nf = frame_count_cache[m.scene_id]
+        exp_nf = int((compiled_scene_props.get(m.scene_id) or {}).get("durationInFrames", 0))
+        if actual_nf > 0 and (exp_nf <= 0 or actual_nf == exp_nf) and m.local_frame < actual_nf:
+            emitted.append(AnimationMarker(
+                marker_id=m.marker_id,
+                scene_id=m.scene_id,
+                marker_type=m.marker_type,
+                local_frame=m.local_frame,
+                global_frame=m.global_frame,
+                source_element_id=m.source_element_id,
+                engine=m.engine,
+                rationale=f"[RENDER_EMITTED:nf={actual_nf}] {m.rationale.replace('[COMPILED] ', '')}",
+                marker_tier="RENDER_EMITTED",
+                evidence_hash=str(rinfo.get("artifact_sha256", ""))[:16],
+                confidence=0.95,
+                uncertainty_frames=1,
+            ))
+        else:
+            emitted.append(m)
+    return emitted
+
+
+def observe_pixel_animation_markers(
+    markers: list[AnimationMarker],
+    rendered_scenes: dict[str, dict[str, Any]],
+) -> list[AnimationMarker]:
+    """Tier 4 (`OBSERVED_PIXEL`): Inspect decoded rendered scene frames around each marker window (±3f).
+
+    Upgrades a marker to `OBSERVED_PIXEL` ONLY when measurable visual activity/change is observed directly
+    on decoded pixels in the marker window; otherwise retains its honest lower tier (`RENDER_EMITTED`/`COMPILED`).
+    """
+    import hashlib
+    import cv2
+    import numpy as np
+
+    by_scene: dict[str, list[AnimationMarker]] = {}
+    for m in markers:
+        by_scene.setdefault(m.scene_id, []).append(m)
+
+    observed_map: dict[str, AnimationMarker] = {}
+    for sc_id, sc_markers in by_scene.items():
+        rinfo = rendered_scenes.get(sc_id)
+        art_p = Path(rinfo["artifact_path"]) if (rinfo and rinfo.get("artifact_path")) else None
+        if art_p is None or not art_p.is_file():
+            for m in sc_markers:
+                observed_map[m.marker_id] = m
+            continue
+
+        cap = cv2.VideoCapture(str(art_p))
+        nf = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        for m in sc_markers:
+            if nf < 3 or m.local_frame >= nf:
+                observed_map[m.marker_id] = m
+                continue
+            f_lo = max(0, m.local_frame - 2)
+            f_hi = min(nf - 1, m.local_frame + 2)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, f_lo)
+            ok0, fr0 = cap.read()
+            cap.set(cv2.CAP_PROP_POS_FRAMES, m.local_frame)
+            okm, frm = cap.read()
+            cap.set(cv2.CAP_PROP_POS_FRAMES, f_hi)
+            ok1, fr1 = cap.read()
+            if ok0 and okm and ok1 and fr0 is not None and frm is not None and fr1 is not None:
+                # Downscale for fast bounded RAM pixel delta check
+                s0 = cv2.resize(fr0, (180, 320)).astype(np.float32)
+                sm = cv2.resize(frm, (180, 320)).astype(np.float32)
+                s1 = cv2.resize(fr1, (180, 320)).astype(np.float32)
+                mad_pre = float(np.mean(np.abs(sm - s0)))
+                mad_post = float(np.mean(np.abs(s1 - sm)))
+                if max(mad_pre, mad_post) >= 0.35:
+                    f_hash = hashlib.sha256(sm.astype(np.uint8).tobytes()).hexdigest()[:16]
+                    observed_map[m.marker_id] = AnimationMarker(
+                        marker_id=m.marker_id,
+                        scene_id=m.scene_id,
+                        marker_type=m.marker_type,
+                        local_frame=m.local_frame,
+                        global_frame=m.global_frame,
+                        source_element_id=m.source_element_id,
+                        engine=m.engine,
+                        rationale=f"[OBSERVED_PIXEL:mad_pre={mad_pre:.2f},mad_post={mad_post:.2f}] {m.rationale}",
+                        marker_tier="OBSERVED_PIXEL",
+                        evidence_hash=f_hash,
+                        confidence=round(min(0.99, 0.75 + min(0.24, max(mad_pre, mad_post) / 25.0)), 3),
+                        uncertainty_frames=1,
+                    )
+                    continue
+            observed_map[m.marker_id] = m
+        cap.release()
+
+    return [observed_map.get(m.marker_id, m) for m in markers]
+
+
+def extract_realized_animation_markers(
+    storyboard: StoryboardSpec,
+    story_graph: StoryGraph,
+    compiled_scene_props: dict[str, dict[str, Any]] | None = None,
+    rendered_scenes: dict[str, dict[str, Any]] | None = None,
+    observe_pixels: bool = False,
+) -> list[AnimationMarker]:
+    """Backward-compatible entry point enforcing strict 4-tier honesty (Fixes D07).
+
+    - Props only -> `COMPILED` (NEVER promoted to `OBSERVED_PIXEL`!)
+    - Props + rendered_scenes -> `RENDER_EMITTED`
+    - Props + rendered_scenes + `observe_pixels=True` -> `OBSERVED_PIXEL` where verified on decoded pixels!
+    """
+    if rendered_scenes and compiled_scene_props:
+        emitted = emit_render_trace_markers(storyboard, story_graph, compiled_scene_props, rendered_scenes)
+        if observe_pixels:
+            return observe_pixel_animation_markers(emitted, rendered_scenes)
+        return emitted
+    return compile_animation_markers(storyboard, story_graph, compiled_scene_props)
 
 
 def resolve_sound_asset(

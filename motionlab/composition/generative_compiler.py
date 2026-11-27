@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import asdict, dataclass
 from fractions import Fraction
+import hashlib
 from typing import Any
 
 from motionlab.audio.cues import frame_to_sample_exact
@@ -11,8 +13,82 @@ from motionlab.audio.synthesis import SFX_FAMILIES, synthesize_sfx_waveform
 from motionlab.composition.generative_schema import SceneSpec, StoryboardSpec, validate_storyboard_spec
 from motionlab.composition.primitive_adapters import build_adapted_hyperframes_html
 from motionlab.composition.primitive_registry import UnifiedPrimitiveRegistry, load_unified_registry
-from motionlab.schemas import MediaInfo, SchemaValidationError
+from motionlab.schemas import MediaInfo, SchemaValidationError, sanitize_native
 from motionlab.semantic.story_graph import StoryGraph, format_cents
+
+SUPPORTED_RATIONAL_FRACTIONAL_FPS = {
+    (24000, 1001),
+    (30000, 1001),
+    (60000, 1001),
+    (24000, 1000),
+    (25000, 1000),
+    (30000, 1000),
+}
+
+
+@dataclass
+class CompiledOverlay:
+    """Typed multi-layer HyperFrames overlay artifact contract (Fixes D04 — never silently drops layers!)."""
+    layer_id: str
+    scene_id: str
+    primitive_id: str
+    layer_role: str  # "background_graphics" | "foreground_graphics"
+    z_order: int
+    start_frame: int
+    end_frame_exclusive: int
+    fps_num: int
+    fps_den: int
+    opacity: float
+    render_mode: str
+    html: str
+    html_sha256: str
+
+    def to_dict(self) -> dict[str, Any]:
+        d = asdict(self)
+        d.pop("html", None)
+        return sanitize_native(d)
+
+
+def validate_rational_fps_clock(fps_num: int, fps_den: int) -> dict[str, Any]:
+    """Fixes D13: Validate exact rational FPS clock without silent rounding.
+
+    Supports exact integer rates (1..120 fps) and standard broadcast NTSC rational rates (24000/1001, 30000/1001, 60000/1001).
+    Fails closed (`SchemaValidationError`) on non-positive or unsupported arbitrary fractional timebases.
+    """
+    if int(fps_num) <= 0 or int(fps_den) <= 0:
+        raise SchemaValidationError(f"Invalid rational FPS clock: {fps_num}/{fps_den}")
+    frac = Fraction(int(fps_num), int(fps_den))
+    fps_f = float(frac)
+    if fps_f < 1.0 or fps_f > 240.0:
+        raise SchemaValidationError(f"Unsupported FPS out of [1, 240] range: {fps_num}/{fps_den} ({fps_f:.4f})")
+
+    if frac.denominator == 1:
+        return {
+            "fps_num": int(fps_num),
+            "fps_den": int(fps_den),
+            "fps_int_remotion": int(frac.numerator),
+            "fps_float": fps_f,
+            "is_fractional": False,
+            "clock_mode": "exact_integer",
+            "supported": True,
+        }
+
+    if (int(fps_num), int(fps_den)) in SUPPORTED_RATIONAL_FRACTIONAL_FPS or (frac.numerator, frac.denominator) in SUPPORTED_RATIONAL_FRACTIONAL_FPS:
+        # Remotion accepts integer fps for frame index count while FFmpeg/Audio preserve exact rational PTS!
+        return {
+            "fps_num": int(fps_num),
+            "fps_den": int(fps_den),
+            "fps_int_remotion": int(round(fps_f)),
+            "fps_float": fps_f,
+            "is_fractional": True,
+            "clock_mode": "rational_broadcast_ntsc_frame_indexed",
+            "supported": True,
+        }
+
+    raise SchemaValidationError(
+        f"Unsupported arbitrary fractional FPS clock {fps_num}/{fps_den} ({fps_f:.6f} fps): "
+        "exact frame-clock parity cannot be guaranteed without silent rounding (fail-closed D13)."
+    )
 
 
 def _build_persistent_ledger_payload(
@@ -75,33 +151,69 @@ def _build_persistent_ledger_payload(
     }
 
 
+def compile_scene_hyperframes_layers(
+    scene: SceneSpec,
+    storyboard: StoryboardSpec,
+    story_graph: StoryGraph,
+) -> list[CompiledOverlay]:
+    """Fixes D04: Compile ALL HyperFrames layers in `scene.layers` sorted by `z_order` (zero silent drops!)."""
+    clock = validate_rational_fps_clock(storyboard.fps_num, storyboard.fps_den)
+    hf_layers = sorted(
+        [ly for ly in scene.layers if ly.engine == "hyperframes"],
+        key=lambda x: (int(x.z_order), str(x.layer_id)),
+    )
+    if not hf_layers:
+        return []
+
+    fps_f = clock["fps_float"]
+    dur_s = max(0.4, (scene.end_frame_exclusive - scene.start_frame) / fps_f)
+    seen_ids: set[str] = set()
+    compiled: list[CompiledOverlay] = []
+
+    for ly in hf_layers:
+        if ly.layer_id in seen_ids:
+            raise SchemaValidationError(f"Duplicate HyperFrames layer_id in {scene.scene_id}: {ly.layer_id}")
+        seen_ids.add(ly.layer_id)
+        params = dict(ly.params)
+        params.setdefault("palette", storyboard.palette)
+        html = build_adapted_hyperframes_html(
+            primitive_id=ly.primitive_id,
+            width=storyboard.width,
+            height=storyboard.height,
+            fps=fps_f,
+            duration_s=dur_s,
+            parameters=params,
+            transparent=True,
+        )
+        compiled.append(CompiledOverlay(
+            layer_id=ly.layer_id,
+            scene_id=scene.scene_id,
+            primitive_id=ly.primitive_id,
+            layer_role=ly.layer_role if ly.layer_role in ("background_graphics", "foreground_graphics") else "foreground_graphics",
+            z_order=int(ly.z_order),
+            start_frame=int(scene.start_frame),
+            end_frame_exclusive=int(scene.end_frame_exclusive),
+            fps_num=int(storyboard.fps_num),
+            fps_den=int(storyboard.fps_den),
+            opacity=float(params.get("opacity", 1.0)),
+            render_mode=str(params.get("render_mode", "combined")),
+            html=html,
+            html_sha256=hashlib.sha256(html.encode("utf-8")).hexdigest(),
+        ))
+    return compiled
+
+
 def compile_scene_hyperframes_html(
     scene: SceneSpec,
     storyboard: StoryboardSpec,
     story_graph: StoryGraph,
 ) -> tuple[str | None, str | None, str]:
-    """Compile the scene's HyperFrames layer (if any) into offline portrait HTML/GSAP.
-
-    Returns: (primitive_id_or_None, html_string_or_None, hf_layer_role)
-    """
-    hf_layers = [ly for ly in scene.layers if ly.engine == "hyperframes"]
-    if not hf_layers:
+    """Backward-compatible single-layer wrapper returning the first ordered CompiledOverlay (use `compile_scene_hyperframes_layers` for multi-layer)."""
+    overlays = compile_scene_hyperframes_layers(scene, storyboard, story_graph)
+    if not overlays:
         return None, None, "foreground_graphics"
-    ly = hf_layers[0]
-    fps_f = storyboard.fps_num / max(1, storyboard.fps_den)
-    dur_s = max(0.4, (scene.end_frame_exclusive - scene.start_frame) / fps_f)
-    params = dict(ly.params)
-    params.setdefault("palette", storyboard.palette)
-    html = build_adapted_hyperframes_html(
-        primitive_id=ly.primitive_id,
-        width=storyboard.width,
-        height=storyboard.height,
-        fps=fps_f,
-        duration_s=dur_s,
-        parameters=params,
-        transparent=True,
-    )
-    return ly.primitive_id, html, ly.layer_role
+    first = overlays[0]
+    return first.primitive_id, first.html, first.layer_role
 
 
 def compile_scene_remotion_props(
@@ -114,21 +226,27 @@ def compile_scene_remotion_props(
     prop_alpha_file: str | None,
     hf_graphic_file: str | None,
     hf_layer_role: str,
+    hf_layers: list[dict[str, Any]] | None = None,
+    product_asset_file: str | None = None,
+    product_asset_meta: dict[str, Any] | None = None,
     task_anchor: dict[str, float] | None = None,
     face_anchor: dict[str, float] | None = None,
     continuity_tracks: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Compile a validated SceneSpec into exact `MotionLabGenerativeScene` Remotion props."""
+    """Compile a validated SceneSpec into exact `MotionLabGenerativeScene` Remotion props (Fixes D04, D06, D13)."""
     dur_frames = max(2, scene.end_frame_exclusive - scene.start_frame)
-    fps_int = max(1, int(round(storyboard.fps_num / max(1, storyboard.fps_den))))
+    clock = validate_rational_fps_clock(storyboard.fps_num, storyboard.fps_den)
+    fps_int = int(clock["fps_int_remotion"])
 
     rem_nodes = [
         {
+            "layerId": ly.layer_id,
             "primitiveId": ly.primitive_id,
             "layerRole": ly.layer_role,
+            "zOrder": int(ly.z_order),
             "params": dict(ly.params),
         }
-        for ly in sorted(scene.layers, key=lambda x: x.z_order)
+        for ly in sorted(scene.layers, key=lambda x: (int(x.z_order), str(x.layer_id)))
         if ly.engine == "remotion"
     ]
 
@@ -137,7 +255,6 @@ def compile_scene_remotion_props(
     if scene.show_persistent_ribbon:
         params["show_persistent_ribbon"] = True
 
-    # If live_depth_matte requested but no matte available, gracefully adapt to live_clean_bridge (explicitly logged)
     stage_mode = scene.stage_mode
     if stage_mode == "live_depth_matte" and not fg_alpha_file:
         stage_mode = "live_clean_bridge"
@@ -145,12 +262,40 @@ def compile_scene_remotion_props(
     tr_out = str(params.get("transition_out", "none"))
     tr_out_frames = int(params.get("transition_out_frames", 12 if tr_out != "none" else 0))
 
+    # Build canonical ordered hfLayers array (backward-compatible with single hfGraphicFile!)
+    normalized_hf_layers: list[dict[str, Any]] = []
+    if hf_layers:
+        for item in sorted(hf_layers, key=lambda x: (int(x.get("zOrder", 20)), str(x.get("layerId", "")))):
+            normalized_hf_layers.append({
+                "layerId": str(item["layerId"]),
+                "primitiveId": str(item.get("primitiveId", "")),
+                "file": str(item["file"]),
+                "layerRole": str(item.get("layerRole", "foreground_graphics")),
+                "zOrder": int(item.get("zOrder", 20)),
+                "opacity": float(item.get("opacity", 1.0)),
+            })
+    elif hf_graphic_file:
+        first_hf = next((ly for ly in sorted(scene.layers, key=lambda x: int(x.z_order)) if ly.engine == "hyperframes"), None)
+        normalized_hf_layers.append({
+            "layerId": first_hf.layer_id if first_hf else f"{scene.scene_id}_hf_0",
+            "primitiveId": first_hf.primitive_id if first_hf else "",
+            "file": str(hf_graphic_file),
+            "layerRole": str(hf_layer_role),
+            "zOrder": int(first_hf.z_order) if first_hf else 25,
+            "opacity": 1.0,
+        })
+
     return {
         "sceneId": scene.scene_id,
+        "chosenCandidateId": scene.chosen_candidate_id,
         "stageMode": stage_mode,
         "width": storyboard.width,
         "height": storyboard.height,
         "fps": fps_int,
+        "fpsNum": int(clock["fps_num"]),
+        "fpsDen": int(clock["fps_den"]),
+        "fpsFloat": round(float(clock["fps_float"]), 6),
+        "clockMode": str(clock["clock_mode"]),
         "durationInFrames": dur_frames,
         "entryFrames": min(10, max(4, dur_frames // 8)),
         "exitFrames": min(10, max(4, dur_frames // 8)),
@@ -159,6 +304,9 @@ def compile_scene_remotion_props(
         "propAlphaFile": prop_alpha_file,
         "hfGraphicFile": hf_graphic_file,
         "hfLayerRole": hf_layer_role,
+        "hfLayers": normalized_hf_layers,
+        "productAssetFile": product_asset_file,
+        "productAssetMeta": product_asset_meta,
         "transitionIn": scene.transition_in.kind,
         "transitionInFrames": scene.transition_in.duration_frames,
         "transitionOut": tr_out,
@@ -172,6 +320,7 @@ def compile_scene_remotion_props(
         "faceAnchor": face_anchor,
         "parameters": params,
         "excludeLayerRole": None,
+        "excludeLayerId": None,
     }
 
 
@@ -306,7 +455,9 @@ def compile_storyboard_graph(
 
     jobs: list[dict[str, Any]] = []
     for sc in storyboard.scenes:
-        hf_pid, hf_html, hf_role = compile_scene_hyperframes_html(sc, storyboard, story_graph)
+        hf_overlays = compile_scene_hyperframes_layers(sc, storyboard, story_graph)
+        hf_pids = [ov.primitive_id for ov in hf_overlays]
+        first_hf = hf_overlays[0] if hf_overlays else None
         rem_pids = [ly.primitive_id for ly in sc.layers if ly.engine == "remotion"]
         if sc.transition_in.kind == "frame_morph":
             rem_pids.append("rem_gtk_frame_morph")
@@ -321,21 +472,26 @@ def compile_storyboard_graph(
 
         jobs.append({
             "scene_id": sc.scene_id,
+            "chosen_candidate_id": sc.chosen_candidate_id,
             "start_frame": sc.start_frame,
             "end_frame_exclusive": sc.end_frame_exclusive,
             "stage_mode": sc.stage_mode,
             "requires_matte": sc.requires_matte,
             "intentional_cutaway": sc.intentional_cutaway,
-            "hf_primitive_id": hf_pid,
-            "hf_layer_role": hf_role,
-            "hf_html_present": hf_html is not None,
+            "hf_primitive_id": first_hf.primitive_id if first_hf else None,
+            "hf_layer_role": first_hf.layer_role if first_hf else "foreground_graphics",
+            "hf_html_present": bool(hf_overlays),
+            "hf_layers_count": len(hf_overlays),
+            "hf_layers": [ov.to_dict() for ov in hf_overlays],
             "remotion_primitives": sorted(set(rem_pids)),
-            "all_primitives": sorted(set(rem_pids + ([hf_pid] if hf_pid else []))),
+            "all_primitives": sorted(set(rem_pids + hf_pids)),
         })
 
     return {
         "schema_version": storyboard.schema_version,
         "storyboard_hash": storyboard.storyboard_hash or storyboard.compute_hash(),
+        "selected_graph_hash": storyboard.selected_graph_hash,
+        "clock": validate_rational_fps_clock(storyboard.fps_num, storyboard.fps_den),
         "scene_count": len(jobs),
         "jobs": jobs,
         "distinct_primitives_planned": sorted({p for j in jobs for p in j["all_primitives"]}),

@@ -124,6 +124,51 @@ export function evaluateSharedStateTS(
   };
 }
 
+export interface EvaluatedMotionStateTS extends EvaluatedElementState {
+  vx: number;
+  vy: number;
+  ax: number;
+  ay: number;
+  speed: number;
+  pivot_x: number;
+  pivot_y: number;
+  depth_z: number;
+  flex_deg: number;
+  motion_model: "analytic_physically_inspired";
+}
+
+export function evaluateMotionStateTS(
+  track: SharedElementTrackTS,
+  globalFrame: number,
+  fps = 24
+): EvaluatedMotionStateTS {
+  const cur = evaluateSharedStateTS(track, globalFrame);
+  const prev = evaluateSharedStateTS(track, globalFrame - 1);
+  const next = evaluateSharedStateTS(track, globalFrame + 1);
+  const dt = 1 / Math.max(1, fps);
+  const vx = (next.x - prev.x) / (2 * dt);
+  const vy = (next.y - prev.y) / (2 * dt);
+  const ax = (next.x - 2 * cur.x + prev.x) / (dt * dt);
+  const ay = (next.y - 2 * cur.y + prev.y) / (dt * dt);
+  const speed = Math.hypot(vx, vy);
+  const span = Math.max(1, track.end_frame_exclusive - track.start_frame);
+  const u = Math.max(0, Math.min(1, (globalFrame - track.start_frame) / span));
+  const env = Math.sin(u * Math.PI);
+  return {
+    ...cur,
+    vx,
+    vy,
+    ax,
+    ay,
+    speed,
+    pivot_x: cur.x + cur.w * 0.5,
+    pivot_y: cur.y + cur.h * 0.5,
+    depth_z: 0.15 + 0.55 * env,
+    flex_deg: 4.2 * Math.sin(u * Math.PI * 2.4) * env,
+    motion_model: "analytic_physically_inspired",
+  };
+}
+
 /**
  * Outgoing tactile paper-sheet fold & unveil bridge revealing the live speaker underneath
  * at the exact source frame clock — eliminates jarring cutaway-to-live hard cuts (D06!).

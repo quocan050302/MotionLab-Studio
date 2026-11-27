@@ -141,7 +141,8 @@ async function main() {
       const tj0 = performance.now();
       const inputProps = job.props || {};
       const exKey = inputProps.excludeLayerRole == null ? "full" : String(inputProps.excludeLayerRole);
-      const compCacheKey = `${job.compositionId}::${inputProps.sceneId || job.id}::${inputProps.width || 0}x${inputProps.height || 0}::${inputProps.durationInFrames || 0}::${inputProps.fps || 0}::ex=${exKey}`;
+      const exIdKey = inputProps.excludeLayerId == null ? "none" : String(inputProps.excludeLayerId);
+      const compCacheKey = `${job.compositionId}::${inputProps.sceneId || job.id}::${inputProps.width || 0}x${inputProps.height || 0}::${inputProps.durationInFrames || 0}::${inputProps.fps || 0}::ex=${exKey}::exId=${exIdKey}`;
       let composition = compCache.get(compCacheKey);
       if (!composition) {
         composition = await selectComposition({

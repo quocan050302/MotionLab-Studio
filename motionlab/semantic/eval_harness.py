@@ -341,6 +341,168 @@ def build_independent_eval_fixtures() -> list[dict[str, Any]]:
                 "product_name_contains": "Clarity Ledger",
             },
         },
+        # --- R5.R3 Expanded Independent Cases EV17..EV36 (36 total!) ---
+        {
+            "case_id": "EV17_balance_vs_income_context",
+            "category": "financial_conservation",
+            "text": "Having $1,800 in your bank account doesn't mean you earned $1,800 extra. $1,100 is for rent and $400 is for food. You have $300 left.",
+            "duration_s": 14.0,
+            "expect": {"ledger_active": True, "initial_cents": 180000, "remaining_cents": 30000, "conservation_exact": True, "negated_count_min": 1},
+        },
+        {
+            "case_id": "EV18_balance_after_pending_bills",
+            "category": "financial_conservation",
+            "text": "You have $950 in your checking account. $500 pending for rent and $250 scheduled for insurance. You actually have $200 available.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": True, "initial_cents": 95000, "remaining_cents": 20000, "conservation_exact": True, "reconciled": True},
+        },
+        {
+            "case_id": "EV19_refund_credit_vs_expense",
+            "category": "refund_math",
+            "text": "Start with $400 in your bank account. $250 is for bills. Then you got back a $100 refund. You have $250 left.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": True, "initial_cents": 40000, "remaining_cents": 25000, "conservation_exact": True, "reconciled": True},
+        },
+        {
+            "case_id": "EV20_two_currencies_not_conflated",
+            "category": "multi_currency",
+            "text": "Compare £500 in London with $650 in New York before converting exchange rates.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "has_ledger_warning": True},
+        },
+        {
+            "case_id": "EV21_explicit_didnt_save_negation",
+            "category": "negation_and_modality",
+            "text": "I didn't save $100 on coffee. Start with $300 in your budget. $200 is for groceries. You have $100 left.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": True, "negated_count_min": 1, "remaining_cents": 10000, "forbid_cash_flick_on_negated": True},
+        },
+        {
+            "case_id": "EV22_fictional_analogy_not_real_cash",
+            "category": "metaphor_disambiguation",
+            "text": "Skipping maintenance is like burning $1,000 in a fireplace while ignoring warning lights.",
+            "duration_s": 8.0,
+            "expect": {"ledger_active": False, "is_slogan_money": True, "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV23_explosion_talk_without_observed_action",
+            "category": "multimodal_conflict",
+            "text": "In the third chapter there was a massive explosion that reshaped the whole valley.",
+            "duration_s": 8.0,
+            "roi_tracks": {"has_face_track": True, "has_task_track": False, "keyframes": []},
+            "expect": {"ledger_active": False, "forbid_explosion_diegetic": True, "observed_hand_contact_false": True},
+        },
+        {
+            "case_id": "EV24_education_multi_step_no_money",
+            "category": "cross_niche_education",
+            "text": "Step 1 measure the flour carefully. Step 2 fold the dough gently for 5 minutes. Step 3 let it rest.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": False, "inferred_niche": "education", "forbid_cash_flick_all_beats": True, "non_monetary_count_min": 1},
+        },
+        {
+            "case_id": "EV25_tech_specs_numbers_not_dollars",
+            "category": "cross_niche_tech",
+            "text": "This desktop runs at 60 fps with 16 GB memory and finishes exports in 4 minutes.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "non_monetary_count_min": 3, "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV26_sports_stats_not_dollars",
+            "category": "cross_niche_sports",
+            "text": "She finished with 28 points, 12 assists, and 94% from the free throw line.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "non_monetary_count_min": 3, "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV27_emotional_quiet_story_line",
+            "category": "pacing_silence",
+            "text": "Take a breath and whisper quietly while remembering that summer journey.",
+            "duration_s": 9.0,
+            "expect": {"ledger_active": False, "prefer_silence_any": True, "inferred_niche": "storytelling"},
+        },
+        {
+            "case_id": "EV28_unnamed_product_no_hallucination",
+            "category": "product_grounding",
+            "text": "That's why I organized everything in a simple weekly folder to keep track of tasks.",
+            "duration_s": 8.0,
+            "expect": {"ledger_active": False, "product_name_empty": True, "has_authorized_product_asset": False},
+        },
+        {
+            "case_id": "EV29_coarse_asr_segment_approx_honesty",
+            "category": "asr_timestamp_provenance",
+            "text": "Start with $800 in your account. $500 is for rent. You have $300 left.",
+            "duration_s": 10.0,
+            "word_timestamps_exact": False,
+            "expect": {"ledger_active": True, "timestamp_quality": "SEGMENT_APPROX", "word_timestamps_exact": False},
+        },
+        {
+            "case_id": "EV30_multi_speaker_dialogue_neutral",
+            "category": "cross_niche_dialogue",
+            "text": "Speaker one asked how the workshop went. Speaker two explained the design timeline clearly.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV31_authorized_product_asset_exact_match",
+            "category": "product_grounding",
+            "text": "I built Desk Compass to help you track weekly milestones clearly.",
+            "duration_s": 8.0,
+            "asset_catalog": [{"asset_id": "dc_01", "product_id": "desk_compass", "product_name": "Desk Compass", "authorized": True, "verified": True}],
+            "expect": {"product_name_contains": "Desk Compass", "has_authorized_product_asset": True},
+        },
+        {
+            "case_id": "EV32_gameplay_hud_strict_ui_protection",
+            "category": "cross_niche_gameplay",
+            "text": "Watch the minimap and combo meter carefully before the boss fight respawn timer ends.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "inferred_niche": "gameplay", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV33_conditional_hypothetical_modality",
+            "category": "negation_and_modality",
+            "text": "If you had $2,000 in your account, $1,200 for housing and $500 for food would leave $300.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": True, "hypothetical": True, "initial_cents": 200000, "remaining_cents": 30000},
+        },
+        {
+            "case_id": "EV34_fractional_deficit_balance",
+            "category": "deficit_math",
+            "text": "You start with $10.50 in your wallet. $15.75 is for transit. You are short.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": True, "initial_cents": 1050, "remaining_cents": -525, "allow_fractional_cents": True, "deficit_detected": True},
+        },
+        {
+            "case_id": "EV35_adversarial_html_traversal_injection",
+            "category": "security_adversarial",
+            "text": "<script>alert(1)</script> ../../etc/passwd Now organize your desk step by step.",
+            "duration_s": 8.0,
+            "expect": {"injection_detected": True, "ledger_active": False},
+        },
+        {
+            "case_id": "EV36_long_form_120s_coreference",
+            "category": "long_form_memory",
+            "text": (
+                "Start with $4,000 in your monthly bank account. "
+                "$1,800 is for housing. "
+                "Pause and check your fixed utilities calmly. "
+                "$700 is for groceries. "
+                "$400 is for transit. "
+                "$300 is for utilities. "
+                "$200 is for insurance. "
+                "You actually have $600 left. "
+                "That's why I created Horizon Binder, a 32-page workbook to organize every month."
+            ),
+            "duration_s": 120.0,
+            "expect": {
+                "ledger_active": True,
+                "initial_cents": 400000,
+                "remaining_cents": 60000,
+                "conservation_exact": True,
+                "reconciled": True,
+                "non_monetary_count_min": 1,
+                "product_name_contains": "Horizon Binder",
+            },
+        },
     ]
 
 
@@ -359,13 +521,15 @@ def run_deterministic_reasoning_eval() -> dict[str, Any]:
             word_conf_override=fx.get("word_conf_override"),
             word_gaps=fx.get("word_gaps"),
         )
+        if "word_timestamps_exact" in fx:
+            tr.word_timestamps_exact = bool(fx["word_timestamps_exact"])
         roi = fx.get("roi_tracks") or {
             "has_face_track": True,
             "has_task_track": False,
             "keyframes": [{"frame": 12, "face": {"x": 0.3, "y": 0.15, "w": 0.3, "h": 0.28, "conf": 0.9}, "task": {"x": 0.3, "y": 0.6, "w": 0.3, "h": 0.2, "conf": 0.1}}],
         }
         sg = build_story_graph(tr, roi, media)
-        ev_idx = build_evidence_index(media, tr, sg, roi_tracks=roi, asset_catalog=[])
+        ev_idx = build_evidence_index(media, tr, sg, roi_tracks=roi, asset_catalog=fx.get("asset_catalog", []))
         contract = build_narrative_contract(ev_idx, sg)
         nsg = build_state_graph(ev_idx, sg, contract)
 
@@ -426,6 +590,18 @@ def run_deterministic_reasoning_eval() -> dict[str, Any]:
             chks["has_breathing_bridge"] = any(b.speech_act == "breathing_bridge" for b in sg.beats)
         if "silence_span_min" in exp:
             chks["silence_span_min"] = len(ev_idx.audio_silence_spans) >= exp["silence_span_min"]
+        if "inferred_niche" in exp:
+            chks["inferred_niche"] = (contract.inferred_niche == exp["inferred_niche"])
+        if "forbid_explosion_diegetic" in exp:
+            chks["forbid_explosion_diegetic"] = any("explosion_sfx" in bs.sound_semantic_context.get("disallowed_families", []) for bs in nsg.beat_states)
+        if "prefer_silence_any" in exp:
+            chks["prefer_silence_any"] = any(bs.sound_semantic_context.get("prefer_silence") for bs in nsg.beat_states)
+        if "product_name_empty" in exp:
+            chks["product_name_empty"] = (not bool(sg.product_name))
+        if "timestamp_quality" in exp:
+            chks["timestamp_quality"] = (ev_idx.timestamp_quality == exp["timestamp_quality"])
+        if "word_timestamps_exact" in exp:
+            chks["word_timestamps_exact"] = (ev_idx.word_timestamps_exact == exp["word_timestamps_exact"])
 
         ok = bool(chks) and all(chks.values())
         cat = fx["category"]
@@ -448,7 +624,7 @@ def run_deterministic_reasoning_eval() -> dict[str, Any]:
     passed_n = sum(1 for r in results if r.passed)
     total_n = len(results)
     return {
-        "schema_version": "1.0.0",
+        "schema_version": "3.0.0",
         "eval_scope": "independent_deterministic_reasoning_fixtures_not_universal_intelligence",
         "cases_total": total_n,
         "cases_passed": passed_n,
@@ -458,4 +634,78 @@ def run_deterministic_reasoning_eval() -> dict[str, Any]:
         "by_category": by_category,
         "failed_cases": [r.to_dict() for r in results if not r.passed],
         "results": [r.to_dict() for r in results],
+    }
+
+
+def run_hybrid_eval_suite(
+    *,
+    include_live_llm: bool = False,
+    live_case_limit: int = 4,
+    models_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Separate deterministic rule evaluation vs raw local LLM evaluation vs reconciled evaluation (A1.3)."""
+    det = run_deterministic_reasoning_eval()
+    raw_llm_eval: dict[str, Any] = {
+        "status": "NOT_RUN" if not include_live_llm else "PENDING",
+        "cases_tested": 0,
+        "raw_schema_compliant": 0,
+        "raw_niche_matches": 0,
+        "reconciled_passed": 0,
+        "intervention_counts_by_type": {"none": 0, "safety": 0, "factual": 0, "artistic": 0, "resource": 0},
+        "cases": [],
+    }
+    if include_live_llm:
+        from motionlab.config import EditConfig
+        from motionlab.semantic.generative_director import direct_generative_storyboard
+        from motionlab.semantic.local_model import inspect_llm_model
+
+        llm_info = inspect_llm_model(models_dir=models_dir)
+        if not llm_info.get("available"):
+            raw_llm_eval["status"] = f"BLOCKED_MODEL_UNAVAILABLE:{llm_info.get('reason')}"
+        else:
+            pick_ids = [
+                "EV01_balance_vs_spendable_exact",
+                "EV02_non_monetary_page_count",
+                "EV24_education_multi_step_no_money",
+                "EV32_gameplay_hud_strict_ui_protection",
+            ][: max(1, int(live_case_limit))]
+            fx_map = {f["case_id"]: f for f in build_independent_eval_fixtures()}
+            cfg = EditConfig(offline=True, composition_mode="generative", allow_remotion=True, allow_hyperframes=True, cache_enabled=False, seed=42)
+            for cid in pick_ids:
+                fx = fx_map.get(cid)
+                if not fx:
+                    continue
+                media = _make_media(duration_s=fx["duration_s"], tag=cid)
+                tr = _make_transcript(fx["text"], duration_s=fx["duration_s"])
+                roi = fx.get("roi_tracks") or {"has_face_track": True, "has_task_track": False, "keyframes": [{"frame": 12, "face": {"x": 0.3, "y": 0.15, "w": 0.3, "h": 0.28, "conf": 0.9}}]}
+                sg = build_story_graph(tr, roi, media)
+                sb, audit = direct_generative_storyboard(
+                    media, sg, roi, config=cfg, matte_available=False, models_dir=models_dir, transcript=tr
+                )
+                raw = audit.get("raw_llm") or {}
+                ba = audit.get("brain_audit") or {}
+                ic = ba.get("intervention_counts_by_type") or {}
+                for k, v in ic.items():
+                    raw_llm_eval["intervention_counts_by_type"][k] = raw_llm_eval["intervention_counts_by_type"].get(k, 0) + int(v)
+                schema_ok = isinstance(raw, dict) and "niche" in raw and isinstance(raw.get("beat_plans"), list)
+                exp_niche = fx["expect"].get("inferred_niche") or ("finance" if fx["expect"].get("ledger_active") else None)
+                niche_ok = (exp_niche is None) or (str(raw.get("niche", "")).lower() == exp_niche)
+                raw_llm_eval["cases_tested"] += 1
+                raw_llm_eval["raw_schema_compliant"] += int(schema_ok)
+                raw_llm_eval["raw_niche_matches"] += int(niche_ok)
+                raw_llm_eval["reconciled_passed"] += int(bool(sb.storyboard_hash))
+                raw_llm_eval["cases"].append({
+                    "case_id": cid,
+                    "raw_niche": raw.get("niche"),
+                    "reconciled_niche": sb.niche,
+                    "raw_schema_compliant": schema_ok,
+                    "reconciled_scenes": len(sb.scenes),
+                    "intervention_counts": ic,
+                })
+            raw_llm_eval["status"] = "EXECUTED_LOCAL_LLM"
+
+    return {
+        "schema_version": "3.0.0",
+        "deterministic_rule_eval": det,
+        "raw_vs_reconciled_llm_eval": raw_llm_eval,
     }

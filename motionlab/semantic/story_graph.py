@@ -22,20 +22,22 @@ _CURRENCY_SYMBOLS = {"$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY"}
 _CURRENCY_WORDS = {"dollar": "$", "dollars": "$", "usd": "$", "euro": "€", "euros": "€", "pound": "£", "pounds": "£"}
 
 _NEGATION_RE = re.compile(
-    r"(?i)\b(doesn'?t\s+mean|don'?t\s+have|not\s+actually|never|cannot|can'?t\s+spend|isn'?t|aren'?t|won'?t)\b"
+    r"(?i)\b(doesn'?t\s+mean|don'?t\s+have|didn'?t\s+save|did\s+not\s+save|not\s+saving|not\s+actually|never|cannot|can'?t\s+spend|isn'?t|aren'?t|won'?t)\b"
 )
-_HYPOTHETICAL_RE = re.compile(r"(?i)\b(let'?s\s+say|for\s+example|suppose|imagine|say\s+you|hypothetically)\b")
+_HYPOTHETICAL_RE = re.compile(r"(?i)\b(let'?s\s+say|for\s+example|suppose|imagine|say\s+you|hypothetically|if\s+you\s+had|might|could)\b")
 _REMAINING_RE = re.compile(r"(?i)\b(left|remaining|left\s+over|actually\s+have|available|balance\s+left)\b")
-_OPENING_BALANCE_RE = re.compile(r"(?i)\b(bank\s+account|paycheck|income|balance|starting|have|make|earn|deposit|budget)\b")
+_REFUND_CREDIT_RE = re.compile(r"(?i)\b(refund|reimbursement|cashback|got\s+back|paid\s+back|credited|returned\s+to\s+your\s+account)\b")
+_OPENING_BALANCE_RE = re.compile(r"(?i)\b(bank\s+account|checking\s+account|paycheck|income|balance|starting|start\s+with|have|make|earn|deposit|budget|wallet)\b")
 _ALLOCATION_FOR_RE = re.compile(
     r"(?i)(?:(?P<sym>[\$€£¥])\s*)?(?P<num>(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)\s*(?:dollars?|euros?|pounds?)?\s*"
-    r"(?:is\s+|goes\s+|went\s+)?(?:for|to|toward|towards|on)\s+(?P<cat>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)?)"
+    r"(?:is\s+|goes\s+|went\s+|pending\s+|scheduled\s+)?(?:for|to|toward|towards|on)\s+(?P<cat>[A-Za-z][A-Za-z0-9\-']*(?:\s+[A-Za-z][A-Za-z0-9\-']*)?)"
 )
 _AMOUNT_ANY_RE = re.compile(
-    r"(?i)(?P<sym>[\$€£¥])?\s*(?P<num>(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)(?P<suffix>\s*-\s*page|\s+pages?|\s*%|\s*k\b)?"
+    r"(?i)(?P<sym>[\$€£¥])?\s*(?P<num>(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)(?P<suffix>\s*-\s*page|\s+pages?|\s*%|\s*fps\b|\s*gb\b|\s*mb\b|\s*tb\b|\s*hz\b|\s*khz\b|\s*points?\b|\s*assists?\b|\s*rebounds?\b|\s*steps?\b|\s*minutes?\b|\s*hours?\b|\s*days?\b|\s*k\b)?"
 )
 _PRODUCT_INTRO_RE = re.compile(
-    r"(?i)\b(?:created|built|made|designed|introducing|called|named)\s+(?P<prod>[A-Z][A-Za-z0-9'\-]*(?:\s+(?:[A-Z][A-Za-z0-9'\-]*|the|of|for|to|and)){0,5})"
+    r"\b(?:[Cc]reated|[Bb]uilt|[Mm]ade|[Dd]esigned|[Ii]ntroducing|[Cc]alled|[Nn]amed)\s+"
+    r"(?P<prod>[A-Z][A-Za-z0-9'\-]*(?:\s+(?:[A-Z][A-Za-z0-9'\-]*|the|of|for|and)){0,5})"
 )
 _CTA_RE = re.compile(r"(?i)\b(link\s+in\s+(?:my\s+)?(?:profile|bio)|check\s+out|grab\s+it|comment|subscribe|follow)\b")
 _BENEFIT_RE = re.compile(r"(?i)\b(help\s+you|organize|plan|dashboard|workbook|template|system|guide|tool|track|purpose)\b")
@@ -302,19 +304,26 @@ def derive_verified_ledger(
     initial_cents = 0
     running_cents = 0
     total_allocated_cents = 0
+    total_credited_cents = 0
     spoken_remaining_cents: int | None = None
+    distinct_currency_syms = sorted({ch for ch in full_text if ch in _CURRENCY_SYMBOLS})
+    if len(distinct_currency_syms) >= 2:
+        warnings.append(f"multiple_currencies_present:{','.join(distinct_currency_syms)}")
+
+    _NON_MONETARY_SUFFIX_TOKENS = ("page", "%", "fps", "gb", "mb", "tb", "hz", "khz", "point", "assist", "rebound", "step", "minute", "hour", "day")
 
     for c_idx, cl in enumerate(clauses):
         txt = cl["text"]
         is_neg = bool(_NEGATION_RE.search(txt))
         is_hyp = bool(_HYPOTHETICAL_RE.search(txt))
         is_rem = bool(_REMAINING_RE.search(txt))
+        is_refund = bool(_REFUND_CREDIT_RE.search(txt))
 
-        # 1. Extract non-monetary counts (e.g., "56-page workbook", "10%") first so they NEVER enter currency math!
+        # 1. Extract non-monetary counts (e.g., "56-page workbook", "60 fps", "16 GB", "12 assists", "10%") first so they NEVER enter currency math!
         non_mon_matches: list[tuple[int, int]] = []
         for m in _AMOUNT_ANY_RE.finditer(txt):
             suf = (m.group("suffix") or "").strip().lower()
-            if suf and ("page" in suf or "%" in suf):
+            if suf and not m.group("sym") and any(tok in suf for tok in _NON_MONETARY_SUFFIX_TOKENS):
                 non_mon_matches.append((m.start(), m.end()))
                 non_monetary_counts.append({
                     "raw": m.group(0).strip(),
@@ -338,6 +347,56 @@ def derive_verified_ledger(
             })
             continue
 
+        # 1b. Refund / reimbursement credit (adds back to running balance rather than subtracting!)
+        if is_refund and initial_cents > 0:
+            ref_nums = [
+                m for m in _AMOUNT_ANY_RE.finditer(txt)
+                if not any(a <= m.start() < b for a, b in non_mon_matches)
+                and (m.group("sym") or currency_sym)
+            ]
+            if ref_nums:
+                rm0 = ref_nums[0]
+                amt_cents = parse_amount_to_cents(rm0.group("num"))
+                if amt_cents > 0:
+                    sym = rm0.group("sym") or currency_sym
+                    if currency_sym and sym != currency_sym:
+                        warnings.append(f"mixed_currency_skipped:{sym}!={currency_sym}")
+                        continue
+                    prev_bal = running_cents
+                    running_cents = prev_bal + amt_cents
+                    total_credited_cents += amt_cents
+                    w_ids = _find_word_ids_in_span(indexed_words, cl["start_s"], cl["end_s"], rm0.group("num"))
+                    w_confs = [indexed_words[i][1].probability for i in w_ids] if w_ids else [cl["mean_conf"]]
+                    min_p = min(w_confs) if w_confs else 1.0
+                    formula = f"{prev_bal} + {amt_cents} = {running_cents} cents ({format_cents(prev_bal, sym)} + {format_cents(amt_cents, sym)} = {format_cents(running_cents, sym)})"
+                    steps.append(
+                        LedgerStep(
+                            step_id=f"ledger_step_{len(steps):02d}",
+                            step_type="income_refund",
+                            category="Refund",
+                            delta_cents=amt_cents,
+                            amount_cents=amt_cents,
+                            running_balance_cents=running_cents,
+                            currency_symbol=sym,
+                            currency_code=_CURRENCY_SYMBOLS.get(sym, currency_code),
+                            proportion_of_initial=round(amt_cents / max(1, initial_cents), 6),
+                            provenance="verbatim_spoken",
+                            running_balance_provenance="derived_arithmetic",
+                            formula=formula,
+                            start_s=cl["start_s"],
+                            end_s=cl["end_s"],
+                            start_frame=cl["start_frame"],
+                            end_frame_exclusive=cl["end_frame_exclusive"],
+                            word_ids=w_ids,
+                            verbatim_quote=txt,
+                            modality="hypothetical" if is_hyp else overall_modality,
+                            uncertain=bool(min_p < 0.45),
+                            confidence=round(min_p, 4),
+                        )
+                    )
+                    audit_trail.append(f"INCOME_REFUND: verbatim=+{format_cents(amt_cents, sym)}; derived_balance={formula}")
+                    continue
+
         # 2. Check explicit allocation pattern ("800 is for bills", "200 for groceries", "100 for gas")
         alloc_matches = list(_ALLOCATION_FOR_RE.finditer(txt))
         if alloc_matches and initial_cents > 0:
@@ -349,6 +408,9 @@ def derive_verified_ledger(
                 if amt_cents <= 0:
                     continue
                 sym = am.group("sym") or currency_sym
+                if currency_sym and sym and sym != currency_sym:
+                    warnings.append(f"mixed_currency_allocation_skipped:{sym}!={currency_sym}")
+                    continue
                 cat = _clean_category_name(am.group("cat"))
                 prev_bal = running_cents
                 running_cents = prev_bal - amt_cents
@@ -475,13 +537,13 @@ def derive_verified_ledger(
                 )
 
     overspend_cents = max(0, -running_cents) if initial_cents > 0 else 0
-    computed_rem = initial_cents - total_allocated_cents
+    computed_rem = initial_cents - total_allocated_cents + total_credited_cents
     conservation_exact = bool(initial_cents > 0 and (computed_rem == running_cents))
     reconciled = bool(
         conservation_exact
         and (spoken_remaining_cents is None or spoken_remaining_cents == computed_rem)
     )
-    active = bool(initial_cents > 0 and len(steps) >= 2)
+    active = bool(initial_cents > 0 and len(steps) >= 2 and not (len(distinct_currency_syms) >= 2 and total_allocated_cents == 0 and total_credited_cents == 0))
 
     return VerifiedLedger(
         active=active,
@@ -559,6 +621,11 @@ def build_story_graph(
     m_prod = _PRODUCT_INTRO_RE.search(transcript.full_text or "")
     if m_prod:
         cand = m_prod.group("prod").strip(" ,.!?;:")
+        # Trim trailing connector stopwords ("Desk Compass to" -> "Desk Compass")
+        parts = cand.split()
+        while parts and parts[-1].lower() in ("to", "for", "of", "and", "the", "a", "an", "that", "which", "with"):
+            parts.pop()
+        cand = " ".join(parts).strip()
         if 2 <= len(cand) <= 48:
             product_name = cand
 

@@ -713,10 +713,25 @@ def _validate_generative_r5_run(run_dir: Path, manifest: dict[str, Any], media: 
 
     checks.append(ValidationCheck(
         "continuous_timeline_and_boundaries",
-        "PASS" if (bool(ct.get("continuous_timeline_valid")) and int(bnd.get("abrupt_cutaway_jumps", 1)) == 0) else "FAIL",
-        "continuous_timeline_valid=True, abrupt_cutaway_jumps=0",
-        f"valid={ct.get('continuous_timeline_valid')}, abrupt_jumps={bnd.get('abrupt_cutaway_jumps')}",
+        "PASS" if (bool(ct.get("continuous_timeline_valid")) and int(bnd.get("abrupt_cutaway_jumps", 1)) == 0 and int(bnd.get("severe_findings_count", 0)) == 0) else "FAIL",
+        "continuous_timeline_valid=True, abrupt_cutaway_jumps=0, severe_findings_count=0",
+        f"valid={ct.get('continuous_timeline_valid')}, abrupt_jumps={bnd.get('abrupt_cutaway_jumps')}, severe={bnd.get('severe_findings_count', 0)}",
         "evidence/scene_boundary_report.json",
+    ))
+    sb_p = run_dir / "storyboard_spec.json"
+    sb_doc = json.loads(sb_p.read_text(encoding="utf-8")) if sb_p.is_file() else {}
+    sc_list = sb_doc.get("scenes", [])
+    aeu_scenes = {s.get("scene_id"): s for s in aeu.get("scenes", [])}
+    causal_ok = all(
+        (not s.get("chosen_candidate_id")) or (aeu_scenes.get(s.get("scene_id"), {}).get("chosen_candidate_id") == s.get("chosen_candidate_id"))
+        for s in sc_list
+    )
+    checks.append(ValidationCheck(
+        "causal_selected_candidate_execution",
+        "PASS" if causal_ok else "FAIL",
+        "every storyboard scene chosen_candidate_id matches executed render manifest",
+        f"scenes={len(sc_list)}, causal_ok={causal_ok}",
+        "actual_engine_usage.json",
     ))
     ab_v = int(cq.get("ablation_layers_verified", 0))
     ab_t = int(cq.get("ablation_layers_total", 0))

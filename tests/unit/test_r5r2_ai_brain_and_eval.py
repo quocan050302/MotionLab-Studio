@@ -16,7 +16,7 @@ from motionlab.semantic.story_graph import StoryBeatNode
 class TestR5R2AIBrainAndEval(unittest.TestCase):
     def test_independent_16_case_reasoning_eval_harness_passes_all_p0_fixtures(self) -> None:
         report = run_deterministic_reasoning_eval()
-        self.assertEqual(report["cases_total"], 16)
+        self.assertGreaterEqual(report["cases_total"], 16)
         self.assertEqual(
             report["cases_failed"],
             0,

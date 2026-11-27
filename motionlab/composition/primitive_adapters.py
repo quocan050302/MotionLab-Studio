@@ -123,18 +123,19 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_apple_money_count":
         # Adapted directly from heygen-com/hyperframes `apple-money-count` (Apache-2.0)
-        # R5.R1 Premium Art Direction: Open full-bleed editorial typography (ZERO dark rounded pill box!)
-        # + tactile multi-layered linen paper banknote tokens gliding on curved paths.
+        # R5.R3 Multi-Layer Upgrade (D04/D05): Zero Olivia hardcodes + `render_mode` ("combined" | "paper_tokens_only" | "typography_only")
+        # allowing genuine 2-HF-layer depth compositing (paper tokens behind subject matte + foreground hero amount above!).
         from_cents = int(parameters.get("from_cents", 0))
-        to_cents = int(parameters.get("to_cents", 120000))
+        to_cents = int(parameters.get("to_cents", from_cents))
         sym = str(parameters.get("currency_symbol", "$"))
-        eyebrow = str(parameters.get("eyebrow", "BANK BALANCE"))
+        eyebrow = str(parameters.get("eyebrow", ""))
         caption = str(parameters.get("caption", ""))
-        token_count = max(0, min(6, int(parameters.get("token_count", 4))))
+        render_mode = str(parameters.get("render_mode", "combined")).lower()
+        show_plate = render_mode != "paper_tokens_only"
+        default_tokens = 0 if render_mode == "typography_only" else 4
+        token_count = 0 if render_mode == "typography_only" else max(0, min(6, int(parameters.get("token_count", default_tokens))))
         y_pos = str(parameters.get("y_anchor", "8.8%"))
         dark_plate = bool(parameters.get("dark_plate", transparent))
-        # R5.R2 Fix D01/D05: Lock integer-dollar display unless source evidence explicitly has fractional cents!
-        # Also support `discrete_steps_cents` (verified ledger milestones) so EVERY frame displays ONLY verified amounts (no $116 / $144.06!).
         allow_frac = bool(parameters.get("allow_fractional_cents", (abs(from_cents) % 100 != 0) or (abs(to_cents) % 100 != 0)))
         hold_exact = bool(parameters.get("hold_exact_amount", not allow_frac and from_cents == 0))
         discrete_steps = [int(x) for x in (parameters.get("discrete_steps_cents") or [])]
@@ -146,13 +147,14 @@ def build_adapted_hyperframes_html(
         scrim_css = (
             "position:absolute;left:0;right:0;top:0;height:360px;z-index:2;pointer-events:none;"
             "background:linear-gradient(180deg, rgba(24,22,18,0.72) 0%, rgba(24,22,18,0.40) 58%, rgba(24,22,18,0.0) 100%);"
-            if dark_plate
+            if (dark_plate and show_plate)
             else "display:none;"
         )
+        stage_wrap_display = "flex" if show_plate else "none"
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- adapted-from: heygen-com/hyperframes apple-money-count (Apache-2.0) -->
+<!-- adapted-from: heygen-com/hyperframes apple-money-count (Apache-2.0) mode={_esc(render_mode)} -->
 <meta charset="UTF-8" />
 <script src="./gsap.min.js"></script>
 <style>
@@ -162,7 +164,7 @@ def build_adapted_hyperframes_html(
   .top-scrim {{ {scrim_css} }}
   .stage-wrap {{
     position: absolute; left: 48px; right: 105px; top: {y_pos}; z-index: 5;
-    display: flex; flex-direction: column; align-items: {"flex-start" if dark_plate else "center"};
+    display: {stage_wrap_display}; flex-direction: column; align-items: {"flex-start" if dark_plate else "center"};
     text-align: {"left" if dark_plate else "center"};
   }}
   .plate {{
@@ -283,7 +285,7 @@ def build_adapted_hyperframes_html(
   tl.to("#plate", {{ scale: 1.0, duration: 0.18, ease: "power2.out" }}, 0.28);
   const countDur = Math.min(0.46, Math.max(0.22, DUR * 0.20));
   if (DISCRETE_STEPS.length >= 2) {{
-    // Step strictly through verified ledger milestones ONLY (e.g. $1,200 -> $400 -> $200 -> $100 — ZERO unverified intermediates!)
+    // Step strictly through verified ledger milestones ONLY (ZERO unverified intermediates!)
     tl.to(state, {{
       stepP: DISCRETE_STEPS.length - 1, duration: countDur, ease: "power2.out",
       onUpdate: () => {{
@@ -337,14 +339,13 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_mk_progress_stat":
         # Adapted directly from heygen-com/hyperframes `mk-progress-stat` (Apache-2.0)
-        # R5.R2: Clean warm-ivory architectural strip OR compact editorial rail (distinct rhythm across allocations!)
-        # + curved paper transfer tokens gliding into the reserved category bar + integer-dollar lock!
-        amount_cents = int(parameters.get("amount_cents", 80000))
-        denom_cents = max(1, int(parameters.get("denom_cents", 120000)))
+        # R5.R3 Fix D05: Zero Olivia hardcoded amounts/categories!
+        amount_cents = int(parameters.get("amount_cents", 0))
+        denom_cents = max(1, int(parameters.get("denom_cents", max(100, abs(amount_cents) or 100))))
         remaining_cents = int(parameters.get("remaining_cents", denom_cents - amount_cents))
         sym = str(parameters.get("currency_symbol", "$"))
         is_deduction = bool(parameters.get("is_deduction", True))
-        category = str(parameters.get("category", "BILLS"))
+        category = str(parameters.get("category", "CATEGORY"))
         raw_cap = str(parameters.get("caption", f"{format_cents(remaining_cents, sym)} left"))
         caption = raw_cap.replace("(derived)", "").replace("derived", "").strip()
         fill_ratio = max(0.02, min(1.0, abs(amount_cents) / denom_cents))
@@ -498,12 +499,9 @@ def build_adapted_hyperframes_html(
 
     if primitive_id == "hf_mk_specs_list":
         # Adapted directly from heygen-com/hyperframes `mk-specs-list` (Apache-2.0)
-        # R5.R1: Open editorial specification block seamlessly integrated onto warm ivory cutaway (ZERO heavy black box!)
-        title = str(parameters.get("title", "INCLUDED IN THE PLAN"))
-        rows = parameters.get("rows") or [
-            {"label": "Notion dashboard", "value": "Organize every dollar"},
-            {"label": "56-page workbook", "value": "Step-by-step system"},
-        ]
+        # R5.R3 Fix D05: Zero Olivia/Notion/56-page hardcoded defaults!
+        title = str(parameters.get("title", "INCLUDED COMPONENTS"))
+        rows = parameters.get("rows") or []
         y_top = int(parameters.get("y_px", 720))
         rows_json = _j(rows[:4])
         return f"""<!DOCTYPE html>
@@ -587,8 +585,8 @@ def build_adapted_hyperframes_html(
 """
 
     if primitive_id == "hf_mk_callout_highlight":
-        # Adapted directly from heygen-com/hyperframes `mk-callout-highlight` (Apache-2.0)
-        text = str(parameters.get("text", "Give every dollar a purpose"))
+        # Adapted directly from heygen-com/hyperframes `mk-callout-highlight` (Apache-2.0) — D05 clean generic default
+        text = str(parameters.get("text", ""))
         subtitle = str(parameters.get("subtitle", ""))
         font_px = int(parameters.get("font_size", 50))
         y_top = int(parameters.get("y_px", int(height * 0.095)))
@@ -659,10 +657,9 @@ def build_adapted_hyperframes_html(
 """
 
     if primitive_id == "hf_lt_mask_reveal":
-        # Adapted directly from heygen-com/hyperframes `lt-mask-reveal` (Apache-2.0)
-        # R5.R1: Open full-bleed upper editorial title reveal (soft atmospheric scrim, ZERO rounded dark box!)
-        headline = str(parameters.get("headline", "The Next Paycheck Plan"))
-        subtitle = str(parameters.get("subtitle", "ORGANIZE YOUR MONEY"))
+        # Adapted directly from heygen-com/hyperframes `lt-mask-reveal` (Apache-2.0) — D05 zero Olivia defaults!
+        headline = str(parameters.get("headline", ""))
+        subtitle = str(parameters.get("subtitle", ""))
         y_top = max(96, int(parameters.get("y_px", 110)))
         return f"""<!DOCTYPE html>
 <html lang="en">
@@ -734,10 +731,10 @@ def build_adapted_hyperframes_html(
 """
 
     if primitive_id == "hf_strikethrough_replace":
-        # Adapted directly from heygen-com/hyperframes `strikethrough-replace` (Apache-2.0)
-        from_txt = str(parameters.get("from_text", "$1,200 TO SPEND"))
-        to_txt = str(parameters.get("to_text", "BALANCE != SPENDABLE"))
-        eyebrow = str(parameters.get("eyebrow", "REALITY CHECK"))
+        # Adapted directly from heygen-com/hyperframes `strikethrough-replace` (Apache-2.0) — D05 zero Olivia defaults!
+        from_txt = str(parameters.get("from_text", ""))
+        to_txt = str(parameters.get("to_text", ""))
+        eyebrow = str(parameters.get("eyebrow", ""))
         y_top = int(parameters.get("y_px", int(height * 0.095)))
         return f"""<!DOCTYPE html>
 <html lang="en">
@@ -800,7 +797,7 @@ def build_adapted_hyperframes_html(
     if primitive_id == "hf_organic_light_leak":
         # Adapted directly from heygen-com/hyperframes `organic-light-leak-overlay` (Apache-2.0)
         # R5.R2 Fix D08: Strictly peripheral warm rim glow (<= 0.22 opacity) with center face cutout mask so skin contrast stays 100% protected!
-        max_op = min(0.22, max(0.14, float(parameters.get("opacity", 0.20))))
+        max_op = min(0.22, max(0.14, float(parameters.get("opacity", 0.22))))
         return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -812,18 +809,18 @@ def build_adapted_hyperframes_html(
   html, body {{ width: {width}px; height: {height}px; overflow: hidden; background: transparent; }}
   #hf-light-leak {{
     position: absolute; inset: 0; opacity: 0; overflow: hidden; pointer-events: none;
-    -webkit-mask-image: radial-gradient(ellipse 46% 54% at 50% 42%, transparent 0%, transparent 56%, black 92%);
-    mask-image: radial-gradient(ellipse 46% 54% at 50% 42%, transparent 0%, transparent 56%, black 92%);
+    -webkit-mask-image: radial-gradient(ellipse 44% 52% at 50% 42%, transparent 0%, transparent 54%, black 88%);
+    mask-image: radial-gradient(ellipse 44% 52% at 50% 42%, transparent 0%, transparent 54%, black 88%);
   }}
   #hf-light-leak .hf-leak-layer {{ position: absolute; inset: -10%; }}
   #hf-light-leak .hf-leak-amber {{
-    background: radial-gradient(ellipse 44% 96% at 4% 52%, rgba(212, 174, 106, 0.96), transparent 56%),
-                radial-gradient(ellipse 42% 88% at 96% 68%, rgba(245, 240, 230, 0.90), transparent 56%);
-    filter: blur(18px);
+    background: radial-gradient(ellipse 48% 96% at 6% 52%, rgba(224, 178, 96, 1.0), transparent 60%),
+                radial-gradient(ellipse 46% 90% at 94% 68%, rgba(245, 240, 230, 0.96), transparent 60%);
+    filter: blur(16px);
   }}
   #hf-light-leak .hf-leak-gold {{
-    background: linear-gradient(112deg, rgba(198, 164, 106, 0.85) 0%, transparent 24%, transparent 76%, rgba(164, 179, 154, 0.72) 100%);
-    filter: blur(14px);
+    background: linear-gradient(112deg, rgba(212, 168, 92, 0.94) 0%, transparent 28%, transparent 72%, rgba(164, 186, 148, 0.84) 100%);
+    filter: blur(12px);
   }}
 </style>
 </head>
@@ -849,16 +846,11 @@ def build_adapted_hyperframes_html(
 """
 
     if primitive_id == "hf_data_chart":
-        # Adapted directly from heygen-com/hyperframes `data-chart` (Apache-2.0) — strictly proportional verified ledger bars!
-        title = str(parameters.get("title", "PAYCHECK BREAKDOWN"))
-        denom_cents = max(1, int(parameters.get("denom_cents", 120000)))
+        # Adapted directly from heygen-com/hyperframes `data-chart` (Apache-2.0) — strictly proportional, zero Olivia defaults!
+        title = str(parameters.get("title", "PROPORTIONAL BREAKDOWN"))
+        denom_cents = max(1, int(parameters.get("denom_cents", 100)))
         sym = str(parameters.get("currency_symbol", "$"))
-        items = parameters.get("items") or [
-            {"label": "Bills", "cents": 80000, "color": pal["clay"]},
-            {"label": "Groceries", "cents": 20000, "color": pal["brass"]},
-            {"label": "Gas", "cents": 10000, "color": pal["sage"]},
-            {"label": "Left", "cents": 10000, "color": pal["forest"]},
-        ]
+        items = parameters.get("items") or []
         y_top = max(96, int(parameters.get("y_px", 112)))
         bars_html = []
         tweens_js = []
@@ -933,14 +925,10 @@ def build_adapted_hyperframes_html(
 </html>
 """
 
-    # Default: hf_exploded_stack (adapted directly from heygen-com/hyperframes `exploded-stack` Apache-2.0)
-    title = str(parameters.get("title", "ORGANIZE YOUR MONEY"))
+    # Default: hf_exploded_stack (adapted directly from heygen-com/hyperframes `exploded-stack` Apache-2.0) — D05 zero Olivia defaults!
+    title = str(parameters.get("title", "SYSTEM OVERVIEW"))
     badge = str(parameters.get("conceptual_badge", "CONCEPTUAL OVERVIEW"))
-    layers = parameters.get("layers") or [
-        {"label": "Notion dashboard", "sublabel": "Monthly overview", "color": pal["forest"]},
-        {"label": "56-page workbook", "sublabel": "Guided system", "color": pal["brass"]},
-        {"label": "Paycheck categories", "sublabel": "Every dollar assigned", "color": pal["sage"]},
-    ]
+    layers = parameters.get("layers") or []
     y_top = int(parameters.get("y_px", int(height * 0.12)))
     plates_html = []
     tweens = []

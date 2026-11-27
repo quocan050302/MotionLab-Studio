@@ -32,9 +32,12 @@ from motionlab.audio.assets import inspect_foley_library
 from motionlab.audio.mixer import mix_preserving_master, validate_final_audio_mix
 from motionlab.audio.semantic_sound import (
     align_sound_to_marker,
+    compile_animation_markers,
+    emit_render_trace_markers,
     extract_realized_animation_markers,
     extract_rendered_animation_markers,
     extract_sonic_opportunities,
+    observe_pixel_animation_markers,
     plan_sonic_score,
 )
 from motionlab.audio.synthesis import build_sfx_asset_manifest
@@ -49,6 +52,7 @@ from motionlab.composition.continuous_timeline import compile_continuous_timelin
 from motionlab.composition.creative_quality import evaluate_creative_quality, verify_ablation_still_diff
 from motionlab.composition.generative_compiler import (
     compile_scene_hyperframes_html,
+    compile_scene_hyperframes_layers,
     compile_scene_remotion_props,
     compile_storyboard_audio_timeline,
     compile_storyboard_graph,
@@ -341,43 +345,54 @@ def render_compiled_storyboard_to_mp4(
             "compiled_plan": compiled_plan,
         }
 
-    # 2. Render Imported HyperFrames Apache-2.0 VP9 Alpha Graphics (with Content-Addressed Overlay Cache & fast static lint!)
+    # 2. Render ALL Imported HyperFrames Apache-2.0 VP9 Alpha Layers per Scene (Fixes D04 — zero dropped layers!)
     tracker.start_stage("hyperframes_graphics")
-    hf_results: dict[str, dict[str, Any]] = {}
+    hf_results: dict[str, list[dict[str, Any]]] = {}
     hf_cache_hits = 0
+    hf_total_layers = 0
     for sc in storyboard.scenes:
-        hf_pid, hf_html, hf_role = compile_scene_hyperframes_html(sc, storyboard, story_graph)
-        if not hf_pid or not hf_html:
+        compiled_overlays = compile_scene_hyperframes_layers(sc, storyboard, story_graph)
+        if not compiled_overlays:
             continue
-        hf_webm = temp_dir / f"hf_{sc.scene_id}_{hf_pid}.webm"
-        r_hf = hf.render_html_slot(
-            slot_dir=temp_dir / f"hf_slot_{sc.scene_id}",
-            html=hf_html,
-            out_path=hf_webm,
-            fps=media.fps_float,
-            fmt="webm",
-            timeout_s=180.0,
-            cache_dir=hf_cache_dir,
-            use_cache=bool(config.cache_enabled),
-            skip_cli_lint=True,
-        )
-        if r_hf.get("cache_hit"):
-            hf_cache_hits += 1
-        mid_hf_f = max(4, min(20, (sc.end_frame_exclusive - sc.start_frame) // 2))
-        alpha_stats = verify_webm_alpha_pixels(
-            hf_webm, width=media.display_width, height=media.display_height, sample_frame=mid_hf_f, ffmpeg_bin=ffmpeg_bin
-        )
-        if not alpha_stats.get("has_visible_alpha", False):
-            raise RuntimeError(f"HyperFrames block {hf_pid} for {sc.scene_id} rendered empty alpha!")
-        hf_results[sc.scene_id] = {
-            **r_hf,
-            "primitive_id": hf_pid,
-            "layer_role": hf_role,
-            "alpha_stats": alpha_stats,
-        }
+        sc_hf_list: list[dict[str, Any]] = []
+        for ov in compiled_overlays:
+            hf_total_layers += 1
+            safe_lid = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in ov.layer_id)
+            hf_webm = temp_dir / f"hf_{sc.scene_id}_{safe_lid}_{ov.primitive_id}.webm"
+            r_hf = hf.render_html_slot(
+                slot_dir=temp_dir / f"hf_slot_{sc.scene_id}_{safe_lid}",
+                html=ov.html,
+                out_path=hf_webm,
+                fps=media.fps_float,
+                fmt="webm",
+                timeout_s=180.0,
+                cache_dir=hf_cache_dir,
+                use_cache=bool(config.cache_enabled),
+                skip_cli_lint=True,
+            )
+            if r_hf.get("cache_hit"):
+                hf_cache_hits += 1
+            mid_hf_f = max(4, min(20, (sc.end_frame_exclusive - sc.start_frame) // 2))
+            alpha_stats = verify_webm_alpha_pixels(
+                hf_webm, width=media.display_width, height=media.display_height, sample_frame=mid_hf_f, ffmpeg_bin=ffmpeg_bin
+            )
+            if not alpha_stats.get("has_visible_alpha", False):
+                raise RuntimeError(f"HyperFrames layer {ov.layer_id} ({ov.primitive_id}) for {sc.scene_id} rendered empty alpha!")
+            sc_hf_list.append({
+                **r_hf,
+                "layer_id": ov.layer_id,
+                "primitive_id": ov.primitive_id,
+                "layer_role": ov.layer_role,
+                "z_order": ov.z_order,
+                "opacity": ov.opacity,
+                "render_mode": ov.render_mode,
+                "html_sha256": ov.html_sha256,
+                "alpha_stats": alpha_stats,
+            })
+        hf_results[sc.scene_id] = sc_hf_list
     tracker.end_stage("hyperframes_graphics", temp_dir=temp_dir)
 
-    # 3. R5.R2 Optimized Remotion MIT Single-Bundle Persistent-Browser Batch + Continuity Handles + Active-Window Ablation!
+    # 3. R5.R3 Multi-Layer Remotion MIT Single-Bundle Persistent-Browser Batch + Real Product Asset Binding + Per-Layer Ablations!
     tracker.start_stage("remotion_scenes")
     rendered_scenes: dict[str, dict[str, Any]] = {}
     ablation_results: dict[str, dict[str, Any]] = {}
@@ -395,13 +410,13 @@ def render_compiled_storyboard_to_mp4(
     compiled_props_by_scene: dict[str, dict[str, Any]] = {}
     ablation_plan: dict[str, list[dict[str, Any]]] = {}
     rem_scene_cache_hits = 0
+    product_asset_bound_scenes: list[str] = []
 
     for sc in storyboard.scenes:
         slot_dir = temp_dir / f"rem_{sc.scene_id}"
         pub_dir = slot_dir / "public"
         pub_dir.mkdir(parents=True, exist_ok=True)
 
-        # Slice exact source mezzanine for live scenes OR ANY cutaway with transition_in OR transition_out (fixes D06!)
         tr_out_kind = str(sc.parameters.get("transition_out", "none"))
         src_rel: str | None = None
         src_sha = ""
@@ -412,7 +427,6 @@ def render_compiled_storyboard_to_mp4(
             src_sha = _sha256_file(src_slice)
             public_mounts.append({"src": str(src_slice), "rel": src_rel})
 
-        # Build foreground alpha WebM if MODNet matte was produced for this span
         fg_rel: str | None = None
         fg_sha = ""
         matte_p = matte_by_span.get((sc.start_frame, sc.end_frame_exclusive))
@@ -425,17 +439,50 @@ def render_compiled_storyboard_to_mp4(
             fg_sha = _sha256_file(fg_webm)
             public_mounts.append({"src": str(fg_webm), "rel": fg_rel})
 
+        # Mount ALL ordered HyperFrames layers for this scene (Fixes D04!)
         hf_rel: str | None = None
-        hf_sha = ""
         hf_role = "foreground_graphics"
+        hf_layer_mounts: list[dict[str, Any]] = []
+        hf_shas: list[str] = []
         if sc.scene_id in hf_results:
-            hf_src_p = Path(hf_results[sc.scene_id]["artifact_path"])
-            hf_rel = f"{sc.scene_id}/hf_graphic.webm"
-            hf_sha = str(hf_results[sc.scene_id]["artifact_sha256"])
-            hf_role = hf_results[sc.scene_id]["layer_role"]
-            public_mounts.append({"src": str(hf_src_p), "rel": hf_rel})
             actual_engines.add("hyperframes")
-            actual_primitives.append(hf_results[sc.scene_id]["primitive_id"])
+            for h_idx, hitem in enumerate(hf_results[sc.scene_id]):
+                hf_src_p = Path(hitem["artifact_path"])
+                safe_lid = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in hitem["layer_id"])
+                rel_p = f"{sc.scene_id}/hf_{h_idx}_{safe_lid}.webm"
+                public_mounts.append({"src": str(hf_src_p), "rel": rel_p})
+                hf_layer_mounts.append({
+                    "layerId": hitem["layer_id"],
+                    "primitiveId": hitem["primitive_id"],
+                    "file": rel_p,
+                    "layerRole": hitem["layer_role"],
+                    "zOrder": int(hitem["z_order"]),
+                    "opacity": float(hitem.get("opacity", 1.0)),
+                })
+                hf_shas.append(str(hitem["artifact_sha256"]))
+                actual_primitives.append(hitem["primitive_id"])
+            hf_rel = hf_layer_mounts[0]["file"]
+            hf_role = hf_layer_mounts[0]["layerRole"]
+
+        # D06: Mount REAL owner-authorized product asset texture on product scenes when verified in catalog!
+        prod_asset_rel: str | None = None
+        prod_asset_meta: dict[str, Any] | None = None
+        prod_asset_sha = ""
+        if sc.role in ("product_intro", "product_benefit") and prod_match.get("matched") and prod_match.get("assets"):
+            pa = prod_match["assets"][0]
+            pa_src = Path(str(pa.get("resolved_path", "")))
+            if pa_src.is_file():
+                prod_asset_rel = f"{sc.scene_id}/product_asset{pa_src.suffix.lower()}"
+                prod_asset_sha = str(pa.get("sha256", ""))
+                prod_asset_meta = {
+                    "asset_id": pa.get("asset_id"),
+                    "product_name": pa.get("product_name"),
+                    "asset_type": pa.get("asset_type"),
+                    "usage_constraints": pa.get("usage_constraints", ""),
+                    "sha256": prod_asset_sha[:16],
+                }
+                public_mounts.append({"src": str(pa_src), "rel": prod_asset_rel})
+                product_asset_bound_scenes.append(sc.scene_id)
 
         sc_rois = [r for r in roi_frames if sc.start_frame <= int(r.get("frame", -1)) < sc.end_frame_exclusive]
         task_anchor = None
@@ -461,6 +508,9 @@ def render_compiled_storyboard_to_mp4(
             prop_alpha_file=None,
             hf_graphic_file=hf_rel,
             hf_layer_role=hf_role,
+            hf_layers=hf_layer_mounts,
+            product_asset_file=prod_asset_rel,
+            product_asset_meta=prod_asset_meta,
             task_anchor=task_anchor,
             face_anchor=face_anchor,
             continuity_tracks=continuous_tl.get("tracks", []),
@@ -468,17 +518,19 @@ def render_compiled_storyboard_to_mp4(
         compiled_props_by_scene[sc.scene_id] = props
         atomic_write_json(slot_dir / "props.json", props)
 
-        # Content-addressed per-scene cache key (invalidates on code, props, continuity, source, matte, HF, seed, dims!)
+        # Content-addressed per-scene cache key (invalidates on code, candidate, props, continuity, source, matte, ALL HF layers, product asset, seed!)
         scene_cache_key = hashlib.sha256(
             json.dumps(
                 {
                     "code_hash": rem_code_hash,
                     "schema_version": storyboard.schema_version,
+                    "chosen_candidate_id": sc.chosen_candidate_id,
                     "continuity_hash": continuous_tl["continuity_hash"],
                     "props": props,
                     "src_sha": src_sha,
                     "fg_sha": fg_sha,
-                    "hf_sha": hf_sha,
+                    "hf_shas": hf_shas,
+                    "prod_asset_sha": prod_asset_sha,
                     "seed": int(config.seed),
                     "codec": "h264",
                     "crf": 16,
@@ -514,15 +566,32 @@ def render_compiled_storyboard_to_mp4(
                 "concurrency": 1,
             })
 
-        # Active-Window Ablation Plan (entry / peak / exit-bridge!)
+        # Active-Window Ablation Plan (entry / peak / exit-bridge + PER-LAYER HF ablation when >=2 HF layers!)
         dur_f = int(props["durationInFrames"])
         mid_rel = max(6, min(dur_f - 8, dur_f // 2))
         ab_dir = ev_dir / "ablations" / sc.scene_id
         ab_dir.mkdir(parents=True, exist_ok=True)
 
         sc_ab_checks: list[dict[str, Any]] = []
-        if hf_rel is not None:
-            sc_ab_checks.append({"role": hf_role, "frame": mid_rel, "window": "peak"})
+        if len(hf_layer_mounts) >= 2:
+            for hlm in hf_layer_mounts:
+                # Sample frame where paper tokens are in-flight (~f10-14) for background tokens, midpoint for foreground type!
+                is_bg_tok = hlm["layerRole"] == "background_graphics"
+                sample_f = max(6, min(dur_f - 8, 12 if is_bg_tok else mid_rel))
+                sc_ab_checks.append({
+                    "role": f"hf_layer:{hlm['layerId']}",
+                    "exclude_role": None,
+                    "exclude_id": hlm["layerId"],
+                    "frame": sample_f,
+                    "window": "peak_multilayer",
+                })
+        elif hf_rel is not None:
+            sc_ab_checks.append({"role": hf_role, "exclude_role": hf_role, "exclude_id": None, "frame": mid_rel, "window": "peak"})
+
+        if prod_asset_rel is not None:
+            prod_f = max(8, min(dur_f - 6, int(round(dur_f * 0.68))))
+            sc_ab_checks.append({"role": "product_asset", "exclude_role": "product_asset", "exclude_id": None, "frame": prod_f, "window": "product_after_flip"})
+
         if props["primitives"]:
             rem_f = mid_rel
             for pn in props["primitives"]:
@@ -534,21 +603,21 @@ def render_compiled_storyboard_to_mp4(
                     rem_f = max(8, min(dur_f - 8, dur_f // 2))
             only_particles = all(pn["primitiveId"] == "rem_viv_particle_field" for pn in props["primitives"])
             if only_particles and fg_rel is not None:
-                sc_ab_checks.append({"role": "foreground_subject_matte", "frame": mid_rel, "window": "peak"})
+                sc_ab_checks.append({"role": "foreground_subject_matte", "exclude_role": "foreground_subject_matte", "exclude_id": None, "frame": mid_rel, "window": "peak"})
             else:
-                sc_ab_checks.append({"role": "remotion_primitive", "frame": rem_f, "window": "peak"})
+                sc_ab_checks.append({"role": "remotion_primitive", "exclude_role": "remotion_primitive", "exclude_id": None, "frame": rem_f, "window": "peak"})
         if sc.transition_in.kind != "none" and src_rel is not None and sc.transition_in.duration_frames >= 4:
             tr_f = max(2, min(dur_f - 2, sc.transition_in.duration_frames // 2))
-            sc_ab_checks.append({"role": "transition_in", "frame": tr_f, "window": "entry"})
+            sc_ab_checks.append({"role": "transition_in", "exclude_role": "transition_in", "exclude_id": None, "frame": tr_f, "window": "entry"})
         elif tr_out_kind != "none" and src_rel is not None:
             tr_out_f = int(props.get("transitionOutFrames", 12))
             out_mid = max(2, min(dur_f - 2, dur_f - max(2, tr_out_f // 2)))
-            sc_ab_checks.append({"role": "transition_out", "frame": out_mid, "window": "exit"})
+            sc_ab_checks.append({"role": "transition_out", "exclude_role": "transition_out", "exclude_id": None, "frame": out_mid, "window": "exit"})
         elif fg_rel is not None and not any(c["role"] == "foreground_subject_matte" for c in sc_ab_checks):
-            sc_ab_checks.append({"role": "foreground_subject_matte", "frame": mid_rel, "window": "peak"})
+            sc_ab_checks.append({"role": "foreground_subject_matte", "exclude_role": "foreground_subject_matte", "exclude_id": None, "frame": mid_rel, "window": "peak"})
 
         seen_full_frames: dict[int, Path] = {}
-        for chk in sc_ab_checks[:3]:
+        for chk in sc_ab_checks[:4]:
             sf_rel = int(chk["frame"])
             if sf_rel not in seen_full_frames:
                 full_p = ab_dir / f"full_f{sf_rel:03d}.png"
@@ -557,23 +626,24 @@ def render_compiled_storyboard_to_mp4(
                     "kind": "still",
                     "id": f"still:{sc.scene_id}:full:f{sf_rel}",
                     "compositionId": "MotionLabGenerativeScene",
-                    "props": {**props, "excludeLayerRole": None},
+                    "props": {**props, "excludeLayerRole": None, "excludeLayerId": None},
                     "frame": sf_rel,
                     "outputLocation": str(full_p),
                 })
-            ex_p = ab_dir / f"without_{chk['role']}_f{sf_rel:03d}.png"
+            safe_r = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in chk["role"])
+            ex_p = ab_dir / f"without_{safe_r}_f{sf_rel:03d}.png"
             batch_jobs.append({
                 "kind": "still",
-                "id": f"still:{sc.scene_id}:{chk['role']}:f{sf_rel}",
+                "id": f"still:{sc.scene_id}:{safe_r}:f{sf_rel}",
                 "compositionId": "MotionLabGenerativeScene",
-                "props": {**props, "excludeLayerRole": chk["role"]},
+                "props": {**props, "excludeLayerRole": chk.get("exclude_role"), "excludeLayerId": chk.get("exclude_id")},
                 "frame": sf_rel,
                 "outputLocation": str(ex_p),
             })
             chk["full_png"] = full_p
             chk["ex_png"] = ex_p
 
-        ablation_plan[sc.scene_id] = sc_ab_checks[:3]
+        ablation_plan[sc.scene_id] = sc_ab_checks[:4]
         scene_prep[sc.scene_id] = {
             "props": props,
             "out_mp4": out_sc_mp4,
@@ -581,7 +651,9 @@ def render_compiled_storyboard_to_mp4(
             "cache_hit": cache_hit,
             "cache_key": scene_cache_key,
             "used_matte_alpha": fg_rel is not None,
-            "used_hyperframes_graphics": hf_rel is not None,
+            "used_hyperframes_graphics": bool(hf_layer_mounts),
+            "hf_layers_count": len(hf_layer_mounts),
+            "product_asset_bound": prod_asset_rel is not None,
         }
 
         actual_engines.add("remotion")
@@ -665,16 +737,197 @@ def render_compiled_storyboard_to_mp4(
         "remotion_scene_cache_hits": rem_scene_cache_hits,
         "remotion_scene_total": len(storyboard.scenes),
         "hf_overlay_cache_hits": hf_cache_hits,
-        "hf_overlay_total": len(hf_results),
-        "ablation_window_mode": "active_window_entry_peak_exit",
+        "hf_overlay_total": hf_total_layers,
+        "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
         "batch_worker_peak_tree_rss_mb": float(batch_summary.get("peak_tree_rss_mb", 0.0)),
-        "audio_render_marker_barrier": "REALIZED_POST_RENDER",
+        "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
     }
     tracker.end_stage("remotion_scenes", temp_dir=temp_dir)
 
-    # 4. POST-RENDER DEPENDENCY BARRIER (R5.R2 Fix D12!): Realize animation markers -> Semantic Sound Director -> Exact Mix!
+    # Upgrade product asset status ONLY when rendered pixels actually prove real product asset binding (D06!)
+    if product_asset_bound_scenes:
+        prod_ab_ok = all(
+            (ablation_results.get(sid, {}).get("product_asset") or {}).get("verified", False)
+            for sid in product_asset_bound_scenes
+        )
+        prod_match["bound_scenes"] = product_asset_bound_scenes
+        prod_match["pixel_ablation_verified"] = prod_ab_ok
+        prod_match["product_demo_status"] = "AUTHORIZED_DEMO_RENDERED_VERIFIED" if prod_ab_ok else "AUTHORIZED_ASSET_BINDING_FAILED"
+        atomic_write_json(ev_dir / "product_asset_status.json", prod_match)
+
+    # 3b. Bounded Creative Repair Loop (A9.3): Assemble visual preview -> run streaming objective critic ->
+    # repair actionable HIGH findings (max 2 rounds, rerendering ONLY affected scenes!) -> freeze visual graph BEFORE audio!
+    revision_history: dict[str, Any] = {
+        "schema_version": "3.0.0",
+        "max_rounds": 2,
+        "rounds_executed": 0,
+        "initial_severe_findings": 0,
+        "final_severe_findings": 0,
+        "critic_mode": "OBJECTIVE_STREAMING_ONLY",
+        "revisions": [],
+        "status": "CLEAN_PASS_NO_REPAIR_NEEDED",
+    }
+    draft_visual_mp4 = temp_dir / "r5_visual_repair_check.mp4"
+    _assemble_full_timeline_and_mux(
+        media=media,
+        storyboard=storyboard,
+        rendered_scenes=rendered_scenes,
+        mixed_wav_path=None,
+        workdir=temp_dir,
+        out_partial_path=draft_visual_mp4,
+        budget=budget,
+        config=config,
+        ffmpeg_bin=ffmpeg_bin,
+    )
+    pre_mix_critic = run_objective_rendered_critic(
+        source_mp4=Path(media.source_path),
+        final_mp4=draft_visual_mp4,
+        storyboard=storyboard,
+        continuous_timeline=continuous_tl,
+        roi_tracks=roi_tracks,
+        out_dir=ev_dir,
+    )
+    revision_history["initial_severe_findings"] = int(pre_mix_critic.get("severe_findings_count", 0))
+    revision_history["final_severe_findings"] = int(pre_mix_critic.get("severe_findings_count", 0))
+    if pre_mix_critic.get("vlm_status") == "VLM_READY":
+        revision_history["critic_mode"] = "OBJECTIVE_PLUS_LOCAL_VLM"
+
+    sc_by_id = {sc.scene_id: sc for sc in storyboard.scenes}
+    for rep_round in range(1, 3):
+        severe_list = [f for f in pre_mix_critic.get("findings", []) if f.get("severity") == "HIGH"]
+        if not severe_list:
+            break
+        repair_jobs: list[dict[str, Any]] = []
+        changed_scenes: list[dict[str, Any]] = []
+        backup_mp4s: dict[str, Path] = {}
+        for fnd in severe_list:
+            aff_id = str(fnd.get("affected_scene_id", ""))
+            sc_aff = sc_by_id.get(aff_id)
+            if sc_aff is None or aff_id not in compiled_props_by_scene:
+                continue
+            props_new = json.loads(json.dumps(compiled_props_by_scene[aff_id]))
+            cat = str(fnd.get("category", ""))
+            patch_desc = ""
+            if cat in ("transition_continuity", "boundary_window_spike"):
+                if props_new.get("stageMode") == "full_graphic_cutaway":
+                    props_new["transitionIn"] = "sheet_sweep"
+                    props_new["transitionInFrames"] = 14
+                    props_new["transitionOut"] = "paper_fold_out"
+                    props_new["transitionOutFrames"] = 14
+                    patch_desc = "extended_sheet_sweep_and_paper_fold_handles_to_14f"
+                else:
+                    props_new["entryFrames"] = max(10, int(props_new.get("entryFrames", 8)))
+                    props_new["exitFrames"] = max(10, int(props_new.get("exitFrames", 8)))
+                    patch_desc = "smoothed_live_scene_entry_exit_envelope"
+            elif cat == "face_contrast_washout":
+                for hlm in props_new.get("hfLayers", []):
+                    if hlm.get("primitiveId") == "hf_organic_light_leak":
+                        hlm["opacity"] = min(0.12, float(hlm.get("opacity", 0.2)))
+                patch_desc = "clamped_light_leak_opacity_to_0_12"
+            elif cat == "internal_flash_spike":
+                props_new["entryFrames"] = max(10, int(props_new.get("entryFrames", 8)))
+                props_new["exitFrames"] = max(10, int(props_new.get("exitFrames", 8)))
+                patch_desc = "damped_internal_flash_envelope"
+            if not patch_desc or any(cs["scene_id"] == aff_id for cs in changed_scenes):
+                continue
+            out_p = Path(rendered_scenes[aff_id]["artifact_path"])
+            bak_p = out_p.with_suffix(f".bak_r{rep_round}.mp4")
+            shutil.copy2(out_p, bak_p)
+            backup_mp4s[aff_id] = bak_p
+            repair_jobs.append({
+                "kind": "media",
+                "id": f"repair_r{rep_round}:{aff_id}",
+                "compositionId": "MotionLabGenerativeScene",
+                "props": props_new,
+                "outputLocation": str(out_p),
+                "codec": "h264",
+                "pixelFormat": "yuv420p",
+                "crf": 16,
+                "concurrency": 1,
+            })
+            changed_scenes.append({
+                "scene_id": aff_id,
+                "cause": cat,
+                "patch": patch_desc,
+                "before_sha256": rendered_scenes[aff_id]["artifact_sha256"],
+                "new_props": props_new,
+            })
+
+        if not repair_jobs:
+            break
+        revision_history["rounds_executed"] = rep_round
+        rem.render_batch_jobs(
+            jobs=repair_jobs,
+            public_mounts=public_mounts,
+            work_dir=temp_dir / f"rem_repair_r{rep_round}",
+            bundle_cache_root=rem_bundle_cache_dir,
+            timeout_s=max(240.0, float(config.timeout_s)),
+        )
+        _assemble_full_timeline_and_mux(
+            media=media,
+            storyboard=storyboard,
+            rendered_scenes=rendered_scenes,
+            mixed_wav_path=None,
+            workdir=temp_dir,
+            out_partial_path=draft_visual_mp4,
+            budget=budget,
+            config=config,
+            ffmpeg_bin=ffmpeg_bin,
+        )
+        post_critic = run_objective_rendered_critic(
+            source_mp4=Path(media.source_path),
+            final_mp4=draft_visual_mp4,
+            storyboard=storyboard,
+            continuous_timeline=continuous_tl,
+            roi_tracks=roi_tracks,
+            out_dir=ev_dir,
+        )
+        improved = int(post_critic.get("severe_findings_count", 0)) < int(pre_mix_critic.get("severe_findings_count", 0))
+        if improved:
+            for cs in changed_scenes:
+                sid = cs["scene_id"]
+                compiled_props_by_scene[sid] = cs["new_props"]
+                rendered_scenes[sid]["artifact_sha256"] = _sha256_file(Path(rendered_scenes[sid]["artifact_path"]))
+                cs["after_sha256"] = rendered_scenes[sid]["artifact_sha256"]
+                backup_mp4s[sid].unlink(missing_ok=True)
+            pre_mix_critic = post_critic
+            revision_history["final_severe_findings"] = int(post_critic.get("severe_findings_count", 0))
+            revision_history["revisions"].append({
+                "round": rep_round,
+                "accepted": True,
+                "changes": [{k: v for k, v in cs.items() if k != "new_props"} for cs in changed_scenes],
+                "severe_after": int(post_critic.get("severe_findings_count", 0)),
+            })
+            revision_history["status"] = "REPAIRED_IMPROVED"
+        else:
+            # Rollback cleanly if repair did not reduce severe findings!
+            for sid, bak_p in backup_mp4s.items():
+                shutil.move(str(bak_p), rendered_scenes[sid]["artifact_path"])
+            revision_history["revisions"].append({
+                "round": rep_round,
+                "accepted": False,
+                "rolled_back": True,
+                "changes": [{k: v for k, v in cs.items() if k != "new_props"} for cs in changed_scenes],
+                "severe_after": int(post_critic.get("severe_findings_count", 0)),
+            })
+            revision_history["status"] = "REPAIR_ROLLED_BACK_UNRESOLVED"
+            break
+
+    draft_visual_mp4.unlink(missing_ok=True)
+    atomic_write_json(ev_dir / "revision_history.json", revision_history)
+
+    # 4. POST-RENDER FROZEN VISUAL BARRIER (R5.R3 Fix D07!): 4-Tier Markers (RENDER_EMITTED -> OBSERVED_PIXEL) -> Sound -> Mix!
     tracker.start_stage("sound_design_mix")
-    anim_markers = extract_realized_animation_markers(storyboard, story_graph, compiled_scene_props=compiled_props_by_scene)
+    anim_markers = extract_realized_animation_markers(
+        storyboard,
+        story_graph,
+        compiled_scene_props=compiled_props_by_scene,
+        rendered_scenes=rendered_scenes,
+        observe_pixels=True,
+    )
+    tier_counts: dict[str, int] = {}
+    for m in anim_markers:
+        tier_counts[m.marker_tier] = tier_counts.get(m.marker_tier, 0) + 1
     sonic_opps = extract_sonic_opportunities(
         story_graph=story_graph,
         transcript=transcript_obj,
@@ -703,8 +956,13 @@ def render_compiled_storyboard_to_mp4(
         music_enabled=eff_music,
         seed=config.seed,
     )
-    atomic_write_json(ev_dir / "animation_markers.json", {"phase": "REALIZED_POST_RENDER", "markers": [m.to_dict() for m in anim_markers]})
-    atomic_write_json(ev_dir / "animation_markers_realized.json", {"phase": "REALIZED_POST_RENDER", "markers": [m.to_dict() for m in anim_markers]})
+    markers_payload = {
+        "phase": "POST_RENDER_FROZEN_4TIER",
+        "tier_counts": tier_counts,
+        "markers": [m.to_dict() for m in anim_markers],
+    }
+    atomic_write_json(ev_dir / "animation_markers.json", markers_payload)
+    atomic_write_json(ev_dir / "animation_markers_realized.json", markers_payload)
     atomic_write_json(ev_dir / "sound_rationale.json", sonic_score.to_dict())
     atomic_write_json(ev_dir / "cue_decisions.json", {
         "cue_ledger_summary": used_sfx_info.get("cue_ledger_summary", {}),
@@ -809,20 +1067,38 @@ def render_compiled_storyboard_to_mp4(
 
     ablation_total = int(creative_qa.get("ablation_layers_total", 0))
     ablation_verified = int(creative_qa.get("ablation_layers_verified", 0))
-    ablation_all_ok = (ablation_total == 0) or (ablation_verified == ablation_total)
-
-    tech_ok = bool(
-        source_immutable
-        and out_w == media.display_width
-        and out_h == media.display_height
-        and out_frames == media.duration_frames
-        and creative_qa["black_frames"] == 0
-        and ablation_all_ok
-        and continuous_tl["continuous_timeline_valid"]
-        and pixel_critic["abrupt_cutaway_jumps"] == 0
-        and (not require_dual_engine_reuse_gate or reuse_passed)
-        and (mix_info is None or audio_qa.get("status") == "PASS")
+    planned_active_layers = sum(len(sc.layers) for sc in storyboard.scenes)
+    # Fixes D16: Never allow ablation_total==0 to pass when active graphics layers were planned!
+    ablation_all_ok = (ablation_total > 0 and ablation_verified == ablation_total) if planned_active_layers > 0 else True
+    # Fixes D16: Never allow mix_info is None to pass when audio-mode=mix + SFX cues were planned!
+    mix_required = bool(eff_audio_mode == "mix" and eff_sfx and len(sonic_score.cues) > 0)
+    audio_gate_ok = (
+        (mix_info is not None and audio_qa.get("status") == "PASS")
+        if mix_required
+        else (mix_info is None or audio_qa.get("status") == "PASS")
     )
+    critic_gate_ok = bool(
+        pixel_critic["abrupt_cutaway_jumps"] == 0
+        and int(pixel_critic.get("severe_findings_count", 0)) == 0
+    )
+    selected_candidates_ok = all(
+        sc.scene_id in rendered_scenes and len(hf_results.get(sc.scene_id, [])) == sum(1 for ly in sc.layers if ly.engine == "hyperframes")
+        for sc in storyboard.scenes
+    )
+
+    tech_ok_breakdown = {
+        "source_immutable": source_immutable,
+        "geometry_exact": (out_w == media.display_width and out_h == media.display_height),
+        "frames_exact": (out_frames == media.duration_frames),
+        "zero_black_frames": (creative_qa["black_frames"] == 0),
+        "ablation_all_ok": ablation_all_ok,
+        "continuous_timeline_valid": bool(continuous_tl["continuous_timeline_valid"]),
+        "critic_gate_ok": critic_gate_ok,
+        "reuse_gate_ok": (not require_dual_engine_reuse_gate or reuse_passed),
+        "audio_gate_ok": audio_gate_ok,
+        "selected_candidates_and_multilayer_ok": selected_candidates_ok,
+    }
+    tech_ok = bool(all(tech_ok_breakdown.values()))
 
     final_path = run_dir / output_filename
     preview_info: dict[str, Any] | None = None
@@ -840,21 +1116,36 @@ def render_compiled_storyboard_to_mp4(
     tracker.end_stage("validation_and_qa", temp_dir=temp_dir)
 
     actual_engine_usage = {
-        "edition": "ml-01.r5",
+        "edition": "ml-01.r5.r3",
         "mode": storyboard.mode,
+        "selected_graph_hash": storyboard.selected_graph_hash,
         "engines_used": sorted(actual_engines),
         "dual_engine_active": ("remotion" in actual_engines and "hyperframes" in actual_engines),
         "reuse_gate": reuse_report,
         "scenes": [
             {
                 "scene_id": sc.scene_id,
+                "chosen_candidate_id": sc.chosen_candidate_id,
+                "candidate_provenance": sc.candidate_provenance,
                 "role": sc.role,
                 "stage_mode": rendered_scenes[sc.scene_id]["stage_mode"],
                 "frame_range": [sc.start_frame, sc.end_frame_exclusive],
                 "remotion_artifact_sha256": rendered_scenes[sc.scene_id]["artifact_sha256"],
-                "hf_primitive_id": hf_results[sc.scene_id]["primitive_id"] if sc.scene_id in hf_results else None,
-                "hf_artifact_sha256": hf_results[sc.scene_id]["artifact_sha256"] if sc.scene_id in hf_results else None,
+                "hf_primitive_id": hf_results[sc.scene_id][0]["primitive_id"] if sc.scene_id in hf_results else None,
+                "hf_artifact_sha256": hf_results[sc.scene_id][0]["artifact_sha256"] if sc.scene_id in hf_results else None,
+                "hf_layers_executed": [
+                    {
+                        "layer_id": h["layer_id"],
+                        "primitive_id": h["primitive_id"],
+                        "layer_role": h["layer_role"],
+                        "z_order": h["z_order"],
+                        "render_mode": h.get("render_mode", "combined"),
+                        "artifact_sha256": h["artifact_sha256"],
+                    }
+                    for h in hf_results.get(sc.scene_id, [])
+                ],
                 "used_matte_alpha": rendered_scenes[sc.scene_id]["used_matte_alpha"],
+                "product_asset_bound": scene_prep[sc.scene_id].get("product_asset_bound", False),
                 "ablation": ablation_results.get(sc.scene_id, {}),
             }
             for sc in storyboard.scenes
@@ -866,6 +1157,7 @@ def render_compiled_storyboard_to_mp4(
 
     validation_doc = {
         "overall_status": overall_status,
+        "tech_ok_breakdown": tech_ok_breakdown,
         "aesthetic_status": "PENDING_HUMAN_REVIEW",
         "foley_library_status": inspect_foley_library()["status"],
         "source_immutable": source_immutable,
@@ -874,6 +1166,8 @@ def render_compiled_storyboard_to_mp4(
         "expected_frames": media.duration_frames,
         "reuse_gate": reuse_report,
         "audio_qa": audio_qa,
+        "marker_tier_counts": tier_counts,
+        "revision_history": revision_history,
         "sonic_score_summary": {
             "score_hash": sonic_score.score_hash,
             "cues_planned": len(sonic_score.cues),
@@ -1033,7 +1327,7 @@ def execute_generative_r5_pipeline(
     atomic_write_json(run_dir / "ledger_claims.json", story_graph.ledger.to_dict())
     tracker.end_stage("story_graph", temp_dir=run_dir / "temp")
 
-    # 3. Generic Local Qwen2.5-3B Generative Director + UnifiedPrimitiveRegistry Search
+    # 3. Generic Causal Global Creative Director (Qwen2.5-3B + Hybrid Retrieval + Real Transcript D03!)
     tracker.start_stage("generative_director")
     storyboard, dir_audit = direct_generative_storyboard(
         media=media,
@@ -1043,6 +1337,7 @@ def execute_generative_r5_pipeline(
         matte_available=bool(vision_info.get("available")),
         registry=reg,
         cache_dir=sem_cache,
+        transcript=transcript,
     )
     atomic_write_json(run_dir / "raw_director_response.json", dir_audit)
     atomic_write_json(run_dir / "retrieved_candidates.json", storyboard.retrieved_candidates)
