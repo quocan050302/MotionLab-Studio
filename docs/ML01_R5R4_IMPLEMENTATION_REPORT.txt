@@ -1,0 +1,171 @@
+================================================================================
+MOTIONLAB AI — ML-01.R5.R4 IMPLEMENTATION & VERIFICATION REPORT
+Intelligent Editing, Causal Pacing & Narrative Rhythm (Phases A0–A10)
+================================================================================
+
+1. REPOSITORY & BUILD IDENTITY
+--------------------------------------------------------------------------------
+Repository:          https://github.com/quocan050302/MotionLab-Studio
+Branch:              feat/ml-01-zero-api-effects
+Baseline SHA:        8c4a437bea0148e6e6234afa33a05249dc58d986
+Tested Code SHA:     ee1064ae022882435b14247ef4f301bfd43acf28 (ee1064a)
+Canonical Run ID:    20261127T140731Z_c56c9ae0_001
+Execution Mode:      AUTO_GENERATIVE (100% Offline / Zero Paid API / Zero Hardcoding)
+Host Environment:    macOS (Apple Silicon / Python 3.13.0, faster-whisper 1.2.1 + Silero VAD ONNX,
+                     onnxruntime 1.23.2, OpenCV 4.14.0, Remotion 4.0.451, HyperFrames + GSAP)
+Disk Safety Reserve: >= 5 GiB enforced (--min-free-gb 5); 13.83 GiB free after full verification.
+
+2. SOURCE IMMUTABILITY & CANONICAL OUTPUT IDENTITY
+--------------------------------------------------------------------------------
+Original Source:     input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+Source SHA-256:      c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+Source Verified:     MATCH BEFORE AND AFTER ALL RUNS (source_immutable = true)
+Source Specs:        720x1280 (9:16), 24/1 fps, 720 frames, 30.000s, 8,650,669 B, AAC mono 44100 Hz
+
+Canonical Final MP4: runs/olivia_ml01_r5r4/20261127T140731Z_c56c9ae0_001/
+                     Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R4_FINAL_9x16.mp4
+                     (hardlink to final.mp4)
+Final SHA-256:       33069bdca47aed2a0da119467c6768b1a569cd9851963cb1e7396d8c29cf644b
+Final Size / Specs:  10,040,121 B | 720x1280 (9:16) | 24/1 fps | 630 frames | 26.250s
+Full Decode Check:   ffmpeg -v error -xerror -i final.mp4 -f null -  -> EXIT 0
+
+Fresh 9:16 Preview:  runs/olivia_ml01_r5r4/20261127T140731Z_c56c9ae0_001/preview_9x16.mp4
+Preview SHA-256:     aa4343d3425ac4c0a5409468a3fc2dfcf4ee54582bb8a1f528d041967250cfd4
+Preview Specs:       4,306,099 B | 540x960 (9:16) | 630 frames | audio copied from final.mp4
+Preview Decode:      ffmpeg -v error -xerror -i preview_9x16.mp4 -f null - -> EXIT 0
+
+Original Audio Master:
+  original_audio_master.m4a bit-exact stream-copied from immutable original MP4 (`master_exact=true`).
+
+3. SPEECH PERCEPTION, PACING DIRECTOR & EDIT TIME MAP (BEFORE vs AFTER)
+--------------------------------------------------------------------------------
+VAD Backend:         silero_vad_onnx (chunked 60s neural Silero VAD + 20ms spectral cross-check)
+ASR Model:           faster_whisper_small (sha256: 3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671)
+Alignment Method:    VAD_ENVELOPE_REFINED (honest: forced_aligner_used=false,
+                     sample_exact_ground_truth=false, mean_uncertainty_ms=49.0,
+                     vad_confirmed_ratio=1.0, trailing_extensions_count=60)
+
+Pacing Variants Competed Causally (niche=finance, pacing_mode=auto):
+  - pacing_identity     : 720f (30.000s), 0 cuts, -0.000s, score = 33.62
+  - pacing_conservative : 663f (27.625s), 1 cut , -2.375s, score = 68.312
+  - pacing_balanced     : 630f (26.250s), 3 cuts, -3.750s, score = 77.00  <-- CHOSEN
+  - pacing_tight        : 618f (25.750s), 4 cuts, -4.250s, score = 76.418
+
+Applied Safe Cuts (EditTimeMap hash: 9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37):
+  1. cut_01_visual_action [f204..228, 8.500s–9.500s]  : -24f (-1.000s) | VISUAL_ACTION
+     Kept envelope fold start + natural breath; trimmed redundant interior (face_disp=0.0096, luma_jump=7.17).
+  2. cut_02_visual_action [f333..339, 13.875s–14.125s]: -6f  (-0.250s) | VISUAL_ACTION
+     Kept action beat + breath; trimmed redundant interior (face_disp=0.0227, luma_jump=1.16, MAD=6.78).
+  3. cut_03_cognitive     [f417..477, 17.375s–19.875s]: -60f (-2.500s) | COGNITIVE
+     Preserved 0.515s post-payoff cognitive landing + 0.225s pre-onset breath; trimmed 2.500s idle silence
+     (face_disp=0.0344, luma_jump=2.30, MAD=13.32).
+
+Protected Spans Retained Intact:
+  - Opening hook expression guard + all 70 spoken words + 0.805s compact action beat (4.955–5.760s)
+    + 0.340s final CTA decay tail (29.660–30.000s).
+
+Word Preservation Verification (Re-ASR on derived edited_voice_bed.wav):
+  - original_words_count = 70 | mapped_words_count = 70
+  - token_recall = 1.000 | critical_token_recall = 1.000 | order_preserved = true
+  - missing_critical_tokens = [] | missing_numeric_tokens = [] | suspect_cut_ids = []
+  - re_asr_executed = true | re_asr_status = EXECUTED:OK | passed = true
+
+Audio Join & Cut Continuity QA:
+  - Sample Clock:       actual_samples = expected_samples = 1,157,625 (sample_count_diff = 0)
+  - Audio Joins:        3/3 PASS (clicks_detected = 0, dc_jumps_detected = 0, 12ms equal-power cosine fades)
+  - Cut Continuity:     3/3 PASS (severe_jump_joins = 0, max face_center_displacement = 0.0344)
+  - Rhythm Critic:      objective_rhythm_status = PASS (longest_remaining_non_speech_s = 0.62s,
+                        post_edit_non_speech_ratio = 0.2127, 0 findings)
+
+4. REMOTION + HYPERFRAMES COMPOSITION, LAYER ABLATION & SOUND DESIGN
+--------------------------------------------------------------------------------
+Engines Actually Rendered: ffmpeg, hyperframes, remotion (9 scenes, 630 edited frames)
+Reuse Gate:                PASS (13 distinct verified primitives across 5 repos:
+                           8 Remotion + 5 HyperFrames; 0 unverified)
+  - Remotion (8): rem_gtk_line_led, rem_rc_flip_page, rem_ru_masked_slide, rem_ru_parallax,
+                  rem_ru_strikethrough, rem_ru_track_matte, rem_ru_waterfall, rem_viv_particle_field
+  - HyperFrames (5): hf_apple_money_count, hf_lt_mask_reveal, hf_mk_progress_stat,
+                     hf_mk_specs_list, hf_organic_light_leak
+Layer Ablation:            20/20 layers verified via active-window counterfactual ablation
+Continuous Timeline:       PASS (8/8 boundaries smooth, numeric_state_integer_lock=true,
+                           single_numeric_owner_verified=true, max_consecutive_identical_templates=1,
+                           8 distinct scene signatures, 4 stage modes)
+Objective Pixel Critic:    PASS (findings_count=0, abrupt_cutaway_jumps=0,
+                           black_frames=0, max_face_washout_luma_delta=5.89,
+                           phone_360x640_median_contrast_ratio=3.29,
+                           substantive_visual_change_ratio=0.9571)
+Layout & Face Protection:  zero_eye_mouth_collision=true (overlap=0.0), phone_legibility_passed=true
+
+Semantic Sound Intelligence & Floor-Free Counterfactual Audio QA:
+  - Foley Library Status:   RECORDED_FOLEY_VERIFIED (13/13 recorded local foley, 0 procedural DSP,
+                            12 unique raw WAV SHA-256 hashes)
+  - Cue Conservation:       13 planned == 13 staged, 0 blocked, 0 ghost cues
+  - Marker Tiers:           17 OBSERVED_PIXEL, 1 RENDER_EMITTED (barrier: OBSERVED_PIXEL_POST_RENDER_FROZEN)
+  - Counterfactual QA:      PASS (13/13 proxy_audible, 13/13 sync_ok, 13/13 speech_band_ok,
+                            0 clipping samples added, mono_downmix_corr=0.9997)
+  - Loudness / Peak:        -15.2 LUFS integrated, -1.2 dBTP true peak, SFX peak -5.63 dBFS
+  - Listening Disclosure:   LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY (human listening pending in G10)
+
+5. CORRECTED INDEPENDENT SEMANTIC EVAL & MULTI-NICHE GENERALIZATION
+--------------------------------------------------------------------------------
+Deterministic Multi-Niche Eval (44 cases EV01..EV44 across 14 niches):
+  - 44/44 PASS (100%): finance, product, education, tutorial, tech, storytelling, comedy,
+    gameplay, wellness, silent_art, lifestyle, cinematic, mixed, unknown + prompt injection + long-form.
+  - Mutation proof: valid storyboard_hash with wrong niche FAILS closed in evaluate_storyboard_semantics().
+
+Live Local LLM Eval (Qwen2.5-3B-Instruct Q4_K_M, 6 varied multi-niche cases, EXECUTED_LOCAL_LLM):
+  - Raw Qwen2.5-3B schema compliance:       6/6
+  - Raw Qwen2.5-3B direct niche accuracy:   2/6 (mislabeled education/gameplay/tech/wellness as "product")
+  - Reconciled independent semantic oracle: 6/6 PASS (reconciled_niche + factual ledger + UI protection)
+  - Interventions logged:                   safety=12, factual=1, artistic=1, resource=0
+
+6. COMMANDS, EXIT CODES, BENCHMARKS & RESOURCE SAFETY (AT EXACT TESTED_SHA)
+--------------------------------------------------------------------------------
+Baseline Verification Commands at ee1064ae022882435b14247ef4f301bfd43acf28:
+  1. .venv/bin/python -m motionlab doctor --json                                 -> EXIT 0 (4.44s)
+  2. renderers/remotion/node_modules/.bin/tsc --noEmit -p .../tsconfig.json      -> EXIT 0 (1.88s)
+  3. .venv/bin/python -m pytest -q tests/                                        -> EXIT 0 (178 passed, 15 subtests, 85.34s)
+  4. .venv/bin/python -m unittest discover -s tests -p "test_render_*.py" -v     -> EXIT 0 (26 upstream tests; overlaps pytest — NOT double counted)
+  5. .venv/bin/python -m motionlab validate --run runs/olivia_ml01_r5r4/20261127T140731Z_c56c9ae0_001 -> EXIT 0
+
+Render & Cache Benchmarks (same Olivia source, seed=42):
+  - Canonical Cold w=2 (--pacing auto, --no-cache, --preview-9x16):
+      TECHNICAL_PASS | 630f (26.250s) | 305.13s wall | peak batch tree RSS 2024.34 MB | peak temp 106.41 MB
+  - Parity w=1 (--pacing auto, populates cache):
+      TECHNICAL_PASS | 630f (26.250s) | 165.60s wall | parity_exact_match = true
+      (identical edit_map_hash, storyboard_hash, selected_graph_hash, output_frames, audio_event_ids)
+  - Warm Cache w=2 (--pacing auto):
+      TECHNICAL_PASS | 630f (26.250s) | 121.23s wall (2.52x speedup vs cold) | peak tree RSS 1344.05 MB
+      Remotion scene cache hits: 9/9 | HyperFrames cache hits: 9/9 | bundle reused: true (0.001s)
+  - Legacy Regression w=2 (--pacing preserve):
+      TECHNICAL_PASS | exact 720f (30.000s) | is_identity = true | 168.62s wall
+
+Synthetic Long-Form Streaming Benchmark (honestly disclosed: REAL_LONGFORM_NOT_RUN):
+  - Synthetic 90s (2,160f -> 1,968f, 8 cuts):  0.490s | silero_vad_onnx (15 spans) | 162.83 MB max RSS | valid=true
+  - Synthetic 300s (7,200f -> 6,720f, 20 cuts): 0.794s | silero_vad_onnx (50 spans) | 245.53 MB max RSS | valid=true
+
+7. EXPLICIT HONEST LIMITATIONS & DISCLOSURES
+--------------------------------------------------------------------------------
+- VISION_CRITIC_NOT_RUN: No local VLM installed; text-only Qwen2.5-3B is never treated as a vision critic.
+- MODEL_UPGRADE_NOT_RUN: Local Qwen2.5-3B-Instruct retained due to host disk budget (13.83 GiB free).
+- LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY: Audio QA is automated proxy + floor-free counterfactual only.
+- ASSET_MISSING_CONCEPTUAL: No owner-authorized product screenshots in catalog; sc_08 renders honest conceptual schematic.
+- REAL_HELDOUT_NOT_RUN: No owner-provided unrelated real videos supplied; multi-niche proven on 44 fixtures + 6 live LLM cases only.
+- REAL_LONGFORM_NOT_RUN: 90s/300s benchmarks used tiled real speech PCM + synthetic EditTimeMap, not real 5-minute footage.
+- FORCED_ALIGNER_NOT_INSTALLED: Alignment is honestly labeled VAD_ENVELOPE_REFINED (mean_uncertainty_ms=49.0), never FORCED_ALIGNED.
+- HUMAN_VQ01_PENDING: Technical PASS is strictly separate from human aesthetic & listening approval.
+
+8. GATE MATRIX (G0–G10)
+--------------------------------------------------------------------------------
+G0  Baseline / Source Immutability / Branch / Disk Safety      : PASS
+G1  Real Speech Alignment / Silero VAD / Word Preservation     : PASS (70/70 words, recall=1.0, Re-ASR OK)
+G2  Causal Narrative & Pacing Director / Fixed Semantic Eval   : PASS (44/44 det, 6/6 live reconciled, causal proofs)
+G3  Valid EditTimeMap / Exact 630f & Sample Clock / Preserve   : PASS (auto=630f, preserve=720f, diff=0 samples)
+G4  Cut Continuity / Safe Reframe / Audio Join Proxy QA        : PASS (0 severe visual jumps, 0 audio clicks)
+G5  Remotion + HyperFrames Edited-Domain Sync & Ablation       : PASS (13 primitives, 20/20 layers, 0 pixel findings)
+G6  SFX Ledger / Floor-Free Counterfactual QA / Original Master: PASS (13/13 recorded foley, master bit-exact)
+G7  Product Truth / Objective Critic / Rhythm Critic / VLM Tag : PASS (honest CONCEPTUAL & VISION_CRITIC_NOT_RUN)
+G8  Canonical AUTO MP4 & Preview / Full 178-Test Regression    : PASS (validate rc=0, ffmpeg decode rc=0/0)
+G9  Performance / Disk / RAM / Redacted QA-02 / Exact SHA      : PASS (2.52x warm, 13.83 GiB free, QA-02 <= 2 MiB)
+G10 Human VQ-01 Visual & Listening Review                      : PENDING_HUMAN_REVIEW (owner playback required)
+================================================================================

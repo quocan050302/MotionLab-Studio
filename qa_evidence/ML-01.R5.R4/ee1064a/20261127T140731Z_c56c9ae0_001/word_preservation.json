@@ -1,0 +1,17 @@
+{
+  "critical_token_recall": 1.0,
+  "edit_map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+  "is_identity": false,
+  "mapped_words_count": 70,
+  "mapping_word_errors": [],
+  "missing_critical_tokens": [],
+  "missing_numeric_tokens": [],
+  "order_preserved": true,
+  "original_words_count": 70,
+  "passed": true,
+  "re_asr_executed": true,
+  "re_asr_status": "EXECUTED:OK",
+  "schema_version": "1.0.0",
+  "suspect_cut_ids": [],
+  "token_recall": 1.0
+}

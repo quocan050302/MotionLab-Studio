@@ -1,0 +1,74 @@
+{
+  "optimization_summary": {},
+  "resource_stats": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
+      "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
+      "batch_worker_peak_tree_rss_mb": 2024.34,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 9,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 0.954,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 8.323,
+      "remotion_code_hash": "1086d481285ab21083f8",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 29
+    },
+    "peak_temp_mb": 106.29,
+    "peak_tree_rss_mb": 1280.81,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 6.4927,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 698.91
+      },
+      "generative_director": {
+        "elapsed_s": 30.5629,
+        "temp_mb": 15.59,
+        "tree_rss_mb": 92.61
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 77.231,
+        "temp_mb": 24.43,
+        "tree_rss_mb": 104.22
+      },
+      "pacing_and_cutting": {
+        "elapsed_s": 18.7285,
+        "temp_mb": 15.59,
+        "tree_rss_mb": 1280.81
+      },
+      "remotion_scenes": {
+        "elapsed_s": 104.9236,
+        "temp_mb": 97.33,
+        "tree_rss_mb": 113.41
+      },
+      "sound_design_mix": {
+        "elapsed_s": 3.8612,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 697.39
+      },
+      "story_graph": {
+        "elapsed_s": 1.1767,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 1054.86
+      },
+      "validation_and_qa": {
+        "elapsed_s": 27.4023,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 603.25
+      },
+      "vision_and_asr": {
+        "elapsed_s": 8.093,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 1046.59
+      },
+      "vision_segmentation": {
+        "elapsed_s": 11.429,
+        "temp_mb": 17.99,
+        "tree_rss_mb": 488.45
+      }
+    }
+  }
+}

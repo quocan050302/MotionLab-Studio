@@ -1,0 +1,10 @@
+{
+  "critic_mode": "OBJECTIVE_STREAMING_ONLY",
+  "final_severe_findings": 0,
+  "initial_severe_findings": 0,
+  "max_rounds": 2,
+  "revisions": [],
+  "rounds_executed": 0,
+  "schema_version": "3.0.0",
+  "status": "CLEAN_PASS_NO_REPAIR_NEEDED"
+}

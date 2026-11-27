@@ -1,0 +1,183 @@
+{
+  "artifact_hashes": {
+    "audio_timeline.json": "838554adcf7220c4eef6f17fd1007747515d0beccc6d7e4af92905b33442f7a1",
+    "benchmark.json": "22964ea5aab750d0274cf3a4fa415e4a0ae6c18108db910a406fb55ffecf116b",
+    "cue_decisions.json": "b2229abea186a7dc669a7c33fc76967127f0874f7dec91a3d1fbde271cfc059e",
+    "cut_continuity.json": "43181febad29c739b55c118d4bd37c43b58fcb788f1624c2a520aed11d8232bb",
+    "edit_time_map.json": "6018948f7ecca497a5710901f7e3902e294333b3c0d0aa7c8f13bace5bfa985e",
+    "effect_execution.json": "e55b448e43393844224f21c49a76049cfc1b8d7bbd0aa30d4c1db4c6af6f2558",
+    "join_audio_qa.json": "fea717fbd6c41e6040a53b5e287433a48b413eacf124a53ce8e437b4f2681cd6",
+    "marker_tiers.json": "bd11d8cbd99da76ccf3ad56135bf40efd69a3bcc57c8160bdf02e7b7951c2cc4",
+    "mix_metrics.json": "37388916c2fab38be7914aa50b34c6111664f1a2d40bb9c19fe31e6dbccd4b24",
+    "pacing_decisions.json": "8b3b3e4b5c707ea683157811902869a1cf7b27603a9d9a7b768778142b299138",
+    "revision_history.json": "fdd365992e788a0766a860ccf6bd3345cd94664de27241157d032750c89a9550",
+    "rhythm_critic.json": "1cf4f1ff460d9f1d56a9e507d0995638899cc948f5995f87600099740ba4a0fc",
+    "selected_candidate_trace.json": "7941b93788286527e8630702956a85ed29c8f5792b67f2b1c003a89a059daf2c",
+    "sound_rationale.json": "7a5584789975da5c66d01b9c29255602f5b1e30307bc330d83c9a2dfca2d5180",
+    "story_graph_redacted.json": "7fd4125801dd4c588bd07595a4265c0970ad7f6f331bfdd512b3228f7917729e",
+    "storyboard.json": "b59cc542096647c38724788f382bbd17bb4af57628f549f92cf6db6b7c6e2872",
+    "visual_quality.json": "04e2301c26a12c576550a841f70cd38d37b76b64e59fdbc23d7eced24eb0514f",
+    "word_preservation.json": "9ec96f553bd8087d9f491209e74f98b4b513658c3a247896dcd37ad45d434572"
+  },
+  "asset_status": "ASSET_MISSING_CONCEPTUAL",
+  "benchmark_timings": {
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
+      "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
+      "batch_worker_peak_tree_rss_mb": 2024.34,
+      "hf_overlay_cache_hits": 0,
+      "hf_overlay_total": 9,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 0.954,
+      "remotion_bundle_reused": false,
+      "remotion_bundle_s": 8.323,
+      "remotion_code_hash": "1086d481285ab21083f8",
+      "remotion_scene_cache_hits": 0,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 29
+    },
+    "peak_temp_mb": 106.29,
+    "peak_tree_rss_mb": 1280.81,
+    "stages": {
+      "canonical_assembly": {
+        "elapsed_s": 6.4927,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 698.91
+      },
+      "generative_director": {
+        "elapsed_s": 30.5629,
+        "temp_mb": 15.59,
+        "tree_rss_mb": 92.61
+      },
+      "hyperframes_graphics": {
+        "elapsed_s": 77.231,
+        "temp_mb": 24.43,
+        "tree_rss_mb": 104.22
+      },
+      "pacing_and_cutting": {
+        "elapsed_s": 18.7285,
+        "temp_mb": 15.59,
+        "tree_rss_mb": 1280.81
+      },
+      "remotion_scenes": {
+        "elapsed_s": 104.9236,
+        "temp_mb": 97.33,
+        "tree_rss_mb": 113.41
+      },
+      "sound_design_mix": {
+        "elapsed_s": 3.8612,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 697.39
+      },
+      "story_graph": {
+        "elapsed_s": 1.1767,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 1054.86
+      },
+      "validation_and_qa": {
+        "elapsed_s": 27.4023,
+        "temp_mb": 106.29,
+        "tree_rss_mb": 603.25
+      },
+      "vision_and_asr": {
+        "elapsed_s": 8.093,
+        "temp_mb": 0.0,
+        "tree_rss_mb": 1046.59
+      },
+      "vision_segmentation": {
+        "elapsed_s": 11.429,
+        "temp_mb": 17.99,
+        "tree_rss_mb": 488.45
+      }
+    }
+  },
+  "blockers": [
+    "G10_HUMAN_VQ01_VISUAL_AUDIO_REVIEW_PENDING",
+    "REAL_HELDOUT_FOOTAGE_NOT_PROVISIONED",
+    "LOCAL_VLM_NOT_PROVISIONED",
+    "OWNER_PRODUCT_SCREENSHOT_ASSET_MISSING_CONCEPTUAL_USED"
+  ],
+  "branch": "feat/ml-01-zero-api-effects",
+  "contact_sheet_status": "CONTACT_SHEET_LOCAL_ONLY",
+  "creative_status": "PENDING_HUMAN_REVIEW",
+  "critic_status": "VISION_CRITIC_NOT_RUN",
+  "edit_map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+  "edited_duration_s": 26.25,
+  "edited_frames": 630,
+  "engines_executed": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "engines_requested": [
+    "ffmpeg",
+    "hyperframes",
+    "remotion"
+  ],
+  "fallbacks": [],
+  "final_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 10040121,
+    "filename": "Olivia_Paycheck_V5_Kitchen_30s_Combined_ML01R5R4_FINAL_9x16.mp4",
+    "sha256": "33069bdca47aed2a0da119467c6768b1a569cd9851963cb1e7396d8c29cf644b",
+    "url": null
+  },
+  "foley_provenance": {
+    "library_status": "RECORDED_FOLEY_VERIFIED",
+    "procedural_cues_used": 0,
+    "recorded_cues_used": 13
+  },
+  "heldout_status": "REAL_HELDOUT_NOT_RUN",
+  "imported_primitives_used": [
+    "rem_gtk_line_led",
+    "rem_rc_flip_page",
+    "rem_ru_masked_slide",
+    "rem_ru_parallax",
+    "rem_ru_strikethrough",
+    "rem_ru_track_matte",
+    "rem_ru_waterfall",
+    "rem_viv_particle_field",
+    "hf_apple_money_count",
+    "hf_lt_mask_reveal",
+    "hf_mk_progress_stat",
+    "hf_mk_specs_list",
+    "hf_organic_light_leak"
+  ],
+  "input_fps": "24/1",
+  "input_frames": 720,
+  "input_geometry": "720x1280",
+  "label": "ML-01.R5.R4",
+  "listening_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+  "offline_proof_scope": "api_keys_unset_static_ast_zero_remote_runtime_local_models_only",
+  "original_duration_s": 30.0,
+  "pacing_summary": {
+    "cuts_count": 3,
+    "pacing_mode": "auto",
+    "pacing_status": "EDITED_CUTS_APPLIED",
+    "removed_total_s": 3.75,
+    "rhythm_critic_status": "PASS",
+    "word_preservation_passed": true
+  },
+  "pack_type": "QA-02",
+  "plan_hash": "b9dc21e14d20cedb226939c4ea1d34a756d05e2f5cb4c2e4ba15bba83c089153",
+  "preview_artifact": {
+    "access": "ARTIFACT_LOCAL_ONLY",
+    "bytes": 4306099,
+    "filename": "preview_9x16.mp4",
+    "sha256": "aa4343d3425ac4c0a5409468a3fc2dfcf4ee54582bb8a1f528d041967250cfd4",
+    "url": null
+  },
+  "remote_review_limitations": "JSON telemetry cannot replace direct motion playback or human phone-speaker listening; final MP4 & preview remain local-only unless an authorized external URL is attached.",
+  "render_mode": "AUTO_GENERATIVE",
+  "repo": "https://github.com/quocan050302/MotionLab-Studio",
+  "reviewer_approval": null,
+  "run_id": "20261127T140731Z_c56c9ae0_001",
+  "schema_version": "2.0.0",
+  "selected_graph_hash": "993cd92519248f041abe8b0045d844d4798df04d24370245d3a9aa9fa94f4874",
+  "sonic_score_hash": "a9eaf9dcc3caddda63d2c616b0b636dc53b96a7be1239683008f3e4decde3db9",
+  "source_sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "story_graph_hash": "fbfaec011da7a5a87b22309b8188662d5b1e274bce68125d2a1ebc6e9bcdc432",
+  "technical_status": "TECHNICAL_PASS",
+  "test_results": {},
+  "tested_code_sha": "ee1064ae022882435b14247ef4f301bfd43acf28"
+}

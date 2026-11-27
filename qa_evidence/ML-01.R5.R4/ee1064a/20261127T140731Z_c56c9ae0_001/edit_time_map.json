@@ -1,0 +1,138 @@
+{
+  "edited_total_samples": 1157625,
+  "fps_den": 1,
+  "fps_num": 24,
+  "is_identity": false,
+  "kept_spans": [
+    {
+      "crossfade_in_samples": 0,
+      "crossfade_out_samples": 529,
+      "output_end_frame_exclusive": 204,
+      "output_end_sample": 374850,
+      "output_start_frame": 0,
+      "output_start_sample": 0,
+      "source_end_frame_exclusive": 204,
+      "source_end_sample": 374850,
+      "source_start_frame": 0,
+      "source_start_sample": 0,
+      "span_id": "kept_00"
+    },
+    {
+      "crossfade_in_samples": 529,
+      "crossfade_out_samples": 529,
+      "output_end_frame_exclusive": 309,
+      "output_end_sample": 567788,
+      "output_start_frame": 204,
+      "output_start_sample": 374850,
+      "source_end_frame_exclusive": 333,
+      "source_end_sample": 611888,
+      "source_start_frame": 228,
+      "source_start_sample": 418950,
+      "span_id": "kept_01"
+    },
+    {
+      "crossfade_in_samples": 529,
+      "crossfade_out_samples": 529,
+      "output_end_frame_exclusive": 387,
+      "output_end_sample": 711112,
+      "output_start_frame": 309,
+      "output_start_sample": 567788,
+      "source_end_frame_exclusive": 417,
+      "source_end_sample": 766236,
+      "source_start_frame": 339,
+      "source_start_sample": 622912,
+      "span_id": "kept_02"
+    },
+    {
+      "crossfade_in_samples": 529,
+      "crossfade_out_samples": 0,
+      "output_end_frame_exclusive": 630,
+      "output_end_sample": 1157625,
+      "output_start_frame": 387,
+      "output_start_sample": 711112,
+      "source_end_frame_exclusive": 720,
+      "source_end_sample": 1323000,
+      "source_start_frame": 477,
+      "source_start_sample": 876487,
+      "span_id": "kept_03"
+    }
+  ],
+  "map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+  "omitted_spans": [
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.76,
+      "cut_id": "cut_01_visual_action",
+      "decision_id": "balanced:pause_01_visual_action",
+      "evidence_refs": [
+        "gap:8.080-9.720",
+        "after:w_0021_32be9c2e",
+        "before:w_0022_eb907d39",
+        "action:act_01:task_mad=10.9"
+      ],
+      "pause_class": "VISUAL_ACTION",
+      "reason": "Visible hand/prop action pause exceeding concise rhythm window; keep action beat + natural breath and trim redundant interior.",
+      "removed_frames": 24,
+      "removed_s": 1.0,
+      "source_end_frame_exclusive": 228,
+      "source_end_s": 9.5,
+      "source_start_frame": 204,
+      "source_start_s": 8.5
+    },
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.76,
+      "cut_id": "cut_02_visual_action",
+      "decision_id": "balanced:pause_02_visual_action",
+      "evidence_refs": [
+        "gap:13.445-14.320",
+        "after:w_0028_0251df4c",
+        "before:w_0029_b7f8c983",
+        "action:act_02:task_mad=12.4"
+      ],
+      "pause_class": "VISUAL_ACTION",
+      "reason": "Visible hand/prop action pause exceeding concise rhythm window; keep action beat + natural breath and trim redundant interior.",
+      "removed_frames": 6,
+      "removed_s": 0.25,
+      "source_end_frame_exclusive": 339,
+      "source_end_s": 14.125,
+      "source_start_frame": 333,
+      "source_start_s": 13.875
+    },
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.78,
+      "cut_id": "cut_03_cognitive",
+      "decision_id": "balanced:pause_03_cognitive",
+      "evidence_refs": [
+        "gap:16.860-20.100",
+        "after:w_0034_1c0335d2",
+        "before:w_0035_8e40c89a",
+        "action:act_03:task_mad=5.8"
+      ],
+      "pause_class": "COGNITIVE",
+      "reason": "Post-payoff cognitive landing followed by redundant dead air; preserve realization pause + pre-onset breath and trim idle middle.",
+      "removed_frames": 60,
+      "removed_s": 2.5,
+      "source_end_frame_exclusive": 477,
+      "source_end_s": 19.875,
+      "source_start_frame": 417,
+      "source_start_s": 17.375
+    }
+  ],
+  "output_duration_s": 26.25,
+  "output_total_frames": 630,
+  "pacing_mode": "auto",
+  "removed_total_frames": 90,
+  "removed_total_s": 3.75,
+  "sample_rate": 44100,
+  "schema_version": "1.0.0",
+  "source_duration_s": 30.0,
+  "source_path": "<local_path>/MOTIONLAB AIinput/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4",
+  "source_sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+  "source_total_frames": 720,
+  "source_total_samples": 1323000,
+  "speed_ratio_den": 1,
+  "speed_ratio_num": 1,
+  "status": "EDITED_CUTS_APPLIED"
+}

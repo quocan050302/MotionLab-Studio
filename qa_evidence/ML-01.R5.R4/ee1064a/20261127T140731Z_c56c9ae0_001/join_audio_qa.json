@@ -1,0 +1,60 @@
+{
+  "actual_samples": 1157625,
+  "clicks_detected": 0,
+  "dc_jumps_detected": 0,
+  "edit_map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+  "expected_samples": 1157625,
+  "failure_reasons": [],
+  "joins": [
+    {
+      "click_flagged": false,
+      "click_ratio": 1.05,
+      "dc_flagged": false,
+      "dc_offset_jump": 2e-05,
+      "floor_jump_db": 16.15,
+      "join_id": "ajoin_00_s374850",
+      "join_ok": true,
+      "local_rms": 0.00508,
+      "max_sample_step": 0.00418,
+      "output_sample": 374850,
+      "output_time_s": 8.5,
+      "rms_post_dbfs": -42.97,
+      "rms_pre_dbfs": -59.12
+    },
+    {
+      "click_flagged": false,
+      "click_ratio": 0.89,
+      "dc_flagged": false,
+      "dc_offset_jump": 8e-05,
+      "floor_jump_db": 18.37,
+      "join_id": "ajoin_01_s567788",
+      "join_ok": true,
+      "local_rms": 0.01185,
+      "max_sample_step": 0.00385,
+      "output_sample": 567788,
+      "output_time_s": 12.875,
+      "rms_post_dbfs": -35.58,
+      "rms_pre_dbfs": -53.95
+    },
+    {
+      "click_flagged": false,
+      "click_ratio": 0.52,
+      "dc_flagged": false,
+      "dc_offset_jump": 1e-05,
+      "floor_jump_db": 11.58,
+      "join_id": "ajoin_02_s711112",
+      "join_ok": true,
+      "local_rms": 0.01372,
+      "max_sample_step": 0.00208,
+      "output_sample": 711112,
+      "output_time_s": 16.125,
+      "rms_post_dbfs": -46.12,
+      "rms_pre_dbfs": -34.54
+    }
+  ],
+  "joins_checked": 3,
+  "sample_count_diff": 0,
+  "sample_rate": 44100,
+  "schema_version": "1.0.0",
+  "status": "PASS"
+}

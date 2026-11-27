@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0.0",
+  "release": "ML-01.R5.R4",
+  "tested_sha": "ee1064ae022882435b14247ef4f301bfd43acf28",
+  "baseline_sha": "8c4a437bea0148e6e6234afa33a05249dc58d986",
+  "branch": "feat/ml-01-zero-api-effects",
+  "defects": [
+    {
+      "id": "D01",
+      "severity": "P0",
+      "title": "Hardcoded output_frames == source_frames duration lock prevented intelligent pacing cuts",
+      "baseline_evidence": "motionlab/composition/r5_engine.py and motionlab/pipeline.py unconditionally enforced out_frames == media.duration_frames (720f).",
+      "fix_summary": "Branched validation strictly by EditTimeMap mode: `--pacing preserve` enforces exact source frame count (720f); `--pacing auto` enforces exact independently validated EditTimeMap.output_total_frames (never derived from final MP4) plus edit_time_map_valid, word_preservation_ok, and audio_joins_ok.",
+      "files_changed": [
+        "motionlab/config.py",
+        "motionlab/cli.py",
+        "motionlab/composition/edit_time_map.py",
+        "motionlab/composition/r5_engine.py",
+        "motionlab/pipeline.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_edit_time_map.py",
+        "tests/unit/test_r5r4_edited_engines.py"
+      ],
+      "measured_outcome": "Canonical `--pacing auto` passes TECHNICAL_PASS at 630f (26.250s); legacy `--pacing preserve` regression passes TECHNICAL_PASS at exact 720f (30.000s); forged map/frame-count negative tests fail closed.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D02",
+      "severity": "P0",
+      "title": "No local speech/action pause perception or causal pacing director",
+      "baseline_evidence": "R5.R3 could only layer graphics over full 30s timeline and had no VAD, pause taxonomy, or cut planner.",
+      "fix_summary": "Implemented offline chunked Silero VAD ONNX (`faster_whisper.vad`) + 20ms spectral cross-check + consonant-tail alignment (`motionlab/semantic/speech_perception.py`) and multi-niche causal pacing director with 4 competing plans (`identity`/`conservative`/`balanced`/`tight`) (`motionlab/semantic/pacing_director.py`).",
+      "files_changed": [
+        "motionlab/semantic/speech_perception.py",
+        "motionlab/semantic/pacing_director.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_alignment_pacing.py"
+      ],
+      "measured_outcome": "Real Olivia run auto-selected `pacing_balanced` (score 77.0 vs identity 33.62): 3 safe cuts removing 3.750s (`720 -> 630f`, `26.250s`), `70/70` words preserved (`token_recall=1.0`, `re_asr_status=EXECUTED:OK`). Causal candidate score reversal test proves EditTimeMap & output_total_frames change causally.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D03",
+      "severity": "P0",
+      "title": "Timestamp alignment honesty and segment-only / VAD-disagreement safety",
+      "baseline_evidence": "Segment-only transcripts risked unsafe mid-word cuts and approximate ASR timestamps lacked explicit uncertainty bounds.",
+      "fix_summary": "Enforced honest alignment labeling (`VAD_ENVELOPE_REFINED` / `ASR_WORD_ESTIMATE` / `SEGMENT_APPROX`, `forced_aligner_used=false`, `sample_exact_ground_truth=false`), whole-segment protection on `SEGMENT_APPROX`, 5ms RMS consonant-tail extension, and automatic cut abstention (`AMBIGUOUS`) on VAD-spectral disagreement or silent videos.",
+      "files_changed": [
+        "motionlab/semantic/speech_perception.py",
+        "motionlab/semantic/pacing_director.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_alignment_pacing.py"
+      ],
+      "measured_outcome": "Olivia alignment honestly labeled `VAD_ENVELOPE_REFINED` (`forced_aligner_used=false`, `mean_uncertainty_ms=49.0`, `vad_confirmed_ratio=1.0`, `60` consonant-tail extensions); silent-video & uncertain-VAD negative tests abstain with 0 cuts.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D04",
+      "severity": "P0",
+      "title": "R5.R3 live LLM eval harness marked reconciled_passed via bool(sb.storyboard_hash) instead of independent semantic oracle",
+      "baseline_evidence": "motionlab/semantic/eval_harness.py previously counted non-empty storyboard_hash as pass even if niche was wrong (e.g. raw Qwen2.5-3B mislabeling education/gameplay as finance/product).",
+      "fix_summary": "Implemented independent `evaluate_storyboard_semantics()` checking niche semantics, factual ledger, forbidden finance primitives, and UI/HUD protection; reconciled structural niche in `generative_director.py`; expanded deterministic multi-niche fixtures from 36 to 44 cases across 14 niches.",
+      "files_changed": [
+        "motionlab/semantic/eval_harness.py",
+        "motionlab/semantic/generative_director.py",
+        "motionlab/semantic/niche.py",
+        "motionlab/semantic/narrative_brain.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_multiniche_eval.py",
+        "tests/unit/test_r5r3_causal_director.py"
+      ],
+      "measured_outcome": "Mutation test (valid hash + wrong niche) fails closed; 44/44 deterministic eval PASS; 6-case live Qwen2.5-3B eval honestly reports raw_niche=2/6 and independently oracled reconciled_semantic=6/6.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D05",
+      "severity": "P0",
+      "title": "Exact rational source<->edited timeline clock, audio bed joins, and original master immutability",
+      "baseline_evidence": "No EditTimeMap, no Strategy-A frame-exact mezzanine, no sample-exact crossfaded edited voice bed, and no audio join click/drift QA existed.",
+      "fix_summary": "Implemented immutable `EditTimeMap` with exact `Fraction` rational sample allocation (24/1, 24000/1001, 30000/1001), Strategy-A CRF-10 frame-exact mezzanine, 12ms equal-power cosine micro-crossfade `build_edited_voice_bed()`, bit-exact original stream copy to `original_audio_master.m4a`, and `evaluate_audio_joins()` click/DC/drift QA.",
+      "files_changed": [
+        "motionlab/composition/edit_time_map.py",
+        "motionlab/composition/edit_continuity.py",
+        "motionlab/audio/mixer.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_edit_time_map.py",
+        "tests/unit/test_r5r4_cut_continuity.py",
+        "tests/unit/test_r5r4_audio_retime.py"
+      ],
+      "measured_outcome": "Canonical Olivia: `actual_samples == expected_samples == 1,157,625` (`sample_count_diff=0`), `0` clicks, `0` DC jumps, `original_audio_master.m4a` bit-exact stream-copied, `13/13` SFX cues pass floor-free counterfactual ablation (`-15.2 LUFS`, `-1.2 dBTP`).",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D06",
+      "severity": "P1",
+      "title": "Center-based {cx, cy, w, h} ROI track schema mismatch in visual critic, cut continuity, and action evidence",
+      "baseline_evidence": "Real roi_tracks.json uses {cx, cy, w, h} while visual_critic.py:383, edit_continuity.py:179, and speech_perception.py:690 expected {x, y, w, h}, causing KeyError 'x' in cut continuity and false +58.9 luma washout over top-card y=0.15 on sc_04.",
+      "fix_summary": "Normalized both {x, y, w, h} and {cx, cy, w, h} boxes cleanly across `edit_continuity.py`, `speech_perception.py`, and `visual_critic.py`.",
+      "files_changed": [
+        "motionlab/composition/edit_continuity.py",
+        "motionlab/semantic/speech_perception.py",
+        "motionlab/composition/visual_critic.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_cut_continuity.py"
+      ],
+      "measured_outcome": "Real Olivia objective pixel critic measures true face box (`max_face_washout_luma_delta=5.89`, `0` findings, `PASS`), cut continuity measures true face displacement (`<=0.0344`, `0` severe jumps, `PASS`), and pause task motion reflects true hand/table ROI.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D07",
+      "severity": "P1",
+      "title": "Short allocation beat (~1.4s Groceries) jarring aspect_morph flip and floating token overlap on progress stat caption",
+      "baseline_evidence": "R5.R3 used aspect_morph_editorial cutaway on a 1.4s allocation beat; hf_mk_progress_stat spawned bill tokens at y_top+170 (z=2) overlapping '$400/$200 left to spend'.",
+      "fix_summary": "Biased short allocation beats (<2.1s) in `narrative_brain.py` toward continuous live editorial rail (`live_clean_bridge`); moved `.alloc-note` below card bottom edge (`y_top+216`, `z=1`) behind `#mk-ps-group` (`z=3`) in `primitive_adapters.py`.",
+      "files_changed": [
+        "motionlab/semantic/narrative_brain.py",
+        "motionlab/composition/primitive_adapters.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_edited_engines.py"
+      ],
+      "measured_outcome": "Visual inspection of `scene_peaks_phone_scale.jpg` confirms sc_04 (`-$200 GROCERIES`, `1.458s`) stays smoothly in `live_clean_bridge` with crisp overlap-free typography across all 3 allocation cards.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D08",
+      "severity": "P1",
+      "title": "Warm-run matte cache misses and edited-domain cache key isolation",
+      "baseline_evidence": "R5.R3 had 7/9 warm matte cache misses and did not key caches by EditTimeMap hash.",
+      "fix_summary": "Added content-addressed edited mezzanine and MODNet fg_alpha WebM caches plus `edit_map_hash` in Remotion/HF scene cache keys in `r5_engine.py`.",
+      "files_changed": [
+        "motionlab/composition/r5_engine.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_edited_engines.py"
+      ],
+      "measured_outcome": "Warm w=2 run achieves `9/9` Remotion scene cache hits, `9/9` HF overlay cache hits, bundle reused (`0.001s`), and `2.52x` speedup (`305.1s` cold -> `121.2s` warm).",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D09",
+      "severity": "P1",
+      "title": "Dense-speech noise-floor inversion in rhythm critic post-edit pause detector",
+      "baseline_evidence": "On dense edited speech beds with <15% silence, percentile(15) landed inside active speech (-18 dBFS), inflating threshold and falsely reporting 9.0s non-speech.",
+      "fix_summary": "Capped noise floor estimator at `min(percentile(10), -34.0)` and speech threshold at `min(-26.0, max(nf_db+9.0, -40.0))` in `visual_critic.py::run_rhythm_critic`.",
+      "files_changed": [
+        "motionlab/composition/visual_critic.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_longform_and_qa.py"
+      ],
+      "measured_outcome": "Canonical edited voice bed accurately measures `longest_remaining_non_speech_s=0.62s`, `post_edit_non_speech_ratio=0.2127`, `objective_rhythm_status=PASS`.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D10",
+      "severity": "P1",
+      "title": "QA-02 Windows path scrubber previously corrupted https:// repo URL and lacked redacted pacing artifacts",
+      "baseline_evidence": "qa_pack.py `_WIN_ABS_RE` matched `s:/` inside `https://` and omitted pacing/cut/rhythm artifacts.",
+      "fix_summary": "Fixed `_WIN_ABS_RE` to exclude URL schemes (`(?<![A-Za-z0-9+.-])`) and added redacted `edit_time_map.json`, `pacing_decisions.json`, `word_preservation.json`, `cut_continuity.json`, `join_audio_qa.json`, `rhythm_critic.json`, and `pacing_summary`.",
+      "files_changed": [
+        "motionlab/composition/qa_pack.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_longform_and_qa.py",
+        "tests/unit/test_r5r3_streaming_qa.py"
+      ],
+      "measured_outcome": "QA-02 manifest preserves `https://github.com/quocan050302/MotionLab-Studio`, scrubs all local absolute paths and private text, stays well under 2 MiB.",
+      "status": "FIXED_AND_VERIFIED"
+    },
+    {
+      "id": "D11",
+      "severity": "P2",
+      "title": "Optional local model/VLM/real-heldout/real-longform/product-asset provisioning boundaries",
+      "baseline_evidence": "Host has 14 GiB free disk, Qwen2.5-3B text-only GGUF, no local VLM, no real product screenshots, and no owner-provided unrelated heldout or 5-min real videos.",
+      "fix_summary": "Maintained strict radical honesty without silent downloads or synthetic substitutions: explicit status tags `VISION_CRITIC_NOT_RUN`, `MODEL_UPGRADE_NOT_RUN`, `ASSET_MISSING_CONCEPTUAL`, `REAL_HELDOUT_NOT_RUN`, `REAL_LONGFORM_NOT_RUN`, `LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`, `PENDING_HUMAN_REVIEW`.",
+      "files_changed": [
+        "motionlab/composition/visual_critic.py",
+        "motionlab/composition/qa_pack.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r3_multimodal_critic.py",
+        "tests/unit/test_r5r2_product_catalog_and_critic.py"
+      ],
+      "measured_outcome": "All honest status boundaries verified across manifest, validation.json, QA-02 pack, and report.",
+      "status": "DISCLOSED_NON_BLOCKING_LIMITATION"
+    },
+    {
+      "id": "D12",
+      "severity": "P2",
+      "title": "Human VQ-01 visual & listening sign-off pending owner playback review",
+      "baseline_evidence": "Automated metrics and proxy audio QA cannot replace human viewing and listening.",
+      "fix_summary": "Kept `aesthetic_status=PENDING_HUMAN_REVIEW` and `G10=PENDING_HUMAN_REVIEW` strictly separated from `overall_status=TECHNICAL_PASS`.",
+      "files_changed": [
+        "motionlab/composition/r5_engine.py",
+        "motionlab/composition/visual_critic.py"
+      ],
+      "verifying_tests": [
+        "tests/unit/test_r5r4_longform_and_qa.py"
+      ],
+      "measured_outcome": "All engineering gates G0-G9 PASS; G10 remains honestly PENDING_HUMAN_REVIEW awaiting owner playback of canonical final MP4.",
+      "status": "PENDING_HUMAN_REVIEW"
+    }
+  ]
+}

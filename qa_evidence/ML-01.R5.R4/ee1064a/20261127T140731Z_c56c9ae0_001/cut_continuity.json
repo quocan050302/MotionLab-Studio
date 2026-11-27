@@ -1,0 +1,85 @@
+{
+  "cut_join_strips_path": "<local_path>/MOTIONLAB AIruns/olivia_ml01_r5r4/20261127T140731Z_c56c9ae0_001/evidence/cut_join_strips.jpg",
+  "edit_map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+  "joins": [
+    {
+      "cut_id": "cut_01_visual_action",
+      "face_center_displacement": 0.0096,
+      "join_id": "join_00_outf0204",
+      "join_mad": 19.3,
+      "luma_jump": 7.17,
+      "neighbor_baseline_mad": 1.91,
+      "output_join_frame": 204,
+      "pause_class": "VISUAL_ACTION",
+      "recommended_join_style": "direct_cut",
+      "removed_frames": 24,
+      "removed_s": 1.0,
+      "safe_reframe": {
+        "cx": 0.5,
+        "cy": 0.5,
+        "reason": "smooth_direct_cut",
+        "safe": true,
+        "zoom": 1.0
+      },
+      "severe_discontinuity": false,
+      "source_after_frame": 228,
+      "source_after_mapping_mad": 0.47,
+      "source_before_frame": 203,
+      "source_before_mapping_mad": 0.41
+    },
+    {
+      "cut_id": "cut_02_visual_action",
+      "face_center_displacement": 0.0227,
+      "join_id": "join_01_outf0309",
+      "join_mad": 6.78,
+      "luma_jump": 1.16,
+      "neighbor_baseline_mad": 2.05,
+      "output_join_frame": 309,
+      "pause_class": "VISUAL_ACTION",
+      "recommended_join_style": "direct_cut",
+      "removed_frames": 6,
+      "removed_s": 0.25,
+      "safe_reframe": {
+        "cx": 0.5,
+        "cy": 0.5,
+        "reason": "smooth_direct_cut",
+        "safe": true,
+        "zoom": 1.0
+      },
+      "severe_discontinuity": false,
+      "source_after_frame": 339,
+      "source_after_mapping_mad": 0.43,
+      "source_before_frame": 332,
+      "source_before_mapping_mad": 0.35
+    },
+    {
+      "cut_id": "cut_03_cognitive",
+      "face_center_displacement": 0.0344,
+      "join_id": "join_02_outf0387",
+      "join_mad": 13.32,
+      "luma_jump": 2.3,
+      "neighbor_baseline_mad": 2.37,
+      "output_join_frame": 387,
+      "pause_class": "COGNITIVE",
+      "recommended_join_style": "direct_cut",
+      "removed_frames": 60,
+      "removed_s": 2.5,
+      "safe_reframe": {
+        "cx": 0.5,
+        "cy": 0.5,
+        "reason": "smooth_direct_cut",
+        "safe": true,
+        "zoom": 1.0
+      },
+      "severe_discontinuity": false,
+      "source_after_frame": 477,
+      "source_after_mapping_mad": 0.51,
+      "source_before_frame": 416,
+      "source_before_mapping_mad": 0.46
+    }
+  ],
+  "joins_count": 3,
+  "schema_version": "1.0.0",
+  "severe_jump_joins": 0,
+  "status": "PASS"
+}

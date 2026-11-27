@@ -1,0 +1,262 @@
+{
+  "chosen_decisions": [
+    {
+      "action": "KEEP",
+      "confidence": 0.76,
+      "cut_end_s": null,
+      "cut_start_s": null,
+      "decision_id": "balanced:pause_00_visual_action",
+      "duration_s": 0.805,
+      "evidence_refs": [
+        "gap:4.955-5.760",
+        "after:w_0015_73ae2630",
+        "before:w_0016_cf70416b",
+        "action:act_00:task_mad=10.7"
+      ],
+      "fallback_status": "KEPT_INTACT",
+      "pause_class": "VISUAL_ACTION",
+      "protected_subspans": [
+        [
+          4.955,
+          5.76
+        ]
+      ],
+      "reason": "Compact visual action beat \u2014 retain intact for continuity.",
+      "removed_s": 0.0,
+      "required_transition": "none",
+      "retained_duration_s": 0.805,
+      "risk": "low",
+      "source_end_frame_exclusive": 139,
+      "source_end_s": 5.76,
+      "source_start_frame": 118,
+      "source_start_s": 4.955
+    },
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.76,
+      "cut_end_s": 9.5,
+      "cut_start_s": 8.5,
+      "decision_id": "balanced:pause_01_visual_action",
+      "duration_s": 1.64,
+      "evidence_refs": [
+        "gap:8.080-9.720",
+        "after:w_0021_32be9c2e",
+        "before:w_0022_eb907d39",
+        "action:act_01:task_mad=10.9"
+      ],
+      "fallback_status": "CUT_APPROVED",
+      "pause_class": "VISUAL_ACTION",
+      "protected_subspans": [
+        [
+          8.08,
+          8.5
+        ],
+        [
+          9.5,
+          9.72
+        ]
+      ],
+      "reason": "Visible hand/prop action pause exceeding concise rhythm window; keep action beat + natural breath and trim redundant interior.",
+      "removed_s": 1.0,
+      "required_transition": "action_match_or_shared_element",
+      "retained_duration_s": 0.64,
+      "risk": "medium",
+      "source_end_frame_exclusive": 234,
+      "source_end_s": 9.72,
+      "source_start_frame": 193,
+      "source_start_s": 8.08
+    },
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.76,
+      "cut_end_s": 14.125,
+      "cut_start_s": 13.875,
+      "decision_id": "balanced:pause_02_visual_action",
+      "duration_s": 0.875,
+      "evidence_refs": [
+        "gap:13.445-14.320",
+        "after:w_0028_0251df4c",
+        "before:w_0029_b7f8c983",
+        "action:act_02:task_mad=12.4"
+      ],
+      "fallback_status": "CUT_APPROVED",
+      "pause_class": "VISUAL_ACTION",
+      "protected_subspans": [
+        [
+          13.445,
+          13.875
+        ],
+        [
+          14.125,
+          14.32
+        ]
+      ],
+      "reason": "Visible hand/prop action pause exceeding concise rhythm window; keep action beat + natural breath and trim redundant interior.",
+      "removed_s": 0.25,
+      "required_transition": "action_match_or_shared_element",
+      "retained_duration_s": 0.625,
+      "risk": "medium",
+      "source_end_frame_exclusive": 344,
+      "source_end_s": 14.32,
+      "source_start_frame": 322,
+      "source_start_s": 13.445
+    },
+    {
+      "action": "TRIM_GAP",
+      "confidence": 0.78,
+      "cut_end_s": 19.875,
+      "cut_start_s": 17.375,
+      "decision_id": "balanced:pause_03_cognitive",
+      "duration_s": 3.24,
+      "evidence_refs": [
+        "gap:16.860-20.100",
+        "after:w_0034_1c0335d2",
+        "before:w_0035_8e40c89a",
+        "action:act_03:task_mad=5.8"
+      ],
+      "fallback_status": "CUT_APPROVED",
+      "pause_class": "COGNITIVE",
+      "protected_subspans": [
+        [
+          16.86,
+          17.375
+        ],
+        [
+          19.875,
+          20.1
+        ]
+      ],
+      "reason": "Post-payoff cognitive landing followed by redundant dead air; preserve realization pause + pre-onset breath and trim idle middle.",
+      "removed_s": 2.5,
+      "required_transition": "bridge_or_motivated_reframe",
+      "retained_duration_s": 0.74,
+      "risk": "low",
+      "source_end_frame_exclusive": 483,
+      "source_end_s": 20.1,
+      "source_start_frame": 404,
+      "source_start_s": 16.86
+    },
+    {
+      "action": "KEEP",
+      "confidence": 0.86,
+      "cut_end_s": null,
+      "cut_start_s": null,
+      "decision_id": "balanced:pause_04_end_tail",
+      "duration_s": 0.34,
+      "evidence_refs": [
+        "gap:29.660-30.000",
+        "after:w_0069_b7f0d34e",
+        "action:act_05:task_mad=3.7"
+      ],
+      "fallback_status": "KEPT_INTACT",
+      "pause_class": "END_TAIL",
+      "protected_subspans": [
+        [
+          29.66,
+          30.0
+        ]
+      ],
+      "reason": "Trailing non-speech tail after final spoken CTA syllable; retain natural decay and trim dead tail.",
+      "removed_s": 0.0,
+      "required_transition": "none",
+      "retained_duration_s": 0.34,
+      "risk": "low",
+      "source_end_frame_exclusive": 720,
+      "source_end_s": 30.0,
+      "source_start_frame": 711,
+      "source_start_s": 29.66
+    }
+  ],
+  "chosen_plan_id": "pacing_balanced",
+  "chosen_variant": "balanced",
+  "cuts_count": 3,
+  "excluded_cut_ids_rolled_back": [],
+  "niche": "finance",
+  "output_duration_s": 26.25,
+  "pacing_mode": "auto",
+  "removed_total_s": 3.75,
+  "scored_variants": [
+    {
+      "cuts_count": 0,
+      "eligible": true,
+      "map_hash": "a29be2a2aeef02370cb6d14123dc3bcec54d82afe87aaa7ac1a6268cd0e69dd9",
+      "output_duration_s": 30.0,
+      "output_total_frames": 720,
+      "plan_id": "pacing_identity",
+      "rejection_reasons": [],
+      "removed_total_s": 0.0,
+      "score": 33.62,
+      "score_breakdown": {
+        "breathless_penalty": 0.0,
+        "dead_air_penalty": 16.38,
+        "ergonomic_bonus": 0.0,
+        "overcut_penalty": 0.0,
+        "override_delta": 0.0,
+        "rhythm_gain": 0.0
+      },
+      "variant": "identity"
+    },
+    {
+      "cuts_count": 1,
+      "eligible": true,
+      "map_hash": "7579cee32d07f3ee3b94baa5f6cbee70ada08231373c83bd37f85cafa2e253b7",
+      "output_duration_s": 27.625,
+      "output_total_frames": 663,
+      "plan_id": "pacing_conservative",
+      "rejection_reasons": [],
+      "removed_total_s": 2.375,
+      "score": 68.312,
+      "score_breakdown": {
+        "breathless_penalty": 0.0,
+        "dead_air_penalty": 0.0,
+        "ergonomic_bonus": 0.5,
+        "overcut_penalty": 0.0,
+        "override_delta": 0.0,
+        "rhythm_gain": 17.81
+      },
+      "variant": "conservative"
+    },
+    {
+      "cuts_count": 3,
+      "eligible": true,
+      "map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+      "output_duration_s": 26.25,
+      "output_total_frames": 630,
+      "plan_id": "pacing_balanced",
+      "rejection_reasons": [],
+      "removed_total_s": 3.75,
+      "score": 77.0,
+      "score_breakdown": {
+        "breathless_penalty": 0.0,
+        "dead_air_penalty": 0.0,
+        "ergonomic_bonus": 2.0,
+        "overcut_penalty": 0.0,
+        "override_delta": 0.0,
+        "rhythm_gain": 25.0
+      },
+      "variant": "balanced"
+    },
+    {
+      "cuts_count": 4,
+      "eligible": true,
+      "map_hash": "753f987e1eb3ee8fb90a9dfb3beb8ca5213164c7f98507a4475a4294638f9393",
+      "output_duration_s": 25.75,
+      "output_total_frames": 618,
+      "plan_id": "pacing_tight",
+      "rejection_reasons": [],
+      "removed_total_s": 4.25,
+      "score": 76.418,
+      "score_breakdown": {
+        "breathless_penalty": 0.0,
+        "dead_air_penalty": 0.0,
+        "ergonomic_bonus": -1.5,
+        "overcut_penalty": 0.0,
+        "override_delta": 0.0,
+        "rhythm_gain": 27.92
+      },
+      "variant": "tight"
+    }
+  ],
+  "source_duration_s": 30.0,
+  "status": "EDITED_CUTS_APPLIED"
+}

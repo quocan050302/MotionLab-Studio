@@ -1,0 +1,92 @@
+{
+  "tested_sha": "ee1064ae022882435b14247ef4f301bfd43acf28",
+  "branch": "feat/ml-01-zero-api-effects",
+  "input_immutable": true,
+  "disk_free_gb_after": 13.83,
+  "pytest_tail": [
+    "........................................................................ [ 72%]",
+    ".................................................                        [100%]",
+    "178 passed, 15 subtests passed in 85.34s (0:01:25)"
+  ],
+  "unittest_tail": [
+    "Ran 26 tests in 0.008s",
+    "",
+    "OK"
+  ],
+  "tsc_rc": 0,
+  "doctor_rc": 0,
+  "hybrid_eval_summary": {
+    "deterministic_passed": 44,
+    "deterministic_total": 44,
+    "live_llm_status": "EXECUTED_LOCAL_LLM",
+    "live_cases_tested": 6,
+    "raw_schema_compliant": 6,
+    "raw_niche_matches": 2,
+    "reconciled_semantic_passed": 6
+  },
+  "canonical_cold_w2_elapsed_s": 305.125,
+  "parity_w1": {
+    "rc": 0,
+    "elapsed_s": 165.601,
+    "overall_status": "TECHNICAL_PASS",
+    "output_frames": 630,
+    "edit_map_hash": "9bdc5a88c54b897431f8d8cf86374b8d8d0cd08260c9fa90a9411a7a76b20d37",
+    "storyboard_hash": "b9dc21e14d20cedb226939c4ea1d34a756d05e2f5cb4c2e4ba15bba83c089153",
+    "selected_graph_hash": "993cd92519248f041abe8b0045d844d4798df04d24370245d3a9aa9fa94f4874",
+    "parity_exact_match": true
+  },
+  "warm_w2": {
+    "rc": 0,
+    "elapsed_s": 121.226,
+    "speedup_vs_cold": 2.52,
+    "overall_status": "TECHNICAL_PASS",
+    "output_frames": 630,
+    "edit_map_hash_match": true,
+    "optimization_stats": {
+      "ablation_window_mode": "active_window_entry_peak_exit_per_layer",
+      "audio_render_marker_barrier": "OBSERVED_PIXEL_POST_RENDER_FROZEN",
+      "batch_worker_peak_tree_rss_mb": 1344.05,
+      "hf_overlay_cache_hits": 9,
+      "hf_overlay_total": 9,
+      "remotion_browser_launches": 1,
+      "remotion_browser_open_s": 1.334,
+      "remotion_bundle_reused": true,
+      "remotion_bundle_s": 0.001,
+      "remotion_code_hash": "1086d481285ab21083f8",
+      "remotion_scene_cache_hits": 9,
+      "remotion_scene_total": 9,
+      "remotion_select_composition_calls": 29
+    }
+  },
+  "preserve_mode_regression": {
+    "rc": 0,
+    "elapsed_s": 168.621,
+    "overall_status": "TECHNICAL_PASS",
+    "output_frames": 720,
+    "is_identity": true,
+    "exact_720f": true
+  },
+  "synthetic_longform_benchmark": {
+    "real_longform_status": "REAL_LONGFORM_NOT_RUN",
+    "synthetic_90s": {
+      "elapsed_s": 0.49,
+      "vad_backend": "silero_vad_onnx",
+      "speech_spans_found": 15,
+      "source_frames": 2160,
+      "output_frames": 1968,
+      "cuts_applied": 8,
+      "edit_time_map_valid": true,
+      "process_max_rss_mb": 162.83
+    },
+    "synthetic_300s": {
+      "elapsed_s": 0.794,
+      "vad_backend": "silero_vad_onnx",
+      "speech_spans_found": 50,
+      "source_frames": 7200,
+      "output_frames": 6720,
+      "cuts_applied": 20,
+      "edit_time_map_valid": true,
+      "process_max_rss_mb": 245.53
+    }
+  }
+}
