@@ -1,0 +1,179 @@
+================================================================================
+MOTIONLAB AI — ML-01: ZERO-API AUTOMATIC VIDEO EFFECTS ENGINE
+IMPLEMENTATION & VERIFICATION REPORT
+================================================================================
+Generated (UTC)         : 2026-11-27T01:34:00Z
+Project Path            : D:\Project_github\Motion-Studio\MotionLab-AI-ML01
+Git Branch              : feat/ml-01-zero-api-effects
+Upstream Repository     : https://github.com/browser-use/video-use.git (remote: upstream, read-only)
+Upstream Commit SHA     : 43cfc566833548093455c9d4a46bd69913b7e552
+Tested Code Commit SHA  : f7b8dd5cc985516e45a6e7c16ccca9475f2c04b6
+Remote Push Status      : PUSH_NOT_AUTHORIZED (local commits only; no personal remote URL/credentials supplied; upstream untouched)
+Workspace Isolation     : VERIFIED (D:\Project_github\Motion-Studio\MotionLab-Studio verified clean, 0 modifications)
+
+--------------------------------------------------------------------------------
+1. ENVIRONMENT & PINNED DEPENDENCIES
+--------------------------------------------------------------------------------
+OS                      : Microsoft Windows 11 Pro (10.0.26300.0)
+CPU                     : 12 logical processors (12th Gen Intel Core i5-12400)
+RAM                     : 31.75 GiB total (~4.4–5.8 GiB available at test time)
+Disk Free               : C: ~170 GiB free | D: ~43.3–44.3 GiB free
+Python (.venv isolated) : Python 3.12.10
+FFmpeg / ffprobe        : 9.0.2-full_build-www.gyan.dev (libx264, libvpx-vp9, aac)
+Node.js / npm           : v26.13.1 / 11.20.0
+Local Browser (Offline) : C:\Program Files\Google\Chrome\Application\chrome.exe
+Python Lockfile         : requirements.lock (numpy==2.5.5, pillow==13.0.0, opencv-python-headless==4.14.0.94,
+                          scipy==1.18.1, psutil==7.2.2, pytest==9.2.0)
+Node Lockfiles          : renderers/remotion/package-lock.json (remotion@4.0.547, @remotion/cli@4.0.547, react@19.1.0)
+                          renderers/hyperframes/package-lock.json (hyperframes@0.9.101, gsap@3.15.1)
+Bundled Local Weights   : OpenCV Haar cascade haarcascade_frontalface_default.xml (Apache-2.0, bundled in opencv-python-headless)
+
+--------------------------------------------------------------------------------
+2. ARCHITECTURE & IMPLEMENTED SCOPE VS. PROPOSED
+--------------------------------------------------------------------------------
+Pipeline Flow:
+  MP4 -> Preflight -> ResourceBudget -> Local Async Analyzer (cached)
+      -> Candidate Events -> Deterministic Rule-Based Planner -> EditPlan JSON
+      -> Multi-Engine Local Renderer (FFmpeg + Remotion + HyperFrames)
+      -> Hard-Locked Audio Mux -> final.partial.mp4 -> Technical Validator
+      -> Atomic Promotion (final.mp4)
+
+Implemented Modules:
+  - motionlab/config.py, schemas.py, cli.py, __main__.py
+  - motionlab/preflight.py          (ffprobe JSON, rotation/SAR/VFR/HDR/audio probe, streaming SHA-256)
+  - motionlab/analyzer.py           (streaming cuts with flash/subtitle guard, Farneback optical flow + saliency,
+                                     chunked mono PCM RMS/spectral-flux onsets/pauses, bundled Haar face tracker,
+                                     existing-effect & busy-UI safe-zone guards)
+  - motionlab/events.py             (frame-indexed sorted deduplicated candidates bounded per minute)
+  - motionlab/cache.py              (content-addressed local cache, per-key lock, SHA-256 payload integrity check)
+  - motionlab/registry.py           (40 distinct effects C01..C10, L01..L10, T01..T08, V01..V06, G01..G06;
+                                     strict parameter schema validation; acyclic fallback verification)
+  - motionlab/policies.py           (7 JSON profiles: neutral, talking-head, product, storytelling, gameplay,
+                                     tutorial, cinematic + deterministic signal-only `auto` selector)
+  - motionlab/planner.py            (per-term scoring, cooldowns, overlap rules, anticipation 150ms,
+                                     layout adaptation without blind crop, edit_plan.json + plan_explain.json,
+                                     honest NO_SAFE_EFFECTS guard)
+  - motionlab/resource.py           (ResourceBudget CPU/RAM/disk reserve preflight, bounded asyncio concurrency,
+                                     runtime disk guard, owned child process-tree timeout cleanup, anti-traversal)
+  - motionlab/effects/              (easing.py + implementations.py with ALL 40 distinct deterministic effects,
+                                     each verified for zero-intensity exact no-op and visual distinctness)
+  - motionlab/renderers/            (ffmpeg.py streaming visual + alpha overlay composite + hard-locked audio mux;
+                                     remotion.py offline VP9 yuva420p alpha React/SVG renderer with license guard;
+                                     hyperframes.py offline HTML/CSS/local-GSAP WebM renderer;
+                                     manim.py optional gated adapter off critical path)
+  - motionlab/validation.py         (ffprobe, full decode `ffmpeg -v error -xerror`, stream-copy SHA-256 audio
+                                     packet hash + decoded PCM correlation/lag, source-relative black/freeze check,
+                                     effect window delta verification, contact_sheet.jpg + paired evidence frames)
+  - motionlab/pipeline.py           (unique collision-safe run_id, atomic promotion / quarantine on fail,
+                                     40-effect verification gallery builder)
+  - scripts/                        (bootstrap.ps1, bootstrap.sh, smoke.ps1)
+
+Verified Effects Count by Engine:
+  - Total Registered Effects        : 40 (16 Core + 24 Full)
+  - Total Verified Effects (Gallery): 40 / 40 VERIFIED distinct effects (0 aliases, 40/40 intensity=0 exact no-op)
+  - FFmpeg Engine                   : 40 / 40 effects implemented & verified (also certified fallback backend)
+  - Remotion 4.0.547 Engine         : 7 overlay effects supported (G01, G02, G03, G04, G05, G06, L08);
+                                      real offline VP9 yuva420p alpha render + FFmpeg composite verified
+  - HyperFrames 0.9.101 + GSAP      : 5 overlay effects supported (L08, G01, G02, G03, G06);
+                                      real offline local-GSAP WebM render + lint verified
+  - Manim CE                        : Optional / disabled by default (off ML-01 critical path)
+
+--------------------------------------------------------------------------------
+3. VERIFICATION & TEST RESULTS (ACTUAL EXECUTED RUNS)
+--------------------------------------------------------------------------------
+A. Upstream Baseline Tests (before ML-01 changes; docs/baseline/upstream_baseline_pytest.txt):
+   Command   : .\.venv\Scripts\python.exe -m pytest -v tests/
+   Result    : 26 passed, 15 subtests passed, 0 failed, 0 skipped | exit code = 0 (0.22s)
+
+B. 40-Effect Gallery Verification:
+   Command   : .\.venv\Scripts\python.exe -m motionlab effects gallery --output "runs\gallery"
+   Result    : 40 / 40 VERIFIED | exit code = 0
+   Artifact  : runs\gallery\20261127T012248Z_gallery4_001\effects_gallery_40.jpg
+
+C. Full Regression + New Required Suites (docs/baseline/full_regression_pytest.txt):
+   Command   : .\.venv\Scripts\python.exe -m pytest -v tests/ (with cloud API keys unset)
+   Result    : 91 passed, 15 subtests passed, 0 failed, 0 skipped | exit code = 0 (73.21s)
+   Breakdown :
+     - Upstream baseline legacy tests (tests/test_render_*.py) : 26 passed (15 subtests)
+     - Unit core contracts, schemas, cache, budgets, negative  : 11 passed
+     - Unit all 40 effects + distinctness + intensity=0 no-op  : 41 passed
+     - Integration (AAC stream-copy, PCM MKV + offset PTS,
+       multitrack + rotation, real Remotion alpha composite,
+       real HyperFrames offline render + strict rejection)     : 5 passed
+     - E2E & Offline Security (AST zero-API audit, CLI rejects
+       --allow-cloud/unknown/corrupt, Unicode filename safety,
+       15s 9:16 cold repeatability + >=3 families + validate,
+       silent source, landscape tutorial policy, 0.33s edge)   : 7 passed
+     - Regression (sequential w=1 vs bounded parallel w=2)     : 1 passed
+
+D. Real Production Offline Edit on Owner-Provided 30s Video:
+   Source    : input\raw.mp4 (copy of Olivia_Paycheck_V5_Kitchen_30s_Combined_(1)_(1).mp4; original untouched)
+               720x1280 @ 24fps, 30.000s, H.264 + AAC 44100Hz mono real human voice
+               SHA-256: c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+   Env Scope : All cloud API key env vars unset; HTTP_PROXY/HTTPS_PROXY/ALL_PROXY set to http://127.0.0.1:9
+               (application-level proxy sinkhole; note: not an OS firewall/kernel sandbox)
+   Command   : .\.venv\Scripts\python.exe -m motionlab edit --input "input\raw.mp4" --profile auto --seed 42
+               --offline --no-cache --preview-9x16 --output "runs"
+   Run ID    : 20261127T013001Z_c56c9ae0_001
+   Profile   : talking-head (selected deterministically from single-face coverage + audio signal)
+   Plan Hash : 218129dc4c4fcd7a (10 events across camera, mask_layout, color_optical, motion_graphics)
+   Engines   : ffmpeg (7 events) + remotion (2 events: G05 waveform_accent, G01 edge_lines)
+               + hyperframes (1 event: G03 directional_shapes); 0 fallbacks
+   Deliverables:
+     - Final MP4      : runs\20261127T013001Z_c56c9ae0_001\final.mp4 (9,261,593 bytes / 8.83 MB, 720x1280 @ 24fps, 30.000s)
+     - Fresh 9:16 Prev: runs\20261127T013001Z_c56c9ae0_001\preview_9x16.mp4 (3,880,468 bytes / 3.70 MB, 540x960 @ 24fps, 30.000s)
+     - Contact Sheet  : runs\20261127T013001Z_c56c9ae0_001\contact_sheet.jpg (298,669 bytes)
+     - Run README     : runs\20261127T013001Z_c56c9ae0_001\README.md
+     - Validation     : runs\20261127T013001Z_c56c9ae0_001\validation.json -> TECHNICAL_PASS (12/12 PASS, 0 FAIL, 0 SKIP)
+   Audio Preservation Proof (runs\20261127T013001Z_c56c9ae0_001\evidence\audio_sync.json):
+     - Mode           : stream_copy (zero filters, zero fades, zero loudnorm, zero retime, zero captions/music)
+     - Packet SHA-256 : 7ae7fac0543b8b053e7366a9897d925ff86dbbc6e5415ca3e9304f932f746349 (EXACT MATCH source == output)
+     - PCM Correlation: 1.0000 | Alignment Lag: 0.00 ms (vs 1 frame = 41.67 ms)
+     - Duration Delta : 0.0000 s (source 30.000s == output 30.000s)
+     - Full Decode    : ffmpeg -v error -xerror -> exit 0, empty stderr
+   Resource Peaks (full 30s multi-engine render + 9:16 preview):
+     - Peak RSS       : 449.57 MB
+     - Peak Temp Disk : 17,465,287 bytes (~16.66 MB; cleaned safely after promotion)
+
+E. Sequential vs. Bounded Parallel Benchmark (on real 30s input\raw.mp4, cache disabled):
+   - Sequential (max_workers=1)       : wall=3.375s | peak_rss=72.76 MB | plan_hash=218129dc4c4fcd7a | events=10
+   - Bounded Parallel (max_workers=2) : wall=2.828s | peak_rss=71.27 MB | plan_hash=218129dc4c4fcd7a | events=10
+   - Plan Hash Identical              : True (speedup ~16.2% on video+audio concurrent analysis)
+
+--------------------------------------------------------------------------------
+4. RELEASE GATES ASSESSMENT (R0–R6)
+--------------------------------------------------------------------------------
+  [PASS] R0: Upstream clone SHA (43cfc566), MIT LICENSE preserved, THIRD_PARTY_NOTICES.md,
+             requirements.lock + npm package-lock.json committed, isolated sibling repo.
+  [PASS] R1: Offline runtime verified (AST zero cloud/network imports; API keys stripped;
+             HTTP/HTTPS proxy sinkhole active during E2E & 30s production render; zero .env required).
+             Scope note: proxy sinkhole is application-level, not kernel/OS-level firewall isolation.
+  [PASS] R2: 40/40 effects implemented, distinct, zero-intensity verified, with real FFmpeg,
+             Remotion 4.0.547, and HyperFrames 0.9.101 + GSAP 3.15.1 render evidence.
+  [PASS] R3: Source fidelity, exact SHA-256 stream-copied human voice (corr=1.0000, lag=0.00ms),
+             duration 30.000s (delta=0.0000s), zero default captions/music, valid H.264/AAC MP4.
+  [PASS] R4: 91/91 tests pass (including all 26 upstream baseline tests, 0 failures, 0 skips),
+             resource budget / timeout / path traversal / negative tests pass.
+  [PASS] R5: Fresh 9:16 preview + final MP4 + contact sheet + paired evidence + 40-effect gallery
+             produced. Overall status: TECHNICAL_PASS / AESTHETIC_PENDING (awaits human owner review).
+  [PASS] R6: Reproducible bootstrap scripts (PowerShell + Bash), README quickstart, verified commands,
+             clean git commits; remote push honestly reported as PUSH_NOT_AUTHORIZED.
+
+--------------------------------------------------------------------------------
+5. HONEST LIMITATIONS & KNOWN BOUNDARIES
+--------------------------------------------------------------------------------
+- Rule- and signal-based engine only: cannot understand spoken semantics, narrative beats, or visual aesthetics.
+  Automated checks certify TECHNICAL_PASS only; human owner review is required for aesthetic approval.
+- OpenCV Haar frontal-face cascade works well on clear frontal talking-head footage (verified on owner's 30s
+  kitchen clip), but is NOT reliable on extreme profiles, anime/cartoons, 3D non-human characters, or pets;
+  those gracefully fall back to conservative center-safe framing / `neutral` profile.
+- Offline enforcement during testing used AST static verification + unset API keys + unreachable proxy env vars
+  (HTTP_PROXY/HTTPS_PROXY=127.0.0.1:9); OS-level firewall/airgap blocking was not modified because non-admin
+  isolation policy forbids altering host system settings.
+- Remotion License: free for individuals, non-profits, evaluators, and teams <= 3 people; organizations with >= 4
+  people without a paid Remotion Company License MUST pass `--disable-remotion` or `MOTIONLAB_ALLOW_REMOTION=0`.
+- When `--preview-9x16` runs alongside `final.mp4` in the same run folder, `contact_sheet.jpg` reflects the
+  latest validated artifact dimensions in its header (identical timeline & frames at preview resolution).
+- Hardware-accelerated encoders (NVENC/AMF/QSV) are not defaulted to preserve cross-machine determinism;
+  software `libx264` is used by default.
+================================================================================
