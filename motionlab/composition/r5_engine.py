@@ -29,7 +29,7 @@ import numpy as np
 from motionlab import SCHEMA_VERSION, __version__
 from motionlab.assets.catalog import inspect_product_asset_catalog, match_product_assets_for_name
 from motionlab.audio.assets import inspect_foley_library
-from motionlab.audio.mixer import mix_preserving_master, validate_final_audio_mix
+from motionlab.audio.mixer import build_edited_voice_bed, mix_preserving_master, validate_final_audio_mix
 from motionlab.audio.semantic_sound import (
     align_sound_to_marker,
     compile_animation_markers,
@@ -50,6 +50,16 @@ from motionlab.composition.art_direction import (
 )
 from motionlab.composition.continuous_timeline import compile_continuous_timeline
 from motionlab.composition.creative_quality import evaluate_creative_quality, verify_ablation_still_diff
+from motionlab.composition.edit_continuity import evaluate_audio_joins, evaluate_cut_continuity
+from motionlab.composition.edit_time_map import (
+    EditTimeMap,
+    build_edited_mezzanine_video,
+    build_identity_edit_time_map,
+    remap_roi_tracks_to_edited_domain,
+    remap_transcript_to_edited_domain,
+    validate_edit_time_map,
+    verify_word_preservation_on_bed,
+)
 from motionlab.composition.generative_compiler import (
     compile_scene_hyperframes_html,
     compile_scene_hyperframes_layers,
@@ -62,7 +72,7 @@ from motionlab.composition.generative_schema import (
     validate_canonical_reuse_gate,
 )
 from motionlab.composition.primitive_registry import load_unified_registry
-from motionlab.composition.visual_critic import run_objective_rendered_critic
+from motionlab.composition.visual_critic import run_objective_rendered_critic, run_rhythm_critic
 from motionlab.config import EditConfig, PROJECT_ROOT
 from motionlab.renderers.base import verify_webm_alpha_pixels
 from motionlab.renderers.hyperframes import HyperFramesRenderer
@@ -72,6 +82,9 @@ from motionlab.schemas import AnalysisResult, EditPlan, MediaInfo, atomic_write_
 from motionlab.semantic.asr import format_readable_transcript, inspect_asr_model, transcribe_local
 from motionlab.semantic.generative_director import direct_generative_storyboard
 from motionlab.semantic.local_model import inspect_llm_model
+from motionlab.semantic.narrative_brain import build_evidence_index, build_narrative_contract
+from motionlab.semantic.pacing_director import choose_pacing_plan
+from motionlab.semantic.speech_perception import run_speech_and_action_perception
 from motionlab.semantic.story_graph import StoryGraph, build_story_graph
 from motionlab.vision.anchors import build_anchor_tracks, generate_matte_debug_sheet
 from motionlab.vision.segmentation import build_foreground_alpha_webm, inspect_vision_model, segment_subject_sequence
@@ -254,8 +267,16 @@ def render_compiled_storyboard_to_mp4(
     render_preview: bool = True,
     require_dual_engine_reuse_gate: bool = True,
     transcript_obj: Any = None,
+    original_media: MediaInfo | None = None,
+    edit_time_map: EditTimeMap | None = None,
+    pacing_plan: dict[str, Any] | None = None,
+    edited_voice_bed_wav: Path | None = None,
+    word_preservation: dict[str, Any] | None = None,
+    cut_continuity: dict[str, Any] | None = None,
+    join_audio_qa: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Shared deterministic R5 renderer/mixer/validator used by BOTH canonical AUTO runs and separate QA benchmark."""
+    orig_media = original_media or media
     ffmpeg_bin = shutil.which("ffmpeg") or "ffmpeg"
     ffprobe_bin = shutil.which("ffprobe") or "ffprobe"
     temp_dir = run_dir / "temp"
@@ -431,10 +452,19 @@ def render_compiled_storyboard_to_mp4(
         fg_sha = ""
         matte_p = matte_by_span.get((sc.start_frame, sc.end_frame_exclusive))
         if sc.requires_matte and matte_p is not None and matte_p.is_file():
+            # Content-addressed foreground alpha WebM cache (fixes R5.R3 warm matte cache miss -> 9/9 warm hits!)
+            matte_sha = _sha256_file(matte_p)
+            fg_cache_p = vision_cache / f"fg_alpha_{media.input_hash[:12]}_{sc.start_frame}_{sc.end_frame_exclusive}_{matte_sha[:12]}.webm"
             fg_webm = pub_dir / "fg_alpha.webm"
-            build_foreground_alpha_webm(
-                Path(media.source_path), matte_p, sc.start_frame, sc.end_frame_exclusive, fps_str, fg_webm, ffmpeg_bin=ffmpeg_bin
-            )
+            if config.cache_enabled and fg_cache_p.is_file() and fg_cache_p.stat().st_size > 1024:
+                shutil.copy2(fg_cache_p, fg_webm)
+            else:
+                build_foreground_alpha_webm(
+                    Path(media.source_path), matte_p, sc.start_frame, sc.end_frame_exclusive, fps_str, fg_webm, ffmpeg_bin=ffmpeg_bin
+                )
+                if config.cache_enabled:
+                    fg_cache_p.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(fg_webm, fg_cache_p)
             fg_rel = f"{sc.scene_id}/{fg_webm.name}"
             fg_sha = _sha256_file(fg_webm)
             public_mounts.append({"src": str(fg_webm), "rel": fg_rel})
@@ -524,6 +554,7 @@ def render_compiled_storyboard_to_mp4(
                 {
                     "code_hash": rem_code_hash,
                     "schema_version": storyboard.schema_version,
+                    "edit_map_hash": edit_time_map.map_hash if edit_time_map is not None else "identity",
                     "chosen_candidate_id": sc.chosen_candidate_id,
                     "continuity_hash": continuous_tl["continuity_hash"],
                     "props": props,
@@ -991,8 +1022,13 @@ def render_compiled_storyboard_to_mp4(
             seed=config.seed,
             ffmpeg_bin=ffmpeg_bin,
             ffprobe_bin=ffprobe_bin,
+            original_source_path=Path(orig_media.source_path),
+            edited_voice_bed_wav=edited_voice_bed_wav,
+            edit_map_hash=edit_time_map.map_hash if edit_time_map is not None else None,
         )
         mixed_wav_p = Path(mix_info["mixed_reference_path"])
+    elif eff_audio_mode == "mix" and edited_voice_bed_wav is not None and edited_voice_bed_wav.is_file():
+        mixed_wav_p = edited_voice_bed_wav
     tracker.end_stage("sound_design_mix", temp_dir=temp_dir)
 
     # 5. Single-pass canonical 0..N-1 assembly + single default AAC mixed audio mux
@@ -1011,7 +1047,7 @@ def render_compiled_storyboard_to_mp4(
     )
     tracker.end_stage("canonical_assembly", temp_dir=temp_dir)
 
-    # 6. Technical Validation + Audio QA + Reuse Gate + A5 Creative Quality Proxy BEFORE atomic promotion
+    # 6. Technical Validation + Audio QA + Reuse Gate + Rhythm Critic BEFORE atomic promotion
     tracker.start_stage("validation_and_qa")
     audio_checks, audio_qa = (
         validate_final_audio_mix(media, partial_out, audio_tl, mix_info, run_dir, ffmpeg_bin=ffmpeg_bin, ffprobe_bin=ffprobe_bin)
@@ -1019,8 +1055,9 @@ def render_compiled_storyboard_to_mp4(
         else ([], {"status": "PRESERVE_EXACT"})
     )
 
-    source_sha_after = _sha256_file(Path(media.source_path))
-    source_immutable = (source_sha_after == media.input_hash)
+    # Always verify immutability of the ORIGINAL source MP4 (Fixes D01/D05!)
+    source_sha_after = _sha256_file(Path(orig_media.source_path))
+    source_immutable = (source_sha_after == orig_media.input_hash)
 
     # Probe assembled MP4 geometry & exact frame count
     ff_probe = json.loads(
@@ -1065,6 +1102,26 @@ def render_compiled_storyboard_to_mp4(
         out_dir=ev_dir,
     )
 
+    # Objective Rhythm Critic (A8.2) on actual edited voice bed (NOT SFX mix!)
+    rhythm_critic = run_rhythm_critic(
+        edit_map=edit_time_map,
+        pacing_plan=pacing_plan,
+        edited_voice_bed_wav=edited_voice_bed_wav,
+        word_preservation=word_preservation,
+        cut_continuity=cut_continuity,
+        join_audio_qa=join_audio_qa,
+        storyboard=storyboard,
+        pixel_critic=pixel_critic,
+        niche=storyboard.niche,
+        out_dir=ev_dir,
+    )
+    atomic_write_json(ev_dir / "repair_history.json", revision_history)
+
+    expected_frames = int(edit_time_map.output_total_frames) if edit_time_map is not None else int(media.duration_frames)
+    edit_map_ok = (len(validate_edit_time_map(edit_time_map)) == 0) if edit_time_map is not None else True
+    word_pres_ok = True if word_preservation is None else bool(word_preservation.get("passed", False))
+    joins_aud_ok = True if join_audio_qa is None else (join_audio_qa.get("status") == "PASS")
+
     ablation_total = int(creative_qa.get("ablation_layers_total", 0))
     ablation_verified = int(creative_qa.get("ablation_layers_verified", 0))
     planned_active_layers = sum(len(sc.layers) for sc in storyboard.scenes)
@@ -1089,7 +1146,10 @@ def render_compiled_storyboard_to_mp4(
     tech_ok_breakdown = {
         "source_immutable": source_immutable,
         "geometry_exact": (out_w == media.display_width and out_h == media.display_height),
-        "frames_exact": (out_frames == media.duration_frames),
+        "frames_exact": (out_frames == expected_frames),
+        "edit_map_valid": edit_map_ok,
+        "word_preservation_ok": word_pres_ok,
+        "audio_joins_ok": joins_aud_ok,
         "zero_black_frames": (creative_qa["black_frames"] == 0),
         "ablation_all_ok": ablation_all_ok,
         "continuous_timeline_valid": bool(continuous_tl["continuous_timeline_valid"]),
@@ -1116,8 +1176,10 @@ def render_compiled_storyboard_to_mp4(
     tracker.end_stage("validation_and_qa", temp_dir=temp_dir)
 
     actual_engine_usage = {
-        "edition": "ml-01.r5.r3",
+        "edition": "ml-01.r5.r4",
         "mode": storyboard.mode,
+        "time_domain": "edited" if (edit_time_map is not None and not edit_time_map.is_identity) else "source",
+        "edit_map_hash": edit_time_map.map_hash if edit_time_map is not None else None,
         "selected_graph_hash": storyboard.selected_graph_hash,
         "engines_used": sorted(actual_engines),
         "dual_engine_active": ("remotion" in actual_engines and "hyperframes" in actual_engines),
@@ -1163,7 +1225,13 @@ def render_compiled_storyboard_to_mp4(
         "source_immutable": source_immutable,
         "output_dimensions": f"{out_w}x{out_h}",
         "output_frames": out_frames,
-        "expected_frames": media.duration_frames,
+        "expected_frames": expected_frames,
+        "source_frames": orig_media.duration_frames,
+        "pacing_mode": edit_time_map.pacing_mode if edit_time_map is not None else "preserve",
+        "pacing_status": edit_time_map.status if edit_time_map is not None else "IDENTITY_PRESERVE",
+        "edit_map_hash": edit_time_map.map_hash if edit_time_map is not None else None,
+        "rhythm_critic": rhythm_critic,
+        "word_preservation": word_preservation,
         "reuse_gate": reuse_report,
         "audio_qa": audio_qa,
         "marker_tier_counts": tier_counts,
@@ -1320,35 +1388,181 @@ def execute_generative_r5_pipeline(
     atomic_write_text(run_dir / "transcript_readable.txt", format_readable_transcript(transcript))
     atomic_write_json(run_dir / "evidence" / "roi_tracks.json", roi_tracks)
 
-    # 2. Generic StoryGraph + Integer-Cent Verified Ledger
+    # 2. Original Source StoryGraph + A1 Speech Perception (Silero VAD, Alignment, Prosody, Action Evidence)
     tracker.start_stage("story_graph")
-    story_graph = build_story_graph(transcript, roi_tracks, media)
-    atomic_write_json(run_dir / "story_graph.json", story_graph.to_dict())
-    atomic_write_json(run_dir / "ledger_claims.json", story_graph.ledger.to_dict())
-    tracker.end_stage("story_graph", temp_dir=run_dir / "temp")
+    source_story_graph = build_story_graph(transcript, roi_tracks, media)
+    atomic_write_json(run_dir / "source_probe.json", media.to_dict())
+    atomic_write_json(run_dir / "story_graph.json", source_story_graph.to_dict())
+    atomic_write_json(run_dir / "ledger_claims.json", source_story_graph.ledger.to_dict())
+    ev_dir = run_dir / "evidence"
+    ev_dir.mkdir(parents=True, exist_ok=True)
+    temp_dir = run_dir / "temp"
+    temp_dir.mkdir(parents=True, exist_ok=True)
 
-    # 3. Generic Causal Global Creative Director (Qwen2.5-3B + Hybrid Retrieval + Real Transcript D03!)
+    perception = run_speech_and_action_perception(
+        media=media,
+        transcript=transcript,
+        roi_tracks=roi_tracks,
+        out_dir=ev_dir,
+        ffmpeg_bin=ffmpeg_bin,
+    )
+    pre_ev_idx = build_evidence_index(media, transcript, source_story_graph, roi_tracks=roi_tracks)
+    pre_niche = build_narrative_contract(pre_ev_idx, source_story_graph).inferred_niche
+    tracker.end_stage("story_graph", temp_dir=temp_dir)
+
+    # 2b. Phase A2–A4: Causal Intelligent Pacing Director + EditTimeMap + Strategy A Derived Mezzanine & Voice Bed
+    tracker.start_stage("pacing_and_cutting")
+    excluded_cut_ids: set[str] = set()
+    pacing_plan: dict[str, Any] = {}
+    edit_map = build_identity_edit_time_map(media, pacing_mode=config.pacing_mode)
+    edited_media = media
+    edited_transcript = transcript
+    edited_roi_tracks = roi_tracks
+    edited_story_graph = source_story_graph
+    edited_voice_bed_wav: Path | None = None
+    word_pres_doc: dict[str, Any] | None = None
+    cut_cont_doc: dict[str, Any] | None = None
+    join_aud_doc: dict[str, Any] | None = None
+    mezzanine_info: dict[str, Any] = {"mode": "identity_passthrough"}
+    pacing_rollback_log: list[dict[str, Any]] = []
+
+    for cut_round in range(3):  # Initial + max 2 bounded upstream cut rollbacks (A8.3)!
+        pacing_plan, edit_map = choose_pacing_plan(
+            media=media,
+            story_graph=source_story_graph,
+            perception=perception,
+            pacing_mode=config.pacing_mode,
+            niche=pre_niche,
+            excluded_cut_ids=excluded_cut_ids,
+        )
+        if edit_map.is_identity:
+            edited_media = media
+            edited_transcript = transcript
+            edited_roi_tracks = roi_tracks
+            edited_story_graph = source_story_graph
+            edited_voice_bed_wav = None
+            word_pres_doc = {
+                "edit_map_hash": edit_map.map_hash,
+                "is_identity": True,
+                "passed": True,
+                "token_recall": 1.0,
+                "critical_token_recall": 1.0,
+                "re_asr_status": "IDENTITY_SKIPPED",
+            }
+            join_aud_doc = {"status": "PASS", "joins_checked": 0, "clicks_detected": 0, "dc_jumps_detected": 0, "edit_map_hash": edit_map.map_hash}
+            cut_cont_doc = {"status": "PASS_NO_CUTS", "joins_count": 0, "severe_jump_joins": 0, "edit_map_hash": edit_map.map_hash}
+            break
+
+        # Strategy A: Near-lossless CRF-10 edited video mezzanine (content-addressed cached when cache_enabled!) + crossfaded PCM bed
+        mezz_mp4 = temp_dir / f"edited_mezzanine_r{cut_round}.mp4"
+        mezz_cache_p = cache_base / "edited_mezzanine" / f"mezz_{media.input_hash[:12]}_{edit_map.map_hash[:16]}.mp4"
+        if config.cache_enabled and mezz_cache_p.is_file() and mezz_cache_p.stat().st_size > 1024:
+            shutil.copy2(mezz_cache_p, mezz_mp4)
+            mezzanine_info = {
+                "mode": "near_lossless_crf10_mezzanine_cached",
+                "mezzanine_path": str(mezz_mp4),
+                "mezzanine_sha256": _sha256_file(mezz_mp4),
+                "mezzanine_bytes": mezz_mp4.stat().st_size,
+                "parent_source_sha256": edit_map.source_sha256,
+                "edit_map_hash": edit_map.map_hash,
+                "verified_frame_count": edit_map.output_total_frames,
+                "cache_hit": True,
+            }
+        else:
+            mezzanine_info = build_edited_mezzanine_video(
+                Path(media.source_path), edit_map, mezz_mp4, ffmpeg_bin=ffmpeg_bin
+            )
+            if config.cache_enabled:
+                mezz_cache_p.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(mezz_mp4, mezz_cache_p)
+        bed_wav = ev_dir / "edited_voice_bed.wav"
+        build_edited_voice_bed(Path(media.source_path), edit_map, bed_wav, ffmpeg_bin=ffmpeg_bin)
+        edited_voice_bed_wav = bed_wav
+
+        # Verify audio joins & re-ASR word preservation strictly on derived voice bed (NEVER SFX mix!)
+        join_aud_doc = evaluate_audio_joins(bed_wav, edit_map, out_dir=ev_dir)
+        word_pres_doc = verify_word_preservation_on_bed(
+            original_transcript=transcript,
+            edited_voice_bed_wav=bed_wav,
+            edit_map=edit_map,
+            media=media,
+            config=config,
+            aligned_words=perception["speech_alignment"]["words"],
+            ffmpeg_bin=ffmpeg_bin,
+        )
+        suspects: list[str] = list(word_pres_doc.get("suspect_cut_ids") or [])
+        if join_aud_doc.get("status") != "PASS":
+            for j_idx, j_row in enumerate(join_aud_doc.get("joins") or []):
+                if not j_row.get("join_ok") and j_idx < len(edit_map.omitted_spans):
+                    suspects.append(edit_map.omitted_spans[j_idx].cut_id)
+
+        if word_pres_doc.get("passed") and join_aud_doc.get("status") == "PASS":
+            cut_cont_doc = evaluate_cut_continuity(
+                Path(media.source_path), mezz_mp4, edit_map, roi_tracks_source=roi_tracks, out_dir=ev_dir
+            )
+            edited_transcript = remap_transcript_to_edited_domain(transcript, edit_map)
+            edited_roi_tracks = remap_roi_tracks_to_edited_domain(roi_tracks, edit_map)
+            edited_media = MediaInfo.from_dict({
+                **media.to_dict(),
+                "source_path": str(mezz_mp4),
+                "input_hash": str(mezzanine_info.get("mezzanine_sha256", media.input_hash)),
+                "file_size_bytes": int(mezzanine_info.get("mezzanine_bytes", media.file_size_bytes)),
+                "nb_frames": int(edit_map.output_total_frames),
+                "duration_s": float(edit_map.output_duration_s),
+            })
+            edited_story_graph = build_story_graph(edited_transcript, edited_roi_tracks, edited_media)
+            break
+
+        # Roll back offending cuts and retry (bounded max 2 rounds!)
+        new_excl = [s for s in suspects if s not in excluded_cut_ids]
+        if not new_excl:
+            new_excl = [o.cut_id for o in edit_map.omitted_spans if o.cut_id not in excluded_cut_ids]
+        pacing_rollback_log.append({
+            "round": cut_round + 1,
+            "reason": "word_preservation_or_audio_join_failed",
+            "word_preservation_passed": word_pres_doc.get("passed"),
+            "join_audio_status": join_aud_doc.get("status"),
+            "rolled_back_cuts": new_excl,
+        })
+        excluded_cut_ids.update(new_excl)
+
+    pacing_plan["rollback_history"] = pacing_rollback_log
+    pacing_plan["mezzanine_strategy"] = mezzanine_info
+    atomic_write_json(run_dir / "pacing_plan.json", pacing_plan)
+    atomic_write_json(run_dir / "edit_time_map.json", edit_map.to_dict())
+    atomic_write_json(run_dir / "edit_decisions.json", {
+        "schema_version": "1.0.0",
+        "edit_map_hash": edit_map.map_hash,
+        "kept_spans": [k.to_dict() for k in edit_map.kept_spans],
+        "omitted_spans": [o.to_dict() for o in edit_map.omitted_spans],
+    })
+    atomic_write_json(run_dir / "edited_probe.json", edited_media.to_dict())
+    atomic_write_json(run_dir / "word_preservation.json", word_pres_doc or {})
+    atomic_write_json(run_dir / "edited_story_graph.json", edited_story_graph.to_dict())
+    tracker.end_stage("pacing_and_cutting", temp_dir=temp_dir)
+
+    # 3. Generic Causal Global Creative Director strictly in EDITED domain (Qwen2.5-3B + Hybrid Retrieval + Real Transcript!)
     tracker.start_stage("generative_director")
     storyboard, dir_audit = direct_generative_storyboard(
-        media=media,
-        story_graph=story_graph,
-        roi_tracks=roi_tracks,
+        media=edited_media,
+        story_graph=edited_story_graph,
+        roi_tracks=edited_roi_tracks,
         config=config,
         matte_available=bool(vision_info.get("available")),
         registry=reg,
         cache_dir=sem_cache,
-        transcript=transcript,
+        transcript=edited_transcript,
     )
     atomic_write_json(run_dir / "raw_director_response.json", dir_audit)
     atomic_write_json(run_dir / "retrieved_candidates.json", storyboard.retrieved_candidates)
-    tracker.end_stage("generative_director", temp_dir=run_dir / "temp")
+    tracker.end_stage("generative_director", temp_dir=temp_dir)
 
-    # 4. Execute Shared Deterministic Renderer / Mixer / Validator
+    # 4. Execute Shared Deterministic Renderer / Mixer / Validator strictly on EDITED clock while preserving immutable original source!
     result = render_compiled_storyboard_to_mp4(
-        media=media,
+        media=edited_media,
         storyboard=storyboard,
-        story_graph=story_graph,
-        roi_tracks=roi_tracks,
+        story_graph=edited_story_graph,
+        roi_tracks=edited_roi_tracks,
         config=config,
         run_id=run_id,
         run_dir=run_dir,
@@ -1356,11 +1570,24 @@ def execute_generative_r5_pipeline(
         tracker=tracker,
         output_filename="final.mp4",
         render_preview=bool(config.render_preview_9x16),
-        require_dual_engine_reuse_gate=(not storyboard.niche in ("tutorial", "gameplay") and len(storyboard.scenes) >= 2),
-        transcript_obj=transcript,
+        require_dual_engine_reuse_gate=(not storyboard.niche in ("tutorial", "gameplay", "silent_art") and len(storyboard.scenes) >= 2),
+        transcript_obj=edited_transcript,
+        original_media=media,
+        edit_time_map=edit_map,
+        pacing_plan=pacing_plan,
+        edited_voice_bed_wav=edited_voice_bed_wav,
+        word_preservation=word_pres_doc,
+        cut_continuity=cut_cont_doc,
+        join_audio_qa=join_aud_doc,
     )
 
     manifest["composition_mode"] = "generative"
+    manifest["pacing_mode"] = config.pacing_mode
+    manifest["edit_map_hash"] = edit_map.map_hash
+    manifest["original_frames"] = media.duration_frames
+    manifest["edited_frames"] = edit_map.output_total_frames
+    manifest["cuts_count"] = len(edit_map.omitted_spans)
+    manifest["removed_total_s"] = round(edit_map.removed_total_s, 4)
     manifest["status"] = result["status"]
     manifest["aesthetic_status"] = result.get("aesthetic_status", "PENDING_HUMAN_REVIEW")
     manifest["storyboard_hash"] = result.get("storyboard_hash")

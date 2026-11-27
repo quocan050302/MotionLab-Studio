@@ -380,8 +380,12 @@ def run_objective_rendered_critic(
                 fb = roi_by_f[near].get("face") or roi_by_f[near].get("face_box")
                 if isinstance(fb, dict):
                     fh, fw = f1.shape[:2]
-                    bx, by = float(fb.get("x", 0.3)), float(fb.get("y", 0.15))
                     bw, bh = float(fb.get("w", 0.25)), float(fb.get("h", 0.25))
+                    if "x" in fb and "y" in fb:
+                        bx, by = float(fb["x"]), float(fb["y"])
+                    else:
+                        bx = float(fb.get("cx", 0.5)) - 0.5 * bw
+                        by = float(fb.get("cy", 0.35)) - 0.5 * bh
                     x0 = max(0, int((bx + bw * 0.14) * fw))
                     y0 = max(0, int((by + bh * 0.25) * fh))
                     x1 = min(fw, int((bx + bw * 0.86) * fw))
@@ -540,4 +544,158 @@ def run_objective_rendered_critic(
         "human_review_required": True,
     }
     atomic_write_json(out_dir / "scene_boundary_report.json", report)
+    return report
+
+
+def run_rhythm_critic(
+    *,
+    edit_map: Any,
+    pacing_plan: dict[str, Any] | None,
+    edited_voice_bed_wav: Path | None,
+    word_preservation: dict[str, Any] | None,
+    cut_continuity: dict[str, Any] | None,
+    join_audio_qa: dict[str, Any] | None,
+    storyboard: StoryboardSpec,
+    pixel_critic: dict[str, Any],
+    niche: str = "unknown",
+    out_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Phase A8.2 (ML-01.R5.R4): Objective Rhythm & Pacing Critic measured on actual edited voice bed (NOT SFX mix!).
+
+    Evaluates remaining non-speech spans, longest dead air, removed seconds by class, word preservation,
+    reading time per scene, and join continuity without claiming human aesthetic VQ-01 approval.
+    """
+    import wave
+
+    niche_low = (niche or storyboard.niche or "unknown").lower()
+    src_dur = float(getattr(edit_map, "source_duration_s", 0.0)) if edit_map is not None else 0.0
+    out_dur = float(getattr(edit_map, "output_duration_s", 0.0)) if edit_map is not None else 0.0
+    rem_dur = float(getattr(edit_map, "removed_total_s", 0.0)) if edit_map is not None else 0.0
+    omitted = list(getattr(edit_map, "omitted_spans", [])) if edit_map is not None else []
+
+    removed_by_class: dict[str, float] = {}
+    for o in omitted:
+        cls = str(o.pause_class)
+        removed_by_class[cls] = round(removed_by_class.get(cls, 0.0) + float(o.removed_s), 4)
+
+    # Measure remaining longest non-speech span directly from edited_voice_bed.wav (NEVER from mixed SFX!)
+    longest_post_gap_s = 0.0
+    post_non_speech_ratio = 0.0
+    bed_analyzed = False
+    if edited_voice_bed_wav is not None and edited_voice_bed_wav.is_file():
+        try:
+            with wave.open(str(edited_voice_bed_wav), "rb") as wf:
+                sr = wf.getframerate()
+                nch = wf.getnchannels()
+                nf = wf.getnframes()
+                raw = np.frombuffer(wf.readframes(nf), dtype=np.int16).astype(np.float32) / 32768.0
+            mono = raw.reshape((-1, nch)).mean(axis=1) if nch > 1 else raw
+            hop = max(1, int(round(sr * 0.02)))  # 20ms
+            n_blk = mono.size // hop
+            if n_blk >= 10:
+                blk_rms = np.sqrt(np.mean(mono[: n_blk * hop].reshape((n_blk, hop)) ** 2, axis=1) + 1e-12)
+                blk_db = 20.0 * np.log10(np.maximum(blk_rms, 1e-6))
+                nf_db = min(float(np.percentile(blk_db, 10)), -34.0)
+                sp_thresh = min(-26.0, max(nf_db + 9.0, -40.0))
+                is_ns = blk_db < sp_thresh
+                post_non_speech_ratio = round(float(np.mean(is_ns)), 4)
+                run_len = 0
+                max_run = 0
+                for flg in is_ns:
+                    if flg:
+                        run_len += 1
+                        if run_len > max_run:
+                            max_run = run_len
+                    else:
+                        run_len = 0
+                longest_post_gap_s = round(max_run * 0.02, 3)
+                bed_analyzed = True
+        except Exception:
+            bed_analyzed = False
+
+    # Reading time audit per edited scene
+    fps_f = storyboard.fps_num / max(1, storyboard.fps_den)
+    scene_reading_audit: list[dict[str, Any]] = []
+    short_cutaway_warnings: list[str] = []
+    for sc in storyboard.scenes:
+        sc_dur = round((sc.end_frame_exclusive - sc.start_frame) / max(1.0, fps_f), 3)
+        too_brief_cutaway = bool(sc.stage_mode == "full_graphic_cutaway" and sc_dur < 1.2)
+        if too_brief_cutaway:
+            short_cutaway_warnings.append(f"{sc.scene_id}:cutaway_only_{sc_dur:.2f}s")
+        scene_reading_audit.append({
+            "scene_id": sc.scene_id,
+            "stage_mode": sc.stage_mode,
+            "edited_duration_s": sc_dur,
+            "readable_duration_ok": not too_brief_cutaway,
+        })
+
+    wp_ok = True if word_preservation is None else bool(word_preservation.get("passed", False))
+    joins_audio_ok = True if join_audio_qa is None else (join_audio_qa.get("status") == "PASS")
+    joins_vis_severe = int((cut_continuity or {}).get("severe_jump_joins", 0))
+    # Unresolved dead air warning (relaxed on calm/wellness/silent niches!)
+    dead_air_limit = 3.5 if niche_low in ("wellness", "silent_art", "storytelling") else 1.85
+    unresolved_dead_air = bool(bed_analyzed and longest_post_gap_s > dead_air_limit)
+
+    findings: list[dict[str, Any]] = []
+    if not wp_ok:
+        findings.append({"category": "word_preservation", "severity": "HIGH", "detail": "One or more protected spoken words/numbers failed edited voice bed verification."})
+    if not joins_audio_ok:
+        findings.append({"category": "audio_join_defect", "severity": "HIGH", "detail": str((join_audio_qa or {}).get("failure_reasons"))})
+    if joins_vis_severe > 0:
+        findings.append({"category": "cut_visual_jump", "severity": "MEDIUM", "detail": f"{joins_vis_severe} cut join(s) had large visual jump."})
+    if unresolved_dead_air:
+        findings.append({"category": "unresolved_dead_air", "severity": "MEDIUM", "detail": f"Longest non-speech span on edited voice bed is {longest_post_gap_s:.2f}s (>{dead_air_limit:.2f}s)."})
+    if short_cutaway_warnings:
+        findings.append({"category": "cutaway_reading_time", "severity": "MEDIUM", "detail": ", ".join(short_cutaway_warnings)})
+
+    high_count = sum(1 for f in findings if f["severity"] == "HIGH")
+    report = {
+        "schema_version": "1.0.0",
+        "niche": niche_low,
+        "pacing_mode": str(getattr(edit_map, "pacing_mode", "preserve")) if edit_map is not None else "preserve",
+        "pacing_status": str(getattr(edit_map, "status", "IDENTITY_PRESERVE")) if edit_map is not None else "IDENTITY_PRESERVE",
+        "source_duration_s": round(src_dur, 4),
+        "edited_duration_s": round(out_dur, 4),
+        "removed_total_s": round(rem_dur, 4),
+        "cuts_count": len(omitted),
+        "removed_by_pause_class": removed_by_class,
+        "edited_voice_bed_analyzed": bed_analyzed,
+        "longest_remaining_non_speech_s": longest_post_gap_s,
+        "post_edit_non_speech_ratio": post_non_speech_ratio,
+        "word_preservation_passed": wp_ok,
+        "audio_joins_passed": joins_audio_ok,
+        "visual_join_severe_jumps": joins_vis_severe,
+        "pixel_critic_severe_findings": int(pixel_critic.get("severe_findings_count", 0)),
+        "scene_reading_audit": scene_reading_audit,
+        "findings": findings,
+        "high_severity_count": high_count,
+        "objective_rhythm_status": "PASS" if high_count == 0 else "FAIL",
+        "human_vq01_status": "PENDING_HUMAN_REVIEW",
+        "vlm_status": str(pixel_critic.get("vlm_status", "VISION_CRITIC_NOT_RUN")),
+    }
+    if out_dir is not None:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(out_dir / "rhythm_critic.json", report)
+        atomic_write_json(out_dir / "cut_review.json", {
+            "schema_version": "1.0.0",
+            "edit_map_hash": getattr(edit_map, "map_hash", ""),
+            "chosen_plan_id": (pacing_plan or {}).get("chosen_plan_id", "pacing_identity"),
+            "omitted_spans": [o.to_dict() for o in omitted],
+            "cut_continuity_summary": {
+                "joins_count": (cut_continuity or {}).get("joins_count", 0),
+                "severe_jump_joins": joins_vis_severe,
+                "status": (cut_continuity or {}).get("status", "PASS_NO_CUTS"),
+            },
+            "join_audio_summary": {
+                "joins_checked": (join_audio_qa or {}).get("joins_checked", 0),
+                "clicks_detected": (join_audio_qa or {}).get("clicks_detected", 0),
+                "status": (join_audio_qa or {}).get("status", "PASS"),
+            },
+            "word_preservation_summary": {
+                "passed": wp_ok,
+                "token_recall": (word_preservation or {}).get("token_recall", 1.0),
+                "critical_token_recall": (word_preservation or {}).get("critical_token_recall", 1.0),
+                "missing_numeric_tokens": (word_preservation or {}).get("missing_numeric_tokens", []),
+            },
+        })
     return report

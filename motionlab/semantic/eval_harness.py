@@ -503,6 +503,66 @@ def build_independent_eval_fixtures() -> list[dict[str, Any]]:
                 "product_name_contains": "Horizon Binder",
             },
         },
+        # --- ML-01.R5.R4 Multi-Niche & Pacing Generalization Cases (EV37..EV44) ---
+        {
+            "case_id": "EV37_comedy_setup_punchline_pause_retention",
+            "category": "multi_niche_comedy",
+            "text": "I told my friend a joke about spreadsheets. Wait for it. Everyone laughed so hard at the punchline.",
+            "duration_s": 10.0,
+            "word_gaps": {6: 0.75},
+            "expect": {"ledger_active": False, "inferred_niche": "comedy", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV38_tech_saas_feature_evidence_not_finance",
+            "category": "multi_niche_tech",
+            "text": "Our cloud dashboard reduces API latency during deploy and automates your workflow automation pipeline.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "inferred_niche": "tech", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV39_wellness_calm_breath_retention",
+            "category": "multi_niche_wellness",
+            "text": "Inhale slowly for four seconds. Exhale calmly and let your nervous system settle into mindful balance.",
+            "duration_s": 12.0,
+            "word_gaps": {4: 1.1},
+            "expect": {"ledger_active": False, "inferred_niche": "wellness", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV40_silent_asmr_nonverbal_never_dead_air",
+            "category": "multi_niche_silent",
+            "text": "",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "inferred_niche": "silent_art"},
+        },
+        {
+            "case_id": "EV41_ambiguous_gas_vehicle_not_budget",
+            "category": "ambiguous_disambiguation",
+            "text": "Step one, press the gas pedal gently when merging onto the highway in this driving lesson.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "inferred_niche": "education", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV42_ambiguous_balance_physical_not_finance",
+            "category": "ambiguous_disambiguation",
+            "text": "Inhale deeply and hold your posture balance on one foot during this mindful meditation.",
+            "duration_s": 10.0,
+            "expect": {"ledger_active": False, "inferred_niche": "wellness", "forbid_cash_flick_all_beats": True},
+        },
+        {
+            "case_id": "EV43_mixed_story_then_product_demo",
+            "category": "multi_niche_mixed",
+            "text": "Three years ago I lost track of every project deadline. That's why I created Focus Ledger, a 24-page planner.",
+            "duration_s": 12.0,
+            "expect": {"ledger_active": False, "inferred_niche": "mixed", "non_monetary_count_min": 1, "product_name_contains": "Focus Ledger"},
+        },
+        {
+            "case_id": "EV44_history_suspense_pause_preserved",
+            "category": "multi_niche_storytelling",
+            "text": "In 1969 the control room went completely quiet. Remember when that single signal changed history forever.",
+            "duration_s": 12.0,
+            "word_gaps": {7: 1.2},
+            "expect": {"ledger_active": False, "inferred_niche": "storytelling", "forbid_cash_flick_all_beats": True, "silence_span_min": 1},
+        },
     ]
 
 
@@ -637,20 +697,82 @@ def run_deterministic_reasoning_eval() -> dict[str, Any]:
     }
 
 
+def evaluate_storyboard_semantics(
+    fx: dict[str, Any],
+    sb: Any,
+    sg: Any,
+) -> dict[str, Any]:
+    """Independent semantic oracle for reconciled storyboards (Fixes R5.R4 D04 — NEVER uses `bool(sb.storyboard_hash)` alone!).
+
+    Separates:
+      - `schema_hash_valid`: structural integrity check
+      - `niche_semantic_ok`: actual `sb.niche` matches ground-truth niche (deliberate wrong niche MUST FAIL even with valid hash!)
+      - `factual_ledger_ok`: numeric conservation & zero finance/cash primitives on non-finance clips
+      - `ui_protection_ok`: strict zero-occlusion on gameplay/tutorial HUD fixtures
+      - `semantic_passed`: requires ALL semantic dimensions AND schema integrity!
+    """
+    exp = fx.get("expect") or {}
+    schema_hash_valid = bool(getattr(sb, "storyboard_hash", ""))
+    exp_niche = exp.get("inferred_niche") or ("finance" if exp.get("ledger_active") else None)
+    actual_niche = str(getattr(sb, "niche", "")).lower()
+
+    if exp_niche is not None:
+        niche_semantic_ok = (actual_niche == str(exp_niche).lower())
+    else:
+        niche_semantic_ok = actual_niche != ""
+
+    # Factual & non-finance guard: non-finance clips must NEVER contain cash/money primitives or financial ledger scenes!
+    all_prims = [ly.primitive_id for sc in getattr(sb, "scenes", []) for ly in getattr(sc, "layers", [])]
+    if exp.get("ledger_active") is False:
+        factual_ledger_ok = not any(p in ("hf_apple_money_count", "rem_ru_waterfall") for p in all_prims)
+    elif exp.get("ledger_active") is True:
+        factual_ledger_ok = bool(sg.ledger.active and sg.ledger.conservation_exact)
+    else:
+        factual_ledger_ok = True
+
+    # Strict UI protection check for gameplay/tutorial fixtures
+    if exp_niche in ("gameplay", "tutorial") or exp.get("protect_ui_strict"):
+        ui_protection_ok = (len(getattr(sb, "scenes", [])) == 0)
+    else:
+        ui_protection_ok = True
+
+    semantic_passed = bool(schema_hash_valid and niche_semantic_ok and factual_ledger_ok and ui_protection_ok)
+    failure_reasons: list[str] = []
+    if not schema_hash_valid:
+        failure_reasons.append("missing_storyboard_hash")
+    if not niche_semantic_ok:
+        failure_reasons.append(f"niche_mismatch:expected={exp_niche},actual={actual_niche}")
+    if not factual_ledger_ok:
+        failure_reasons.append("factual_ledger_or_forbidden_finance_primitive")
+    if not ui_protection_ok:
+        failure_reasons.append(f"ui_protection_violated:scenes={len(getattr(sb, 'scenes', []))}")
+
+    return {
+        "schema_hash_valid": schema_hash_valid,
+        "niche_semantic_ok": niche_semantic_ok,
+        "factual_ledger_ok": factual_ledger_ok,
+        "ui_protection_ok": ui_protection_ok,
+        "semantic_passed": semantic_passed,
+        "failure_reasons": failure_reasons,
+    }
+
+
 def run_hybrid_eval_suite(
     *,
     include_live_llm: bool = False,
-    live_case_limit: int = 4,
+    live_case_limit: int = 6,
     models_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """Separate deterministic rule evaluation vs raw local LLM evaluation vs reconciled evaluation (A1.3)."""
+    """Separate deterministic rule evaluation vs raw local LLM vs independently-oracled reconciled evaluation (Fixes D04)."""
     det = run_deterministic_reasoning_eval()
     raw_llm_eval: dict[str, Any] = {
         "status": "NOT_RUN" if not include_live_llm else "PENDING",
         "cases_tested": 0,
         "raw_schema_compliant": 0,
         "raw_niche_matches": 0,
-        "reconciled_passed": 0,
+        "reconciled_schema_valid": 0,
+        "reconciled_semantic_passed": 0,
+        "reconciled_passed": 0,  # Alias of reconciled_semantic_passed (NEVER hash-only!)
         "intervention_counts_by_type": {"none": 0, "safety": 0, "factual": 0, "artistic": 0, "resource": 0},
         "cases": [],
     }
@@ -668,6 +790,8 @@ def run_hybrid_eval_suite(
                 "EV02_non_monetary_page_count",
                 "EV24_education_multi_step_no_money",
                 "EV32_gameplay_hud_strict_ui_protection",
+                "EV38_tech_saas_feature_evidence_not_finance",
+                "EV39_wellness_calm_breath_retention",
             ][: max(1, int(live_case_limit))]
             fx_map = {f["case_id"]: f for f in build_independent_eval_fixtures()}
             cfg = EditConfig(offline=True, composition_mode="generative", allow_remotion=True, allow_hyperframes=True, analysis=AnalysisConfig(use_cache=False), seed=42)
@@ -690,22 +814,28 @@ def run_hybrid_eval_suite(
                 schema_ok = isinstance(raw, dict) and "niche" in raw and isinstance(raw.get("beat_plans"), list)
                 exp_niche = fx["expect"].get("inferred_niche") or ("finance" if fx["expect"].get("ledger_active") else None)
                 niche_ok = (exp_niche is None) or (str(raw.get("niche", "")).lower() == exp_niche)
+                oracle = evaluate_storyboard_semantics(fx, sb, sg)
                 raw_llm_eval["cases_tested"] += 1
                 raw_llm_eval["raw_schema_compliant"] += int(schema_ok)
                 raw_llm_eval["raw_niche_matches"] += int(niche_ok)
-                raw_llm_eval["reconciled_passed"] += int(bool(sb.storyboard_hash))
+                raw_llm_eval["reconciled_schema_valid"] += int(oracle["schema_hash_valid"])
+                raw_llm_eval["reconciled_semantic_passed"] += int(oracle["semantic_passed"])
+                raw_llm_eval["reconciled_passed"] += int(oracle["semantic_passed"])
                 raw_llm_eval["cases"].append({
                     "case_id": cid,
+                    "expected_niche": exp_niche,
                     "raw_niche": raw.get("niche"),
                     "reconciled_niche": sb.niche,
                     "raw_schema_compliant": schema_ok,
+                    "raw_niche_ok": niche_ok,
                     "reconciled_scenes": len(sb.scenes),
+                    "semantic_oracle": oracle,
                     "intervention_counts": ic,
                 })
             raw_llm_eval["status"] = "EXECUTED_LOCAL_LLM"
 
     return {
-        "schema_version": "3.0.0",
+        "schema_version": "4.0.0",
         "deterministic_rule_eval": det,
         "raw_vs_reconciled_llm_eval": raw_llm_eval,
     }

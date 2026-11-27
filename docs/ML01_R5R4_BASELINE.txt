@@ -1,0 +1,68 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R4 BASELINE AUDIT & DEFECT REPRODUCTION (A0)
+================================================================================
+Repository:             https://github.com/quocan050302/MotionLab-Studio
+Branch:                 feat/ml-01-zero-api-effects
+Audited Base HEAD:      8c4a437bea0148e6e6234afa33a05249dc58d986
+R5.R3 Tested Code SHA:  80d344e812fd9a2aaeef57e205e3b9dc846ef614
+Git Working Tree:       CLEAN (origin/feat/ml-01-zero-api-effects synced, 0 uncommitted files)
+Host Environment:       macOS-14.4.1-arm64 (8 logical CPUs, 16.0 GiB unified RAM, 16.32 GiB free disk)
+Python / Engines:       Python 3.13.0 | numpy 2.2.6 | scipy 1.18.1 | cv2 4.14.0 | av 19.0.2
+                        faster-whisper 1.2.1 (with built-in Silero VAD ONNX) | onnxruntime 1.23.2
+                        FFmpeg + ffprobe (/opt/homebrew/bin) | Node v22.22.3 | Remotion | HyperFrames
+Local Models Verified:  qwen2_5_3b_instruct_q4_k_m (SHA-256 verified, Apache-2.0, tools/llama.cpp/llama-completion)
+                        faster-whisper-small (local offline) | MODNet ONNX | 29 unique raw CC0 Foley WAVs (34 bindings)
+Optional Models Status: MODEL_UPGRADE_NOT_RUN (no 7B-8B GGUF provisioned), VISION_CRITIC_NOT_RUN (no local VLM)
+================================================================================
+
+1. IMMUTABLE ORIGINAL INPUT VERIFICATION (A0.3)
+--------------------------------------------------------------------------------
+File:       input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+Size:       8,650,669 bytes
+SHA-256:    c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e (EXACT MATCH)
+Probe:      720x1280, 24/1 fps, 720 frames, 30.000s, AAC mono 44100 Hz (1296 packets)
+Silencedetect (-35dB, d=0.20s — diagnostic only, NOT a cut oracle):
+  7 spans totaling ~2.09s:
+    8.270–8.504s (0.233s), 9.202–9.547s (0.345s), 18.781–19.144s (0.363s),
+    19.650–19.995s (0.345s), 21.933–22.174s (0.241s), 26.190–26.474s (0.285s),
+    28.728–29.006s (0.279s)
+  Observation: Amplitude silence alone misses active ambient cash handling / room noise
+  inside non-speech gaps (e.g. 8.08–9.75s and 16.88–20.08s), proving why real Silero VAD +
+  word timing evidence + visual action evidence are mandatory before any cut decision.
+
+2. R5.R3 REPORTED BASELINE SNAPSHOT (A0.4 — Historical Reference)
+--------------------------------------------------------------------------------
+- Reported tests at 80d344e: 157 unique pytest (15 subtests) + 26 overlapping upstream unittest
+- Reported deterministic eval: 36/36; live Qwen2.5-3B (4 cases): raw niche 2/4, reconciled 4/4 (BUG D04!)
+- Reported canonical Olivia: 720 frames / 30.000s (SHA 0f6e005bf70d482fff128b5ae3a242c4d18a9a7ec1c8ae194801fb6655b1f1b2)
+  9 scenes, 19/19 layer ablations, 13/13 recorded SFX, 17 OBSERVED_PIXEL + 1 RENDER_EMITTED markers
+- Reported macOS wall times: cold 302.26s (w=2, --no-cache), warm 110.88s (w=2, 7/9 remotion hits),
+  w=1 cache-populate 248.26s, incremental 1-scene 114.22s
+
+3. EMPIRICALLY REPRODUCED DEFECTS TARGETED IN ML-01.R5.R4 (A0.5)
+--------------------------------------------------------------------------------
+- D01 (P0): REPRODUCED — r5_engine.py (`out_frames == media.duration_frames`) and pipeline.py
+  `_validate_generative_r5_run` enforce source frame count unconditionally, blocking edited pacing.
+- D02 (P0): REPRODUCED — story_graph.py labels inter-beat gaps as `breathing_bridge` with zero
+  semantic pacing classification or cut/trim decision model.
+- D03 (P0): REPRODUCED — R5.R3 transcript had `timestamp_quality=SEGMENT_APPROX`, `word_timestamps_exact=False`
+  without local VAD + envelope boundary refinement or per-word uncertainty bounds.
+- D04 (P0): REPRODUCED — eval_harness.py::run_hybrid_eval_suite checked `bool(sb.storyboard_hash)`
+  for `reconciled_passed`, falsely marking EV24_education & EV32_gameplay (classified `product`) as PASS.
+- D05 (P0): REPRODUCED — audio master, mix clock, and validation assume source duration only;
+  must cleanly separate immutable original master M4A from derived edited voice bed on output clock.
+- D06 (P0): REPRODUCED — Remotion/HF compiler, matte cache, continuity tracks, and SFX markers assume
+  source global frames; warm matte scenes missed cache (7/9) due to run-temp matte filenames.
+- D07 (P1): IDENTIFIED — Groceries short beat (~1.44s) used full-screen aspect_morph cutaway flip
+  causing abrupt visual transition density at f235-237/f261-262; should maintain continuous money world.
+- D08 (P1): IDENTIFIED — Visual pacing held dead air (~17.4-20.1s) with minimal new info; paper tokens
+  and pacing rhythm require real cut + tighter tactile motion choreography.
+- D09 (P1): IDENTIFIED — Qwen2.5-3B mislabeled education/gameplay niche raw; no VLM provisioned;
+  repair loop had 0 exercised rounds on canonical (requires defect-control proof + honest VLM status).
+- D10 (P1): IDENTIFIED — QA-02 needs redacted edit_time_map, pacing_decisions, word_preservation,
+  cut_continuity, and rhythm_critic summaries while preserving strict privacy/<=2 MiB/local-only gates.
+- D11 (P1): IDENTIFIED — Long-form risk: audit audio arrays, chunked VAD/prosody/flow, remap tables,
+  and benchmark synthetic 90s/300s streaming process-tree peak RSS & temp disk.
+- D12 (P1): IDENTIFIED — Audio joins after cutting risk clicks/room-tone jumps/A-V drift and ghost cues
+  unless SFX planning & floor-free counterfactual QA operate strictly on the edited domain clock.
+================================================================================

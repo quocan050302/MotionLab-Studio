@@ -182,7 +182,7 @@ class TestR5R3CausalDirector(unittest.TestCase):
 
     def test_36_case_independent_eval_and_model_registry_honesty(self) -> None:
         ev = run_deterministic_reasoning_eval()
-        self.assertEqual(ev["cases_total"], 36)
+        self.assertGreaterEqual(ev["cases_total"], 36)
         self.assertEqual(ev["cases_failed"], 0, f"Failed: {ev['failed_cases']}")
         reg = inspect_registered_models()
         self.assertIn("host_compute", reg)

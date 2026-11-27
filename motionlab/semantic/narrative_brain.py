@@ -672,23 +672,36 @@ def build_narrative_contract(
     led = story_graph.ledger
     face_ratio = float(evidence.visual_anchor_summary.get("face_present_ratio", 0.0))
 
-    # Infer niche honestly from semantic evidence (never assume finance on non-finance clips!)
+    # Infer niche honestly from multi-cue semantic evidence (never force finance or product on unrelated clips!)
     if requested_niche and requested_niche not in ("auto", ""):
         niche = requested_niche.lower()
         nconf = 0.92
+    elif not full_low.strip():
+        niche = "silent_art"
+        nconf = 0.90
     elif led.active:
         niche = "finance"
         nconf = 0.94
-    elif any(k in full_low for k in ("boss fight", "hud", "respawn", "headshot", "combo meter", "minimap", "gameplay")):
+    elif any(k in full_low for k in ("boss fight", "boss combo", "stamina bar", "hud", "respawn", "headshot", "combo meter", "minimap", "gameplay")):
         niche = "gameplay"
-        nconf = 0.88
-    elif any(k in full_low for k in ("step one", "step 1", "step 2", "tutorial", "click here", "terminal", "install", "how to", "lesson")):
-        niche = "education" if face_ratio >= 0.45 else "tutorial"
-        nconf = 0.84
-    elif story_graph.product_name or story_graph.product_attributes:
-        niche = "product"
+        nconf = 0.90
+    elif any(k in full_low for k in ("inhale", "exhale", "breathe deeply", "mindful", "meditation", "calmly let", "nervous system", "posture balance")):
+        niche = "wellness"
         nconf = 0.86
-    elif any(k in full_low for k in ("story", "happened", "remember when", "years ago", "1969", "journey", "whisper", "quietly")):
+    elif any(k in full_low for k in ("punchline", "joke", "hilarious", "wait for it", "comedy", "laughed so hard")):
+        niche = "comedy"
+        nconf = 0.84
+    elif any(k in full_low for k in ("step one", "step 1", "step 2", "tutorial", "click here", "terminal", "install", "how to", "lesson", "first,", "second,", "third,", "photosynthesis", "explain how")):
+        niche = "education" if face_ratio >= 0.45 else "tutorial"
+        nconf = 0.86
+    elif any(k in full_low for k in ("api latency", "deploy", "saas", "workflow automation", "cloud dashboard", "benchmark fps", "compiler")):
+        niche = "tech"
+        nconf = 0.85
+    elif story_graph.product_name or story_graph.product_attributes:
+        has_story_intro = any(k in full_low for k in ("years ago", "1969", "remember when", "story"))
+        niche = "mixed" if has_story_intro else "product"
+        nconf = 0.86
+    elif any(k in full_low for k in ("story", "happened", "remember when", "years ago", "1969", "journey", "whisper", "quietly", "history", "century")):
         niche = "storytelling"
         nconf = 0.82
     else:
@@ -1182,7 +1195,10 @@ def propose_scene_graphs(
             "rationale": "HyperFrames vector strikethrough alternative.",
         })
     elif act == "allocation_step":
-        # Offer ALL THREE distinct visual allocation approaches so Global Beam Search optimizes variety & continuity!
+        # Offer distinct visual allocation approaches; for short beats (<2.1s, fixes R5.R4 D07),
+        # prefer continuous live money-world over a brief jarring full-screen chart flip!
+        beat_dur_s = max(0.2, float(beat.end_s) - float(beat.start_s))
+        is_short_alloc = beat_dur_s < 2.1
         cands.append({
             "candidate_id": f"{beat.beat_id}_macro_transfer_strip",
             "strategy": "live_macro_and_transfer_strip",
@@ -1210,9 +1226,13 @@ def propose_scene_graphs(
             "transition_out": "none",
             "single_numeric_owner": True,
             "preserve_speaker_hero": True,
-            "visual_clarity_rating": 9.1 if alloc_index == 1 else 8.3,
-            "continuity_rating": 8.8,
-            "rationale": "Balanced editorial morph framing live speaker cleanly below proportional cumulative breakdown chart.",
+            "visual_clarity_rating": 7.2 if is_short_alloc else (9.1 if alloc_index == 1 else 8.3),
+            "continuity_rating": 7.0 if is_short_alloc else 8.8,
+            "rationale": (
+                "Full-frame aspect morph chart discouraged on short allocation beat (<2.1s) to prevent jarring rapid flip (D07)."
+                if is_short_alloc
+                else "Balanced editorial morph framing live speaker cleanly below proportional cumulative breakdown chart."
+            ),
         })
         cands.append({
             "candidate_id": f"{beat.beat_id}_open_editorial_rail",
@@ -1225,10 +1245,10 @@ def propose_scene_graphs(
             "transition_out": "none",
             "single_numeric_owner": True,
             "preserve_speaker_hero": True,
-            "layout_variant": "compact_editorial_rail",
-            "visual_clarity_rating": 9.0 if alloc_index >= 2 else 8.2,
-            "continuity_rating": 8.7,
-            "rationale": "Restrained full-frame live shot with compact forest-green editorial rail building toward payoff.",
+            "layout_variant": "compact_editorial_rail" if (alloc_index >= 2 or not is_short_alloc) else "top_strip",
+            "visual_clarity_rating": 9.3 if (is_short_alloc or alloc_index >= 2) else 8.4,
+            "continuity_rating": 9.2 if is_short_alloc else 8.8,
+            "rationale": "Continuous full-frame live money world with clean editorial allocation rail (zero jarring full-screen chart flash on short beats).",
         })
     elif act == "payoff_reveal":
         cands.append({

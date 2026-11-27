@@ -32,7 +32,7 @@ from motionlab.schemas import atomic_write_json, atomic_write_text, ensure_conta
 MAX_QA_PACK_BYTES = 2 * 1024 * 1024  # 2 MiB hard budget
 
 _POSIX_ABS_RE = re.compile(r"/(?:Users|home|var|tmp|private|opt|Volumes)/[^\s\"',;]+")
-_WIN_ABS_RE = re.compile(r"[A-Za-z]:[/\\][^\s\"',;]+")
+_WIN_ABS_RE = re.compile(r"(?<![A-Za-z])[A-Za-z]:[/\\](?!/)[^\s\"',;]+")
 _EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
@@ -177,6 +177,12 @@ def _build_qa_pack_core(
         raw_dir = _load("raw_director_response.json")
         markers_doc = _load("evidence/animation_markers_realized.json") or _load("evidence/animation_markers.json")
         rev_hist = _load("evidence/revision_history.json")
+        emap_doc = _load("edit_time_map.json")
+        pacing_doc = _load("pacing_plan.json")
+        wp_doc = _load("word_preservation.json")
+        cut_cont_doc = _load("evidence/cut_continuity.json")
+        join_aud_doc = _load("evidence/join_audio_qa.json")
+        rhythm_doc = _load("evidence/rhythm_critic.json")
 
         final_p = run_dir / final_mp4_name
         if not final_p.is_file():
@@ -224,6 +230,31 @@ def _build_qa_pack_core(
                 _emit_json("marker_tiers.json", markers_doc)
             if rev_hist:
                 _emit_json("revision_history.json", rev_hist)
+            if emap_doc:
+                _emit_json("edit_time_map.json", emap_doc)
+            if pacing_doc:
+                _emit_json("pacing_decisions.json", {
+                    "pacing_mode": pacing_doc.get("pacing_mode"),
+                    "niche": pacing_doc.get("niche"),
+                    "status": pacing_doc.get("status"),
+                    "chosen_plan_id": pacing_doc.get("chosen_plan_id"),
+                    "chosen_variant": pacing_doc.get("chosen_variant"),
+                    "cuts_count": pacing_doc.get("cuts_count"),
+                    "source_duration_s": pacing_doc.get("source_duration_s"),
+                    "output_duration_s": pacing_doc.get("output_duration_s"),
+                    "removed_total_s": pacing_doc.get("removed_total_s"),
+                    "scored_variants": pacing_doc.get("scored_variants", []),
+                    "chosen_decisions": pacing_doc.get("chosen_decisions", []),
+                    "excluded_cut_ids_rolled_back": pacing_doc.get("excluded_cut_ids_rolled_back", []),
+                })
+            if wp_doc:
+                _emit_json("word_preservation.json", wp_doc)
+            if cut_cont_doc:
+                _emit_json("cut_continuity.json", cut_cont_doc)
+            if join_aud_doc:
+                _emit_json("join_audio_qa.json", join_aud_doc)
+            if rhythm_doc:
+                _emit_json("rhythm_critic.json", rhythm_doc)
 
         _emit_json("visual_quality.json", {
             "creative_quality_proxy": cq_doc,
@@ -278,11 +309,23 @@ def _build_qa_pack_core(
             "repo": repo_url,
             "branch": branch,
             "tested_code_sha": tested_code_sha,
-            "source_sha256": sb_doc.get("source_hash") or manifest_src.get("input_hash", ""),
+            "source_sha256": emap_doc.get("source_sha256") or sb_doc.get("source_hash") or manifest_src.get("input_hash", ""),
             "render_mode": render_mode,
             "input_geometry": f"{sb_doc.get('width', 720)}x{sb_doc.get('height', 1280)}",
             "input_fps": f"{sb_doc.get('fps_num', 24)}/{sb_doc.get('fps_den', 1)}",
-            "input_frames": sb_doc.get("total_frames", 720),
+            "input_frames": emap_doc.get("source_total_frames", sb_doc.get("total_frames", 720)),
+            "original_duration_s": emap_doc.get("source_duration_s"),
+            "edited_frames": emap_doc.get("output_total_frames", sb_doc.get("total_frames", 720)),
+            "edited_duration_s": emap_doc.get("output_duration_s"),
+            "edit_map_hash": emap_doc.get("map_hash"),
+            "pacing_summary": {
+                "pacing_mode": emap_doc.get("pacing_mode", "preserve"),
+                "pacing_status": emap_doc.get("status", "IDENTITY_PRESERVE"),
+                "cuts_count": len(emap_doc.get("omitted_spans", [])) if emap_doc else 0,
+                "removed_total_s": emap_doc.get("removed_total_s", 0.0) if emap_doc else 0.0,
+                "word_preservation_passed": wp_doc.get("passed") if wp_doc else None,
+                "rhythm_critic_status": rhythm_doc.get("objective_rhythm_status") if rhythm_doc else None,
+            },
             "final_artifact": {
                 "filename": final_p.name if final_p.is_file() else final_mp4_name,
                 "sha256": _sha256_file(final_p) if final_p.is_file() else None,

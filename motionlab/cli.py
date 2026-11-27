@@ -37,6 +37,7 @@ from motionlab.config import (
     VALID_COMPOSITIONS,
     VALID_ENGINES,
     VALID_MUSIC_MODES,
+    VALID_PACING_MODES,
     VALID_PROFILES,
     VALID_QUALITIES,
     VALID_SEMANTIC_MODES,
@@ -181,6 +182,7 @@ def _build_edit_config_from_args(args: argparse.Namespace) -> EditConfig:
         style=getattr(args, "style", "auto"),
         motion_density=getattr(args, "motion_density", "adaptive"),
         remotion_opted_in=bool(enable_rem_flag and not disable_rem),
+        pacing_mode=getattr(args, "pacing", "preserve"),
     )
 
 
@@ -315,6 +317,7 @@ def _add_common_edit_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--audio-mode", choices=VALID_AUDIO_MODES, default="preserve-exact", help="Audio mode: preserve-exact or mix (voice unity + SFX)")
     p.add_argument("--sfx", choices=VALID_SFX_MODES, default="auto", help="Local SFX/foley mode when audio-mode=mix (default: auto)")
     p.add_argument("--music", choices=VALID_MUSIC_MODES, default="off", help="Local music track mode (default: off)")
+    p.add_argument("--pacing", choices=VALID_PACING_MODES, default="preserve", help="Timeline pacing mode: preserve (exact source duration) or auto (intelligent content-first cuts)")
     p.add_argument("--strict-cinematic", action="store_true", help="Fail closed in cinematic/generative mode if ASR, LLM, Remotion, or HyperFrames missing")
     p.add_argument("--style", default="auto", help="Optional niche/editorial style hint (default: auto)")
     p.add_argument("--motion-density", choices=("low", "adaptive", "rich"), default="adaptive", help="Motion density pacing")

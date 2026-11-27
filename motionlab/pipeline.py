@@ -657,8 +657,55 @@ def _validate_generative_r5_run(run_dir: Path, manifest: dict[str, Any], media: 
     tol_s = max(0.08, 1.5 / max(1.0, media.fps_float))
     checks.append(ValidationCheck("output_dimensions_match", "PASS" if (out_w == media.display_width and out_h == media.display_height) else "FAIL", f"{media.display_width}x{media.display_height}", f"{out_w}x{out_h}"))
     checks.append(ValidationCheck("pixel_format_compatible", "PASS" if out_pix == "yuv420p" else "FAIL", "yuv420p", out_pix))
-    checks.append(ValidationCheck("frame_count_exact", "PASS" if out_frames == media.duration_frames else "FAIL", media.duration_frames, out_frames))
-    checks.append(ValidationCheck("duration_preserved", "PASS" if abs(out_dur - media.duration_s) <= tol_s else "FAIL", f"{media.duration_s:.3f}s (±{tol_s:.3f}s)", f"{out_dur:.3f}s"))
+
+    # Branch frame/duration check strictly by mode (R5.R4 Fix D01!):
+    #   - preserve mode: strict source media.duration_frames
+    #   - auto pacing mode: independently validated EditTimeMap.output_total_frames (NEVER derived from output MP4!)
+    emap_p = run_dir / "edit_time_map.json"
+    emap_obj = None
+    emap_errors: list[str] = []
+    if emap_p.is_file():
+        from motionlab.composition.edit_time_map import EditTimeMap, validate_edit_time_map
+
+        emap_obj = EditTimeMap.from_dict(json.loads(emap_p.read_text(encoding="utf-8")))
+        emap_errors = validate_edit_time_map(emap_obj)
+        if emap_obj.source_sha256 != media.input_hash:
+            emap_errors.append("edit_map_source_sha_mismatch")
+
+    is_auto_paced = bool(emap_obj is not None and emap_obj.pacing_mode == "auto" and not emap_obj.is_identity)
+    if is_auto_paced and emap_obj is not None:
+        exp_frames = int(emap_obj.output_total_frames)
+        exp_dur_s = float(emap_obj.output_duration_s)
+        checks.append(ValidationCheck(
+            "edit_time_map_valid",
+            "PASS" if not emap_errors else "FAIL",
+            "valid map_hash, contiguous kept spans, exact rational sample clock",
+            f"status={emap_obj.status}, cuts={len(emap_obj.omitted_spans)}, errors={emap_errors}",
+            "edit_time_map.json",
+        ))
+        checks.append(ValidationCheck("frame_count_exact", "PASS" if (not emap_errors and out_frames == exp_frames) else "FAIL", exp_frames, out_frames, "edit_time_map.json"))
+        checks.append(ValidationCheck("duration_matches_edit_map", "PASS" if abs(out_dur - exp_dur_s) <= tol_s else "FAIL", f"{exp_dur_s:.3f}s (±{tol_s:.3f}s)", f"{out_dur:.3f}s", "edit_time_map.json"))
+        wp_p = run_dir / "word_preservation.json"
+        wp_doc = json.loads(wp_p.read_text(encoding="utf-8")) if wp_p.is_file() else {}
+        checks.append(ValidationCheck(
+            "word_preservation_verified",
+            "PASS" if bool(wp_doc.get("passed")) else "FAIL",
+            "passed=True, 0 missing numeric tokens",
+            f"passed={wp_doc.get('passed')}, recall={wp_doc.get('token_recall')}, crit_recall={wp_doc.get('critical_token_recall')}",
+            "word_preservation.json",
+        ))
+        ja_p = run_dir / "evidence" / "join_audio_qa.json"
+        ja_doc = json.loads(ja_p.read_text(encoding="utf-8")) if ja_p.is_file() else {}
+        checks.append(ValidationCheck(
+            "audio_joins_verified",
+            "PASS" if ja_doc.get("status") == "PASS" else "FAIL",
+            "status=PASS, 0 clicks, exact edited sample count",
+            f"status={ja_doc.get('status')}, joins={ja_doc.get('joins_checked')}, clicks={ja_doc.get('clicks_detected')}",
+            "evidence/join_audio_qa.json",
+        ))
+    else:
+        checks.append(ValidationCheck("frame_count_exact", "PASS" if out_frames == media.duration_frames else "FAIL", media.duration_frames, out_frames))
+        checks.append(ValidationCheck("duration_preserved", "PASS" if abs(out_dur - media.duration_s) <= tol_s else "FAIL", f"{media.duration_s:.3f}s (±{tol_s:.3f}s)", f"{out_dur:.3f}s"))
 
     # Full decode check with -xerror
     dec_proc = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(final_p), "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, shell=False)

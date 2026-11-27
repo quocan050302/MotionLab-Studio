@@ -379,7 +379,7 @@ def build_adapted_hyperframes_html(
     position: relative; width: {width}px; height: {height}px; overflow: hidden; background: {bg_css};
   }}
   #mk-ps-group {{
-    position: absolute; left: 48px; right: 105px; top: {y_top}px;
+    position: absolute; left: 48px; right: 105px; top: {y_top}px; z-index: 3;
     font-family: var(--mk-font);
     padding: 20px 24px 20px 26px; border-radius: {4 if is_rail else 10}px;
     background: {box_bg};
@@ -406,9 +406,9 @@ def build_adapted_hyperframes_html(
   .meta-row {{ display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }}
   #mk-ps-caption {{ font-weight: 700; font-size: 28px; color: var(--mk-ink); font-variant-numeric: tabular-nums; }}
   #mk-ps-share {{ font-weight: 700; font-size: 24px; color: var(--mk-ink-dim); font-variant-numeric: tabular-nums; }}
-  #allocTokens {{ position: absolute; inset: 0; pointer-events: none; z-index: 2; perspective: 560px; }}
+  #allocTokens {{ position: absolute; inset: 0; pointer-events: none; z-index: 1; perspective: 560px; }}
   .alloc-note {{
-    position: absolute; left: 52%; top: {y_top + 170}px; width: 92px; height: 46px; border-radius: 5px;
+    position: absolute; left: 52%; top: {y_top + 216}px; width: 92px; height: 46px; border-radius: 5px;
     background: linear-gradient(135deg, #F4EEE0 0%, #E3DBC6 55%, #D5CEB8 100%);
     border: 1.5px solid #84977A;
     box-shadow: 0 10px 22px rgba(22,20,16,0.28), inset 0 0 0 3px rgba(132,151,122,0.24);

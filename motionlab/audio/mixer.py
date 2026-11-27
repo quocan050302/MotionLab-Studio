@@ -180,6 +180,80 @@ def extract_original_audio_master(
     }
 
 
+def build_edited_voice_bed(
+    source_path: Path,
+    edit_map: Any,
+    out_wav: Path,
+    *,
+    ffmpeg_bin: str | None = None,
+) -> dict[str, Any]:
+    """Phase A6.4 (ML-01.R5.R4): Build exact sample-accurate derived edited voice bed from immutable original source.
+
+    - Zero time stretching, zero pitch change, zero EQ/NR alteration.
+    - Uses exact `EditTimeMap.kept_spans` sample offsets and applies a 12ms equal-power cosine micro-crossfade
+      strictly across non-speech join edges to eliminate clicks/DC jumps while preserving exact `edited_total_samples`!
+    """
+    ffmpeg = ffmpeg_bin or shutil.which("ffmpeg") or "ffmpeg"
+    sr = int(edit_map.sample_rate or 44100)
+    src_pcm = _decode_audio_stereo_f32(Path(source_path), sr=sr, ffmpeg_bin=ffmpeg)
+    n_out = int(edit_map.edited_total_samples)
+    if src_pcm.shape[0] == 0 or n_out <= 0:
+        out_arr = np.zeros((max(1, n_out), 2), dtype=np.float32)
+        _write_wav_int16(out_wav, out_arr, sr)
+        return {
+            "edited_voice_bed_path": str(out_wav),
+            "edited_voice_bed_sha256": _sha256_file(out_wav),
+            "sample_rate": sr,
+            "actual_samples": int(out_arr.shape[0]),
+            "expected_samples": n_out,
+            "sample_exact": False,
+            "crossfade_ms": 0.0,
+            "edit_map_hash": str(edit_map.map_hash),
+        }
+
+    out_arr = np.zeros((n_out, 2), dtype=np.float32)
+    src_len = src_pcm.shape[0]
+
+    for idx, ks in enumerate(edit_map.kept_spans):
+        o0, o1 = int(ks.output_start_sample), int(ks.output_end_sample)
+        s0 = int(ks.source_start_sample)
+        seg_n = max(0, min(n_out, o1) - o0)
+        if seg_n <= 0:
+            continue
+        # Copy exact span from immutable source audio
+        avail = max(0, min(src_len, s0 + seg_n) - s0)
+        if avail > 0:
+            out_arr[o0 : o0 + avail] = src_pcm[s0 : s0 + avail]
+
+        # Apply smooth equal-power cosine micro-crossfade at cut join `idx > 0` strictly inside non-speech margin!
+        xf = min(int(ks.crossfade_in_samples), seg_n // 3, 768)
+        if idx > 0 and xf >= 32:
+            prev_ks = edit_map.kept_spans[idx - 1]
+            # Tail immediately following prev_ks in original source (non-speech margin!) blended into head of current span
+            tail_s0 = int(prev_ks.source_end_sample)
+            tail_s1 = min(src_len, tail_s0 + xf)
+            actual_xf = min(xf, tail_s1 - tail_s0, avail)
+            if actual_xf >= 32:
+                theta = np.linspace(0.0, 0.5 * math.pi, actual_xf, dtype=np.float32)[:, None]
+                fade_out = np.cos(theta)
+                fade_in = np.sin(theta)
+                prev_tail = src_pcm[tail_s0 : tail_s0 + actual_xf]
+                cur_head = out_arr[o0 : o0 + actual_xf].copy()
+                out_arr[o0 : o0 + actual_xf] = prev_tail * fade_out + cur_head * fade_in
+
+    _write_wav_int16(out_wav, out_arr, sr)
+    return {
+        "edited_voice_bed_path": str(out_wav),
+        "edited_voice_bed_sha256": _sha256_file(out_wav),
+        "sample_rate": sr,
+        "actual_samples": int(out_arr.shape[0]),
+        "expected_samples": n_out,
+        "sample_exact": (int(out_arr.shape[0]) == n_out),
+        "crossfade_ms": round(1000.0 * (edit_map.kept_spans[1].crossfade_in_samples / sr), 2) if len(edit_map.kept_spans) > 1 else 0.0,
+        "edit_map_hash": str(edit_map.map_hash),
+    }
+
+
 def mix_preserving_master(
     media: MediaInfo,
     timeline: AudioTimeline,
@@ -189,36 +263,50 @@ def mix_preserving_master(
     ffmpeg_bin: str | None = None,
     ffprobe_bin: str | None = None,
     foley_dir: Path | None = None,
+    *,
+    original_source_path: Path | None = None,
+    edited_voice_bed_wav: Path | None = None,
+    edit_map_hash: str | None = None,
 ) -> dict[str, Any]:
-    """Mix voice (untouched unity 1.0) + audibly staged local SFX stem with exact asset provenance & zero clipping."""
+    """Mix voice (untouched unity 1.0 or derived edited voice bed) + audibly staged local SFX stem with exact provenance."""
     ffmpeg = ffmpeg_bin or shutil.which("ffmpeg") or "ffmpeg"
     ffprobe = ffprobe_bin or shutil.which("ffprobe") or "ffprobe"
     ev_dir = run_dir / "evidence"
     ev_dir.mkdir(parents=True, exist_ok=True)
     sr = int(timeline.sample_rate or 44100)
+    orig_src = Path(original_source_path) if original_source_path is not None else Path(media.source_path)
 
-    # 1. Preserve bit-exact original audio master stream copy (1296 packets for Olivia)
+    # 1. Preserve bit-exact original audio master stream copy ALWAYS from immutable original source!
     master_m4a = run_dir / "original_audio_master.m4a"
     subprocess.run(
         [
             ffmpeg, "-y", "-hide_banner", "-loglevel", "error",
-            "-i", str(media.source_path),
+            "-i", str(orig_src),
             "-vn", "-map", "0:a:0", "-c:a", "copy",
             str(master_m4a),
         ],
         check=True, timeout=60, shell=False,
     )
-    src_pkt = _audio_packet_hash_and_pts(Path(media.source_path), 0, ffmpeg, ffprobe)
+    src_pkt = _audio_packet_hash_and_pts(orig_src, 0, ffmpeg, ffprobe)
     mst_pkt = _audio_packet_hash_and_pts(master_m4a, 0, ffmpeg, ffprobe)
     master_exact = (src_pkt["packet_hash"] == mst_pkt["packet_hash"] and src_pkt["packet_count"] == mst_pkt["packet_count"])
 
-    # 2. Decode untouched source voice stereo float32 PCM (UNITY 1.0!) aligned strictly to exact presentation timeline!
-    voice_raw = _decode_audio_stereo_f32(Path(media.source_path), sr=sr, ffmpeg_bin=ffmpeg)
+    # 2. Decode voice stereo float32 PCM (UNITY 1.0!): use derived edited voice bed when pacing cuts active!
+    voice_bed_src = Path(edited_voice_bed_wav) if (edited_voice_bed_wav is not None and Path(edited_voice_bed_wav).is_file()) else orig_src
+    voice_raw = _decode_audio_stereo_f32(voice_bed_src, sr=sr, ffmpeg_bin=ffmpeg)
     n_samp = int(timeline.duration_samples) if int(timeline.duration_samples or 0) > 0 else int(round(media.duration_s * sr))
     if voice_raw.shape[0] < n_samp:
         voice = np.pad(voice_raw, ((0, n_samp - voice_raw.shape[0]), (0, 0)))
     else:
         voice = voice_raw[:n_samp].copy()
+
+    # Export no-SFX edited reference M4A for honest human A/B listening when using edited voice bed
+    if edited_voice_bed_wav is not None and Path(edited_voice_bed_wav).is_file():
+        no_sfx_ref = ev_dir / "no_sfx_edited_reference.m4a"
+        subprocess.run(
+            [ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", str(edited_voice_bed_wav), "-c:a", "aac", "-b:a", "192k", str(no_sfx_ref)],
+            check=True, timeout=60, shell=False,
+        )
 
     voice_mono = 0.5 * (voice[:, 0] + voice[:, 1])
     speech_env = _compute_short_speech_envelope(voice_mono, sr, attack_ms=15.0, release_ms=110.0)

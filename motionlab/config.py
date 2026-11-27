@@ -35,6 +35,7 @@ VALID_AUDIO_MODES = ("preserve-exact", "mix")
 VALID_SEMANTIC_MODES = ("auto", "off")
 VALID_SFX_MODES = ("auto", "off")
 VALID_MUSIC_MODES = ("off", "local")
+VALID_PACING_MODES = ("preserve", "auto")
 
 
 @dataclass(frozen=True)
@@ -129,6 +130,7 @@ class EditConfig:
     style: str = "auto"
     motion_density: str = "adaptive"
     remotion_opted_in: bool = False
+    pacing_mode: str = "preserve"  # preserve (R5.R3 exact source duration) | auto (R5.R4 intelligent pacing)
 
     @property
     def cache_enabled(self) -> bool:
@@ -161,6 +163,13 @@ class EditConfig:
             raise ValueError(f"Unknown sfx_mode '{self.sfx_mode}'. Valid: {', '.join(VALID_SFX_MODES)}")
         if self.music_mode not in VALID_MUSIC_MODES:
             raise ValueError(f"Unknown music_mode '{self.music_mode}'. Valid: {', '.join(VALID_MUSIC_MODES)}")
+        if self.pacing_mode not in VALID_PACING_MODES:
+            raise ValueError(f"Unknown pacing_mode '{self.pacing_mode}'. Valid: {', '.join(VALID_PACING_MODES)}")
+        if self.pacing_mode == "auto" and self.audio_mode == "preserve-exact":
+            raise ValueError(
+                "Incompatible CLI modes: --pacing auto shortens the output timeline and cannot pair with "
+                "--audio-mode preserve-exact. Use --audio-mode mix (original_audio_master.m4a is still preserved bit-exact)."
+            )
         if not self.offline:
             raise ValueError("Cloud/online editing mode is forbidden in ML-01; --offline must remain true.")
         if self.aspect_bg_mode not in ("blur", "solid", "smart_crop"):
@@ -192,7 +201,7 @@ class EditConfig:
             "intensity_scale": self.intensity_scale,
             "analysis": asdict(self.analysis),
         }
-        if self.composition_mode != "legacy" or self.audio_mode != "preserve-exact":
+        if self.composition_mode != "legacy" or self.audio_mode != "preserve-exact" or self.pacing_mode != "preserve":
             d.update({
                 "composition_mode": self.composition_mode,
                 "semantic_mode": self.semantic_mode,
@@ -201,6 +210,7 @@ class EditConfig:
                 "music_mode": self.music_mode,
                 "style": self.style,
                 "motion_density": self.motion_density,
+                "pacing_mode": self.pacing_mode,
             })
         return d
 

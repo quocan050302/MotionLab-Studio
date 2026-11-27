@@ -754,11 +754,20 @@ def direct_generative_storyboard(
 
     raw_sha = hashlib.sha256(json.dumps(raw_llm, sort_keys=True).encode("utf-8")).hexdigest()
 
-    niche = str(raw_llm.get("niche") or pre_contract.inferred_niche or "cinematic").lower()
+    niche_raw_llm = str(raw_llm.get("niche") or "").lower()
+    niche = niche_raw_llm or pre_contract.inferred_niche or "cinematic"
+    niche_factual_overridden = False
     if niche not in NICHE_PROFILES:
         niche = "finance" if story_graph.ledger.active else pre_contract.inferred_niche
+        niche_factual_overridden = True
+    # Reconcile clear structural niche evidence against small-LLM misclassifications (fixes R5.R4 D04/D09!)
+    if pre_contract.inferred_niche in ("gameplay", "tutorial", "education", "finance", "wellness", "silent_art", "tech", "comedy") and pre_contract.niche_confidence >= 0.84:
+        if niche != pre_contract.inferred_niche:
+            niche = pre_contract.inferred_niche
+            niche_factual_overridden = True
     if niche == "tutorial" and story_graph.ledger.active and face_ratio >= 0.4:
         niche = "finance"
+        niche_factual_overridden = True
     niche_profile = NICHE_PROFILES[niche]
     palette = dict(NICHE_PALETTES.get(niche, DEFAULT_EDITORIAL_PALETTE))
 
