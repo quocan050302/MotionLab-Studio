@@ -425,6 +425,78 @@ async def run_edit_pipeline_async(
         "dry_run": config.dry_run,
     }
 
+    if config.composition_mode in ("r3", "cinematic", "generative") and preloaded_plan is None:
+        from motionlab.resource import ResourceTracker
+
+        tracker = ResourceTracker()
+        doctor_info = {"engines": engine_caps}
+        if config.composition_mode == "generative":
+            from motionlab.composition.r5_engine import execute_generative_r5_pipeline
+
+            return execute_generative_r5_pipeline(
+                media=media,
+                analysis=analysis,
+                base_plan=plan,
+                config=config,
+                doctor_info=doctor_info,
+                run_id=run_id,
+                run_dir=run_dir,
+                budget=budget,
+                tracker=tracker,
+                manifest=manifest,
+                log_lines=log_lines,
+            )
+        if config.composition_mode == "cinematic":
+            from motionlab.composition.r4_engine import execute_cinematic_r4_pipeline
+
+            r4_out = execute_cinematic_r4_pipeline(
+                media=media,
+                analysis=analysis,
+                base_plan=plan,
+                config=config,
+                doctor_info=doctor_info,
+                run_dir=run_dir,
+                budget=budget,
+                tracker=tracker,
+            )
+            if config.dry_run or not r4_out.get("executed_cinematic"):
+                manifest["status"] = "DRY_RUN_PLANNED"
+                manifest["composition_mode"] = "cinematic"
+                manifest["r4_graph_hash"] = r4_out["graph"].graph_hash
+                manifest["semantic_plan_hash"] = r4_out["semantic_plan"].semantic_plan_hash
+                atomic_write_json(run_dir / "manifest.json", manifest)
+                budget.cleanup_owned_temp(run_dir)
+                return {
+                    "run_id": run_id,
+                    "run_dir": str(run_dir),
+                    "status": "DRY_RUN_PLANNED",
+                    "composition_mode": "cinematic",
+                    "plan_hash": plan.plan_hash(),
+                    "graph_hash": r4_out["graph"].graph_hash,
+                    "scenes": len(r4_out["graph"].scenes),
+                    "final_path": None,
+                }
+            final_p = run_dir / "final.mp4"
+            os.replace(r4_out["partial_out"], final_p)
+            manifest["status"] = "TECHNICAL_PASS"
+            manifest["composition_mode"] = "cinematic"
+            manifest["aesthetic_status"] = "PENDING_HUMAN_REVIEW"
+            manifest["final_artifact"] = "final.mp4"
+            manifest["resource_tracker"] = tracker.to_dict()
+            atomic_write_json(run_dir / "render_manifest.json", r4_out["render_result"].to_dict())
+            atomic_write_json(run_dir / "manifest.json", manifest)
+            budget.cleanup_owned_temp(run_dir)
+            return {
+                "run_id": run_id,
+                "run_dir": str(run_dir),
+                "status": "TECHNICAL_PASS",
+                "aesthetic_status": "PENDING_HUMAN_REVIEW",
+                "composition_mode": "cinematic",
+                "scenes": len(r4_out["graph"].scenes),
+                "engines_used": r4_out["render_result"].engines_used,
+                "final_path": str(final_p),
+            }
+
     if config.dry_run:
         manifest["status"] = "DRY_RUN_PLANNED"
         atomic_write_json(run_dir / "manifest.json", manifest)

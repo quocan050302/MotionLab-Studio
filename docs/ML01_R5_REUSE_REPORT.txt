@@ -1,0 +1,52 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5 REPOSITORY REUSE REPORT (PHASE A2)
+================================================================================
+Date (UTC)                  : 2026-11-27
+Policy                      : Repository Reuse First (zero alias inflation)
+Upstream Repos Surveyed     : 20 public GitHub repos + 448 local HyperFrames v0.9.101 catalog items
+License-Blocked Repos       : 6 (H05, R05, R07, R11, R12, R15 — missing root LICENSE; 0 code copied)
+Imported Source Repos       : 5 verified MIT / Apache-2.0 repositories
+Verified Imported Mechanisms: 20 / 20 (11 Remotion MIT + 9 HyperFrames Apache-2.0)
+Lockfile                    : third_party/motion_sources.lock.json
+Verification Manifest       : third_party/imported_primitive_manifest.json
+Catalog                     : motion_source_catalog.json
+
+--------------------------------------------------------------------------------
+1. VERIFIED IMPORTED MECHANISMS (ALL 20 PROVEN VIA LIVE LOCAL RENDER)
+--------------------------------------------------------------------------------
+REMOTION (11 MIT Mechanisms across 4 Repositories — `npx tsc --noEmit` exit 0):
+  [01] rem_ru_counter          <- riaz37/remotion-ui @ 27e51ae809 (MIT) | Counter.tsx               | smoke 48f mad=2.76 | VERIFIED
+  [02] rem_ru_waterfall        <- riaz37/remotion-ui @ 27e51ae809 (MIT) | WaterfallChart.tsx        | smoke 48f mad=6.92 | VERIFIED
+  [03] rem_ru_strikethrough    <- riaz37/remotion-ui @ 27e51ae809 (MIT) | StrikethroughReplace.tsx  | smoke 48f mad=0.54 | VERIFIED
+  [04] rem_ru_masked_slide     <- riaz37/remotion-ui @ 27e51ae809 (MIT) | MaskedSlideReveal.tsx     | smoke 48f mad=3.58 | VERIFIED
+  [05] rem_ru_track_matte      <- riaz37/remotion-ui @ 27e51ae809 (MIT) | TrackMatte.tsx            | smoke 48f mad=6.04 | VERIFIED
+  [06] rem_ru_parallax         <- riaz37/remotion-ui @ 27e51ae809 (MIT) | ParallaxLayers.tsx        | smoke 48f mad=3.66 | VERIFIED
+  [07] rem_viv_aspect_morph    <- vivmagarwal/remotion-effects-library @ f2781731e1 (MIT) | AspectMorphCard.tsx | smoke 48f mad=78.06 | VERIFIED
+  [08] rem_viv_particle_field  <- vivmagarwal/remotion-effects-library @ f2781731e1 (MIT) | ParticleField.tsx   | smoke 48f mad=3.57  | VERIFIED
+  [09] rem_rc_flip_page        <- RenderComp/free-remotion-templates @ f648980e52 (MIT)   | FlipPageTransition.tsx | smoke 48f mad=73.26 | VERIFIED
+  [10] rem_gtk_frame_morph     <- GTKottman/remotion-transitions @ 58df899996 (MIT)       | FrameMorphTransition.tsx | smoke 48f mad=45.78 | VERIFIED
+  [11] rem_gtk_line_led        <- GTKottman/remotion-transitions @ 58df899996 (MIT)       | LineLedTransition.tsx | smoke 48f mad=4.07 | VERIFIED
+
+HYPERFRAMES (9 Apache-2.0 Mechanisms from Official heygen-com/hyperframes @ 4fca68b235):
+  [12] hf_apple_money_count    <- apple-money-count           | smoke + VP9 alpha_nz=0.147 | VERIFIED
+  [13] hf_mk_progress_stat     <- mk-progress-stat            | smoke + VP9 alpha_nz=0.189 | VERIFIED
+  [14] hf_mk_specs_list        <- mk-specs-list               | smoke + VP9 alpha_nz=0.284 | VERIFIED
+  [15] hf_mk_callout_highlight <- mk-callout-highlight        | smoke + VP9 alpha_nz=0.109 | VERIFIED
+  [16] hf_lt_mask_reveal       <- lt-mask-reveal              | smoke + VP9 alpha_nz=0.143 | VERIFIED
+  [17] hf_strikethrough_replace<- strikethrough-replace       | smoke + VP9 alpha_nz=0.197 | VERIFIED
+  [18] hf_organic_light_leak   <- organic-light-leak-overlay  | smoke + VP9 alpha_nz=0.925 | VERIFIED
+  [19] hf_data_chart           <- data-chart                  | smoke + VP9 alpha_nz=0.334 | VERIFIED
+  [20] hf_exploded_stack       <- exploded-stack              | smoke + VP9 alpha_nz=0.375 | VERIFIED
+
+--------------------------------------------------------------------------------
+2. SANITIZATION & LICENSE GOVERNANCE
+--------------------------------------------------------------------------------
+- Every imported folder contains verbatim upstream LICENSE and NOTICE files.
+- All remote CDN script URLs, remote Google Font imports, demo video/audio assets, and
+  studio-only wrapper tags were removed prior to verification (`source_sha256_before` vs
+  `source_sha256_after` pinned in `third_party/motion_sources.lock.json`).
+- Remotion rendering remains strictly behind explicit `--enable-remotion` opt-in
+  (Remotion License != MIT; documented in THIRD_PARTY_NOTICES.md).
+- GSAP 3.15.1 runs strictly from vendored local `./gsap.min.js` (GSAP Standard No-Charge License).
+- No-op reuse gate (`validate_canonical_reuse_gate`) enforces >=4 distinct verified imported
+  mechanisms across BOTH Remotion & HyperFrames (>=2 per engine) in canonical 30s outputs.

@@ -1,0 +1,3 @@
+Imported from https://github.com/RenderComp/free-remotion-templates @ f648980e528defb7594e24c6447055f0540f340b
+License: MIT (Trimora Inc., see LICENSE)
+Local patches: exported FlipPage wrapper and added optional custom beforeContent/afterContent & flipDelay/flipDuration props while keeping exact upstream 3D rotateY + cast spine shadow mechanics.

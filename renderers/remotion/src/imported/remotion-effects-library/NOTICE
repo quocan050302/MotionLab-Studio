@@ -1,0 +1,3 @@
+Imported from https://github.com/vivmagarwal/remotion-effects-library @ f2781731e10e5c764498704bbbac7ca9466f5866
+License: MIT (code only; no upstream footage/audio imported)
+Local patches: stripped @remotion/google-fonts remote font loader & Interactive.Div/CanvasImage studio wrappers for 100% offline Remotion 4.0.547 rendering; added optional children/video slot and transparent background toggle.

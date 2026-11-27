@@ -33,9 +33,14 @@ from motionlab.config import (
     PROJECT_ROOT,
     ResourceConfig,
     VALID_ASPECTS,
+    VALID_AUDIO_MODES,
+    VALID_COMPOSITIONS,
     VALID_ENGINES,
+    VALID_MUSIC_MODES,
     VALID_PROFILES,
     VALID_QUALITIES,
+    VALID_SEMANTIC_MODES,
+    VALID_SFX_MODES,
     atomic_write_json,
 )
 from motionlab.pipeline import (
@@ -53,10 +58,23 @@ from motionlab.schemas import EditPlan
 
 
 def _cmd_doctor(args: argparse.Namespace) -> int:
+    from motionlab.audio.assets import inspect_foley_library
+    from motionlab.composition.primitive_registry import load_unified_registry
+    from motionlab.semantic.asr import inspect_asr_model
+    from motionlab.semantic.local_model import inspect_llm_model
+    from motionlab.vision.segmentation import inspect_vision_model
+
     caps = probe_all_engine_capabilities(
         allow_remotion=not args.disable_remotion,
         allow_hyperframes=not args.disable_hyperframes,
     )
+    local_models = {
+        "vision_modnet": inspect_vision_model(),
+        "asr_whisper": inspect_asr_model(),
+        "llm_qwen": inspect_llm_model(),
+    }
+    prim_reg = load_unified_registry()
+    foley_audit = inspect_foley_library()
     reg = load_effects()
     vm = psutil.virtual_memory()
     disk = shutil.disk_usage(PROJECT_ROOT)
@@ -76,26 +94,45 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
             "registered_total": len(reg.all_specs()),
             "core_count": len(reg.core_specs()),
         },
+        "imported_primitives": {
+            "total": len(prim_reg.all_primitives()),
+            "verified": len(prim_reg.verified_primitives()),
+            "verified_remotion": sum(1 for p in prim_reg.verified_primitives() if p.engine == "remotion"),
+            "verified_hyperframes": sum(1 for p in prim_reg.verified_primitives() if p.engine == "hyperframes"),
+        },
+        "foley_library": {
+            "status": foley_audit["status"],
+            "recorded_assets_verified": foley_audit["recorded_assets_verified"],
+        },
         "engines": caps,
+        "local_models": local_models,
     }
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
-        print(f"MotionLab AI ML-01 Doctor (v{__version__})")
+        print(f"MotionLab AI ML-01.R5 Doctor (v{__version__})")
         print(f"  OS/Python : {report['system']['os']} | Python {report['system']['python']}")
         print(
             f"  Resources : {report['system']['logical_cpus']} CPUs | "
             f"RAM {report['system']['available_ram_gb']}/{report['system']['total_ram_gb']} GiB free | "
             f"Disk {report['system']['project_disk_free_gb']} GiB free"
         )
-        print(f"  Effects   : {report['effects']['registered_total']} registered ({report['effects']['core_count']} core)")
-        print("  Runtime   : 100% OFFLINE / ZERO-API (no API keys required)")
+        print(
+            f"  Effects   : {report['effects']['registered_total']} legacy effects | "
+            f"{report['imported_primitives']['verified']}/{report['imported_primitives']['total']} verified imported primitives "
+            f"(Remotion={report['imported_primitives']['verified_remotion']}, HyperFrames={report['imported_primitives']['verified_hyperframes']})"
+        )
+        print(f"  Foley Lib : {foley_audit['status']} (recorded={foley_audit['recorded_assets_verified']})")
+        print("  Runtime   : 100% OFFLINE / ZERO-API (no cloud API keys required)")
         for ename, info in caps.items():
             status = "AVAILABLE" if info.get("available") else f"UNAVAILABLE ({info.get('reason')})"
             ver = info.get("version", "-")
             print(f"  Engine[{ename:11s}]: {status} | version={ver}")
             if info.get("license"):
                 print(f"    license: {info['license']}")
+        for mname, minfo in local_models.items():
+            mstat = "AVAILABLE" if minfo.get("available") else f"UNAVAILABLE ({minfo.get('reason')})"
+            print(f"  Model [{mname:13s}]: {mstat} | license={minfo.get('license', '-')}")
     return 0 if (caps.get("ffmpeg") or {}).get("available") else 1
 
 
@@ -112,6 +149,9 @@ def _build_edit_config_from_args(args: argparse.Namespace) -> EditConfig:
     ana_cfg = AnalysisConfig(
         use_cache=not getattr(args, "no_cache", False),
     )
+    disable_rem = getattr(args, "disable_remotion", False)
+    enable_rem_flag = getattr(args, "enable_remotion", False)
+    allow_rem = False if disable_rem else True
     return EditConfig(
         profile=getattr(args, "profile", "auto"),
         seed=getattr(args, "seed", 42),
@@ -123,7 +163,7 @@ def _build_edit_config_from_args(args: argparse.Namespace) -> EditConfig:
         overwrite=getattr(args, "overwrite", False),
         audio_track=getattr(args, "audio_track", None),
         preferred_engine=getattr(args, "engine", "auto"),
-        allow_remotion=not getattr(args, "disable_remotion", False),
+        allow_remotion=allow_rem,
         allow_hyperframes=not getattr(args, "disable_hyperframes", False),
         allow_hdr_tonemap=getattr(args, "allow_hdr_tonemap", False),
         aspect_bg_mode=getattr(args, "aspect_bg", "blur"),
@@ -132,6 +172,15 @@ def _build_edit_config_from_args(args: argparse.Namespace) -> EditConfig:
         analysis=ana_cfg,
         resources=res_cfg,
         render_preview_9x16=getattr(args, "preview_9x16", False),
+        composition_mode=getattr(args, "composition", "legacy"),
+        semantic_mode=getattr(args, "semantic", "auto"),
+        audio_mode=getattr(args, "audio_mode", "preserve-exact"),
+        sfx_mode=getattr(args, "sfx", "auto"),
+        music_mode=getattr(args, "music", "off"),
+        strict_cinematic=getattr(args, "strict_cinematic", False),
+        style=getattr(args, "style", "auto"),
+        motion_density=getattr(args, "motion_density", "adaptive"),
+        remotion_opted_in=bool(enable_rem_flag and not disable_rem),
     )
 
 
@@ -259,7 +308,16 @@ def _add_common_edit_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--audio-track", type=int, default=None, help="Explicit 0-based audio track index (default: preserve all compatible tracks)")
     p.add_argument("--engine", choices=VALID_ENGINES, default="auto", help="Preferred renderer engine (default: auto)")
     p.add_argument("--disable-remotion", action="store_true", help="Disable Remotion engine (e.g. for orgs >=4 without Remotion license)")
+    p.add_argument("--enable-remotion", action="store_true", help="Explicitly opt into Remotion license for dual-engine R3/R4/R5 rendering")
     p.add_argument("--disable-hyperframes", action="store_true", help="Disable HyperFrames engine")
+    p.add_argument("--composition", choices=VALID_COMPOSITIONS, default="legacy", help="Composition mode: legacy (ML-01), r3, cinematic (R4), generative (R5)")
+    p.add_argument("--semantic", choices=VALID_SEMANTIC_MODES, default="auto", help="Local semantic ASR+LLM mode (default: auto)")
+    p.add_argument("--audio-mode", choices=VALID_AUDIO_MODES, default="preserve-exact", help="Audio mode: preserve-exact or mix (voice unity + SFX)")
+    p.add_argument("--sfx", choices=VALID_SFX_MODES, default="auto", help="Local SFX/foley mode when audio-mode=mix (default: auto)")
+    p.add_argument("--music", choices=VALID_MUSIC_MODES, default="off", help="Local music track mode (default: off)")
+    p.add_argument("--strict-cinematic", action="store_true", help="Fail closed in cinematic/generative mode if ASR, LLM, Remotion, or HyperFrames missing")
+    p.add_argument("--style", default="auto", help="Optional niche/editorial style hint (default: auto)")
+    p.add_argument("--motion-density", choices=("low", "adaptive", "rich"), default="adaptive", help="Motion density pacing")
     p.add_argument("--allow-hdr-tonemap", action="store_true", help="Explicitly opt into HDR->SDR BT.709 tone-mapping")
     p.add_argument("--density-scale", type=float, default=1.0, help="Scale effect density in [0.0, 2.0] (default: 1.0)")
     p.add_argument("--intensity-scale", type=float, default=1.0, help="Scale effect intensity in [0.0, 1.5] (default: 1.0)")

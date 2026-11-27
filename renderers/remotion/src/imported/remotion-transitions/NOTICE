@@ -1,0 +1,3 @@
+Imported from https://github.com/GTKottman/remotion-transitions @ 58df89999661dacef23bc23d05b9d2cd978bda45
+License: MIT (GTKottman and contributors, see LICENSE)
+Local patches: inlined tiny core helpers (mix, seg, ease.inOutCubic) and adapted transitions as timeline-preserving non-shortening React bridge components.

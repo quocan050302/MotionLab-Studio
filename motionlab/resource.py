@@ -8,6 +8,7 @@ import os
 import shutil
 import signal
 import subprocess
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,6 +22,7 @@ T = TypeVar("T")
 
 GIB = 1024 ** 3
 MIB = 1024 ** 2
+GLOBAL_JOB_SEMAPHORE = threading.BoundedSemaphore(2)
 
 
 class ResourceBudgetError(RuntimeError):
@@ -91,6 +93,34 @@ class ResourceBudget:
     peak_rss_mb: float = 0.0
     peak_temp_bytes: int = 0
     _active_procs: set[subprocess.Popen[Any]] = field(default_factory=set, repr=False)
+
+    @property
+    def analysis_workers(self) -> int:
+        if self.snapshot is not None:
+            return int(self.snapshot.analysis_workers)
+        return int(self.config.max_workers or 2)
+
+    @property
+    def render_workers(self) -> int:
+        if self.snapshot is not None:
+            return int(self.snapshot.render_workers)
+        return int(self.config.max_render_workers or 1)
+
+    @property
+    def ffmpeg_threads(self) -> int:
+        if self.snapshot is not None:
+            return int(self.snapshot.ffmpeg_threads)
+        return int(self.config.ffmpeg_threads_per_worker or 2)
+
+    @property
+    def min_free_gb(self) -> float:
+        if self.snapshot is not None:
+            return float(self.snapshot.reserve_gb)
+        return float(self.config.min_free_gb or 5.0)
+
+    @property
+    def max_temp_gb(self) -> float:
+        return float(self.config.max_temp_gb)
 
     def preflight_budget(
         self,
@@ -339,3 +369,205 @@ async def run_bounded_async(
     for name, _ in tasks:
         results[name] = by_name[name]
     return results
+
+
+def measure_process_tree_rss_mb(root_pid: int | None = None) -> float:
+    """Measure RSS (MiB) of root_pid plus ALL recursive descendant child processes."""
+    pid = root_pid if root_pid is not None else os.getpid()
+    try:
+        proc = psutil.Process(pid)
+        total = proc.memory_info().rss
+        for child in proc.children(recursive=True):
+            try:
+                total += child.memory_info().rss
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        return round(total / MIB, 2)
+    except (psutil.NoSuchProcess, psutil.AccessDenied):
+        return 0.0
+
+
+def _dir_size_bytes(path: Path | None) -> int:
+    if path is None or not path.exists():
+        return 0
+    total = 0
+    try:
+        for p in path.rglob("*"):
+            if p.is_file():
+                try:
+                    total += p.stat().st_size
+                except OSError:
+                    pass
+    except OSError:
+        pass
+    return total
+
+
+class ResourceTracker:
+    """Tracks per-stage wall clock time, full process-tree peak RSS, and temp disk footprint."""
+
+    def __init__(self) -> None:
+        self._starts: dict[str, float] = {}
+        self.stages: dict[str, dict[str, Any]] = {}
+        self.peak_tree_rss_mb: float = measure_process_tree_rss_mb()
+        self.peak_temp_bytes: int = 0
+
+    def start_stage(self, name: str) -> None:
+        self._starts[name] = time.perf_counter()
+        self.peak_tree_rss_mb = max(self.peak_tree_rss_mb, measure_process_tree_rss_mb())
+
+    def end_stage(self, name: str, temp_dir: Path | None = None) -> dict[str, Any]:
+        t0 = self._starts.pop(name, time.perf_counter())
+        elapsed = round(time.perf_counter() - t0, 4)
+        rss = measure_process_tree_rss_mb()
+        tbytes = _dir_size_bytes(temp_dir)
+        self.peak_tree_rss_mb = max(self.peak_tree_rss_mb, rss)
+        self.peak_temp_bytes = max(self.peak_temp_bytes, tbytes)
+        rec = {
+            "elapsed_s": elapsed,
+            "tree_rss_mb": rss,
+            "temp_mb": round(tbytes / MIB, 2),
+        }
+        self.stages[name] = rec
+        return rec
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "peak_tree_rss_mb": round(self.peak_tree_rss_mb, 2),
+            "peak_temp_mb": round(self.peak_temp_bytes / MIB, 2),
+            "stages": dict(self.stages),
+        }
+
+
+class RuntimeResourceWatchdog:
+    """Background watchdog monitoring owned child process trees, timeout, and disk safety."""
+
+    def __init__(
+        self,
+        pids: list[int],
+        timeout_s: float = 300.0,
+        temp_dir: Path | None = None,
+        min_free_gb: float = 2.0,
+        max_temp_gb: float = 4.0,
+        poll_interval_s: float = 0.25,
+    ) -> None:
+        self.pids = list(pids)
+        self.timeout_s = float(timeout_s)
+        self.temp_dir = temp_dir
+        self.min_free_gb = float(min_free_gb)
+        self.max_temp_gb = float(max_temp_gb)
+        self.poll_interval_s = float(poll_interval_s)
+        self.peak_rss_mb: float = 0.0
+        self.peak_temp_bytes: int = 0
+        self.violation: str | None = None
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    @property
+    def peak_tree_rss_mb(self) -> float:
+        return self.peak_rss_mb
+
+    def _kill_pids(self) -> None:
+        for pid in self.pids:
+            try:
+                p = psutil.Process(pid)
+                for ch in p.children(recursive=True):
+                    try:
+                        ch.kill()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+                p.kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+    def _run(self) -> None:
+        t0 = time.perf_counter()
+        while not self._stop.is_set():
+            rss = measure_process_tree_rss_mb(os.getpid())
+            for pid in self.pids:
+                rss = max(rss, measure_process_tree_rss_mb(pid))
+            self.peak_rss_mb = max(self.peak_rss_mb, rss)
+
+            if time.perf_counter() - t0 > self.timeout_s:
+                self.violation = f"timeout_exceeded:{self.timeout_s}s"
+                self._kill_pids()
+                return
+
+            if self.temp_dir and self.temp_dir.exists():
+                tbytes = _dir_size_bytes(self.temp_dir)
+                self.peak_temp_bytes = max(self.peak_temp_bytes, tbytes)
+                if tbytes > int(self.max_temp_gb * GIB):
+                    self.violation = f"max_temp_gb_exceeded:{tbytes / GIB:.2f}>{self.max_temp_gb}"
+                    self._kill_pids()
+                    return
+                try:
+                    free_gb = shutil.disk_usage(self.temp_dir).free / GIB
+                    if free_gb < self.min_free_gb:
+                        self.violation = f"min_free_gb_violated:{free_gb:.2f}<{self.min_free_gb}"
+                        self._kill_pids()
+                        return
+                except OSError:
+                    pass
+            self._stop.wait(self.poll_interval_s)
+
+    def start(self) -> None:
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+
+
+def run_managed_subprocess(
+    cmd: list[str],
+    timeout_s: float = 300.0,
+    cwd: Path | None = None,
+    env: dict[str, str] | None = None,
+    check: bool = True,
+) -> tuple[subprocess.CompletedProcess[str], dict[str, Any]]:
+    """Run subprocess safely (shell=False) using temp-file stdio (prevents Windows grandchild pipe-EOF hangs)."""
+    import tempfile
+
+    t0 = time.perf_counter()
+    with tempfile.TemporaryFile(mode="w+b") as out_f, tempfile.TemporaryFile(mode="w+b") as err_f:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(cwd) if cwd else None,
+            env=env,
+            stdout=out_f,
+            stderr=err_f,
+            shell=False,
+        )
+        wd = RuntimeResourceWatchdog(pids=[proc.pid], timeout_s=timeout_s)
+        wd.start()
+        try:
+            proc.wait(timeout=max(1.0, timeout_s + 5.0))
+        except subprocess.TimeoutExpired as exc:
+            wd._kill_pids()
+            wd.stop()
+            raise ResourceBudgetError(f"Subprocess timed out after {timeout_s}s: {' '.join(cmd[:6])}") from exc
+        finally:
+            # Clean up any lingering owned child processes (e.g. headless Chrome workers) without touching unrelated apps
+            try:
+                p_self = psutil.Process(proc.pid)
+                for ch in p_self.children(recursive=True):
+                    try:
+                        ch.kill()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+            wd.stop()
+
+        out_f.seek(0)
+        err_f.seek(0)
+        stdout = out_f.read().decode("utf-8", errors="replace")
+        stderr = err_f.read().decode("utf-8", errors="replace")
+
+    elapsed = round(time.perf_counter() - t0, 4)
+    cp = subprocess.CompletedProcess(cmd, proc.returncode, stdout=stdout, stderr=stderr)
+    if check and cp.returncode != 0:
+        raise subprocess.CalledProcessError(cp.returncode, cmd, output=stdout, stderr=stderr)
+    return cp, {"elapsed_s": elapsed, "peak_tree_rss_mb": round(wd.peak_rss_mb, 2)}

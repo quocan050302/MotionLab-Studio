@@ -7,6 +7,7 @@ Strictly distinguishes:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -61,6 +62,63 @@ def _stream_audio_packet_hash(
     lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
     digest = lines[0] if lines else None
     return digest, len(lines)
+
+
+def _audio_packet_hash_and_pts(path: Path, track_idx: int, ffmpeg_bin: str, ffprobe_bin: str) -> dict[str, Any]:
+    """Compute exact packet payload SHA-256, packet count, and first/last PTS for an audio track."""
+    proc = subprocess.run(
+        [
+            ffmpeg_bin, "-v", "error",
+            "-i", str(path),
+            "-map", f"0:a:{track_idx}",
+            "-c:a", "copy",
+            "-f", "framemd5",
+            "-",
+        ],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, shell=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"framemd5 failed for audio track {track_idx} of {path}: {proc.stderr.strip()}")
+    pkt_sigs: list[str] = []
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split(",")]
+        if len(parts) >= 6:
+            pkt_sigs.append(f"{parts[4]}:{parts[5]}")
+    digest = hashlib.sha256("\n".join(pkt_sigs).encode("ascii")).hexdigest()
+
+    first_pts, last_pts = 0.0, 0.0
+    p_proc = subprocess.run(
+        [
+            ffprobe_bin, "-v", "error",
+            "-select_streams", f"a:{track_idx}",
+            "-show_entries", "packet=pts_time",
+            "-of", "json",
+            str(path),
+        ],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, shell=False,
+    )
+    if p_proc.returncode == 0:
+        try:
+            pts_list = [
+                float(pk["pts_time"])
+                for pk in (json.loads(p_proc.stdout).get("packets") or [])
+                if pk.get("pts_time") is not None and pk.get("pts_time") != "N/A"
+            ]
+            if pts_list:
+                first_pts = round(min(pts_list), 6)
+                last_pts = round(max(pts_list), 6)
+        except (ValueError, json.JSONDecodeError):
+            pass
+
+    return {
+        "packet_hash": digest,
+        "packet_count": len(pkt_sigs),
+        "first_pts_s": first_pts,
+        "last_pts_s": last_pts,
+    }
 
 
 def _extract_mono_pcm(media_path: Path, audio_stream_idx: int, ffmpeg_bin: str, sr: int = 16000) -> np.ndarray:

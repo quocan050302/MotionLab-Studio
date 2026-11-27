@@ -41,14 +41,29 @@ renderers/*/.hyperframes/
 # MotionLab runtime artifacts, caches, models, and user media
 runs/
 .cache/
-models/
+.motionlab_cache/
+models/*.onnx
+models/*.tflite
+models/*.gguf
+models/*.bin
+models/*.pt
+models/*.pth
+models/faster-whisper-*/
+tools/
+!models/manifest.json
+assets/sfx_foley/*.wav
+assets/sfx_foley/*.mp3
+assets/sfx_foley/*.flac
+!assets/sfx_foley/manifest.json
 input/*.mp4
 input/*.mov
 input/*.mkv
 input/*.avi
 input/*.m4v
+input/*.webm
 input/*.wav
 input/*.mp3
+!input/.gitkeep
 
 # Manim render artifacts
 media/

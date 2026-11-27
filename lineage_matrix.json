@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "reconciled_at_utc": "2026-11-27T03:05:00Z",
+  "repository": "https://github.com/quocan050302/MotionLab-Studio",
+  "target_branch": "feat/ml-01-zero-api-effects",
+  "staging_branch": "integration/ml01-r5-20261127",
+  "ancestry_preserved": {
+    "remote_head_before": "f374b7e23c03ecf9dfb18a101e73273f05beb3f9",
+    "recovery_ref_win_head": "refs/recovery/ml01_win_head_20261127",
+    "historical_r4_sha": "6bcdb94e2a092274db1deb11d6d03dd9c4b81fe6",
+    "recovery_ref_r4_hist": "refs/recovery/ml01_r4_hist_20261127",
+    "upstream_merge_base": "43cfc566833548093455c9d4a46bd69913b7e552",
+    "force_push_used": false,
+    "reset_hard_used": false
+  },
+  "primary_input": {
+    "path": "input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4",
+    "sha256": "c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e",
+    "resolution": "720x1280",
+    "fps": "24/1",
+    "frames": 720,
+    "duration_s": 30.0,
+    "audio_codec": "aac",
+    "audio_sample_rate": 44100,
+    "audio_channels": 1,
+    "audio_packets": 1296
+  },
+  "capability_matrix": [
+    {
+      "capability": "Windows 11 preflight, 40 ML-01 signal effects, Remotion 4.0.547 / HyperFrames 0.9.101 overlays, ResourceBudget",
+      "new_lineage_f374b7e": "PRESENT (91 pytest + 15 subtests PASS)",
+      "historical_r4_6bcdb94": "PARTIAL (macOS-only flags, HF 0.9.98)",
+      "target_r5_state": "PRESERVED",
+      "mapping": "motionlab/{config,schemas,preflight,analyzer,planner,registry,policies,resource,pipeline,cli}.py",
+      "status": "VERIFIED"
+    },
+    {
+      "capability": "Local Offline ASR (faster-whisper-small MIT) + Word Timestamps",
+      "new_lineage_f374b7e": "MISSING",
+      "historical_r4_6bcdb94": "PRESENT (motionlab/semantic/asr.py)",
+      "target_r5_state": "PORTED + EXTENDED (A1 StoryGraph)",
+      "mapping": "motionlab/semantic/{asr,schema,story_graph}.py + models/faster-whisper-small/",
+      "status": "VERIFIED_LIVE_WINDOWS (70 words, 9.16s, prob=0.9982)"
+    },
+    {
+      "capability": "Local Offline Structured LLM (Qwen2.5-3B-Instruct Apache-2.0 + llama.cpp MIT)",
+      "new_lineage_f374b7e": "MISSING",
+      "historical_r4_6bcdb94": "PRESENT (macOS Metal -ngl 99 hardcoded)",
+      "target_r5_state": "PORTED + WINDOWS CPU ABSTRACTED (-ngl 0 on Win CPU, b12803)",
+      "mapping": "motionlab/semantic/{local_model,director,grounding,niche}.py + tools/llama.cpp/",
+      "status": "VERIFIED_LIVE_WINDOWS (structured JSON 4.29s)"
+    },
+    {
+      "capability": "Local Portrait Matting (MODNet ONNX Apache-2.0) & Prop Isolation (GrabCut+Flow)",
+      "new_lineage_f374b7e": "MISSING",
+      "historical_r4_6bcdb94": "PRESENT (FFmpeg -vsync 0 broke on FFmpeg 9.0.2)",
+      "target_r5_state": "PORTED + FIXED (-fps_mode passthrough for FFmpeg 9.0.2)",
+      "mapping": "motionlab/vision/{segmentation,prop_mask,tracking,anchors}.py + models/modnet_photographic_portrait_matting.onnx",
+      "status": "VERIFIED_LIVE_WINDOWS"
+    },
+    {
+      "capability": "Full-Frame Remotion & HyperFrames Composition Pipeline (R3 RCP01..09 + R4 VFX01..12)",
+      "new_lineage_f374b7e": "MISSING (overlay-only)",
+      "historical_r4_6bcdb94": "PRESENT (vfx-benefit-ledger had index-based bar width bug)",
+      "target_r5_state": "PORTED + FIXED (true numeric proportional bar width + phone-scale fonts + tsc 0 errors)",
+      "mapping": "motionlab/composition/{schema,recipes,vfx,planner,engine,r4_engine,quality}.py + renderers/remotion/src/CreativeSceneComposition.tsx + VfxSceneComposition.tsx",
+      "status": "VERIFIED_LIVE_WINDOWS (8-scene graph hash ba4c0ae61aa872e4, tsc exit 0)"
+    },
+    {
+      "capability": "Local SFX / Foley & Master-Preserving Mixer",
+      "new_lineage_f374b7e": "MISSING (preserve-exact only)",
+      "historical_r4_6bcdb94": "PRESENT (pure DSP, -20.05 dBFS stem too quiet)",
+      "target_r5_state": "PORTED + UPGRADED IN A4 (foley manifest, event-specific audibility gain staging, matched no-SFX QA)",
+      "mapping": "motionlab/audio/{schema,synthesis,cues,mixer,assets}.py",
+      "status": "PORTED_A0_READY_FOR_A4_UPGRADE"
+    }
+  ]
+}
+

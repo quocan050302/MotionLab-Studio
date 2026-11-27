@@ -1,0 +1,1208 @@
+{
+  "schema_version": "1.0.0",
+  "total_primitives": 20,
+  "verified_count": 20,
+  "verified_remotion_count": 11,
+  "verified_hyperframes_count": 9,
+  "distinct_verified_repos": [
+    "GTKottman/remotion-transitions",
+    "RenderComp/free-remotion-templates",
+    "heygen-com/hyperframes",
+    "riaz37/remotion-ui",
+    "vivmagarwal/remotion-effects-library"
+  ],
+  "primitives": [
+    {
+      "primitive_id": "rem_ru_counter",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/counter.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/Counter.tsx",
+      "license": "MIT",
+      "visual_family": "numeric_counter",
+      "roles": [
+        "hero_numeric_counter",
+        "balance_reveal",
+        "payoff_counter"
+      ],
+      "intent_tags": [
+        "money",
+        "balance",
+        "counter",
+        "odometer",
+        "number",
+        "payoff",
+        "hook",
+        "stat",
+        "kpi",
+        "finance"
+      ],
+      "description": "Odometer digit-rolling & reserved-width tabular counter with settle bounce",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "from_value": "number",
+        "to_value": "number",
+        "prefix": "string",
+        "roll": "bool",
+        "font_size": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_counter/upstream_smoke.mp4",
+        "sha256": "f6e355797e7491caccb3a1bde197f436099fc910d568391264d532be58c43cce",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 41.11,
+        "mean_std": 23.1,
+        "midpoint_motion_mad": 2.763,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_ru_waterfall",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/waterfall-chart.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/WaterfallChart.tsx",
+      "license": "MIT",
+      "visual_family": "financial_waterfall",
+      "roles": [
+        "financial_waterfall",
+        "allocation_breakdown",
+        "ledger_bridge"
+      ],
+      "intent_tags": [
+        "waterfall",
+        "ledger",
+        "allocation",
+        "bills",
+        "groceries",
+        "gas",
+        "deduction",
+        "remaining",
+        "budget",
+        "finance",
+        "chart"
+      ],
+      "description": "Running-total floating-bar waterfall bridge chart with dashed level connectors",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": true,
+      "parameter_schema": {
+        "steps": "list[{label,value,isTotal,color}]",
+        "currency_symbol": "string",
+        "highlight_index": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_waterfall/upstream_smoke.mp4",
+        "sha256": "45313f6cb1feed041317050a777eb3703e39ce4374cad6b37fa8716bd29aa41f",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 231.51,
+        "mean_std": 30.02,
+        "midpoint_motion_mad": 6.921,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_ru_strikethrough",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/strikethrough-replace.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/StrikethroughReplace.tsx",
+      "license": "MIT",
+      "visual_family": "kinetic_type_contrast",
+      "roles": [
+        "contradiction_contrast",
+        "myth_bust",
+        "correction"
+      ],
+      "intent_tags": [
+        "contrast",
+        "contradiction",
+        "negation",
+        "doesnt_mean",
+        "strikethrough",
+        "replace",
+        "correction",
+        "tension",
+        "spend"
+      ],
+      "description": "3-beat editorial tilted strikethrough & vertical handoff replacement",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "from_text": "string",
+        "to_text": "string",
+        "strike_color": "hex",
+        "font_size": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_strikethrough/upstream_smoke.mp4",
+        "sha256": "9f3a4ca35aa35041832717c003c867f8895abfa9d0cf125325e9eee6ae40bb6d",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 39.43,
+        "mean_std": 13.4,
+        "midpoint_motion_mad": 0.536,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_ru_masked_slide",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/masked-slide-reveal.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/MaskedSlideReveal.tsx",
+      "license": "MIT",
+      "visual_family": "kinetic_type_reveal",
+      "roles": [
+        "kinetic_headline",
+        "takeaway_reveal",
+        "closing_statement"
+      ],
+      "intent_tags": [
+        "headline",
+        "typography",
+        "kinetic",
+        "reveal",
+        "takeaway",
+        "purpose",
+        "cta",
+        "title",
+        "storytelling"
+      ],
+      "description": "Overflow-clipped baseline slide-up line/word reveal",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "lines": "list[string]",
+        "font_size": "int",
+        "color": "hex",
+        "stagger_frames": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_masked_slide/upstream_smoke.mp4",
+        "sha256": "4a44b8337605c8decd28a46c5461ce373ea64caa1496fb288d104f84ceb0a029",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 234.44,
+        "mean_std": 23.11,
+        "midpoint_motion_mad": 3.583,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_ru_track_matte",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/track-matte.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/TrackMatte.tsx",
+      "license": "MIT",
+      "visual_family": "occlusion_matte",
+      "roles": [
+        "masked_video_reveal",
+        "occlusion_window",
+        "focus_aperture"
+      ],
+      "intent_tags": [
+        "matte",
+        "mask",
+        "aperture",
+        "track",
+        "reveal",
+        "occlusion",
+        "macro",
+        "detail",
+        "hands"
+      ],
+      "description": "After Effects 4-mode SVG luminance/alpha track matte",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "mode": "alpha|luma",
+        "shape": "rounded_rect|circle|arch"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_track_matte/upstream_smoke.mp4",
+        "sha256": "7268e6b138ef7429eae10474dc83ae3d5a5195936f481f5cee01ebbdb968b5cc",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 45.38,
+        "mean_std": 24.84,
+        "midpoint_motion_mad": 6.042,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_ru_parallax",
+      "engine": "remotion",
+      "source_code": "R02",
+      "origin_slug": "remotion-ui",
+      "repo": "riaz37/remotion-ui",
+      "commit_sha": "27e51ae809eab7c8f85933ad3725aa6a6d3d77c3",
+      "upstream_path": "apps/web/registry/bases/default/primitives/parallax-layers.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-ui/ParallaxLayers.tsx",
+      "license": "MIT",
+      "visual_family": "spatial_parallax",
+      "roles": [
+        "depth_stage_25d",
+        "subject_parallax",
+        "spatial_camera"
+      ],
+      "intent_tags": [
+        "parallax",
+        "depth",
+        "2.5d",
+        "spatial",
+        "matte",
+        "hook",
+        "set_extension",
+        "layered",
+        "cinematic"
+      ],
+      "description": "Multi-plane depth-offset camera dolly + zoom parallax",
+      "supports_alpha": false,
+      "supports_portrait_9x16": true,
+      "requires_matte": true,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "travel_px": "number",
+        "zoom": "number",
+        "bg_blur_px": "number"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_ru_parallax/upstream_smoke.mp4",
+        "sha256": "489deea6b8c48cac96d43cf3c5faf8ca4b51d98f82f28ee33d17fca32209e1e5",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 56.95,
+        "mean_std": 21.06,
+        "midpoint_motion_mad": 3.659,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_viv_aspect_morph",
+      "engine": "remotion",
+      "source_code": "R06",
+      "origin_slug": "remotion-effects-library",
+      "repo": "vivmagarwal/remotion-effects-library",
+      "commit_sha": "f2781731e10e5c764498704bbbac7ca9466f5866",
+      "upstream_path": "src/effects/motion/aspect-morph-card/AspectMorphCard.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-effects-library/AspectMorphCard.tsx",
+      "license": "MIT",
+      "visual_family": "editorial_layout_morph",
+      "roles": [
+        "editorial_reframe_stage",
+        "split_story_stage",
+        "product_editorial"
+      ],
+      "intent_tags": [
+        "editorial",
+        "morph",
+        "reframe",
+        "collage",
+        "split",
+        "stage",
+        "storytelling",
+        "product",
+        "finance"
+      ],
+      "description": "Layout-rectangle spring morphing card re-cropping live video cleanly to open space for editorial typography",
+      "supports_alpha": false,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "kicker": "string",
+        "lines": "list[string]",
+        "paper_color": "hex",
+        "accent_color": "hex"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_viv_aspect_morph/upstream_smoke.mp4",
+        "sha256": "ec532e5b3fef4b98d20ce6e342cf31fce5981d3c2484f82b34d6b7559f1aded0",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 174.75,
+        "mean_std": 85.34,
+        "midpoint_motion_mad": 78.064,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_viv_particle_field",
+      "engine": "remotion",
+      "source_code": "R06",
+      "origin_slug": "remotion-effects-library",
+      "repo": "vivmagarwal/remotion-effects-library",
+      "commit_sha": "f2781731e10e5c764498704bbbac7ca9466f5866",
+      "upstream_path": "src/effects/motion/particle-field/ParticleField.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-effects-library/ParticleField.tsx",
+      "license": "MIT",
+      "visual_family": "spatial_particles",
+      "roles": [
+        "atmospheric_depth_motes",
+        "payoff_spatial_particles"
+      ],
+      "intent_tags": [
+        "particles",
+        "depth",
+        "atmosphere",
+        "motes",
+        "payoff",
+        "glint",
+        "spatial",
+        "vfx"
+      ],
+      "description": "Closed-form deterministic 3D perspective particle field with velocity depth and neighbor links",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "count": "int<=120",
+        "speed": "number",
+        "colors": "list[hex]",
+        "connect": "bool"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_viv_particle_field/upstream_smoke.mp4",
+        "sha256": "1c2854291b0145fcbd0c1fb1b9f54e2b68e715273240ec387e59e4195aca2121",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 31.31,
+        "mean_std": 19.66,
+        "midpoint_motion_mad": 3.568,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_rc_flip_page",
+      "engine": "remotion",
+      "source_code": "R08",
+      "origin_slug": "free-remotion-templates",
+      "repo": "RenderComp/free-remotion-templates",
+      "commit_sha": "f648980e528defb7594e24c6447055f0540f340b",
+      "upstream_path": "src/components/flip-page-transition/FlipPageTransition.tsx",
+      "imported_path": "renderers/remotion/src/imported/free-remotion-templates/FlipPageTransition.tsx",
+      "license": "MIT",
+      "visual_family": "product_page_flip",
+      "roles": [
+        "workbook_page_flip",
+        "product_reveal",
+        "chapter_turn"
+      ],
+      "intent_tags": [
+        "workbook",
+        "page",
+        "flip",
+        "book",
+        "product",
+        "plan",
+        "dashboard",
+        "reveal",
+        "56-page",
+        "organize"
+      ],
+      "description": "3D CSS perspective rotateY book page-turn with pre-lift anticipation, dynamic shading, and cast spine shadow",
+      "supports_alpha": false,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "label_before": "string",
+        "label_after": "string",
+        "color_before": "hex",
+        "color_after": "hex"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_rc_flip_page/upstream_smoke.mp4",
+        "sha256": "ae2326a33c1544fbe2b7128357f73c3ce9618be274d152cc9a29c0ebad3a9c2f",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 162.12,
+        "mean_std": 45.69,
+        "midpoint_motion_mad": 73.258,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_gtk_frame_morph",
+      "engine": "remotion",
+      "source_code": "R10",
+      "origin_slug": "remotion-transitions",
+      "repo": "GTKottman/remotion-transitions",
+      "commit_sha": "58df89999661dacef23bc23d05b9d2cd978bda45",
+      "upstream_path": "transitions/07-morph/shape/frame-morph/index.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-transitions/FrameMorphTransition.tsx",
+      "license": "MIT",
+      "visual_family": "seamless_transition",
+      "roles": [
+        "seamless_frame_morph_transition",
+        "scene_bridge"
+      ],
+      "intent_tags": [
+        "transition",
+        "morph",
+        "bridge",
+        "seamless",
+        "continuity",
+        "shape_match"
+      ],
+      "description": "Continuous clipPath inset-to-circle frame morph bridge preserving exact global timeline duration",
+      "supports_alpha": false,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "size": "number",
+        "background": "hex"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_gtk_frame_morph/upstream_smoke.mp4",
+        "sha256": "b449ea9583c75944796e40387079931df0f3a3123f00084c9400c9f55e2499a0",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 91.93,
+        "mean_std": 45.27,
+        "midpoint_motion_mad": 45.783,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "rem_gtk_line_led",
+      "engine": "remotion",
+      "source_code": "R10",
+      "origin_slug": "remotion-transitions",
+      "repo": "GTKottman/remotion-transitions",
+      "commit_sha": "58df89999661dacef23bc23d05b9d2cd978bda45",
+      "upstream_path": "transitions/08-carry/line-led/line-led/index.tsx",
+      "imported_path": "renderers/remotion/src/imported/remotion-transitions/LineLedTransition.tsx",
+      "license": "MIT",
+      "visual_family": "seamless_transition",
+      "roles": [
+        "seamless_line_aperture_transition",
+        "solution_reveal_bridge"
+      ],
+      "intent_tags": [
+        "transition",
+        "line",
+        "split",
+        "wipe",
+        "bridge",
+        "reveal",
+        "product",
+        "seamless"
+      ],
+      "description": "Center-line draw that splits into two outward-traveling rails revealing incoming scene",
+      "supports_alpha": false,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "color": "hex",
+        "thickness": "int",
+        "orientation": "horizontal|vertical"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/remotion/rem_gtk_line_led/upstream_smoke.mp4",
+        "sha256": "6202d95a7d4143b6e5d11fbeb8bf3661395df6b9cffbac1399a97499a2bc45cd",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 49.81,
+        "mean_std": 20.92,
+        "midpoint_motion_mad": 4.07,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "composition_id": "MotionLabGenerativeScene",
+        "portrait_9x16_ready": true,
+        "tsc_verified": true,
+        "verified_via": "MotionLabUpstreamSmoke + B01-B08 visual benchmarks"
+      }
+    },
+    {
+      "primitive_id": "hf_apple_money_count",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/apple-money-count (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/apple-money-count/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "numeric_counter",
+      "roles": [
+        "hero_money_counter_gsap",
+        "balance_hook_stage",
+        "payoff_money_drop"
+      ],
+      "intent_tags": [
+        "money",
+        "counter",
+        "balance",
+        "cash",
+        "bank",
+        "payoff",
+        "hook",
+        "finance",
+        "dollar",
+        "tokens"
+      ],
+      "description": "Finance tabular hero money counter + animated bill token burst",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": true,
+      "parameter_schema": {
+        "from_cents": "int",
+        "to_cents": "int",
+        "currency_symbol": "string",
+        "label": "string",
+        "token_count": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_apple_money_count/upstream_smoke.mp4",
+        "sha256": "43551a280aeb927c562f1a3af69e36b6093a6478e3c82f0fe68abab8cb994748",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 120,
+        "mean_luma": 239.19,
+        "mean_std": 33.62,
+        "midpoint_motion_mad": 6.307,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_apple_money_count/adapted.webm",
+        "sha256": "8d78e6e812d01fcfb604edc99ea9f5d66d9ee2044cdf9885d982c4e7627353aa",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.83594,
+        "translucent_frac": 0.97022,
+        "opaque_stroke_frac": 0.1475,
+        "nonzero_alpha_ratio": 0.1475,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_mk_progress_stat",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/mk-progress-stat (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/mk-progress-stat/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "proportional_stat",
+      "roles": [
+        "proportional_allocation_stat",
+        "single_focus_metric"
+      ],
+      "intent_tags": [
+        "allocation",
+        "proportion",
+        "stat",
+        "progress",
+        "bills",
+        "groceries",
+        "gas",
+        "remaining",
+        "metric",
+        "finance"
+      ],
+      "description": "Big-numeral count-up stat + proportional value/max progress track",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": true,
+      "parameter_schema": {
+        "amount_cents": "int",
+        "denom_cents": "int",
+        "remaining_cents": "int",
+        "category": "string",
+        "caption": "string"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_progress_stat/upstream_smoke.mp4",
+        "sha256": "bad3203ed84815da8ba7e4c93eb7d56abcca411f7ff61eb1cf6a9212d8b74cfd",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 168,
+        "mean_luma": 253.14,
+        "mean_std": 18.55,
+        "midpoint_motion_mad": 2.1,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_progress_stat/adapted.webm",
+        "sha256": "0f99d45cb110115dbbd9d8b61f9c598d0ba865c6bfae446ebd0896fa92f1ba0e",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.79324,
+        "translucent_frac": 0.975,
+        "opaque_stroke_frac": 0.18852,
+        "nonzero_alpha_ratio": 0.18852,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_mk_specs_list",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/mk-specs-list (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/mk-specs-list/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "product_feature_list",
+      "roles": [
+        "product_feature_checklist",
+        "solution_attributes"
+      ],
+      "intent_tags": [
+        "product",
+        "features",
+        "specs",
+        "checklist",
+        "dashboard",
+        "workbook",
+        "notion",
+        "benefit",
+        "organize"
+      ],
+      "description": "Staggered editorial feature/specs list with left-to-right accent hairline sweep",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "title": "string",
+        "rows": "list[{label,value}]",
+        "scrim": "float"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_specs_list/upstream_smoke.mp4",
+        "sha256": "1bc3aec0ffabf58738fc0f40136b08c442d601156f46404982c53afb2c43950c",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 192,
+        "mean_luma": 252.45,
+        "mean_std": 19.45,
+        "midpoint_motion_mad": 2.934,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_specs_list/adapted.webm",
+        "sha256": "7b67c2f97121275bd48dc684ab4a5242f22cc1be33f41f64e209a5d23f9201b3",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.69438,
+        "translucent_frac": 0.97529,
+        "opaque_stroke_frac": 0.28363,
+        "nonzero_alpha_ratio": 0.28363,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_mk_callout_highlight",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/mk-callout-highlight (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/mk-callout-highlight/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "kinetic_callout_sweep",
+      "roles": [
+        "speech_synced_takeaway",
+        "closing_callout"
+      ],
+      "intent_tags": [
+        "callout",
+        "highlight",
+        "takeaway",
+        "closing",
+        "purpose",
+        "payday",
+        "quote",
+        "speech_sync",
+        "cta"
+      ],
+      "description": "Word-by-word scalar highlight sweep synced to spoken phrase",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "text": "string",
+        "subtitle": "string",
+        "font_size": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_callout_highlight/upstream_smoke.mp4",
+        "sha256": "c590f2ce94803975147d60bdec74da244c7bd2d1ff1435720cdb1ef0d486a75b",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 192,
+        "mean_luma": 253.58,
+        "mean_std": 14.59,
+        "midpoint_motion_mad": 1.533,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_mk_callout_highlight/adapted.webm",
+        "sha256": "deba7d4456ff2b8323b884270566f10acfd3db2cc09482301bae9daa591d6bb2",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.87632,
+        "translucent_frac": 0.99518,
+        "opaque_stroke_frac": 0.1093,
+        "nonzero_alpha_ratio": 0.1093,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_lt_mask_reveal",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/lt-mask-reveal (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/lt-mask-reveal/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "kinetic_mask_reveal",
+      "roles": [
+        "product_name_reveal",
+        "editorial_section_title"
+      ],
+      "intent_tags": [
+        "title",
+        "reveal",
+        "mask",
+        "product_intro",
+        "plan",
+        "paycheck",
+        "lower_third",
+        "editorial"
+      ],
+      "description": "Accent rail sweep + clipPath inset typographic reveal and exit wipe",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "headline": "string",
+        "subtitle": "string",
+        "position": "upper|lower"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_lt_mask_reveal/upstream_smoke.mp4",
+        "sha256": "7a6a43eceb0a26d62fd0c44d52c5eaafe3d5185f07f72ce3724f72363de0227a",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 48,
+        "mean_luma": 254.71,
+        "mean_std": 3.06,
+        "midpoint_motion_mad": 0.406,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_lt_mask_reveal/adapted.webm",
+        "sha256": "3555b1bc3297a4a7f8450bc8eb41fcf51221bab57bdfe8ba7717a716aaa456dc",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.84073,
+        "translucent_frac": 0.99028,
+        "opaque_stroke_frac": 0.14295,
+        "nonzero_alpha_ratio": 0.14295,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_strikethrough_replace",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/strikethrough-replace (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/strikethrough-replace/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "kinetic_type_contrast",
+      "roles": [
+        "gsap_contradiction_strike",
+        "myth_replacement"
+      ],
+      "intent_tags": [
+        "strikethrough",
+        "replace",
+        "contradiction",
+        "negation",
+        "contrast",
+        "spend"
+      ],
+      "description": "CSS-variable GSAP strikethrough rule + replacement reveal",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "from_text": "string",
+        "to_text": "string",
+        "eyebrow": "string"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_strikethrough_replace/upstream_smoke.mp4",
+        "sha256": "07486adb4b33bc0b7112969f82ade28501332b42121c9f2e9120ecbffb32e3cf",
+        "elapsed_s": 0.0,
+        "width": 720,
+        "height": 1280,
+        "frames": 48,
+        "mean_luma": 234.93,
+        "mean_std": 15.53,
+        "midpoint_motion_mad": 0.697,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_strikethrough_replace/adapted.webm",
+        "sha256": "8e534becec4b7b546318c13d3267f017856bbf7932a3263574aace592eb8006d",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.78631,
+        "translucent_frac": 0.9709,
+        "opaque_stroke_frac": 0.1972,
+        "nonzero_alpha_ratio": 0.1972,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_organic_light_leak",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/organic-light-leak-overlay (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/organic-light-leak-overlay/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "transition_light_leak",
+      "roles": [
+        "warm_transition_light_leak",
+        "bridge_accent"
+      ],
+      "intent_tags": [
+        "transition",
+        "light_leak",
+        "bridge",
+        "warm",
+        "editorial",
+        "cinematic"
+      ],
+      "description": "Multi-layer screen-blend warm amber/gold organic light leak transition",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "opacity": "float"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_organic_light_leak/upstream_smoke.mp4",
+        "sha256": "bccb352a26e0ec560f7baa8a37e69e96d3feb79ca6e5d89d4876af1b13e2fe86",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 48,
+        "mean_luma": 228.97,
+        "mean_std": 18.39,
+        "midpoint_motion_mad": 47.324,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_organic_light_leak/adapted.webm",
+        "sha256": "6df0acec9f9b5fc205fec880ce55820ec037d583b01f4178afa48f509396182d",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.0371,
+        "translucent_frac": 1.0,
+        "opaque_stroke_frac": 0.92548,
+        "nonzero_alpha_ratio": 0.92548,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_data_chart",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/data-chart (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/data-chart/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "proportional_data_chart",
+      "roles": [
+        "proportional_ledger_chart",
+        "multi_category_comparison"
+      ],
+      "intent_tags": [
+        "chart",
+        "data",
+        "ledger",
+        "bars",
+        "proportion",
+        "finance",
+        "allocation",
+        "comparison"
+      ],
+      "description": "Staggered NYT-style proportional animated bar + line chart",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": true,
+      "parameter_schema": {
+        "title": "string",
+        "items": "list[{label,cents,color}]",
+        "denom_cents": "int"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_data_chart/upstream_smoke.mp4",
+        "sha256": "9410ae49679d9e053ab4adec370863f3db07c9bb982a5f3fc0bd4180a85be107",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 48,
+        "mean_luma": 246.2,
+        "mean_std": 13.78,
+        "midpoint_motion_mad": 1.15,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_data_chart/adapted.webm",
+        "sha256": "46efa4345be223535886d9a55aaf0a36312a1e8e0871a729da89f7b6e4abd1ec",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.64454,
+        "translucent_frac": 0.97253,
+        "opaque_stroke_frac": 0.33376,
+        "nonzero_alpha_ratio": 0.33376,
+        "sample_frame": 20
+      }
+    },
+    {
+      "primitive_id": "hf_exploded_stack",
+      "engine": "hyperframes",
+      "source_code": "H01",
+      "origin_slug": "heygen-hyperframes",
+      "repo": "heygen-com/hyperframes",
+      "commit_sha": "4fca68b23561e3f1271b876ed4715dce9c7cf208",
+      "upstream_path": "registry/exploded-stack (installed via hyperframes v0.9.101 add)",
+      "imported_path": "renderers/hyperframes/imported/heygen-hyperframes/exploded-stack/upstream_offline.html",
+      "license": "Apache-2.0",
+      "visual_family": "spatial_product_stack",
+      "roles": [
+        "conceptual_system_stack",
+        "product_organization_visual"
+      ],
+      "intent_tags": [
+        "stack",
+        "layers",
+        "isometric",
+        "organize",
+        "system",
+        "product",
+        "dashboard",
+        "workbook",
+        "conceptual"
+      ],
+      "description": "Isometric 2.5D exploded layer stack with labelled planes",
+      "supports_alpha": true,
+      "supports_portrait_9x16": true,
+      "requires_matte": false,
+      "requires_ledger": false,
+      "parameter_schema": {
+        "title": "string",
+        "layers": "list[{label,sublabel,color}]",
+        "conceptual_badge": "string"
+      },
+      "status": "VERIFIED",
+      "upstream_smoke_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_exploded_stack/upstream_smoke.mp4",
+        "sha256": "e57a6554aaa4478926b265cdc640779e512a945600d063c2cb0c3e18306aed14",
+        "elapsed_s": 0.0,
+        "width": 1920,
+        "height": 1080,
+        "frames": 48,
+        "mean_luma": 242.57,
+        "mean_std": 18.3,
+        "midpoint_motion_mad": 2.594,
+        "non_blank": true
+      },
+      "adapted_proof": {
+        "artifact": "runs/benchmarks/primitive_proofs/hyperframes/hf_exploded_stack/adapted.webm",
+        "sha256": "ca9bbcd2918578db3446e7f3518d9ad107d330aa56a6d53b35270da1084d3099",
+        "elapsed_s": 0.0,
+        "portrait_9x16_ready": true,
+        "alpha_verified": true,
+        "has_visible_alpha": true,
+        "transparent_frac": 0.6008,
+        "translucent_frac": 0.9441,
+        "opaque_stroke_frac": 0.37501,
+        "nonzero_alpha_ratio": 0.37501,
+        "sample_frame": 20
+      }
+    }
+  ]
+}

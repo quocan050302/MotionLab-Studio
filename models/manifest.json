@@ -1,0 +1,55 @@
+{
+  "schema_version": "2.0.0",
+  "models": {
+    "modnet_photographic_portrait_matting": {
+      "filename": "modnet_photographic_portrait_matting.onnx",
+      "purpose": "Trimap-free continuous alpha portrait matting [0.0, 1.0] for foreground subject separation and graphic occlusion",
+      "upstream_project": "ZHKKKe/MODNet",
+      "distribution_url": "https://huggingface.co/TheEeeeLin/HivisionIDPhotos_matting/resolve/main/modnet_photographic_portrait_matting.onnx",
+      "license": "Apache-2.0",
+      "permitted_use": "Commercial & non-commercial permissive use under Apache-2.0",
+      "sha256": "07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9",
+      "size_bytes": 25836738,
+      "quantization": "fp32",
+      "expected_ram_mb": 350,
+      "runtime_engine": "onnxruntime (CPUExecutionProvider)",
+      "offline_policy": "Bootstrap-only one-time download; edit runtime NEVER downloads weights."
+    },
+    "faster_whisper_small": {
+      "directory": "faster-whisper-small",
+      "filename": "faster-whisper-small/model.bin",
+      "purpose": "Local multilingual offline ASR transcription with word-level timestamps and per-word confidence probabilities",
+      "upstream_project": "openai/whisper (CTranslate2 conversion by Systran/faster-whisper-small)",
+      "distribution_url": "https://huggingface.co/Systran/faster-whisper-small",
+      "license": "MIT",
+      "permitted_use": "Commercial & non-commercial permissive use under MIT",
+      "sha256": "3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671",
+      "files": {
+        "model.bin": "3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671",
+        "config.json": "b55496ac7940a7ae47d2c01eab40edfd8701feec1229d9cce3b40014383fb828",
+        "tokenizer.json": "fb7b63191e9bb045082c79fd742a3106a12c99513ab30df4a0d47fa6cb6fd0ab",
+        "vocabulary.txt": "34ce3fe1c5041027b3f8d42912270993f986dbc4bb34cf27f951e34a1e453913"
+      },
+      "size_bytes": 483617219,
+      "quantization": "int8_cpu_runtime",
+      "expected_ram_mb": 650,
+      "runtime_engine": "faster-whisper + ctranslate2 (local_files_only=True)",
+      "offline_policy": "Bootstrap-only one-time download; edit runtime enforces HF_HUB_OFFLINE=1 and local_files_only=True."
+    },
+    "qwen2_5_3b_instruct_q4_k_m": {
+      "filename": "qwen2.5-3b-instruct-q4_k_m.gguf",
+      "purpose": "Local structured-JSON Semantic & Generative Creative Director for niche classification, verified ledger storytelling, primitive search selection, and typed SceneSpec generation",
+      "upstream_project": "Qwen/Qwen2.5-3B-Instruct-GGUF",
+      "distribution_url": "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf",
+      "license": "Apache-2.0",
+      "permitted_use": "Commercial & non-commercial permissive use under Apache-2.0",
+      "sha256": "626b4a6678b86442240e33df819e00132d3ba7dddfe1cdc4fbb18e0a9615c62d",
+      "size_bytes": 2104932768,
+      "quantization": "Q4_K_M",
+      "expected_ram_mb": 2600,
+      "runtime_engine": "llama.cpp (MIT, native local llama-completion with --json-schema-file constrained decoding, CPU AVX2 / Metal abstracted)",
+      "offline_policy": "Bootstrap-only one-time download; edit runtime invokes local binary directly with zero network access."
+    }
+  }
+}
+

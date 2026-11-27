@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "status": "PARTIAL_FOLEY_ASSETS",
+  "notes": "Drop owner-recorded or verified CC0-1.0 WAV foley files in this directory and register their exact SHA-256 and license here. Until recorded WAVs are provided, MotionLab R5 uses explicitly labeled physical-modeling procedural_dsp_synthesis (never mislabeled as studio-recorded).",
+  "assets": []
+}
+

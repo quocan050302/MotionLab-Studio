@@ -1,0 +1,3 @@
+Imported via pinned local `hyperframes v0.9.101 add` from https://github.com/heygen-com/hyperframes @ 4fca68b23561e3f1271b876ed4715dce9c7cf208
+License: Apache-2.0 (see LICENSE)
+Local patches: replaced remote CDN GSAP script tag with local './gsap.min.js' and stripped demo <audio> tags for 100% offline deterministic rendering.

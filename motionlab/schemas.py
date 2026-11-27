@@ -23,7 +23,99 @@ from fractions import Fraction
 from typing import Any
 
 from motionlab import SCHEMA_VERSION, PLANNER_VERSION, ANALYZER_VERSION
-from motionlab.config import canonical_json_dumps, validate_no_path_traversal
+from motionlab.config import (
+    atomic_write_json,
+    atomic_write_text,
+    canonical_json_dumps,
+    ensure_safe_subpath,
+    validate_no_path_traversal,
+)
+
+
+class SchemaValidationError(ValueError):
+    """Raised when a declarative schema/graph/plan fails strict fail-closed validation."""
+
+
+def sanitize_native(obj: Any) -> Any:
+    """Convert NumPy scalars/arrays and Path objects recursively into JSON-safe native Python types."""
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    if hasattr(obj, "item") and callable(obj.item):
+        try:
+            return obj.item()
+        except Exception:
+            pass
+    if isinstance(obj, dict):
+        return {str(k): sanitize_native(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [sanitize_native(v) for v in obj]
+    if isinstance(obj, Fraction):
+        return {"num": obj.numerator, "den": obj.denominator}
+    return str(obj)
+
+
+def canonical_hash(payload: Any) -> str:
+    """Compute canonical SHA-256 hex digest over any JSON-serializable structure."""
+    raw = canonical_json_dumps(sanitize_native(payload), indent=None)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def ensure_finite(obj: Any, path: str = "root") -> None:
+    _assert_finite_tree(obj, path)
+
+
+def ensure_contained_path(candidate: Any, root: Any) -> Any:
+    from pathlib import Path as _Path
+
+    return ensure_safe_subpath(_Path(root), _Path(candidate))
+
+
+class RationalFraction(Fraction):
+    """Exact Fraction subclass also implementing R3/R4 Rational helper methods cleanly."""
+
+    @property
+    def num(self) -> int:
+        return int(self.numerator)
+
+    @property
+    def den(self) -> int:
+        return int(self.denominator)
+
+    def as_fraction(self) -> Fraction:
+        return Fraction(self.numerator, self.denominator)
+
+    def as_float(self) -> float:
+        return float(self)
+
+    def to_ffmpeg(self) -> str:
+        return f"{self.numerator}/{self.denominator}"
+
+    def to_dict(self) -> dict[str, int]:
+        return {"num": int(self.numerator), "den": int(self.denominator)}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "RationalFraction":
+        return cls(int(d["num"]), max(1, int(d.get("den", 1))))
+
+
+Rational = RationalFraction
+
+
+@dataclass
+class ProtectedZone:
+    """Spatial protected zone (face, active task, UI text, letterbox) for R2/R3/R4 choreography."""
+
+    start_frame: int
+    end_frame_exclusive: int
+    x: float
+    y: float
+    w: float
+    h: float
+    reason: str
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 def _assert_finite(value: float, name: str) -> float:
@@ -109,16 +201,53 @@ class MediaInfo:
     warnings: list[str] = field(default_factory=list)
 
     @property
-    def fps(self) -> Fraction:
-        return Fraction(self.fps_num, self.fps_den)
+    def fps(self) -> RationalFraction:
+        return RationalFraction(self.fps_num, self.fps_den)
+
+    @property
+    def fps_rational(self) -> RationalFraction:
+        return RationalFraction(self.fps_num, self.fps_den)
 
     @property
     def fps_float(self) -> float:
         return self.fps_num / self.fps_den
 
     @property
+    def path(self) -> str:
+        return self.source_path
+
+    @property
+    def duration_frames(self) -> int:
+        return int(self.nb_frames)
+
+    @property
     def has_audio(self) -> bool:
         return len(self.audio_streams) > 0
+
+    @property
+    def pts_summary(self) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = [
+            {
+                "codec_type": "video",
+                "start_pts": self.stream_start_pts,
+                "start_time_s": self.stream_start_time_s,
+                "anomalies": [w for w in self.warnings if "pts" in w or "vfr" in w],
+            }
+        ]
+        for a in self.audio_streams:
+            priming_s = float(a.initial_padding) / max(1, a.sample_rate) if a.initial_padding else 0.0
+            out.append(
+                {
+                    "codec_type": "audio",
+                    "audio_index": a.audio_index,
+                    "start_pts": a.start_pts,
+                    "start_time_s": a.start_time_s,
+                    "initial_padding": a.initial_padding,
+                    "priming_offset_s": round(priming_s, 6),
+                    "anomalies": [w for w in self.warnings if f"audio_track_{a.audio_index}" in w],
+                }
+            )
+        return out
 
     def frame_to_seconds(self, frame_idx: int) -> float:
         return float(Fraction(frame_idx * self.fps_den, self.fps_num))
@@ -254,6 +383,10 @@ class AudioEnvelopePoint:
     peak_norm: float  # 0..1
     db: float
 
+    @property
+    def normalized_rms(self) -> float:
+        return self.rms_norm
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "frame": self.frame,
@@ -316,6 +449,18 @@ class SubjectRegion:
     @property
     def center_y(self) -> float:
         return self.y + self.h * 0.5
+
+    @property
+    def start_frame(self) -> int:
+        return int(self.frame)
+
+    @property
+    def end_frame_exclusive(self) -> int:
+        return int(self.frame) + 1
+
+    @property
+    def ambiguous(self) -> bool:
+        return bool(self.multi_subject)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -389,6 +534,26 @@ class AnalysisResult:
     capabilities: list[str] = field(default_factory=list)
     signal_summary: dict[str, Any] = field(default_factory=dict)
     candidates: list[CandidateEvent] = field(default_factory=list)
+
+    @property
+    def summary_stats(self) -> dict[str, Any]:
+        return self.signal_summary
+
+    @property
+    def dominant_palette(self) -> dict[str, str]:
+        return dict(self.signal_summary.get("dominant_palette") or {})
+
+    @property
+    def fps(self) -> RationalFraction:
+        return RationalFraction(self.fps_num, self.fps_den)
+
+    @property
+    def protected_zones(self) -> list[ProtectedZone]:
+        return []
+
+    @property
+    def action_windows(self) -> list[Any]:
+        return []
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -670,15 +835,23 @@ class EditPlan:
 class RenderResult:
     artifact_path: str
     engines_used: list[str]
-    event_backends: dict[str, str]
-    timings_s: dict[str, float]
-    ffprobe_info: dict[str, Any]
-    status: str  # PASS | FAIL | BLOCKED
-    audio_mode: str  # stream_copy | transcode_compat | none
+    event_backends: dict[str, str] = field(default_factory=dict)
+    timings_s: dict[str, float] = field(default_factory=dict)
+    ffprobe_info: dict[str, Any] = field(default_factory=dict)
+    status: str = "PASS"  # PASS | FAIL | BLOCKED
+    audio_mode: str = "stream_copy"  # stream_copy | transcode_compat | mix | none
     warnings: list[str] = field(default_factory=list)
-    fallback_history: list[dict[str, str]] = field(default_factory=list)
+    fallback_history: list[dict[str, Any]] = field(default_factory=list)
     peak_rss_mb: float | None = None
     peak_temp_bytes: int = 0
+    event_engine_map: dict[str, str] = field(default_factory=dict)
+    encoding_settings: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if self.event_engine_map and not self.event_backends:
+            self.event_backends = dict(self.event_engine_map)
+        elif self.event_backends and not self.event_engine_map:
+            self.event_engine_map = dict(self.event_backends)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -693,6 +866,7 @@ class RenderResult:
             "fallback_history": list(self.fallback_history),
             "peak_rss_mb": round(self.peak_rss_mb, 2) if self.peak_rss_mb is not None else None,
             "peak_temp_bytes": self.peak_temp_bytes,
+            "encoding_settings": dict(self.encoding_settings),
         }
 
 

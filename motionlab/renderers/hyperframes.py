@@ -7,16 +7,26 @@ Uses pinned local `renderers/hyperframes/node_modules/.bin/hyperframes` and loca
 
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 import os
 import shutil
+import subprocess
 import time
 from pathlib import Path
 from typing import Any
 
 from motionlab.config import PROJECT_ROOT, atomic_write_json, atomic_write_text
-from motionlab.renderers.base import BaseRenderer, RendererError, find_local_browser, probe_artifact_ffprobe
-from motionlab.resource import ResourceBudget, run_subprocess_guarded
+from motionlab.renderers.base import (
+    BaseRenderer,
+    RendererError,
+    find_local_browser,
+    probe_artifact_ffprobe,
+    verify_webm_alpha_pixels,
+)
+from motionlab.renderers.hyperframes_vfx import SUPPORTED_VFX_TEMPLATES, build_vfx_graphics_html
+from motionlab.resource import GLOBAL_JOB_SEMAPHORE, ResourceBudget, run_managed_subprocess, run_subprocess_guarded
 from motionlab.schemas import AnalysisResult, EditPlan, EffectEvent, EffectSpec, MediaInfo
 
 HYPERFRAMES_SUPPORTED_EFFECTS = {
@@ -26,6 +36,18 @@ HYPERFRAMES_SUPPORTED_EFFECTS = {
     "directional_shapes",
     "pulse_border",
 }
+
+SUPPORTED_GRAPHICS_TEMPLATES = {
+    "depth-stage",
+    "detail-connector",
+    "action-path",
+    "pass-through",
+    "match-shape",
+    "split-divider",
+    "contour-focus",
+    "depth-horizon",
+    "audio-stage",
+} | SUPPORTED_VFX_TEMPLATES
 
 API_KEY_ENV_NAMES = (
     "ELEVENLABS_API_KEY",
@@ -38,6 +60,20 @@ API_KEY_ENV_NAMES = (
 )
 
 
+def _has_hyperframes_cached_browser() -> bool:
+    """Check if HyperFrames already has its own local offline headless-shell cached on disk."""
+    for base in (
+        Path.home() / ".cache" / "hyperframes",
+        Path.home() / ".cache" / "puppeteer",
+        Path(os.environ.get("LOCALAPPDATA", "")) / "hyperframes",
+    ):
+        if base.is_dir():
+            for pat in ("*chrome-headless-shell*", "*chrome.exe", "*/chrome"):
+                if any(base.rglob(pat)):
+                    return True
+    return False
+
+
 def _sanitized_offline_env(browser_exe: str | None = None) -> dict[str, str]:
     env = dict(os.environ)
     for key in API_KEY_ENV_NAMES:
@@ -45,9 +81,13 @@ def _sanitized_offline_env(browser_exe: str | None = None) -> dict[str, str]:
     env["DO_NOT_TRACK"] = "1"
     env["HYPERFRAMES_TELEMETRY"] = "0"
     env["PRODUCER_LOW_MEMORY_MODE"] = "true"
-    if browser_exe:
+    # On Windows, prefer HyperFrames' own isolated local headless-shell if cached (prevents 120s desktop-Chrome lockouts!)
+    if browser_exe and not (os.name == "nt" and _has_hyperframes_cached_browser()):
         env["PUPPETEER_EXECUTABLE_PATH"] = browser_exe
         env["CHROME_PATH"] = browser_exe
+    else:
+        env.pop("PUPPETEER_EXECUTABLE_PATH", None)
+        env.pop("CHROME_PATH", None)
     return env
 
 
@@ -308,7 +348,10 @@ class HyperFramesRenderer(BaseRenderer):
             "webm",
             "--fps",
             str(fps_int),
+            "--workers",
+            "1",
             "--low-memory-mode",
+            "--no-browser-gpu",
             "--frames-cache-dir",
             "off",
             "-o",
@@ -333,4 +376,196 @@ class HyperFramesRenderer(BaseRenderer):
             "lint_exit_code": lint_res.returncode,
             "elapsed_s": round(time.monotonic() - t0, 4),
             "ffprobe": info,
+        }
+
+    def supports_recipe_graphics(self, template_name: str | None, capabilities: dict[str, Any]) -> bool:
+        return (
+            bool(template_name)
+            and (template_name in SUPPORTED_GRAPHICS_TEMPLATES or template_name.startswith("imported_") or template_name.startswith("gen_"))
+            and bool((capabilities.get("hyperframes") or {}).get("available"))
+        )
+
+    def render_html_slot(
+        self,
+        slot_dir: Path,
+        html: str,
+        out_path: Path,
+        fps: float,
+        fmt: str = "webm",
+        extra_assets: dict[str, Path] | None = None,
+        timeout_s: float = 180.0,
+    ) -> dict[str, Any]:
+        """Render any standalone offline HyperFrames HTML composition (VP9 WebM alpha or H.264 MP4)."""
+        cap = self.probe_capability()
+        if not cap.get("available"):
+            raise RendererError(f"HyperFrames unavailable: {cap.get('reason')}")
+        slot_dir = slot_dir.resolve()
+        slot_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_path.resolve()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(self.gsap_js, slot_dir / "gsap.min.js")
+        if extra_assets:
+            for rel_name, src_p in extra_assets.items():
+                dst_p = slot_dir / rel_name
+                dst_p.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src_p, dst_p)
+        atomic_write_text(slot_dir / "index.html", html)
+        atomic_write_json(slot_dir / "hyperframes.json", {"version": 1, "entry": "index.html"})
+
+        env = _sanitized_offline_env(self.browser_exe)
+        fps_int = max(1, int(round(fps)))
+        with GLOBAL_JOB_SEMAPHORE:
+            lint_res, _ = run_managed_subprocess(
+                [str(self.hf_bin), "lint", str(slot_dir)], timeout_s=45.0, cwd=slot_dir, env=env, check=False
+            )
+            render_cmd = [
+                str(self.hf_bin), "render", str(slot_dir),
+                "--format", fmt,
+                "--fps", str(fps_int),
+                "--workers", "1",
+                "--low-memory-mode",
+                "--no-browser-gpu",
+                "--frames-cache-dir", "off",
+                "-o", str(out_path),
+            ]
+            last_err: Exception | None = None
+            r_stats: dict[str, Any] = {}
+            for attempt in range(3):
+                try:
+                    _, r_stats = run_managed_subprocess(render_cmd, timeout_s=timeout_s, cwd=slot_dir, env=env, check=True)
+                    last_err = None
+                    break
+                except subprocess.CalledProcessError as exc:
+                    last_err = exc
+                    if attempt < 2:
+                        time.sleep(2.0)
+                    else:
+                        tail = ((exc.stderr or "") + "\n" + (exc.output or ""))[-800:].strip()
+                        raise RendererError(f"HyperFrames render failed (exit {exc.returncode}): {tail}") from exc
+            if last_err is not None:
+                raise last_err
+
+        probe = self.verify_artifact(out_path)
+        h = hashlib.sha256()
+        with out_path.open("rb") as fh:
+            while chunk := fh.read(1 << 20):
+                h.update(chunk)
+        return {
+            "engine": self.name,
+            "slot_dir": str(slot_dir),
+            "artifact_path": str(out_path),
+            "artifact_sha256": h.hexdigest(),
+            "size_bytes": int(out_path.stat().st_size),
+            "lint_rc": lint_res.returncode,
+            "elapsed_s": r_stats["elapsed_s"],
+            "peak_tree_rss_mb": r_stats.get("peak_tree_rss_mb", 0.0),
+            "ffprobe": probe,
+        }
+
+    def render_graphics_scene(
+        self,
+        scene_id: str,
+        template_name: str,
+        width: int,
+        height: int,
+        fps: float,
+        start_frame: int,
+        end_frame_exclusive: int,
+        anchor_bundle: dict[str, Any],
+        parameters: dict[str, Any],
+        workdir: Path,
+        audio_envelope: list[float] | None = None,
+        timeout_s: float = 180.0,
+    ) -> dict[str, Any]:
+        """Render a substantive ML-01.R3/R4 transparent VP9 WebM graphic scene via local HyperFrames + GSAP."""
+        import numpy as np
+
+        n_frames = max(4, end_frame_exclusive - start_frame)
+        dur_s = n_frames / max(1.0, fps)
+        slot_dir = (workdir.resolve() / f"hf_scene_{scene_id}_{template_name}").resolve()
+        out_webm = slot_dir / "graphic.webm"
+
+        if template_name in SUPPORTED_VFX_TEMPLATES:
+            html = build_vfx_graphics_html(
+                scene_id=scene_id,
+                template_name=template_name,
+                width=width,
+                height=height,
+                fps=fps,
+                duration_s=dur_s,
+                gsap_rel_path="./gsap.min.js",
+                anchor_bundle=anchor_bundle,
+                parameters=parameters,
+            )
+        else:
+            # Reuse verified VFX depth/action templates cleanly for R3 template names
+            vfx_map = {
+                "depth-stage": "vfx-depth-stage",
+                "depth-horizon": "vfx-depth-stage",
+                "detail-connector": "vfx-macro-pointer",
+                "action-path": "vfx-action-flow",
+                "pass-through": "vfx-occlusion-wipe",
+                "match-shape": "vfx-shape-morph",
+                "split-divider": "vfx-editorial-collage",
+                "contour-focus": "vfx-prop-accent",
+                "audio-stage": "vfx-payoff-glint",
+            }
+            html = build_vfx_graphics_html(
+                scene_id=scene_id,
+                template_name=vfx_map.get(template_name, "vfx-depth-stage"),
+                width=width,
+                height=height,
+                fps=fps,
+                duration_s=dur_s,
+                gsap_rel_path="./gsap.min.js",
+                anchor_bundle=anchor_bundle,
+                parameters=parameters,
+            )
+
+        res = self.render_html_slot(slot_dir=slot_dir, html=html, out_path=out_webm, fps=fps, fmt="webm", timeout_s=timeout_s)
+        probe = res["ffprobe"]
+        vstreams = [s for s in probe.get("streams", []) if s.get("codec_type") == "video"]
+        pix_fmt = vstreams[0].get("pix_fmt", "") if vstreams else ""
+        f_early = max(1, n_frames // 5)
+        f_mid = max(2, n_frames // 2)
+        alpha_mid = verify_webm_alpha_pixels(out_webm, width, height, sample_frame=f_mid, min_transparent_frac=0.15)
+        alpha_early = verify_webm_alpha_pixels(out_webm, width, height, sample_frame=f_early, min_transparent_frac=0.15)
+        if not alpha_mid["alpha_verified"]:
+            raise RendererError(f"HyperFrames graphic {scene_id} failed alpha pixel verification: {alpha_mid}")
+
+        motion_mad = 0.0
+        try:
+            ffmpeg = shutil.which("ffmpeg") or "ffmpeg"
+            dec = subprocess.run(
+                [
+                    ffmpeg, "-v", "error", "-c:v", "libvpx-vp9", "-i", str(out_webm),
+                    "-vf", f"select='eq(n\\,{f_early})+eq(n\\,{f_mid})'", "-fps_mode", "passthrough",
+                    "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1",
+                ],
+                capture_output=True, timeout=30, shell=False,
+            )
+            fbytes = width * height * 4
+            if dec.returncode == 0 and len(dec.stdout) >= 2 * fbytes:
+                a_img = np.frombuffer(dec.stdout[:fbytes], dtype=np.uint8).reshape((height, width, 4)).astype(np.float32)
+                b_img = np.frombuffer(dec.stdout[fbytes : 2 * fbytes], dtype=np.uint8).reshape((height, width, 4)).astype(np.float32)
+                motion_mad = round(float(np.abs(b_img - a_img).mean()), 4)
+        except Exception:
+            motion_mad = 0.0
+
+        return {
+            "scene_id": scene_id,
+            "template_name": template_name,
+            "engine": self.name,
+            "artifact_path": str(out_webm),
+            "artifact_sha256": res["artifact_sha256"],
+            "size_bytes": res["size_bytes"],
+            "start_frame": start_frame,
+            "end_frame_exclusive": end_frame_exclusive,
+            "lint_rc": res["lint_rc"],
+            "elapsed_s": res["elapsed_s"],
+            "peak_tree_rss_mb": res["peak_tree_rss_mb"],
+            "pix_fmt": pix_fmt,
+            "motion_mad_early_vs_mid": motion_mad,
+            "animated_verified": bool(motion_mad > 0.01 or abs(alpha_mid["opaque_stroke_frac"] - alpha_early["opaque_stroke_frac"]) > 0.0005),
+            **alpha_mid,
         }

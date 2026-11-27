@@ -1,0 +1,33 @@
+MOTIONLAB STUDIO — ML-01.R5 BASELINE RECORD (A0)
+Generated: 2026-11-27 UTC
+Host: Windows 11 Pro (10.0.26300-SP0), Intel Core i5-12400 (12 logical CPUs), 31.75 GiB RAM (7.4–9.2 GiB free), Intel UHD Graphics 730
+Disk Free: C: 166.9 GiB, D: 40.6 GiB
+Toolchain: Python 3.12.10 (.venv), FFmpeg/ffprobe 9.0.2-full_build-www.gyan.dev, Node v26.13.1, Remotion 4.0.547, HyperFrames 0.9.101, GSAP 3.15.1
+
+1. ORIGINAL IMMUTABLE INPUT
+   Path: input/Olivia_Paycheck_V5_Kitchen_30s_Combined (1).mp4
+   SHA-256: c56c9ae0b6273a32c3847d4eae9d9015a5b1c3f911776435071a496dbb44ee7e
+   Video: H.264 720x1280, 24/1 FPS, 720 frames, 30.000s
+   Audio: AAC mono 44100 Hz, 1296 packets, start_pts=0, initial_padding=1024
+
+2. WINDOWS HEAD BASELINE (f374b7e23c03ecf9dfb18a101e73273f05beb3f9)
+   Command: .\.venv\Scripts\python.exe -m pytest -q tests/
+   Result: 91 passed, 15 subtests passed, 0 failed, 0 skipped (74.05s)
+   Note: Includes 26 legacy upstream tests in tests/test_render_*.py; NEVER double-counted.
+   Capabilities before A0: Signal-only ML-01 (40 effects, Remotion/HyperFrames overlays, no ASR/LLM/MODNet/SFX).
+
+3. HISTORICAL R4 BASELINE (6bcdb94e2a092274db1deb11d6d03dd9c4b81fe6 — Audited Read-Only)
+   Reported (macOS, prior lineage): 100 unique tests (74 MotionLab + 26 upstream), 8 dual-engine scenes, 13 DSP SFX (stem peak -20.05 dBFS), Windows NOT_RUN.
+   Owner aesthetic review of R4: REJECTED (tiny 26/14px ledger text, fake index-based bar width `0.82 - idx * 0.18`, repetitive zoomed/rounded card frames, barely audible synthetic SFX).
+   Historical R2/R3/R4 MP4 reference videos on this Windows host: NOT_AVAILABLE locally (not fabricated; R4 audit performed directly from historical source tree at 6bcdb94 and reported metrics).
+
+4. COMPETITOR / EXTERNAL REFERENCE VIDEOS
+   Status: REFERENCE_NOT_AVAILABLE (none attached by owner; internal art-directed benchmark and VQ-01 rubric used honestly without claiming reference parity).
+
+5. POST-A0 RECONCILED RECOVERY CHECK ON WINDOWS
+   - All 3 local AI models + llama.cpp b12803 verified offline via `python -m motionlab doctor`
+   - Real offline Faster-Whisper Small ASR on original Olivia: 70 words, lang=en, prob=0.9982, 9.16s
+   - Real offline Qwen2.5-3B structured JSON via llama-completion.exe: 4.29s
+   - Live R4 recovery dry-run (`--composition cinematic --enable-remotion --audio-mode mix --dry-run`): exit 0, 8 scenes, graph_hash=ba4c0ae61aa872e4
+   - Remotion TypeScript check (`npx tsc --noEmit`): exit 0
+

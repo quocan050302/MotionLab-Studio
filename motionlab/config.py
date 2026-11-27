@@ -12,6 +12,7 @@ from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = PROJECT_ROOT
 
 VALID_PROFILES = (
     "auto",
@@ -29,6 +30,11 @@ CONCRETE_PROFILES = tuple(p for p in VALID_PROFILES if p != "auto")
 VALID_QUALITIES = ("preview", "final")
 VALID_ASPECTS = ("source", "9:16", "16:9", "1:1")
 VALID_ENGINES = ("auto", "ffmpeg", "remotion", "hyperframes")
+VALID_COMPOSITIONS = ("legacy", "r3", "cinematic", "generative")
+VALID_AUDIO_MODES = ("preserve-exact", "mix")
+VALID_SEMANTIC_MODES = ("auto", "off")
+VALID_SFX_MODES = ("auto", "off")
+VALID_MUSIC_MODES = ("off", "local")
 
 
 @dataclass(frozen=True)
@@ -113,6 +119,28 @@ class EditConfig:
     resources: ResourceConfig = field(default_factory=ResourceConfig)
     cache_dir: Path | None = None
     render_preview_9x16: bool = False
+    # Reconciled R3/R4/R5 advanced composition, semantic, and audio contracts (default keeps legacy ML-01 behavior)
+    composition_mode: str = "legacy"  # legacy | r3 | cinematic | generative
+    semantic_mode: str = "auto"  # auto | off
+    audio_mode: str = "preserve-exact"  # preserve-exact | mix
+    sfx_mode: str = "auto"  # auto | off
+    music_mode: str = "off"  # off | local
+    strict_cinematic: bool = False
+    style: str = "auto"
+    motion_density: str = "adaptive"
+    remotion_opted_in: bool = False
+
+    @property
+    def cache_enabled(self) -> bool:
+        return bool(self.analysis.use_cache)
+
+    @property
+    def timeout_s(self) -> int:
+        return int(self.resources.subprocess_timeout_s)
+
+    @property
+    def enable_remotion(self) -> bool:
+        return bool(self.allow_remotion)
 
     def validate(self) -> None:
         if self.profile not in VALID_PROFILES:
@@ -123,6 +151,16 @@ class EditConfig:
             raise ValueError(f"Unknown quality '{self.quality}'. Valid: {', '.join(VALID_QUALITIES)}")
         if self.preferred_engine not in VALID_ENGINES:
             raise ValueError(f"Unknown engine '{self.preferred_engine}'. Valid: {', '.join(VALID_ENGINES)}")
+        if self.composition_mode not in VALID_COMPOSITIONS:
+            raise ValueError(f"Unknown composition_mode '{self.composition_mode}'. Valid: {', '.join(VALID_COMPOSITIONS)}")
+        if self.audio_mode not in VALID_AUDIO_MODES:
+            raise ValueError(f"Unknown audio_mode '{self.audio_mode}'. Valid: {', '.join(VALID_AUDIO_MODES)}")
+        if self.semantic_mode not in VALID_SEMANTIC_MODES:
+            raise ValueError(f"Unknown semantic_mode '{self.semantic_mode}'. Valid: {', '.join(VALID_SEMANTIC_MODES)}")
+        if self.sfx_mode not in VALID_SFX_MODES:
+            raise ValueError(f"Unknown sfx_mode '{self.sfx_mode}'. Valid: {', '.join(VALID_SFX_MODES)}")
+        if self.music_mode not in VALID_MUSIC_MODES:
+            raise ValueError(f"Unknown music_mode '{self.music_mode}'. Valid: {', '.join(VALID_MUSIC_MODES)}")
         if not self.offline:
             raise ValueError("Cloud/online editing mode is forbidden in ML-01; --offline must remain true.")
         if self.aspect_bg_mode not in ("blur", "solid", "smart_crop"):
@@ -137,7 +175,7 @@ class EditConfig:
         self.resources.validate()
 
     def canonical_dict(self) -> dict[str, Any]:
-        return {
+        d: dict[str, Any] = {
             "profile": self.profile,
             "seed": self.seed,
             "aspect": self.aspect,
@@ -154,6 +192,17 @@ class EditConfig:
             "intensity_scale": self.intensity_scale,
             "analysis": asdict(self.analysis),
         }
+        if self.composition_mode != "legacy" or self.audio_mode != "preserve-exact":
+            d.update({
+                "composition_mode": self.composition_mode,
+                "semantic_mode": self.semantic_mode,
+                "audio_mode": self.audio_mode,
+                "sfx_mode": self.sfx_mode,
+                "music_mode": self.music_mode,
+                "style": self.style,
+                "motion_density": self.motion_density,
+            })
+        return d
 
     def config_hash(self) -> str:
         payload = json.dumps(self.canonical_dict(), sort_keys=True, separators=(",", ":"))
@@ -215,3 +264,25 @@ def canonical_json_dumps(data: Any, indent: int | None = 2) -> str:
 def atomic_write_json(path: Path, data: Any) -> None:
     """Atomically write canonical JSON with strict NaN/Inf rejection."""
     atomic_write_text(path, canonical_json_dumps(data, indent=2))
+
+
+# Backward-compatible aliases for reconciled R2-R4 modules
+MotionLabConfig = EditConfig
+
+
+def find_local_bin(project_dir: Path, name: str) -> Path | None:
+    """Locate a project-local npm CLI binary (Windows .cmd/.exe or POSIX) without global npx."""
+    bin_dir = project_dir.resolve() / "node_modules" / ".bin"
+    candidates = [f"{name}.cmd", f"{name}.exe", name] if os.name == "nt" else [name]
+    for cand_name in candidates:
+        cand = bin_dir / cand_name
+        if cand.is_file():
+            return cand
+    return None
+
+
+def find_browser_executable() -> str | None:
+    """Locate an already-installed local Chrome/Edge/Chromium executable."""
+    from motionlab.renderers.base import find_local_browser
+
+    return find_local_browser()
