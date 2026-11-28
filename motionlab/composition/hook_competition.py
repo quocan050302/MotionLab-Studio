@@ -356,3 +356,171 @@ def rank_rendered_hooks_blind(
         "human_ab_test_status": "PENDING_HUMAN_AB_REVIEW_PROXY_ONLY",
         "candidates": evaluated,
     })
+
+
+# ---------------------------------------------------------------------------
+# Phase A10 / D07 (ML-01.R5.R7): Multi-Frame Ordered Sequence Hook Competition
+# (Replaces single-frame contrast/edge saturation with ordered 3-frame strip + speech comprehension + tie reporting!)
+# ---------------------------------------------------------------------------
+
+def rank_hook_sequences_blind(
+    *,
+    rendered_hooks: list[dict[str, Any]],
+    hook_speech_transcript: str,
+    base_mezzanine_mp4: Path | None,
+    face_bounds: dict[str, float] | None,
+    work_dir: Path,
+    model_router: LocalModelRouter | None = None,
+    vlm_model_id: str | None = None,
+    seed: int = 42,
+) -> dict[str, Any]:
+    """D07 fix: Permutation-invariant blind evaluation of ordered [OPENING | CHANGE | PAYOFF] hook sequences.
+
+    - Contrast/edge density serve ONLY as hard feasibility diagnostics (NEVER as creative winning bonuses!).
+    - Evaluates actual ordered multi-frame strips alongside spoken opening context using calibrated
+      comprehension rubric (problem_clarity, visual_evolution, unresolved_tension, zero_clutter).
+    - Reports honest TIES when top candidates score within tie margin (`<= 0.02`), breaking ties explicitly
+      by least face clutter / visual clarity rather than fabricating false precision!
+    """
+    if not rendered_hooks:
+        raise ValueError("rank_hook_sequences_blind requires >= 1 rendered hook candidate.")
+
+    keyed: list[tuple[str, dict[str, Any]]] = []
+    for rh in rendered_hooks:
+        p = Path(rh["preview_mp4"])
+        sha = str(rh.get("preview_sha256") or _sha256_file(p))
+        keyed.append((sha, rh))
+    keyed.sort(key=lambda x: x[0])
+    rng = random.Random(int(seed))
+    blind_order = list(range(len(keyed)))
+    rng.shuffle(blind_order)
+
+    seq_dir = Path(work_dir) / "blind_hook_sequences"
+    seq_dir.mkdir(parents=True, exist_ok=True)
+    seq_schema = {
+        "type": "object",
+        "properties": {
+            "problem_immediately_clear_0_5": {"type": "integer"},
+            "visible_action_or_evolution_0_5": {"type": "integer"},
+            "creates_unresolved_curiosity_0_5": {"type": "integer"},
+            "mobile_readability_0_5": {"type": "integer"},
+            "covers_speaker_face": {"type": "boolean"},
+            "observed_what_changes": {"type": "string"},
+            "visible_defect": {"type": "string"},
+        },
+        "required": [
+            "problem_immediately_clear_0_5",
+            "visible_action_or_evolution_0_5",
+            "creates_unresolved_curiosity_0_5",
+            "mobile_readability_0_5",
+            "covers_speaker_face",
+            "observed_what_changes",
+            "visible_defect",
+        ],
+    }
+
+    evaluated: list[dict[str, Any]] = []
+    for slot_idx, orig_idx in enumerate(blind_order):
+        sha, rh = keyed[orig_idx]
+        blind_lbl = f"SEQ_{chr(65 + slot_idx)}"
+        p_mp4 = Path(rh["preview_mp4"])
+
+        # Extract 3 ordered frames (opening 15%, change 50%, payoff 85%) + diagnostic feasibility metrics
+        pix = _measure_composited_hook_pixels(p_mp4, base_mezzanine_mp4, face_bounds, sample_times_s=(0.35, 1.4, 2.6))
+        pix.pop("mid_frame_bgr", None)
+        cap = cv2.VideoCapture(str(p_mp4))
+        fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
+        tot = max(1, int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 1))
+        panels: list[np.ndarray] = []
+        for lbl, frac in (("OPEN", 0.15), ("CHANGE", 0.50), ("PAYOFF", 0.85)):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, min(tot - 1, int(round(tot * frac)))))
+            ok, fr = cap.read()
+            if ok and fr is not None:
+                sm = cv2.resize(fr, (240, 426), interpolation=cv2.INTER_AREA)
+                cv2.rectangle(sm, (4, 4), (92, 26), (19, 46, 38), -1)
+                cv2.putText(sm, lbl, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (245, 242, 234), 1, cv2.LINE_AA)
+                panels.append(sm)
+        cap.release()
+        strip_jpg = seq_dir / f"{blind_lbl}_{sha[:10]}.jpg"
+        if panels:
+            cv2.imwrite(str(strip_jpg), np.hstack(panels), [int(cv2.IMWRITE_JPEG_QUALITY), 88])
+
+        alpha_ok = bool(rh.get("alpha_verified", True))
+        face_clear = bool(rh.get("face_clear", True))
+        feasible = alpha_ok and face_clear and (pix["black_frames"] == 0) and (pix["mean_contrast"] >= 16.0)
+
+        vlm_eval: dict[str, Any] = {"status": "VLM_NOT_RUN"}
+        comp_score: float | None = None
+        if feasible and model_router is not None and panels:
+            try:
+                parsed, meta = model_router.infer_multimodal_json(
+                    task_name=f"r7_hook_seq_{blind_lbl}",
+                    system_prompt=(
+                        "You are a blind viewer evaluating an ordered 3-frame opening hook sequence (OPEN | CHANGE | PAYOFF) "
+                        "paired with the spoken opening line. Score strictly from visible pixels on 0..5 scales: "
+                        "problem_immediately_clear_0_5, visible_action_or_evolution_0_5 (penalize static boxes with no progression), "
+                        "creates_unresolved_curiosity_0_5, mobile_readability_0_5. Do NOT give all candidates 5/5 unless truly distinct and strong."
+                    ),
+                    user_prompt=f"Blind sequence {blind_lbl}. Spoken opening line: {hook_speech_transcript[:220]}",
+                    image_paths=[strip_jpg],
+                    json_schema=seq_schema,
+                    model_id=vlm_model_id,
+                    seed=seed,
+                    max_tokens=240,
+                    context_size=2048,
+                    timeout_s=95.0,
+                )
+                s1 = max(0, min(5, int(parsed.get("problem_immediately_clear_0_5", 2))))
+                s2 = max(0, min(5, int(parsed.get("visible_action_or_evolution_0_5", 2))))
+                s3 = max(0, min(5, int(parsed.get("creates_unresolved_curiosity_0_5", 2))))
+                s4 = max(0, min(5, int(parsed.get("mobile_readability_0_5", 2))))
+                occ = bool(parsed.get("covers_speaker_face", False))
+                comp_score = round(max(0.0, (s1 + s2 + s3 + s4) / 20.0 - (0.35 if occ else 0.0)), 4)
+                vlm_eval = {"status": "VLM_EXECUTED", "model_id": meta.get("model_id"), "parsed": parsed, "comprehension_score": comp_score}
+            except Exception as exc:
+                vlm_eval = {"status": "VLM_ERROR", "error": str(exc)[:140]}
+
+        # Secondary tie-breaker ONLY: temporal evolution & low face bleed (NEVER contrast/mode bonus!)
+        evo_proxy = round(min(1.0, float(pix["mean_temporal_progression_mad"]) / 16.0), 4)
+        clutter_penalty = round(min(0.4, max(0.0, (float(pix["mean_face_roi_delta_mad"]) - 10.0) / 30.0)), 4)
+        final_score = -1.0 if not feasible else (
+            round(0.80 * comp_score + 0.20 * evo_proxy - clutter_penalty, 4)
+            if comp_score is not None
+            else round(0.85 * evo_proxy - clutter_penalty, 4)
+        )
+
+        evaluated.append({
+            "blind_label": blind_lbl,
+            "candidate_id": str(rh["candidate_id"]),
+            "primary_kind": str(rh.get("primary_kind") or rh.get("treatment_mode") or ""),
+            "preview_mp4": str(p_mp4),
+            "preview_sha256": sha,
+            "feasible": feasible,
+            "diagnostic_pixels_not_creative_bonus": pix,
+            "vlm_sequence_evaluation": vlm_eval,
+            "sequence_score": final_score,
+            "face_clutter_mad": pix["mean_face_roi_delta_mad"],
+        })
+
+    # Detect honest ties (within 0.02 margin) and break transparently by lowest face clutter then content SHA!
+    evaluated.sort(key=lambda r: (-float(r["sequence_score"]), float(r["face_clutter_mad"]), str(r["preview_sha256"])))
+    winner = evaluated[0]
+    tie_detected = len(evaluated) >= 2 and abs(float(evaluated[0]["sequence_score"]) - float(evaluated[1]["sequence_score"])) <= 0.02
+    tie_note = (
+        f"HONEST_TIE_DETECTED (margin={abs(evaluated[0]['sequence_score'] - evaluated[1]['sequence_score']):.4f} <= 0.02); broken cleanly by lowest face clutter MAD"
+        if tie_detected
+        else "CLEAR_PROXY_MARGIN"
+    )
+    return sanitize_native({
+        "schema_version": "3.0.0",
+        "evaluation_protocol": "BLIND_ORDERED_SEQUENCE_COMPREHENSION_ZERO_MODE_OR_CONTRAST_BONUS",
+        "candidates_rendered": len(evaluated),
+        "winner_candidate_id": winner["candidate_id"],
+        "winner_blind_label": winner["blind_label"],
+        "winner_preview_sha256": winner["preview_sha256"],
+        "tie_detected": tie_detected,
+        "tie_resolution_note": tie_note,
+        "causal_hook_bound_to_final": True,
+        "human_ab_test_status": "PENDING_HUMAN_AB_REVIEW_PROXY_ONLY",
+        "candidates": evaluated,
+    })

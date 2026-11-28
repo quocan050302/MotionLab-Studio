@@ -73,6 +73,8 @@ assets/product_catalog/**/*.webm
 assets/product_catalog/**/*.mov
 assets/product_catalog/manifest.json
 input/*.mp4
+input/**/*.mp4
+input/heldout_public_domain/
 input/*.mov
 input/*.mkv
 input/*.avi

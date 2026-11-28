@@ -14,6 +14,11 @@ import {
   type GenerativeSceneProps,
   type UpstreamSmokeProps,
 } from "./GenerativeSceneComposition";
+import {
+  SceneGraphV4Composition,
+  DEFAULT_SCENE_V4_PROPS,
+  type SceneGraphV4Props,
+} from "./SceneGraphV4Composition";
 
 const DEFAULT_SCENE_PROPS: CreativeSceneProps = {
   sceneId: "scene_default",
@@ -116,6 +121,24 @@ export const RemotionRoot: React.FC = () => {
             fps: Math.max(1, Math.round(p.fps || 24)),
             width: Math.max(64, Math.round(p.width || 720)),
             height: Math.max(64, Math.round(p.height || 1280)),
+          };
+        }}
+      />
+      <Composition
+        id="SceneGraphV4Composition"
+        component={SceneGraphV4Composition as unknown as React.FC<Record<string, unknown>>}
+        durationInFrames={60}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={DEFAULT_SCENE_V4_PROPS as unknown as Record<string, unknown>}
+        calculateMetadata={({ props }) => {
+          const p = props as unknown as SceneGraphV4Props;
+          return {
+            durationInFrames: Math.max(2, Math.round(p.durationInFrames || 60)),
+            fps: Math.max(1, Math.round(p.fps || 30)),
+            width: Math.max(64, Math.round(p.width || 1080)),
+            height: Math.max(64, Math.round(p.height || 1920)),
           };
         }}
       />

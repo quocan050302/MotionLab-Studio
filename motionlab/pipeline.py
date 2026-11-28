@@ -829,12 +829,12 @@ def _validate_multisource_director_run(run_dir: Path, manifest: dict[str, Any]) 
     checks: list[ValidationCheck] = []
     warnings: list[str] = list(manifest.get("hard_blockers") or [])
 
-    final_name = str(manifest.get("final_artifact") or "final.mp4")
+    final_name = str(manifest.get("final_artifact") or manifest.get("output_filename") or "final.mp4")
     final_p = run_dir / final_name
     size_b = int(final_p.stat().st_size) if final_p.is_file() else 0
     checks.append(ValidationCheck("artifact_exists_non_empty", "PASS" if size_b > 0 else "FAIL", "> 0 bytes", size_b, final_name))
     actual_sha = _sha256(final_p) if size_b > 0 else ""
-    exp_sha = str(manifest.get("final_sha256") or "")
+    exp_sha = str(manifest.get("final_sha256") or manifest.get("output_sha256") or "")
     checks.append(ValidationCheck("artifact_sha256_matches_manifest", "PASS" if (exp_sha and actual_sha == exp_sha) else "FAIL", exp_sha[:16], actual_sha[:16], final_name))
 
     # Source immutability across ALL sources
@@ -883,18 +883,37 @@ def _validate_multisource_director_run(run_dir: Path, manifest: dict[str, Any]) 
     checks.append(ValidationCheck("audio_join_qa_passed", "PASS" if ja.get("status") == "PASS" else "FAIL", "status=PASS", f"status={ja.get('status')}", "evidence/audio_join_qa.json"))
     aq = json.loads((run_dir / "evidence" / "audio_event_qa.json").read_text(encoding="utf-8")) if (run_dir / "evidence" / "audio_event_qa.json").is_file() else {}
     checks.append(ValidationCheck("audio_counterfactual_qa_passed", "PASS" if aq.get("status") == "PASS" else "FAIL", "status=PASS", f"status={aq.get('status')}, audible={aq.get('events_proxy_audible')}/{aq.get('events_total')}", "evidence/audio_event_qa.json"))
-    if manifest.get("composition_mode") == "multisource_director_v3":
+    if manifest.get("composition_mode") in ("multisource_director_v3", "multisource_director_v4"):
         fmr = json.loads((run_dir / "final_mix_reasr.json").read_text(encoding="utf-8")) if (run_dir / "final_mix_reasr.json").is_file() else {}
         checks.append(ValidationCheck("final_mix_reasr_verified", "PASS" if bool(fmr.get("passed")) else "FAIL", "passed=True", f"status={fmr.get('status')}, wer={fmr.get('wer')}", "final_mix_reasr.json"))
-        occ = json.loads((run_dir / "observed_claim_coverage.json").read_text(encoding="utf-8")) if (run_dir / "observed_claim_coverage.json").is_file() else {}
-        occ_ok = bool(occ) and int(occ.get("high_severity_defects_count", 1)) == 0 and float(occ.get("weighted_observed_material_coverage", 0.0)) >= 0.90
-        checks.append(ValidationCheck(
-            "observed_material_claim_coverage",
-            "PASS" if occ_ok else "FAIL",
-            "weighted_coverage>=0.90, high_defects=0",
-            f"weighted={occ.get('weighted_observed_material_coverage')}, critical={occ.get('critical_factual_accuracy')}, high_defects={occ.get('high_severity_defects_count')}",
-            "observed_claim_coverage.json",
-        ))
+        if manifest.get("composition_mode") == "multisource_director_v4":
+            sc4 = json.loads((run_dir / "semantic_comprehension_v4.json").read_text(encoding="utf-8")) if (run_dir / "semantic_comprehension_v4.json").is_file() else {}
+            sc4_ok = bool(sc4) and int(sc4.get("high_severity_defects_count", 1)) == 0 and float(sc4.get("weighted_semantic_coverage", 0.0)) >= 0.90
+            checks.append(ValidationCheck(
+                "independent_semantic_comprehension_v4",
+                "PASS" if sc4_ok else "FAIL",
+                "weighted>=0.90, high_defects=0",
+                f"weighted={sc4.get('weighted_semantic_coverage')}, critical={sc4.get('critical_factual_accuracy')}, uncertain={sc4.get('uncertain_claims_count')}, high_defects={sc4.get('high_severity_defects_count')}",
+                "semantic_comprehension_v4.json",
+            ))
+            fm4 = json.loads((run_dir / "frame_coverage_manifest.json").read_text(encoding="utf-8")) if (run_dir / "frame_coverage_manifest.json").is_file() else {}
+            checks.append(ValidationCheck(
+                "exact_frame_coverage_manifest",
+                "PASS" if bool(fm4.get("exact_full_coverage")) else "FAIL",
+                "exact_full_coverage=True",
+                f"covered={fm4.get('covered_frames')}/{fm4.get('total_frames')}",
+                "frame_coverage_manifest.json",
+            ))
+        else:
+            occ = json.loads((run_dir / "observed_claim_coverage.json").read_text(encoding="utf-8")) if (run_dir / "observed_claim_coverage.json").is_file() else {}
+            occ_ok = bool(occ) and int(occ.get("high_severity_defects_count", 1)) == 0 and float(occ.get("weighted_observed_material_coverage", 0.0)) >= 0.90
+            checks.append(ValidationCheck(
+                "observed_material_claim_coverage",
+                "PASS" if occ_ok else "FAIL",
+                "weighted_coverage>=0.90, high_defects=0",
+                f"weighted={occ.get('weighted_observed_material_coverage')}, critical={occ.get('critical_factual_accuracy')}, high_defects={occ.get('high_severity_defects_count')}",
+                "observed_claim_coverage.json",
+            ))
     prev_p = run_dir / "preview_9x16.mp4"
     if prev_p.is_file():
         pdec = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(prev_p), "-f", "null", "-"], capture_output=True, text=True, timeout=90, shell=False)
@@ -917,7 +936,7 @@ def run_validate_existing_run(run_dir: Path) -> ValidationResult:
         raise FileNotFoundError(f"Run directory missing manifest.json: {run_dir}")
 
     manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
-    if manifest.get("composition_mode") in ("multisource_director_v2", "multisource_director_v3"):
+    if manifest.get("composition_mode") in ("multisource_director_v2", "multisource_director_v3", "multisource_director_v4"):
         return _validate_multisource_director_run(run_dir, manifest)
 
     final_p = run_dir / "final.mp4"

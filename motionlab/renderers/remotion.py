@@ -622,3 +622,75 @@ class RemotionRenderer(BaseRenderer):
         summary = json.loads(result_path.read_text(encoding="utf-8"))
         summary["peak_tree_rss_mb"] = stats.get("peak_tree_rss_mb", 0.0)
         return summary
+
+    def render_v4_scene_overlay(
+        self,
+        *,
+        composition_id: str = "SceneGraphV4Composition",
+        props: dict[str, Any],
+        out_path: Path,
+        extra_assets: dict[str, Path] | None = None,
+        work_dir: Path,
+        timeout_s: float = 240.0,
+    ) -> dict[str, Any]:
+        """Render a transparent VP9 WebM overlay via local offline Remotion CLI for SceneGraph V4."""
+        cap = self.probe_capability()
+        if not cap.get("available"):
+            return {"rendered": False, "reason": cap.get("reason")}
+        work_dir = Path(work_dir).resolve()
+        work_dir.mkdir(parents=True, exist_ok=True)
+        out_path = Path(out_path).resolve()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        props_file = work_dir / "v4_props.json"
+        atomic_write_json(props_file, props)
+
+        # Stage local extra assets into Remotion public/ and clean up cleanly after render
+        pub_dir = self.project_dir / "public"
+        pub_dir.mkdir(parents=True, exist_ok=True)
+        staged: list[Path] = []
+        try:
+            for k, src in (extra_assets or {}).items():
+                dst = pub_dir / str(k)
+                shutil.copy2(Path(src), dst)
+                staged.append(dst)
+
+            rem_tmp = (PROJECT_ROOT / ".cache" / "remotion_tmp").resolve()
+            rem_tmp.mkdir(parents=True, exist_ok=True)
+            env = _sanitized_offline_env()
+            env["REMOTION_TMP"] = str(rem_tmp)
+            env["TMPDIR"] = str(rem_tmp)
+            env["TEMP"] = str(rem_tmp)
+            env["TMP"] = str(rem_tmp)
+
+            cmd = [
+                str(self.remotion_bin),
+                "render",
+                "src/index.ts",
+                composition_id,
+                str(out_path),
+                "--codec=vp9",
+                "--image-format=png",
+                "--pixel-format=yuva420p",
+                "--concurrency=2",
+                f"--props={props_file}",
+            ]
+            if self.browser_exe:
+                cmd.append(f"--browser-executable={self.browser_exe}")
+            t0 = time.perf_counter()
+            with GLOBAL_JOB_SEMAPHORE:
+                proc, stats = run_managed_subprocess(cmd, timeout_s=timeout_s, cwd=self.project_dir, env=env, check=False)
+            elapsed_s = round(time.perf_counter() - t0, 3)
+            if proc.returncode != 0 or not out_path.is_file() or out_path.stat().st_size == 0:
+                tail = ((proc.stderr or "") + "\n" + (proc.stdout or ""))[-600:].strip()
+                return {"rendered": False, "exit_code": proc.returncode, "error": tail}
+            return {
+                "rendered": True,
+                "output_path": str(out_path),
+                "sha256": _sha256_file(out_path),
+                "bytes": int(out_path.stat().st_size),
+                "elapsed_s": elapsed_s,
+                "peak_tree_rss_mb": stats.get("peak_tree_rss_mb", 0.0),
+            }
+        finally:
+            for sp in staged:
+                sp.unlink(missing_ok=True)

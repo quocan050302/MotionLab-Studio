@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "director_strategy": "generative_v4",
+  "job_id": "olivia_v6_lamborghini_payday_trap_r5r7",
+  "output_stem": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R7",
+  "sources": [
+    {
+      "source_id": "A",
+      "path": "input/video-olivia-01.mp4",
+      "sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b"
+    },
+    {
+      "source_id": "B",
+      "path": "input/video-olivia-02.mp4",
+      "sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+    }
+  ],
+  "intended_story": "Okay, tell me I'm not the only one who checks their bank account before buying groceries. Like, I have money... but rent is due Tuesday, and I don't get paid until Friday. So how much can I actually spend? That's the part my monthly budget never really answered. That's why I created The Next Paycheck Plan. It shows you what's already spoken for, what needs to last until payday, and what you can actually spend. Imagine going grocery shopping without doing mental math the entire time. That's what this is for. I left the link in the caption. Go take a look.",
+  "niche_hint": "finance",
+  "audience": "US salaried and biweekly paycheck households comparing checking balance against upcoming rent and groceries",
+  "job_to_be_done": "Show clearly why bank balance differs from unassigned spendable cash between Tuesday rent and Friday payday, proving workbook mechanisms with zoomed verified pages and concrete lived visual sequences.",
+  "promise": "Clarity before spending using verified printable workbook structure without fabricated claims or fake UI.",
+  "product_name": "The Next Paycheck Plan",
+  "visual_tone": "quiet_luxury_editorial_ugc",
+  "palette_tokens": {
+    "ivory": "#F5F2EA",
+    "parchment": "#EAE3D2",
+    "charcoal": "#132E26",
+    "teal": "#16382E",
+    "cognac": "#C49A52",
+    "amber": "#C97A5C",
+    "sage": "#8FB29C",
+    "ink_soft": "#4A6158",
+    "white": "#FAF8F4"
+  },
+  "copy_overrides": {
+    "hook_kicker": "BEFORE BUYING GROCERIES",
+    "hook_headline": "Balance != Spendable",
+    "hook_subline": "Why checking your balance isn't enough",
+    "sequence_start_tag": "RENT DUE",
+    "sequence_end_tag": "PAYDAY",
+    "timeline_caption": "TUESDAY -> FRIDAY TIMING GAP",
+    "dilemma_question": "So how much can I actually spend?",
+    "dilemma_left_label": "BANK BALANCE",
+    "dilemma_left_sub": "Includes Reserved Bills",
+    "dilemma_right_label": "UNASSIGNED",
+    "dilemma_right_sub": "Review Before Spending",
+    "evidence_badge": "REAL WORKBOOK · FICTIONAL EXAMPLE",
+    "payoff_kicker": "IN THE GROCERY AISLE",
+    "payoff_headline": "Shop Without Guessing",
+    "payoff_subline": "Bills stay reserved while your cart fills",
+    "payoff_action_steps": [
+      "Bills Reserved",
+      "Cart Planned",
+      "Calm Checkout"
+    ],
+    "cta_eyebrow": "THE NEXT PAYCHECK PLAN",
+    "cta_title": "Link in Caption",
+    "cta_direction": "See the link in caption"
+  },
+  "worked_example": {
+    "example_id": "jordan_biweekly_paycheck_p07_p12",
+    "domain": "finance",
+    "unit": "$",
+    "initial_label": "Jordan Biweekly Paycheck",
+    "initial_value": 1600,
+    "expected_final_value": 120,
+    "source_proof": "The_Next_Paycheck_Plan_A4_56p_FINAL_QA(1).pdf pages 7 & 12 (verified verbatim via MIT pdfminer.six)",
+    "is_hypothetical": true,
+    "steps": [
+      { "step_id": "bills_reserved", "label": "Bills Reserved", "op": "sub", "amount": 920, "unit": "$" },
+      { "step_id": "essentials", "label": "Essentials", "op": "sub", "amount": 340, "unit": "$" },
+      { "step_id": "debt_minimums", "label": "Debt Mins", "op": "sub", "amount": 160, "unit": "$" },
+      { "step_id": "starter_buffer", "label": "Buffer", "op": "sub", "amount": 60, "unit": "$" }
+    ]
+  },
+  "feature_requirements": [
+    {
+      "feature_id": "workbook_cover_identity",
+      "description": "Authentic 56-page printable workbook cover identity (The Next Paycheck Plan)",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "accepted_asset_types": ["workbook_cover"]
+    },
+    {
+      "feature_id": "workbook_bills_reserved_and_timeline_and_unassigned",
+      "description": "Authorized printable workbook pages proving bills reserved (p7/p49), payday timeline (p10), and planned/reserved/paid/cleared math (p12)",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "accepted_asset_types": ["workbook_page"]
+    },
+    {
+      "feature_id": "notion_live_ui_operation",
+      "description": "Authorized live interactive Notion customer-release screen capture demonstrating action -> result",
+      "required_proof_class": "ACTUAL_PRODUCT_ACTION_RESULT",
+      "accepted_asset_types": ["product_demo_clip"],
+      "fallback_static_types": ["dashboard_screenshot"]
+    }
+  ],
+  "forbidden_claims": [
+    "guaranteed financial results",
+    "live Notion UI demo without verified capture",
+    "fabricated bank balance as Olivia personal account",
+    "prelaunch private Notion workspace link"
+  ],
+  "asset_catalog_path": "assets/product_catalog",
+  "watermark_authorization": {
+    "authorized": false,
+    "provider_mark_mandatory": true,
+    "edit_preference_method": "localized_blur",
+    "notes": "Owner requested localized blur preference, but no verified non-mandatory provider clean-export authorization exists; preserve intact fail-closed."
+  },
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps_num": 30,
+    "fps_den": 1,
+    "sample_rate": 48000,
+    "channels": 2
+  },
+  "text_model_id": "qwen2_5_3b_instruct_q4_k_m",
+  "vlm_model_id": "qwen3_vl_4b_instruct_q4_k_m",
+  "prefer_remotion": true,
+  "enable_ambient_bed": true,
+  "max_render_workers": 2,
+  "enable_vlm": true,
+  "enable_llm": true,
+  "render_hooks": true,
+  "seed": 42
+}

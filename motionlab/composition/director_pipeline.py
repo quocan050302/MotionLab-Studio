@@ -114,6 +114,13 @@ _ALLOWED_JOB_TOP_KEYS = frozenset({
     "enable_llm",
     "render_hooks",
     "candidate_score_overrides",
+    "text_model_id",
+    "vlm_model_id",
+    "worked_example",
+    "source_pdf_path",
+    "prefer_remotion",
+    "enable_ambient_bed",
+    "max_render_workers",
 })
 
 
@@ -1004,6 +1011,16 @@ def run_multisource_director_job(
         from motionlab.composition.director_v3_runner import run_evidence_v3_director_job  # noqa: PLC0415
 
         return run_evidence_v3_director_job(
+            job=job,
+            output_root=output_root,
+            config=config,
+            creative_mode=creative_mode,
+            dry_run=dry_run,
+        )
+    if strategy == "generative_v4":
+        from motionlab.composition.director_v4_runner import run_generative_v4_director_job  # noqa: PLC0415
+
+        return run_generative_v4_director_job(
             job=job,
             output_root=output_root,
             config=config,

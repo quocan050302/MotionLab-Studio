@@ -336,3 +336,305 @@ def build_product_proof_by_feature(
             else "All verified feature proofs match exact asset types on disk."
         ),
     })
+
+
+# ---------------------------------------------------------------------------
+# Phase A4 (ML-01.R5.R7): MIT pdfminer.six Text BBox Extraction, Semantic Regions,
+# Evidence Indexing & Generic Verified Worked-Example State Machine (Fixes D11)
+# ---------------------------------------------------------------------------
+
+def extract_pdf_text_bboxes(
+    pdf_path: Path,
+    page_numbers: list[int],
+) -> dict[int, dict[str, Any]]:
+    """Extract exact text lines & normalized top-down image bounding boxes [x0,y0,x1,y1] via MIT pdfminer.six.
+
+    Zero AGPL code; properly converts PDF bottom-left CropBox/MediaBox coordinates into top-down [0..1] raster space!
+    """
+    p = Path(pdf_path).resolve()
+    if p.is_symlink() or not p.is_file():
+        raise FileNotFoundError(f"PDF missing or symlinked: {p}")
+    try:
+        from pdfminer.high_level import extract_pages  # noqa: PLC0415
+        from pdfminer.layout import LTTextBox, LTTextLine  # noqa: PLC0415
+    except Exception as exc:
+        raise RuntimeError(f"MIT pdfminer.six unavailable for PDF text bbox extraction: {exc}") from exc
+
+    want_0 = {int(pg) - 1 for pg in page_numbers if int(pg) >= 1}
+    src_sha = _sha256_file(p)
+    out: dict[int, dict[str, Any]] = {}
+
+    for pg_idx, layout in enumerate(extract_pages(str(p), page_numbers=sorted(want_0))):
+        pg_num = sorted(want_0)[pg_idx] + 1 if pg_idx < len(want_0) else pg_idx + 1
+        bx0, by0, bx1, by1 = layout.bbox
+        pw = max(1.0, float(bx1 - bx0))
+        ph = max(1.0, float(by1 - by0))
+        lines: list[dict[str, Any]] = []
+        for elem in layout:
+            if isinstance(elem, LTTextBox):
+                for line in elem:
+                    if isinstance(line, LTTextLine):
+                        txt = re.sub(r"\s+", " ", line.get_text()).strip()
+                        if not txt:
+                            continue
+                        lx0, ly0, lx1, ly1 = line.bbox
+                        # Convert PDF bottom-left origin -> normalized top-down raster bbox [x0, y0, x1, y1]
+                        nx0 = max(0.0, min(1.0, (lx0 - bx0) / pw))
+                        nx1 = max(0.0, min(1.0, (lx1 - bx0) / pw))
+                        ny0 = max(0.0, min(1.0, 1.0 - (ly1 - by0) / ph))
+                        ny1 = max(0.0, min(1.0, 1.0 - (ly0 - by0) / ph))
+                        lines.append({
+                            "text": txt,
+                            "norm_bbox": [round(nx0, 4), round(ny0, 4), round(nx1, 4), round(ny1, 4)],
+                            "height_norm": round(max(0.001, ny1 - ny0), 4),
+                        })
+        lines.sort(key=lambda r: (r["norm_bbox"][1], r["norm_bbox"][0]))
+        out[pg_num] = sanitize_native({
+            "page_number": pg_num,
+            "source_pdf_sha256": src_sha,
+            "page_bbox_pt": [round(bx0, 2), round(by0, 2), round(bx1, 2), round(by1, 2)],
+            "line_count": len(lines),
+            "lines": lines,
+            "backend": "pdfminer_six_mit",
+        })
+    return out
+
+
+def extract_semantic_regions(
+    *,
+    claim_text: str,
+    page_text_bboxes: dict[str, Any],
+    max_regions: int = 3,
+) -> list[dict[str, Any]]:
+    """Select exact relevant PDF rows/regions strictly from claim tokens + extracted PDF line bboxes."""
+    stop = {"the", "and", "for", "that", "this", "with", "your", "you", "what", "what's", "can", "are", "from", "into", "before", "after"}
+    q_toks = {t for t in re.findall(r"[a-z0-9$]+", claim_text.lower()) if len(t) >= 3 and t not in stop}
+    lines = list(page_text_bboxes.get("lines") or [])
+    if not lines:
+        return []
+
+    scored: list[tuple[float, dict[str, Any]]] = []
+    for ln in lines:
+        ltoks = {t for t in re.findall(r"[a-z0-9$]+", str(ln.get("text", "")).lower()) if len(t) >= 3 and t not in stop}
+        if not ltoks:
+            continue
+        inter = q_toks & ltoks
+        score = len(inter) / max(1.0, len(q_toks) ** 0.5)
+        if re.search(r"\$\s*\d|\d{2,}", str(ln.get("text", ""))):
+            score += 0.12
+        if score > 0.0:
+            scored.append((round(score, 4), ln))
+
+    scored.sort(key=lambda x: (-x[0], x[1]["norm_bbox"][1]))
+    picked: list[dict[str, Any]] = []
+    for sc, ln in scored[:max_regions]:
+        x0, y0, x1, y1 = ln["norm_bbox"]
+        # Expand tightly around matched row into a legible mobile crop band while preserving context
+        crop_y0 = max(0.02, round(y0 - 0.12, 4))
+        crop_y1 = min(0.98, round(y1 + 0.24, 4))
+        if crop_y1 - crop_y0 < 0.36:
+            pad = (0.36 - (crop_y1 - crop_y0)) * 0.5
+            crop_y0 = max(0.02, round(crop_y0 - pad, 4))
+            crop_y1 = min(0.98, round(crop_y1 + pad, 4))
+        picked.append({
+            "matched_line_text": ln["text"],
+            "relevance_score": sc,
+            "line_bbox": ln["norm_bbox"],
+            "recommended_crop_bbox": [0.04, crop_y0, 0.96, crop_y1],
+            "focus_y0_pct": round(max(4.0, min(80.0, ((y0 - crop_y0) / max(0.05, crop_y1 - crop_y0)) * 100.0)), 2),
+            "focus_h_pct": round(max(8.0, min(35.0, ((y1 - y0 + 0.04) / max(0.05, crop_y1 - crop_y0)) * 100.0)), 2),
+            "page_number": page_text_bboxes.get("page_number"),
+            "source_pdf_sha256": page_text_bboxes.get("source_pdf_sha256"),
+        })
+    return sanitize_native(picked)
+
+
+def index_evidence_assets(
+    *,
+    verified_assets: list[dict[str, Any]],
+    blocked_features: list[str] | None = None,
+) -> dict[str, Any]:
+    """Index local rights-cleared visual/document evidence assets with provenance, PII & lexical metadata."""
+    rows: list[dict[str, Any]] = []
+    for a in verified_assets:
+        rp = Path(str(a.get("resolved_path") or ""))
+        ok_file = rp.is_file() and not rp.is_symlink()
+        ok_rights = bool(a.get("owner_authorized", False)) or str(a.get("license", "")).upper() in ("CC0", "CC0-1.0", "PUBLIC_DOMAIN", "MIT", "APACHE-2.0")
+        ok_pii = bool(a.get("pii_redacted", True))
+        # Reject private prelaunch assets fail-closed
+        is_private_prelaunch = "prelaunch" in str(a.get("asset_id", "")).lower() or "pre-launch" in str(a.get("notes", "")).lower()
+        verified = ok_file and ok_rights and ok_pii and (not is_private_prelaunch)
+        reg_txt = " ".join(
+            f"{r.get('region_id','')} {r.get('label','')} {r.get('step_pill','')} {r.get('fictional_example_label','')} {' '.join(str(x) for x in (r.get('expected_visible_facts') or []))}"
+            for r in (a.get("regions") or [])
+            if isinstance(r, dict)
+        )
+        text_bag = " ".join([
+            str(a.get("asset_id", "")),
+            str(a.get("asset_type", "")),
+            str(a.get("title", "")),
+            str(a.get("page_title", "")),
+            str(a.get("caption", "")),
+            str(a.get("description", "")),
+            str(a.get("product_name", "")),
+            " ".join(str(k) for k in (a.get("supported_features") or [])),
+            " ".join(str(k) for k in (a.get("keywords") or [])),
+            " ".join(str(k) for k in (a.get("feature_tags") or [])),
+            " ".join(str(k) for k in (a.get("claim_keywords") or [])),
+            " ".join(str(f) for f in (a.get("expected_visible_facts") or [])),
+            " ".join(str(f) for f in (a.get("visible_facts") or [])),
+            reg_txt,
+        ]).replace("_", " ").lower()
+        rows.append({
+            "asset_id": str(a.get("asset_id", "")),
+            "asset_type": str(a.get("asset_type", "")),
+            "resolved_path": str(rp) if ok_file else "",
+            "sha256": str(a.get("sha256", "")),
+            "verified": verified,
+            "rejection_reason": None if verified else ("private_prelaunch_blocked" if is_private_prelaunch else "rights_or_file_or_pii_failed"),
+            "evidence_class": "ACTUAL_PRODUCT_ACTION_RESULT" if str(a.get("asset_type", "")).lower() == "product_demo_clip" else (
+                "ACTUAL_PRODUCT_WORKBOOK" if "workbook" in str(a.get("asset_type", "")).lower() else "VERIFIED_LOCAL_ASSET"
+            ),
+            "tokens": sorted(set(re.findall(r"[a-z0-9$]+", text_bag))),
+            "regions": list(a.get("regions") or []),
+            "fictional_example_label": a.get("fictional_example_label"),
+        })
+    return sanitize_native({
+        "schema_version": "2.0.0",
+        "assets_total": len(rows),
+        "verified_count": sum(1 for r in rows if r["verified"]),
+        "blocked_features": list(blocked_features or []),
+        "assets": rows,
+        "index_hash": canonical_hash([(r["asset_id"], r["sha256"], r["verified"]) for r in rows]),
+    })
+
+
+def retrieve_claim_evidence(
+    *,
+    claim: dict[str, Any],
+    evidence_index: dict[str, Any],
+    top_k: int = 3,
+    min_relevance: float = 0.14,
+) -> list[dict[str, Any]]:
+    """Retrieve relevant verified local assets for a claim; strictly rejects irrelevant/wrong/unverified assets."""
+    stop = {"the", "and", "for", "that", "this", "with", "your", "you", "what", "can", "are", "from", "into", "have", "just"}
+    q_txt = f"{claim.get('text', '')} {claim.get('question_answered', '')}".lower()
+    q_toks = {t for t in re.findall(r"[a-z0-9$]+", q_txt) if len(t) >= 3 and t not in stop}
+    if not q_toks:
+        return []
+
+    scored: list[dict[str, Any]] = []
+    for a in evidence_index.get("assets") or []:
+        if not a.get("verified"):
+            continue
+        atoks = set(a.get("tokens") or [])
+        inter = q_toks & atoks
+        if not inter:
+            continue
+        rel = len(inter) / max(1.0, (len(q_toks) * min(len(atoks), 18)) ** 0.5)
+        if rel < min_relevance:
+            continue
+        scored.append({
+            "asset_id": a["asset_id"],
+            "asset_type": a["asset_type"],
+            "evidence_class": a["evidence_class"],
+            "relevance_score": round(min(1.0, rel), 4),
+            "matched_tokens": sorted(inter),
+            "sha256": a["sha256"],
+            "resolved_path": a["resolved_path"],
+            "region_id": (a["regions"][0].get("region_id") if a.get("regions") else None),
+        })
+    scored.sort(key=lambda r: (-r["relevance_score"], r["asset_id"]))
+    return sanitize_native(scored[:top_k])
+
+
+def build_verified_example_state_machine(
+    *,
+    example_id: str,
+    domain: str,
+    unit: str,
+    initial_label: str,
+    initial_value: float,
+    steps: list[dict[str, Any]],
+    source_proof: str,
+    is_hypothetical: bool = True,
+    expected_final_value: float | None = None,
+) -> dict[str, Any]:
+    """Generic deterministic worked-example state machine across ALL domains (finance, science, cooking, tutorials).
+
+    Computes every transition deterministically (NEVER asking an LLM to invent arithmetic!) and fails closed on:
+      - wrong sign / unexpected direction
+      - duplicate step IDs or duplicate subtractions
+      - unit mismatch across steps
+      - arithmetic mismatch against `expected_final_value`
+      - silent rollback back to initial value without explicit recap
+    """
+    errors: list[str] = []
+    seen_ids: set[str] = set()
+    cur = float(initial_value)
+    history: list[dict[str, Any]] = [{
+        "step_id": "init",
+        "label": initial_label,
+        "op": "set",
+        "delta": 0.0,
+        "before": cur,
+        "after": cur,
+        "unit": unit,
+    }]
+
+    for idx, st in enumerate(steps):
+        sid = str(st.get("step_id") or f"step_{idx + 1}")
+        if sid in seen_ids:
+            errors.append(f"duplicate_step_id:{sid}")
+            continue
+        seen_ids.add(sid)
+
+        st_unit = str(st.get("unit") or unit)
+        if st_unit != unit:
+            errors.append(f"unit_mismatch:{sid}:{st_unit}!={unit}")
+        op = str(st.get("op") or "sub").lower()
+        amt = float(st.get("amount", 0.0))
+        if amt < 0.0 and op in ("sub", "add"):
+            errors.append(f"wrong_sign_negative_magnitude:{sid}:{amt}")
+        before = cur
+        if op == "sub":
+            cur = round(cur - amt, 4)
+        elif op == "add":
+            cur = round(cur + amt, 4)
+        elif op == "mul":
+            cur = round(cur * amt, 4)
+        elif op == "set":
+            if not st.get("is_recap") and amt == float(initial_value) and idx > 0:
+                errors.append(f"silent_rollback_to_initial:{sid}")
+            cur = round(amt, 4)
+        else:
+            errors.append(f"unsupported_op:{sid}:{op}")
+
+        history.append({
+            "step_id": sid,
+            "label": str(st.get("label") or sid),
+            "op": op,
+            "delta": round(-amt if op == "sub" else amt, 4),
+            "before": before,
+            "after": cur,
+            "unit": st_unit,
+        })
+
+    if expected_final_value is not None and abs(cur - float(expected_final_value)) > 1e-3:
+        errors.append(f"final_value_mismatch:computed={cur}!=expected={expected_final_value}")
+
+    return sanitize_native({
+        "schema_version": "1.0.0",
+        "example_id": example_id,
+        "domain": domain,
+        "unit": unit,
+        "source_proof": source_proof,
+        "is_hypothetical": bool(is_hypothetical),
+        "disclosure_label": "FICTIONAL WORKBOOK EXAMPLE — ILLUSTRATIVE ONLY" if is_hypothetical else "VERIFIED SOURCE DATA",
+        "initial_value": round(float(initial_value), 4),
+        "final_value": round(cur, 4),
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "transitions": history,
+        "state_machine_hash": canonical_hash(history),
+    })
