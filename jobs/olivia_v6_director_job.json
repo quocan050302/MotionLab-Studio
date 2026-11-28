@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "olivia_v6_lamborghini_payday_trap_ml01_r5r5",
+  "output_stem": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5",
+  "sources": [
+    {
+      "source_id": "A",
+      "path": "input/video-olivia-01.mp4",
+      "sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b"
+    },
+    {
+      "source_id": "B",
+      "path": "input/video-olivia-02.mp4",
+      "sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+    }
+  ],
+  "intended_story": "Okay, tell me I'm not the only one who checks their bank account before buying groceries. Like, I have money... but rent is due Tuesday, and I don't get paid until Friday. So how much can I actually spend? That's the part my monthly budget never really answered. That's why I created The Next Paycheck Plan. It shows you what's already spoken for, what needs to last until payday, and what you can actually spend. Imagine going grocery shopping without doing mental math the entire time. That's what this is for. I left the link in the caption. Go take a look.",
+  "niche_hint": "finance",
+  "audience": "Adults managing bills and groceries between paychecks who want clear timing-first spend clarity",
+  "job_to_be_done": "Show why balance alone misleads before rent is due and explain how a paycheck-timing view clarifies safe spend",
+  "promise": "Timing-first view of what is already spoken for, what must last until payday, and what is actually safe to spend",
+  "product_name": "The Next Paycheck Plan",
+  "visual_tone": "quiet_luxury_editorial_ugc",
+  "forbidden_claims": [
+    "No guaranteed savings or wealth claims",
+    "No Lamborghini endorsement or implied ownership income",
+    "No fabricated bank balance or fake Notion dashboard pretending to be real product capture",
+    "No voice cloning for missing dialogue"
+  ],
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps_num": 30,
+    "fps_den": 1,
+    "sample_rate": 48000,
+    "channels": 2
+  },
+  "seed": 42,
+  "enable_vlm": true,
+  "enable_llm": true,
+  "render_hooks": true
+}

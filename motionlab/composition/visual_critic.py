@@ -629,17 +629,24 @@ def run_rhythm_critic(
             "readable_duration_ok": not too_brief_cutaway,
         })
 
-    wp_ok = True if word_preservation is None else bool(word_preservation.get("passed", False))
-    joins_audio_ok = True if join_audio_qa is None else (join_audio_qa.get("status") == "PASS")
+    has_cuts = len(omitted) > 0
+    # D07/D09 fix: Fail-closed when cuts were applied and evidence (edited voice bed, word preservation, or join QA) is missing!
+    wp_ok = (True if not has_cuts else False) if word_preservation is None else bool(word_preservation.get("passed", False))
+    joins_audio_ok = (True if not has_cuts else False) if join_audio_qa is None else (join_audio_qa.get("status") == "PASS")
     joins_vis_severe = int((cut_continuity or {}).get("severe_jump_joins", 0))
-    # Unresolved dead air warning (relaxed on calm/wellness/silent niches!)
     dead_air_limit = 3.5 if niche_low in ("wellness", "silent_art", "storytelling") else 1.85
     unresolved_dead_air = bool(bed_analyzed and longest_post_gap_s > dead_air_limit)
 
     findings: list[dict[str, Any]] = []
-    if not wp_ok:
+    if has_cuts and not bed_analyzed:
+        findings.append({"category": "missing_edited_voice_bed", "severity": "HIGH", "detail": "Edited voice bed WAV was missing or unreadable during rhythm QA (fail-closed)."})
+    if has_cuts and word_preservation is None:
+        findings.append({"category": "missing_word_preservation_evidence", "severity": "HIGH", "detail": "Word preservation Re-ASR evidence missing for cut timeline (fail-closed)."})
+    elif not wp_ok:
         findings.append({"category": "word_preservation", "severity": "HIGH", "detail": "One or more protected spoken words/numbers failed edited voice bed verification."})
-    if not joins_audio_ok:
+    if has_cuts and join_audio_qa is None:
+        findings.append({"category": "missing_audio_join_evidence", "severity": "HIGH", "detail": "Audio join waveform QA evidence missing for cut timeline (fail-closed)."})
+    elif not joins_audio_ok:
         findings.append({"category": "audio_join_defect", "severity": "HIGH", "detail": str((join_audio_qa or {}).get("failure_reasons"))})
     if joins_vis_severe > 0:
         findings.append({"category": "cut_visual_jump", "severity": "MEDIUM", "detail": f"{joins_vis_severe} cut join(s) had large visual jump."})
@@ -649,6 +656,8 @@ def run_rhythm_critic(
         findings.append({"category": "cutaway_reading_time", "severity": "MEDIUM", "detail": ", ".join(short_cutaway_warnings)})
 
     high_count = sum(1 for f in findings if f["severity"] == "HIGH")
+    med_count = sum(1 for f in findings if f["severity"] == "MEDIUM")
+    rhythm_status = "FAIL" if high_count > 0 else ("WARN_REVIEW_REQUIRED" if med_count > 0 else "PASS")
     report = {
         "schema_version": "1.0.0",
         "niche": niche_low,
@@ -669,7 +678,8 @@ def run_rhythm_critic(
         "scene_reading_audit": scene_reading_audit,
         "findings": findings,
         "high_severity_count": high_count,
-        "objective_rhythm_status": "PASS" if high_count == 0 else "FAIL",
+        "medium_severity_count": med_count,
+        "objective_rhythm_status": rhythm_status,
         "human_vq01_status": "PENDING_HUMAN_REVIEW",
         "vlm_status": str(pixel_critic.get("vlm_status", "VISION_CRITIC_NOT_RUN")),
     }

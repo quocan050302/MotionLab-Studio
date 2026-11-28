@@ -122,6 +122,7 @@ def detect_speech_activity(
     vad_threshold: float = 0.42,
     min_speech_ms: int = 120,
     min_silence_ms: int = 180,
+    expect_speech_from_transcript: bool = False,
 ) -> dict[str, Any]:
     """Run local neural Silero VAD ONNX (via installed faster-whisper) + multi-feature spectral cross-check.
 
@@ -248,9 +249,17 @@ def detect_speech_activity(
                         raw_speech_16k.append((s0, s1))
         vad_backend = "silero_vad_onnx"
     except Exception:
-        # Honest fallback: spectral speech-band + RMS hysteresis
+        vad_backend = "spectral_energy_hysteresis"
+
+    if (vad_backend == "spectral_energy_hysteresis") or (
+        expect_speech_from_transcript and not raw_speech_16k and peak_db >= -36.0 and dynamic_range_db >= 18.0
+    ):
+        if vad_backend == "silero_vad_onnx":
+            vad_backend = "silero_vad_onnx_plus_energy_reconciled"
+        # Honest fallback / reconciliation: spectral speech-band + RMS hysteresis
         eng_thresh = max(noise_floor_db + 9.0, -40.0)
-        is_sp = (rms_db >= eng_thresh) & (sb_ratio >= 0.45) & (flatness <= 0.45)
+        min_sb = 0.20 if expect_speech_from_transcript else 0.45
+        is_sp = (rms_db >= eng_thresh) & (sb_ratio >= min_sb) & (flatness <= 0.45)
         in_sp = False
         sp_start = 0
         min_sp_f = max(1, int(round(min_speech_ms / 20.0)))
@@ -773,7 +782,8 @@ def run_speech_and_action_perception(
     ffmpeg = ffmpeg_bin or shutil.which("ffmpeg") or "ffmpeg"
     pcm_16k = _decode_mono_f32_pcm(Path(media.source_path), sr=VAD_SAMPLE_RATE, ffmpeg_bin=ffmpeg) if (media.has_audio and Path(media.source_path).is_file()) else np.zeros((0,), dtype=np.float32)
 
-    vad_doc = detect_speech_activity(media, pcm_16k=pcm_16k, ffmpeg_bin=ffmpeg)
+    has_tr_words = any(bool(getattr(seg, "words", None)) or bool(str(getattr(seg, "text", "")).strip()) for seg in (getattr(transcript, "segments", None) or []))
+    vad_doc = detect_speech_activity(media, pcm_16k=pcm_16k, ffmpeg_bin=ffmpeg, expect_speech_from_transcript=has_tr_words)
     align_doc = align_transcript_words(transcript, vad_doc, media, pcm_16k=pcm_16k, ffmpeg_bin=ffmpeg)
     prosody_doc = extract_prosody_features(pcm_16k, align_doc, vad_doc, media)
 

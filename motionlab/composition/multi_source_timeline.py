@@ -47,6 +47,10 @@ class MultiSourceSpan:
     def to_dict(self) -> dict[str, Any]:
         return sanitize_native(asdict(self))
 
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "MultiSourceSpan":
+        return cls(**{k: v for k, v in d.items() if k in cls.__dataclass_fields__})
+
 
 @dataclass
 class MultiSourceEditMap:
@@ -67,6 +71,26 @@ class MultiSourceEditMap:
 
     def to_dict(self) -> dict[str, Any]:
         return sanitize_native(asdict(self))
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "MultiSourceEditMap":
+        spans = [MultiSourceSpan.from_dict(s) if isinstance(s, dict) else s for s in d.get("kept_spans", [])]
+        return cls(
+            schema_version=str(d.get("schema_version", MULTI_SOURCE_SCHEMA_VERSION)),
+            sources=list(d.get("sources") or []),
+            target_width=int(d["target_width"]),
+            target_height=int(d["target_height"]),
+            fps_num=int(d["fps_num"]),
+            fps_den=int(d["fps_den"]),
+            sample_rate=int(d["sample_rate"]),
+            channels=int(d["channels"]),
+            output_total_frames=int(d["output_total_frames"]),
+            output_duration_s=float(d["output_duration_s"]),
+            output_total_samples=int(d["output_total_samples"]),
+            kept_spans=spans,
+            cuts=list(d.get("cuts") or []),
+            map_hash=str(d.get("map_hash", "")),
+        )
 
     def compute_hash(self) -> str:
         d = self.to_dict()
@@ -182,12 +206,13 @@ def validate_multi_source_edit_map(emap: MultiSourceEditMap) -> list[str]:
 
 
 def map_source_time_to_output(emap: MultiSourceEditMap, source_id: str, source_t: float) -> float | None:
-    """Map a source timestamp (s) to edited output timeline (s), or None if cut out."""
+    """Map a source timestamp (s) strictly end-exclusive `[start_s, end_s)` to edited output timeline (s), or None if cut."""
     fps_f = emap.fps_num / float(emap.fps_den)
     for sp in emap.kept_spans:
-        if sp.source_id == source_id and sp.source_start_s - 0.03 <= source_t <= sp.source_end_s + 0.03:
-            clamped = max(sp.source_start_s, min(sp.source_end_s, source_t))
-            return round((sp.output_start_frame / fps_f) + (clamped - sp.source_start_s), 4)
+        if sp.kind != "source_media":
+            continue
+        if sp.source_id == source_id and sp.source_start_s <= source_t < sp.source_end_s:
+            return round((sp.output_start_frame / fps_f) + (source_t - sp.source_start_s), 4)
     return None
 
 
@@ -258,18 +283,92 @@ def evaluate_watermark_authorization(
             "roi_measurement": watermark_roi_measurement,
         })
 
+    detected_sources = [
+        str(k)
+        for k, v in watermark_roi_measurement.items()
+        if isinstance(v, dict) and bool(v.get("detected_bright_static_mark"))
+    ]
     return sanitize_native({
         "schema_version": MULTI_SOURCE_SCHEMA_VERSION,
         "status": "BLOCKED_WATERMARK_AUTHORIZATION",
         "action": "PRESERVE_PROVENANCE_MARK_AND_RENDER_CANDIDATE",
+        "detected_sources": detected_sources,
         "reason": (
-            "Static 4-point sparkle provenance mark detected in bottom-right corner (~x=0.83, y=0.91) on both sources. "
-            "No verified clean-export license or provenance-removal authorization provided; preserving mark honestly and "
-            "flagging candidate release as BLOCKED_WATERMARK_AUTHORIZATION (never fabricating clean PASS)."
+            f"Static corner provenance mark detected on source(s) {detected_sources}. "
+            "No verified clean-export license or provenance-removal authorization provided; preserving mark intact and "
+            "flagging output as BLOCKED_WATERMARK_AUTHORIZATION (never stripping/cropping provenance without license)."
         ),
         "clean_release_eligible": False,
         "ai_generated_disclosure_required": True,
         "roi_measurement": watermark_roi_measurement,
+    })
+
+
+def compute_multi_source_color_match(
+    source_paths: dict[str, Path],
+    *,
+    ref_source_id: str | None = None,
+) -> dict[str, Any]:
+    """Measure gentle bounded luma/contrast/white-balance alignment across arbitrary N sources toward reference source."""
+    sids = list(source_paths.keys())
+    if not sids:
+        return {"schema_version": MULTI_SOURCE_SCHEMA_VERSION, "ref_source_id": None, "stats_by_source": {}, "ffmpeg_vf_by_source": {}}
+    ref_id = ref_source_id if (ref_source_id and ref_source_id in source_paths) else sids[0]
+
+    def _sample_stats(p: Path) -> dict[str, float]:
+        cap = cv2.VideoCapture(str(p))
+        fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+        tot = max(1, int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 1))
+        dur = tot / max(1.0, fps)
+        ts = (dur * 0.18, dur * 0.45, dur * 0.72)
+        ys, us, vs, stds = [], [], [], []
+        for t in ts:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, min(tot - 1, int(round(t * fps)))))
+            ok, fr = cap.read()
+            if not ok or fr is None:
+                continue
+            h, w = fr.shape[:2]
+            roi = fr[int(h * 0.15) : int(h * 0.75), int(w * 0.20) : int(w * 0.80)]
+            ycrcb = cv2.cvtColor(roi, cv2.COLOR_BGR2YCrCb).astype(np.float32)
+            ys.append(float(np.mean(ycrcb[:, :, 0])))
+            stds.append(float(np.std(ycrcb[:, :, 0])))
+            us.append(float(np.mean(ycrcb[:, :, 1])))
+            vs.append(float(np.mean(ycrcb[:, :, 2])))
+        cap.release()
+        return {
+            "luma_mean": round(float(np.mean(ys)), 2) if ys else 128.0,
+            "luma_std": round(float(np.mean(stds)), 2) if stds else 45.0,
+            "cr_mean": round(float(np.mean(us)), 2) if us else 128.0,
+            "cb_mean": round(float(np.mean(vs)), 2) if vs else 128.0,
+        }
+
+    stats_by_source = {sid: _sample_stats(Path(p)) for sid, p in source_paths.items()}
+    s_ref = stats_by_source[ref_id]
+    vf_by_source: dict[str, str] = {}
+    corr_by_source: dict[str, dict[str, float]] = {}
+    for sid, st in stats_by_source.items():
+        if sid == ref_id:
+            vf_by_source[sid] = ""
+            corr_by_source[sid] = {"brightness": 0.0, "contrast": 1.0, "rm": 0.0, "bm": 0.0}
+            continue
+        d_luma = (s_ref["luma_mean"] - st["luma_mean"]) / 255.0
+        brightness = round(max(-0.055, min(0.055, d_luma * 0.55)), 4)
+        ratio_std = s_ref["luma_std"] / max(10.0, st["luma_std"])
+        contrast = round(max(0.95, min(1.06, 1.0 + (ratio_std - 1.0) * 0.40)), 4)
+        d_cr = (s_ref["cr_mean"] - st["cr_mean"]) / 128.0
+        rm = round(max(-0.04, min(0.04, d_cr * 0.45)), 4)
+        bm = round(max(-0.04, min(0.04, -d_cr * 0.35)), 4)
+        vf_by_source[sid] = f"eq=brightness={brightness:.4f}:contrast={contrast:.4f}:saturation=1.01,colorbalance=rm={rm:.4f}:bm={bm:.4f}"
+        corr_by_source[sid] = {"brightness": brightness, "contrast": contrast, "rm": rm, "bm": bm}
+
+    return sanitize_native({
+        "schema_version": MULTI_SOURCE_SCHEMA_VERSION,
+        "ref_source_id": ref_id,
+        "stats_by_source": stats_by_source,
+        "corrections_by_source": corr_by_source,
+        "ffmpeg_vf_by_source": vf_by_source,
+        "ffmpeg_vf_B": vf_by_source.get("B", ""),
+        "gentle_bounds_verified": True,
     })
 
 
@@ -346,16 +445,17 @@ def build_multi_source_mezzanine_and_voice_bed(
     *,
     color_match: dict[str, Any] | None = None,
     bridge_clip_path: Path | None = None,
-    room_tone_window_b: tuple[float, float] = (9.25, 9.75),
+    vad_non_speech_by_source: dict[str, list[dict[str, Any]]] | None = None,
+    room_tone_window_b: tuple[float, float] | None = None,
     ffmpeg_bin: str | None = None,
 ) -> dict[str, Any]:
-    """Assemble exact 1080x1920 30fps CFR clean mezzanine (no subtitles) + sample-exact 48kHz stereo voice bed."""
+    """Assemble exact CFR clean mezzanine (no subtitles) + sample-exact 48kHz stereo voice bed across arbitrary N sources."""
     ffmpeg = ffmpeg_bin or shutil.which("ffmpeg") or "ffmpeg"
     sr = edit_map.sample_rate
     fps_f = edit_map.fps_num / float(edit_map.fps_den)
     W, H = edit_map.target_width, edit_map.target_height
 
-    # 1. Load 48kHz stereo PCM per source and compute gentle cross-source voice loudness match (matching B -> A safely)
+    # 1. Load 48kHz stereo PCM per source and compute gentle cross-source voice loudness match toward reference source[0]
     pcm_map: dict[str, np.ndarray] = {sid: _load_f32_stereo(p, sr=sr, ffmpeg_bin=ffmpeg) for sid, p in source_wavs_48k.items()}
 
     def _active_speech_rms(arr: np.ndarray) -> float:
@@ -368,33 +468,67 @@ def build_multi_source_mezzanine_and_voice_bed(
         hi = rms_b[rms_b >= np.percentile(rms_b, 65)]
         return float(np.mean(hi)) if hi.size else float(np.mean(rms_b))
 
+    ordered_sids = [str(s["source_id"]) for s in edit_map.sources if str(s["source_id"]) in pcm_map] or list(pcm_map.keys())
+    ref_sid = ordered_sids[0]
     gains: dict[str, float] = {}
-    ref_rms = _active_speech_rms(pcm_map["A"]) if "A" in pcm_map else 0.08
+    ref_rms = _active_speech_rms(pcm_map[ref_sid])
+    target_r = ref_rms * float(10 ** (-0.8 / 20.0))
     for sid, arr in pcm_map.items():
-        if sid == "A":
-            # Gentle -0.8 dB headroom on A so 2 clipping samples never re-clip
+        if sid == ref_sid:
             gains[sid] = round(float(10 ** (-0.8 / 20.0)), 4)
         else:
             r_cur = _active_speech_rms(arr)
-            # Cap gain boost <= +6.0 dB so noise floor never over-amplifies
-            target_r = ref_rms * float(10 ** (-0.8 / 20.0))
             g = min(float(10 ** (5.8 / 20.0)), max(0.5, target_r / max(1e-5, r_cur)))
             gains[sid] = round(g, 4)
 
-    # Extract genuine natural car room-tone loop from B non-speech window (for clean editorial bridge bed)
-    rt_src = pcm_map.get("B", next(iter(pcm_map.values())))
-    r0 = max(0, int(round(room_tone_window_b[0] * sr)))
-    r1 = min(rt_src.shape[0], int(round(room_tone_window_b[1] * sr)))
-    if r1 - r0 < int(0.15 * sr):
-        room_loop = np.zeros((int(0.25 * sr), 2), dtype=np.float32)
-    else:
-        room_loop = rt_src[r0:r1].copy() * gains.get("B", 1.0) * 0.72
-        # Smooth loop edges with 15ms crossfade
-        fl = min(int(0.015 * sr), room_loop.shape[0] // 4)
-        if fl > 4:
-            ramp = np.linspace(0.0, 1.0, fl, dtype=np.float32)[:, None]
-            room_loop[:fl] *= ramp
-            room_loop[-fl:] *= (1.0 - ramp)
+    # Extract genuine room-tone loop strictly from VAD-proven non-speech spans (ZERO hardcoded clip B window!)
+    room_loop = np.zeros((int(0.25 * sr), 2), dtype=np.float32)
+    room_tone_provenance: dict[str, Any] = {"source": "silent_fail_closed_no_verified_vad_room_tone"}
+    best_rt_cand: tuple[float, str, float, float] | None = None
+    for sid, ns_list in (vad_non_speech_by_source or {}).items():
+        if sid not in pcm_map:
+            continue
+        for ns in ns_list:
+            if bool(ns.get("uncertain", False)):
+                continue
+            ns0, ns1 = float(ns.get("start_s", 0.0)), float(ns.get("end_s", 0.0))
+            if ns1 - ns0 >= 0.30 and float(ns.get("mean_rms_dbfs", -99.0)) > -70.0:
+                rms_val = float(ns.get("mean_rms_dbfs", -40.0))
+                if best_rt_cand is None or rms_val < best_rt_cand[0]:
+                    # Trim 40ms safety inset on each side to keep 100% speech-free
+                    best_rt_cand = (rms_val, sid, ns0 + 0.04, ns1 - 0.04)
+    if best_rt_cand is not None:
+        rms_v, rt_sid, t0_rt, t1_rt = best_rt_cand
+        rt_src = pcm_map[rt_sid]
+        r0 = max(0, int(round(t0_rt * sr)))
+        r1 = min(rt_src.shape[0], int(round(t1_rt * sr)))
+        if r1 - r0 >= int(0.18 * sr):
+            room_loop = rt_src[r0:r1].copy() * gains.get(rt_sid, 1.0) * 0.72
+            fl = min(int(0.015 * sr), room_loop.shape[0] // 4)
+            if fl > 4:
+                ramp = np.linspace(0.0, 1.0, fl, dtype=np.float32)[:, None]
+                room_loop[:fl] *= ramp
+                room_loop[-fl:] *= (1.0 - ramp)
+            room_tone_provenance = {
+                "source": "vad_verified_non_speech",
+                "source_id": rt_sid,
+                "window_s": [round(t0_rt, 4), round(t1_rt, 4)],
+                "mean_rms_dbfs": round(rms_v, 2),
+            }
+    elif room_tone_window_b is not None:
+        # Backwards-compatible explicit caller-provided room tone window
+        rt_sid = ordered_sids[-1]
+        rt_src = pcm_map[rt_sid]
+        r0 = max(0, int(round(room_tone_window_b[0] * sr)))
+        r1 = min(rt_src.shape[0], int(round(room_tone_window_b[1] * sr)))
+        if r1 - r0 >= int(0.15 * sr):
+            room_loop = rt_src[r0:r1].copy() * gains.get(rt_sid, 1.0) * 0.72
+            fl = min(int(0.015 * sr), room_loop.shape[0] // 4)
+            if fl > 4:
+                ramp = np.linspace(0.0, 1.0, fl, dtype=np.float32)[:, None]
+                room_loop[:fl] *= ramp
+                room_loop[-fl:] *= (1.0 - ramp)
+            room_tone_provenance = {"source": "explicit_caller_window", "source_id": rt_sid, "window_s": list(room_tone_window_b)}
 
     # 2. Construct exact sample-aligned edited_voice_bed.wav with 12ms equal-power cosine crossfades at joins!
     bed = np.zeros((edit_map.output_total_samples, 2), dtype=np.float32)
@@ -447,70 +581,128 @@ def build_multi_source_mezzanine_and_voice_bed(
         shutil.rmtree(seg_dir)
     seg_dir.mkdir(parents=True, exist_ok=True)
     seg_files: list[Path] = []
-    vf_b_color = (color_match or {}).get("ffmpeg_vf_B", "")
+    vf_by_source = dict((color_match or {}).get("ffmpeg_vf_by_source") or {})
+    if "B" not in vf_by_source and (color_match or {}).get("ffmpeg_vf_B"):
+        vf_by_source["B"] = str(color_match["ffmpeg_vf_B"])
 
+    # Two-pass assembly: build all real `source_media` segments first so any `editorial_bridge`
+    # can smoothly dissolve the trailing frame of the previous source into the leading frame of the next source
+    # (eliminating abrupt hard-cut color jumps at bridge entry/exit — fixes D10!).
+    seg_files_by_idx: dict[int, Path] = {}
     for idx, sp in enumerate(edit_map.kept_spans):
+        if sp.kind == "editorial_bridge":
+            continue
         n_f = sp.output_end_frame_exclusive - sp.output_start_frame
         seg_p = seg_dir / f"seg_{idx:02d}_{sp.source_id}.mp4"
-        if sp.kind == "editorial_bridge":
-            if bridge_clip_path is not None and bridge_clip_path.is_file():
-                vf = f"fps={edit_map.fps_num}/{edit_map.fps_den},scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p"
-                subprocess.run(
-                    [
-                        ffmpeg, "-y", "-v", "error", "-nostdin",
-                        "-i", str(bridge_clip_path), "-an", "-sn",
-                        "-vf", vf, "-frames:v", str(n_f),
-                        "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-pix_fmt", "yuv420p",
-                        str(seg_p),
-                    ],
-                    check=True, timeout=120, shell=False,
-                )
-            else:
-                dur_b = n_f / fps_f
-                subprocess.run(
-                    [
-                        ffmpeg, "-y", "-v", "error", "-nostdin",
-                        "-f", "lavfi", "-i", f"color=c=#F6F3EC:s={W}x{H}:r={edit_map.fps_num}/{edit_map.fps_den}:d={dur_b:.6f}",
-                        "-frames:v", str(n_f), "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-pix_fmt", "yuv420p",
-                        str(seg_p),
-                    ],
-                    check=True, timeout=60, shell=False,
-                )
+        src_p = source_paths[sp.source_id]
+        vf_parts: list[str] = [f"fps={edit_map.fps_num}/{edit_map.fps_den}:round=near"]
+        if sp.reframe_zoom > 1.005:
+            z = min(1.12, max(1.0, sp.reframe_zoom))
+            cw = int(round(W / z)) // 2 * 2
+            ch = int(round(H / z)) // 2 * 2
+            cx_px = int(round(sp.reframe_cx * W))
+            cy_px = int(round(sp.reframe_cy * H))
+            ox = max(0, min(W - cw, cx_px - cw // 2))
+            oy = max(0, min(H - ch, cy_px - ch // 2))
+            vf_parts.append(f"scale={W}:{H}:flags=lanczos")
+            vf_parts.append(f"crop={cw}:{ch}:{ox}:{oy}")
+            vf_parts.append(f"scale={W}:{H}:flags=lanczos")
         else:
-            src_p = source_paths[sp.source_id]
-            vf_parts: list[str] = [f"fps={edit_map.fps_num}/{edit_map.fps_den}:round=near"]
-            if sp.reframe_zoom > 1.005:
-                z = min(1.12, max(1.0, sp.reframe_zoom))
-                cw = int(round(W / z)) // 2 * 2
-                ch = int(round(H / z)) // 2 * 2
-                cx_px = int(round(sp.reframe_cx * W))
-                cy_px = int(round(sp.reframe_cy * H))
-                ox = max(0, min(W - cw, cx_px - cw // 2))
-                oy = max(0, min(H - ch, cy_px - ch // 2))
-                vf_parts.append(f"scale={W}:{H}:flags=lanczos")
-                vf_parts.append(f"crop={cw}:{ch}:{ox}:{oy}")
-                vf_parts.append(f"scale={W}:{H}:flags=lanczos")
-            else:
-                vf_parts.append(f"scale={W}:{H}:flags=lanczos")
-            if sp.source_id == "B" and vf_b_color:
-                vf_parts.append(vf_b_color)
-            vf_parts.extend(["setsar=1", "format=yuv420p"])
-            # Accurate seek: fast coarse seek then exact -ss after -i
-            coarse = max(0.0, sp.source_start_s - 1.0)
-            fine = sp.source_start_s - coarse
+            vf_parts.append(f"scale={W}:{H}:flags=lanczos")
+        src_vf_color = vf_by_source.get(sp.source_id, "")
+        if src_vf_color:
+            vf_parts.append(src_vf_color)
+        vf_parts.extend(["setsar=1", "format=yuv420p"])
+        coarse = max(0.0, sp.source_start_s - 1.0)
+        fine = sp.source_start_s - coarse
+        subprocess.run(
+            [
+                ffmpeg, "-y", "-v", "error", "-nostdin",
+                "-ss", f"{coarse:.6f}", "-i", str(src_p),
+                "-ss", f"{fine:.6f}", "-an", "-sn",
+                "-vf", ",".join(vf_parts),
+                "-frames:v", str(n_f),
+                "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-pix_fmt", "yuv420p",
+                str(seg_p),
+            ],
+            check=True, timeout=180, shell=False,
+        )
+        seg_files_by_idx[idx] = seg_p
+
+    def _read_edge_frame(mp4_p: Path, from_end: bool) -> np.ndarray | None:
+        cap_e = cv2.VideoCapture(str(mp4_p))
+        tot_e = int(cap_e.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        if tot_e <= 0:
+            cap_e.release()
+            return None
+        if from_end:
+            cap_e.set(cv2.CAP_PROP_POS_FRAMES, max(0, tot_e - 1))
+        ok_e, fr_e = cap_e.read()
+        cap_e.release()
+        if not ok_e or fr_e is None:
+            return None
+        if fr_e.shape[1] != W or fr_e.shape[0] != H:
+            fr_e = cv2.resize(fr_e, (W, H), interpolation=cv2.INTER_LINEAR)
+        return cv2.cvtColor(fr_e, cv2.COLOR_BGR2RGB).astype(np.float32)
+
+    for idx, sp in enumerate(edit_map.kept_spans):
+        if sp.kind != "editorial_bridge":
+            continue
+        n_f = sp.output_end_frame_exclusive - sp.output_start_frame
+        seg_p = seg_dir / f"seg_{idx:02d}_{sp.source_id}.mp4"
+        if bridge_clip_path is not None and bridge_clip_path.is_file():
+            vf = f"fps={edit_map.fps_num}/{edit_map.fps_den},scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p"
             subprocess.run(
                 [
                     ffmpeg, "-y", "-v", "error", "-nostdin",
-                    "-ss", f"{coarse:.6f}", "-i", str(src_p),
-                    "-ss", f"{fine:.6f}", "-an", "-sn",
-                    "-vf", ",".join(vf_parts),
-                    "-frames:v", str(n_f),
+                    "-i", str(bridge_clip_path), "-an", "-sn",
+                    "-vf", vf, "-frames:v", str(n_f),
                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-pix_fmt", "yuv420p",
                     str(seg_p),
                 ],
-                check=True, timeout=180, shell=False,
+                check=True, timeout=120, shell=False,
             )
-        seg_files.append(seg_p)
+        else:
+            prev_p = seg_files_by_idx.get(idx - 1)
+            next_p = seg_files_by_idx.get(idx + 1)
+            fr_a = _read_edge_frame(prev_p, from_end=True) if prev_p else None
+            fr_b = _read_edge_frame(next_p, from_end=False) if next_p else None
+            if fr_a is None and fr_b is None:
+                fr_a = np.full((H, W, 3), (246.0, 243.0, 236.0), dtype=np.float32)
+                fr_b = fr_a.copy()
+            elif fr_a is None:
+                fr_a = fr_b.copy()
+            elif fr_b is None:
+                fr_b = fr_a.copy()
+            # Smooth continuous cross-dissolve between real end-of-A and start-of-B frames so
+            # the transparent `motivated_object_bridge` clip-path sweeps smoothly with ZERO hard jump!
+            enc_b = subprocess.Popen(
+                [
+                    ffmpeg, "-y", "-v", "error", "-nostdin",
+                    "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
+                    "-r", f"{edit_map.fps_num}/{edit_map.fps_den}",
+                    "-i", "pipe:0",
+                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-pix_fmt", "yuv420p",
+                    str(seg_p),
+                ],
+                stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,
+            )
+            assert enc_b.stdin is not None
+            try:
+                for fi in range(n_f):
+                    alpha = (fi + 1) / float(max(1, n_f + 1))
+                    # Smoothstep ease for silky dissolve underneath the clip-path bridge sweep
+                    t_s = alpha * alpha * (3.0 - 2.0 * alpha)
+                    blended = np.clip(np.round(fr_a * (1.0 - t_s) + fr_b * t_s), 0, 255).astype(np.uint8)
+                    enc_b.stdin.write(blended.tobytes())
+            finally:
+                enc_b.stdin.close()
+                enc_b.wait(timeout=60)
+            if enc_b.returncode != 0:
+                raise RuntimeError(f"Smooth bridge mezzanine encode failed (rc={enc_b.returncode})")
+        seg_files_by_idx[idx] = seg_p
+
+    seg_files = [seg_files_by_idx[idx] for idx in range(len(edit_map.kept_spans))]
 
     concat_list = seg_dir / "concat.txt"
     concat_list.write_text("\n".join(f"file '{p.resolve().as_posix()}'" for p in seg_files) + "\n", encoding="utf-8")
@@ -548,6 +740,7 @@ def build_multi_source_mezzanine_and_voice_bed(
         "verified_sample_count": int(bed.shape[0]),
         "sample_exact": int(bed.shape[0]) == edit_map.output_total_samples,
         "cross_source_gains": gains,
+        "room_tone_provenance": room_tone_provenance,
         "subtitle_stream_removed": True,
     })
 

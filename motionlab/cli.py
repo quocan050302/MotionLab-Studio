@@ -63,6 +63,7 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
     from motionlab.composition.primitive_registry import load_unified_registry
     from motionlab.semantic.asr import inspect_asr_model
     from motionlab.semantic.local_model import inspect_llm_model
+    from motionlab.semantic.model_router import inspect_vlm_model
     from motionlab.vision.segmentation import inspect_vision_model
 
     caps = probe_all_engine_capabilities(
@@ -73,6 +74,7 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
         "vision_modnet": inspect_vision_model(),
         "asr_whisper": inspect_asr_model(),
         "llm_qwen": inspect_llm_model(),
+        "vlm_qwen3_vl": inspect_vlm_model().to_dict(),
     }
     prim_reg = load_unified_registry()
     foley_audit = inspect_foley_library()
@@ -214,6 +216,21 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
 
 
 def _cmd_plan(args: argparse.Namespace) -> int:
+    if getattr(args, "job", None):
+        from motionlab.composition.director_pipeline import run_multisource_director_job
+
+        cfg = _build_edit_config_from_args(args)
+        res = run_multisource_director_job(
+            job_path=Path(args.job),
+            output_root=Path(args.output),
+            config=cfg,
+            creative_mode=getattr(args, "creative_mode", "director"),
+            dry_run=True,
+        )
+        print(json.dumps(res, indent=2))
+        return 0 if res.get("status") in ("TECHNICAL_PASS", "DRY_RUN_PLANNED", "CANDIDATE_READY_WITH_BLOCKERS") else 1
+    if not getattr(args, "input", None):
+        raise ValueError("Either --input <mp4> or --job <job.json> is required.")
     cfg = _build_edit_config_from_args(args)
     media = probe_media(Path(args.input), allow_hdr_tonemap=cfg.allow_hdr_tonemap)
     caps = probe_all_engine_capabilities(allow_remotion=cfg.allow_remotion, allow_hyperframes=cfg.allow_hyperframes)
@@ -243,6 +260,22 @@ def _cmd_plan(args: argparse.Namespace) -> int:
 
 def _cmd_edit(args: argparse.Namespace) -> int:
     cfg = _build_edit_config_from_args(args)
+    if getattr(args, "job", None):
+        if getattr(args, "input", None):
+            raise ValueError("--job and --input are mutually exclusive; specify ordered sources inside the job JSON.")
+        from motionlab.composition.director_pipeline import run_multisource_director_job
+
+        res = run_multisource_director_job(
+            job_path=Path(args.job),
+            output_root=Path(args.output),
+            config=cfg,
+            creative_mode=getattr(args, "creative_mode", "director"),
+            dry_run=bool(cfg.dry_run),
+        )
+        print(json.dumps(res, indent=2))
+        return 0 if res.get("status") in ("TECHNICAL_PASS", "DRY_RUN_PLANNED", "CANDIDATE_READY_WITH_BLOCKERS") else 1
+    if not getattr(args, "input", None):
+        raise ValueError("Either --input <mp4> or --job <job.json> is required.")
     res = run_edit_pipeline(Path(args.input), Path(args.output), cfg)
     print(json.dumps(res, indent=2))
     if res["status"] in ("TECHNICAL_PASS", "DRY_RUN_PLANNED"):
@@ -264,7 +297,7 @@ def _cmd_render(args: argparse.Namespace) -> int:
 def _cmd_validate(args: argparse.Namespace) -> int:
     val = run_validate_existing_run(Path(args.run))
     print(json.dumps(val.to_dict(), indent=2))
-    return 0 if val.overall_status == "TECHNICAL_PASS" else 1
+    return 0 if val.overall_status in ("TECHNICAL_PASS", "CANDIDATE_READY_WITH_BLOCKERS") else 1
 
 
 def _cmd_effects_list(args: argparse.Namespace) -> int:
@@ -303,7 +336,7 @@ def _add_common_edit_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--aspect", choices=VALID_ASPECTS, default="source", help="Output aspect ratio (default: preserve source)")
     p.add_argument("--aspect-bg", choices=("blur", "solid", "smart_crop"), default="blur", help="Aspect adaptation mode (default: blur)")
     p.add_argument("--quality", choices=VALID_QUALITIES, default="final", help="Render quality: preview or final (default: final)")
-    p.add_argument("--offline", action="store_true", default=True, help="Enforce 100% offline execution (default: true; cloud forbidden)")
+    p.add_argument("--offline", action="store_true", default=True, help="Enforce 100%% offline execution (default: true; cloud forbidden)")
     p.add_argument("--strict", action="store_true", help="Fail closed if required engine/check is unavailable")
     p.add_argument("--dry-run", action="store_true", help="Run preflight, analysis, and planner without rendering final video")
     p.add_argument("--overwrite", action="store_true", help="Allowed flag (runs always use unique run_ids and never touch source)")
@@ -330,6 +363,7 @@ def _add_common_edit_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--max-render-workers", type=int, default=1, help="Upper bound for external overlay render workers (default: 1)")
     p.add_argument("--max-temp-gb", type=float, default=4.0, help="Max temporary disk budget in GiB (default: 4.0)")
     p.add_argument("--min-free-gb", type=float, default=None, help="Minimum free disk reserve in GiB (default: max(5 GiB, 10%% vol))")
+    p.add_argument("--creative-mode", choices=("legacy", "director"), default="legacy", help="Creative planning mode: legacy or director (R5.R5 multimodal SceneGraph v2)")
     p.add_argument("--timeout", type=int, default=600, help="Per-subprocess timeout in seconds (default: 600)")
 
 
@@ -357,14 +391,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     # plan
     p_pln = sub.add_parser("plan", help="Analyze and build deterministic EditPlan JSON without rendering")
-    p_pln.add_argument("--input", required=True, help="Path to source MP4")
+    p_pln.add_argument("--input", default=None, help="Path to source MP4 (mutually exclusive with --job)")
+    p_pln.add_argument("--job", default=None, help="Path to multi-source R5.R5 job manifest JSON")
     p_pln.add_argument("--output", default="runs", help="Output runs directory (default: runs)")
     _add_common_edit_flags(p_pln)
     p_pln.set_defaults(func=_cmd_plan)
 
     # edit
     p_ed = sub.add_parser("edit", help="One-command offline auto-edit: analyze -> plan -> render -> validate -> final.mp4")
-    p_ed.add_argument("--input", required=True, help="Path to source MP4")
+    p_ed.add_argument("--input", default=None, help="Path to source MP4 (mutually exclusive with --job)")
+    p_ed.add_argument("--job", default=None, help="Path to multi-source R5.R5 job manifest JSON")
     p_ed.add_argument("--output", default="runs", help="Output runs directory (default: runs)")
     _add_common_edit_flags(p_ed)
     p_ed.set_defaults(func=_cmd_edit)

@@ -78,9 +78,9 @@ def build_new_wave_layer_html(
     comp_id = str(params.get("composition_id", f"nw_{kind}"))
 
     if kind == "editorial_hook":
-        label = esc(str(params.get("headline", "CHECKING AGAIN?")))
-        eyebrow = esc(str(params.get("eyebrow", "")))
-        y_px = int(params.get("y_px", 1255))
+        label = esc(str(params.get("headline") or "KEY POINT"))
+        eyebrow = esc(str(params.get("eyebrow") or ""))
+        y_px = int(params.get("y_px", int(round(height * 0.65))))
         exit_t = max(0.25, dur - 0.24)
         style = f"""
   #wrap {{
@@ -117,14 +117,15 @@ def build_new_wave_layer_html(
         return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
 
     if kind == "calendar_gap_strip":
-        day_a = esc(str(params.get("start_day", "TUE")))
-        tag_a = esc(str(params.get("start_tag", "RENT DUE")))
-        mid_days = [esc(str(d)) for d in (params.get("gap_days") or ["WED", "THU"])]
-        day_b = esc(str(params.get("end_day", "FRI")))
-        tag_b = esc(str(params.get("end_tag", "PAYDAY")))
+        day_a = esc(str(params.get("start_day") or "START"))
+        tag_a = esc(str(params.get("start_tag") or ""))
+        mid_days = [esc(str(d)) for d in (params.get("gap_days") or [])]
+        day_b = esc(str(params.get("end_day") or "END"))
+        tag_b = esc(str(params.get("end_tag") or ""))
+        gap_cap = esc(str(params.get("gap_caption") or ""))
         t_a = max(0.02, float(params.get("start_trigger_s", 0.15)))
         t_b = max(t_a + 0.35, float(params.get("end_trigger_s", dur * 0.55)))
-        y_px = int(params.get("y_px", 1215))
+        y_px = int(params.get("y_px", int(round(height * 0.63))))
         exit_t = max(t_b + 0.28, dur - 0.20)
         mid_html = "".join(
             f'<div class="mid-node" id="mid{k}"><div class="mid-dot"></div><div class="mid-lbl">{d}</div></div>'
@@ -184,7 +185,7 @@ def build_new_wave_layer_html(
       {mid_html}
       <div class="node" id="nodeB"><div class="badge">{day_b}</div><div class="tag">{tag_b}</div></div>
     </div>
-    <div id="gap-caption">THE PAYDAY GAP</div>
+    <div id="gap-caption">{gap_cap}</div>
   </div>"""
         script = f"""
   tl.to("#cal-card", {{ opacity: 1, y: 0, duration: 0.24, ease: "power3.out" }}, {max(0.0, t_a - 0.10):.4f});
@@ -197,8 +198,8 @@ def build_new_wave_layer_html(
         return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
 
     if kind == "question_focus":
-        question = esc(str(params.get("question", "SAFE TO SPEND?")))
-        y_px = int(params.get("y_px", 1255))
+        question = esc(str(params.get("question") or "KEY QUESTION"))
+        y_px = int(params.get("y_px", int(round(height * 0.65))))
         exit_t = max(0.3, dur - 0.18)
         style = f"""
   #qbox {{
@@ -226,10 +227,11 @@ def build_new_wave_layer_html(
         return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
 
     if kind == "editorial_bridge_scene":
-        left_w = esc(str(params.get("contrast_from", "HOW MUCH")))
-        right_w = esc(str(params.get("contrast_to", "WHEN")))
-        product_title = esc(str(params.get("product_title", "The Next Paycheck Plan")))
-        subtitle = esc(str(params.get("subtitle", "TIMING-FIRST PAYDAY CLARITY")))
+        left_w = esc(str(params.get("contrast_from") or "BEFORE"))
+        right_w = esc(str(params.get("contrast_to") or "AFTER"))
+        product_title = esc(str(params.get("product_title") or "OVERVIEW"))
+        subtitle = esc(str(params.get("subtitle") or ""))
+        eyebrow_txt = esc(str(params.get("eyebrow") or "SHIFT IN PERSPECTIVE"))
         t_swap = round(dur * 0.40, 4)
         style = f"""
   html, body, #hf-root {{ background: #F4EFE4; }}
@@ -266,7 +268,7 @@ def build_new_wave_layer_html(
   #prod-title {{ font-size: 86px; font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; color: {pal['ink']}; max-width: 880px; }}
   #prod-sub {{ margin-top: 28px; font-size: 26px; font-weight: 700; letter-spacing: 0.22em; color: {pal['teal']}; text-transform: uppercase; }}"""
         body = f"""  <div id="phase1">
-    <div id="p1-eyebrow">NOT JUST THE BALANCE</div>
+    <div id="p1-eyebrow">{eyebrow_txt}</div>
     <div id="contrast-row">
       <div id="from-wrap"><span id="from-txt">{left_w}</span><div id="strike"></div></div>
       <div id="arrow">→</div>
@@ -288,13 +290,13 @@ def build_new_wave_layer_html(
         return _hf_doc(comp_id, width, height, fps, dur, "#F6F3EC", style, body, script)
 
     if kind == "progressive_benefits":
-        title = esc(str(params.get("title", "THE NEXT PAYCHECK PLAN")))
+        title = esc(str(params.get("title") or "KEY STEPS"))
         steps = params.get("steps") or [
-            {"label": "ALREADY COMMITTED", "trigger_s": 0.4, "tone": "amber"},
-            {"label": "UNTIL PAYDAY", "trigger_s": 2.1, "tone": "neutral"},
-            {"label": "SAFE TO SPEND", "trigger_s": 3.8, "tone": "teal"},
+            {"label": "STEP ONE", "trigger_s": 0.4, "tone": "amber"},
+            {"label": "STEP TWO", "trigger_s": 1.2, "tone": "neutral"},
+            {"label": "STEP THREE", "trigger_s": 2.0, "tone": "teal"},
         ]
-        y_px = int(params.get("y_px", 1225))
+        y_px = int(params.get("y_px", int(round(height * 0.64))))
         exit_t = max(0.6, dur - 0.24)
         tone_colors = {"amber": pal["amber"], "neutral": "#C6BFA9", "teal": pal["teal"]}
         seg_divs = "".join(
@@ -346,14 +348,14 @@ def build_new_wave_layer_html(
   tl.to("#sys", {{ opacity: 0, y: -12, duration: 0.22, ease: "power2.in" }}, {exit_t:.4f});"""
         return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
 
-    # payoff_phrase / cta_caption
-    headline = esc(str(params.get("headline", "Link in caption ↓")))
-    sub = esc(str(params.get("subline", "")))
-    accent = pal["teal"] if params.get("tone", "teal") == "teal" else pal["amber"]
-    y_px = int(params.get("y_px", 1255))
-    exit_t = max(0.3, dur - 0.18)
-    fade_js = f'tl.to("#cta", {{ opacity: 0, y: -10, duration: 0.18, ease: "power2.in" }}, {exit_t:.4f});' if params.get("fade_out", True) else ""
-    style = f"""
+    if kind in ("payoff_phrase", "cta_caption"):
+        headline = esc(str(params.get("headline") or "NEXT STEP"))
+        sub = esc(str(params.get("subline") or ""))
+        accent = pal["teal"] if params.get("tone", "teal") == "teal" else pal["amber"]
+        y_px = int(params.get("y_px", int(round(height * 0.65))))
+        exit_t = max(0.3, dur - 0.18)
+        fade_js = f'tl.to("#cta", {{ opacity: 0, y: -10, duration: 0.18, ease: "power2.in" }}, {exit_t:.4f});' if params.get("fade_out", True) else ""
+        style = f"""
   #cta {{
     position: absolute; left: 92px; right: 92px; top: {y_px}px;
     display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -374,12 +376,14 @@ def build_new_wave_layer_html(
     margin-top: 12px; width: 100%; height: 5px; border-radius: 3px;
     background: {accent}; transform-origin: left center; transform: scaleX(0);
   }}"""
-    body = f"""  <div id="cta"><div id="card"><div id="h1">{headline}</div>{f'<div id="sub">{sub}</div>' if sub else ''}<div id="bar"></div></div></div>"""
-    script = f"""
+        body = f"""  <div id="cta"><div id="card"><div id="h1">{headline}</div>{f'<div id="sub">{sub}</div>' if sub else ''}<div id="bar"></div></div></div>"""
+        script = f"""
   tl.to("#cta", {{ opacity: 1, y: 0, duration: 0.26, ease: "power3.out" }}, 0.04);
   tl.to("#bar", {{ scaleX: 1, duration: 0.36, ease: "expo.out" }}, 0.14);
   {fade_js}"""
-    return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
+        return _hf_doc(comp_id, width, height, fps, dur, bg_css, style, body, script)
+
+    raise ValueError(f"Unknown New Wave editorial layer kind: {kind!r} (no silent CTA fallback permitted)")
 
 
 def render_hyperframes_new_wave_clip(

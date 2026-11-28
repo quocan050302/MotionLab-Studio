@@ -94,9 +94,10 @@ class TestR5R2ProductCatalogAndCritic(unittest.TestCase):
             self.assertFalse(miss["matched"])
 
     def test_vlm_critic_honestly_reports_not_run_without_local_vlm(self) -> None:
-        vlm = inspect_local_vlm()
-        self.assertFalse(vlm["available"])
-        self.assertEqual(vlm["status"], "VISION_CRITIC_NOT_RUN")
+        with tempfile.TemporaryDirectory() as td:
+            vlm = inspect_local_vlm(models_dir=Path(td))
+            self.assertFalse(vlm["available"])
+            self.assertEqual(vlm["status"], "VISION_CRITIC_NOT_RUN")
 
 
 if __name__ == "__main__":

@@ -597,8 +597,10 @@ def score_pacing_candidate(
     overcut_penalty = max(0.0, (cuts_n - 6) * 2.5) + breath_trimmed_n * 1.4
     # Penalize aggressive total trim > 28% (risks breathless unnatural cadence)
     breathless_penalty = max(0.0, (rem_ratio - 0.28) * 60.0)
-    # Natural editorial preference: mild prior for balanced natural rhythm over rushed tight or uncut dead air
-    ergonomic_bonus = 2.0 if variant == "balanced" else (0.5 if variant == "conservative" else (-1.5 if variant == "tight" else 0.0))
+    # D09 fix: Remove fixed variant bonus; score strictly on measurable content-driven rhythm features!
+    ergonomic_bonus = 0.0
+    if cuts_n > 0 and 0.04 <= rem_ratio <= 0.22 and unresolved_long_dead <= 0.25:
+        ergonomic_bonus = round(min(2.0, (0.25 - unresolved_long_dead) * 8.0), 3)
 
     override_delta = float((candidate_score_overrides or {}).get(plan["plan_id"], 0.0))
     total = round(50.0 + rhythm_gain + ergonomic_bonus - dead_air_penalty - overcut_penalty - breathless_penalty + override_delta, 3)

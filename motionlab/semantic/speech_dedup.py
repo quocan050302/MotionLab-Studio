@@ -193,6 +193,7 @@ def detect_cross_source_overlap(
         if toks_a[-k:] == toks_b[:k]:
             exact_overlap = {
                 "kind": "exact_boundary_overlap",
+                "source_id": "B",
                 "overlap_tokens": toks_a[-k:],
                 "a_start_idx": len(wa) - k,
                 "b_end_idx_exclusive": k,
@@ -592,7 +593,7 @@ def _invert_cuts_to_kept(source_id: str, duration_s: float, cuts: list[dict[str,
 
 def choose_clean_speech_path(
     sources_meta: list[dict[str, Any]],
-    boundary_info: dict[str, Any] | None,
+    boundary_info: dict[str, Any] | list[dict[str, Any]] | None,
     disfluency_by_source: dict[str, dict[str, Any]],
     *,
     protected_claims: list[str] | None = None,
@@ -603,6 +604,23 @@ def choose_clean_speech_path(
 ) -> dict[str, Any]:
     """Compete clean speech repair candidates causally (keep-first vs keep-last vs conservative vs identity)."""
     overrides = candidate_score_overrides or {}
+    b_list: list[dict[str, Any]] = (
+        [b for b in boundary_info if isinstance(b, dict)]
+        if isinstance(boundary_info, list)
+        else ([boundary_info] if isinstance(boundary_info, dict) else [])
+    )
+    has_boundary_defects = any(
+        bool(b.get("garbled_tail_a") or b.get("truncated_prefix_b") or b.get("exact_overlap"))
+        for b in b_list
+    )
+    all_missing_claims: list[dict[str, Any]] = []
+    seen_mc: set[str] = set()
+    for b in b_list:
+        for mc in b.get("missing_dialogue_claims") or []:
+            key = str(mc.get("clause") or mc)
+            if key not in seen_mc:
+                seen_mc.add(key)
+                all_missing_claims.append(mc)
 
     def _assemble_variant(plan_id: str, rep_choice: str, include_fillers: bool, include_boundary_repairs: bool) -> dict[str, Any]:
         cuts: list[dict[str, Any]] = []
@@ -611,34 +629,39 @@ def choose_clean_speech_path(
         repeats_resolved = 0
         repeats_remaining = 0
 
-        # Boundary cuts (garbled tail A, truncated prefix B, exact overlap)
+        # Boundary cuts (garbled tail, truncated prefix, exact overlap) — supports single dict or list across N>=2 sources
         if include_boundary_repairs and boundary_info:
-            for key in ("garbled_tail_a", "truncated_prefix_b"):
-                item = boundary_info.get(key)
-                if isinstance(item, dict) and float(item.get("removed_s", 0.0)) > 0.05:
+            b_list = boundary_info if isinstance(boundary_info, list) else [boundary_info]
+            for b_item in b_list:
+                if not isinstance(b_item, dict):
+                    continue
+                for key in ("garbled_tail_a", "truncated_prefix_b"):
+                    item = b_item.get(key)
+                    if isinstance(item, dict) and float(item.get("removed_s", 0.0)) > 0.05:
+                        cuts.append({
+                            "cut_id": f"{item['source_id']}_{item['kind']}",
+                            "source_id": item["source_id"],
+                            "category": item["kind"],
+                            "cut_start_s": float(item["cut_start_s"]),
+                            "cut_end_s": float(item["cut_end_s"]),
+                            "removed_s": float(item["removed_s"]),
+                            "edge_rms_dbfs": float(item.get("edge_rms_dbfs", -36.0)),
+                            "reason": str(item.get("reason", "")),
+                        })
+                        edge_dbs.append(float(item.get("edge_rms_dbfs", -36.0)))
+                ov = b_item.get("exact_overlap")
+                if isinstance(ov, dict) and float(ov.get("b_trim_until_s", 0.0)) > 0.05:
+                    ov_sid = str(ov.get("source_id") or (sources_meta[1]["source_id"] if len(sources_meta) > 1 else "B"))
                     cuts.append({
-                        "cut_id": f"{item['source_id']}_{item['kind']}",
-                        "source_id": item["source_id"],
-                        "category": item["kind"],
-                        "cut_start_s": float(item["cut_start_s"]),
-                        "cut_end_s": float(item["cut_end_s"]),
-                        "removed_s": float(item["removed_s"]),
-                        "edge_rms_dbfs": float(item.get("edge_rms_dbfs", -36.0)),
-                        "reason": str(item.get("reason", "")),
+                        "cut_id": f"{ov_sid}_exact_boundary_overlap",
+                        "source_id": ov_sid,
+                        "category": "boundary_overlap",
+                        "cut_start_s": 0.0,
+                        "cut_end_s": float(ov["b_trim_until_s"]),
+                        "removed_s": float(ov["b_trim_until_s"]),
+                        "edge_rms_dbfs": -36.0,
+                        "reason": f"Trim exact duplicated boundary phrase at clip {ov_sid} head.",
                     })
-                    edge_dbs.append(float(item.get("edge_rms_dbfs", -36.0)))
-            ov = boundary_info.get("exact_overlap")
-            if isinstance(ov, dict) and float(ov.get("b_trim_until_s", 0.0)) > 0.05:
-                cuts.append({
-                    "cut_id": "B_exact_boundary_overlap",
-                    "source_id": "B",
-                    "category": "boundary_overlap",
-                    "cut_start_s": 0.0,
-                    "cut_end_s": float(ov["b_trim_until_s"]),
-                    "removed_s": float(ov["b_trim_until_s"]),
-                    "edge_rms_dbfs": -36.0,
-                    "reason": "Trim exact duplicated boundary phrase at clip B head.",
-                })
 
         for src in sources_meta:
             sid = str(src["source_id"])
@@ -726,7 +749,7 @@ def choose_clean_speech_path(
         # Quieter cut edges (-35 dBFS vs -20 dBFS) earn higher join-safety score
         acoustic_join_score = max(0.0, min(30.0, (-mean_edge_db - 18.0) * 1.4))
         dedup_gain = 18.0 * repeats_resolved - 28.0 * repeats_remaining
-        boundary_gain = 15.0 if (include_boundary_repairs and boundary_info and (boundary_info.get("garbled_tail_a") or boundary_info.get("truncated_prefix_b"))) else 0.0
+        boundary_gain = 15.0 if (include_boundary_repairs and has_boundary_defects) else 0.0
         filler_gain = 5.0 * sum(1 for c in cuts if c["category"] == "filler")
         margin_gain = min(15.0, margin_s_total * 8.0)
         # Penalize noisy cut edges (> -27 dBFS risks clipping consonants!)
@@ -771,7 +794,7 @@ def choose_clean_speech_path(
     has_confirmed_defects = any(
         bool((disfluency_by_source.get(s["source_id"]) or {}).get("repeat_groups"))
         for s in sources_meta
-    ) or bool(boundary_info and (boundary_info.get("garbled_tail_a") or boundary_info.get("truncated_prefix_b")))
+    ) or has_boundary_defects
     if has_confirmed_defects and "identity_qa_baseline" not in overrides:
         for c in candidates:
             if c["plan_id"] == "identity_qa_baseline":
@@ -786,7 +809,7 @@ def choose_clean_speech_path(
         "chosen_plan": chosen,
         "candidates": candidates,
         "causal_selection_before_compile": True,
-        "missing_dialogue_claims": (boundary_info or {}).get("missing_dialogue_claims", []),
+        "missing_dialogue_claims": all_missing_claims,
     })
 
 

@@ -810,17 +810,108 @@ def _validate_generative_r5_run(run_dir: Path, manifest: dict[str, Any], media: 
     return val_res
 
 
+def _validate_multisource_director_run(run_dir: Path, manifest: dict[str, Any]) -> ValidationResult:
+    """Non-destructive end-to-end validator for ML-01.R5.R5 multi-source director runs."""
+    import hashlib
+    import subprocess
+    from motionlab.composition.multi_source_timeline import MultiSourceEditMap, validate_multi_source_edit_map
+    from motionlab.schemas import ValidationCheck
+
+    def _sha256(p: Path) -> str:
+        h = hashlib.sha256()
+        with p.open("rb") as fh:
+            while chunk := fh.read(1 << 20):
+                h.update(chunk)
+        return h.hexdigest()
+
+    ffmpeg = shutil.which("ffmpeg") or "ffmpeg"
+    ffprobe = shutil.which("ffprobe") or "ffprobe"
+    checks: list[ValidationCheck] = []
+    warnings: list[str] = list(manifest.get("hard_blockers") or [])
+
+    final_name = str(manifest.get("final_artifact") or "final.mp4")
+    final_p = run_dir / final_name
+    size_b = int(final_p.stat().st_size) if final_p.is_file() else 0
+    checks.append(ValidationCheck("artifact_exists_non_empty", "PASS" if size_b > 0 else "FAIL", "> 0 bytes", size_b, final_name))
+    actual_sha = _sha256(final_p) if size_b > 0 else ""
+    exp_sha = str(manifest.get("final_sha256") or "")
+    checks.append(ValidationCheck("artifact_sha256_matches_manifest", "PASS" if (exp_sha and actual_sha == exp_sha) else "FAIL", exp_sha[:16], actual_sha[:16], final_name))
+
+    # Source immutability across ALL sources
+    src_list = list(manifest.get("sources") or [])
+    src_ok = bool(src_list) and all(Path(s["path"]).is_file() and _sha256(Path(s["path"])) == s["sha256"] for s in src_list)
+    checks.append(ValidationCheck("all_sources_immutable", "PASS" if src_ok else "FAIL", f"{len(src_list)} sources exact SHA-256", f"ok={src_ok}", "source_manifest.json"))
+
+    # MultiSourceEditMap integrity
+    emap_p = run_dir / "multi_source_edit_map.json"
+    emap_errs = ["missing_edit_map"]
+    emap_obj = None
+    if emap_p.is_file():
+        emap_obj = MultiSourceEditMap.from_dict(json.loads(emap_p.read_text(encoding="utf-8")))
+        emap_errs = validate_multi_source_edit_map(emap_obj)
+    checks.append(ValidationCheck("multisource_edit_map_valid", "PASS" if not emap_errs else "FAIL", "0 invariant errors", f"errors={emap_errs}", "multi_source_edit_map.json"))
+
+    # FFprobe geometry, pixel format, CFR frame count, audio track, 0 subtitle tracks
+    p_proc = subprocess.run(
+        [ffprobe, "-v", "error", "-print_format", "json", "-show_format", "-show_streams", str(final_p)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, shell=False,
+    )
+    probe = json.loads(p_proc.stdout or "{}")
+    v_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "video"]
+    a_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "audio"]
+    s_streams = [s for s in probe.get("streams", []) if s.get("codec_type") == "subtitle"]
+    vs = v_streams[0] if v_streams else {}
+    out_w, out_h = int(vs.get("width", 0)), int(vs.get("height", 0))
+    out_pix = str(vs.get("pix_fmt", "unknown"))
+    out_frames = int(vs["nb_frames"]) if str(vs.get("nb_frames", "")).isdigit() else 0
+    if emap_obj is not None:
+        checks.append(ValidationCheck("output_dimensions_exact", "PASS" if (out_w == emap_obj.target_width and out_h == emap_obj.target_height) else "FAIL", f"{emap_obj.target_width}x{emap_obj.target_height}", f"{out_w}x{out_h}"))
+        checks.append(ValidationCheck("frame_count_exact", "PASS" if out_frames == emap_obj.output_total_frames else "FAIL", emap_obj.output_total_frames, out_frames))
+    checks.append(ValidationCheck("pixel_format_yuv420p", "PASS" if out_pix == "yuv420p" else "FAIL", "yuv420p", out_pix))
+    checks.append(ValidationCheck("single_audio_zero_subtitles", "PASS" if (len(a_streams) == 1 and len(s_streams) == 0) else "FAIL", "1 audio, 0 subtitles", f"{len(a_streams)} audio, {len(s_streams)} subtitles"))
+
+    # Full decode -xerror
+    dec_proc = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(final_p), "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, shell=False)
+    checks.append(ValidationCheck("ffmpeg_full_decode_zero_errors", "PASS" if (dec_proc.returncode == 0 and not dec_proc.stderr.strip()) else "FAIL", "exit 0, empty stderr", f"exit {dec_proc.returncode}"))
+
+    # Word preservation, temporal ledger, audio join QA, counterfactual audio QA, preview
+    wp = json.loads((run_dir / "protected_word_validation.json").read_text(encoding="utf-8")) if (run_dir / "protected_word_validation.json").is_file() else {}
+    checks.append(ValidationCheck("word_preservation_verified", "PASS" if bool(wp.get("passed")) else "FAIL", "passed=True", f"status={wp.get('status')}, recall={wp.get('token_recall')}", "protected_word_validation.json"))
+    tl = json.loads((run_dir / "temporal_fact_ledger.json").read_text(encoding="utf-8")) if (run_dir / "temporal_fact_ledger.json").is_file() else {}
+    checks.append(ValidationCheck("temporal_fact_ledger_valid", "PASS" if bool(tl.get("valid")) else "FAIL", "valid=True", f"valid={tl.get('valid')}", "temporal_fact_ledger.json"))
+    ja = json.loads((run_dir / "evidence" / "audio_join_qa.json").read_text(encoding="utf-8")) if (run_dir / "evidence" / "audio_join_qa.json").is_file() else {}
+    checks.append(ValidationCheck("audio_join_qa_passed", "PASS" if ja.get("status") == "PASS" else "FAIL", "status=PASS", f"status={ja.get('status')}", "evidence/audio_join_qa.json"))
+    aq = json.loads((run_dir / "evidence" / "audio_event_qa.json").read_text(encoding="utf-8")) if (run_dir / "evidence" / "audio_event_qa.json").is_file() else {}
+    checks.append(ValidationCheck("audio_counterfactual_qa_passed", "PASS" if aq.get("status") == "PASS" else "FAIL", "status=PASS", f"status={aq.get('status')}, audible={aq.get('events_proxy_audible')}/{aq.get('events_total')}", "evidence/audio_event_qa.json"))
+    prev_p = run_dir / "preview_9x16.mp4"
+    if prev_p.is_file():
+        pdec = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(prev_p), "-f", "null", "-"], capture_output=True, text=True, timeout=90, shell=False)
+        checks.append(ValidationCheck("preview_9x16_decode_ok", "PASS" if (pdec.returncode == 0 and prev_p.stat().st_size > 0) else "FAIL", "exit 0, non-empty", f"exit {pdec.returncode}", "preview_9x16.mp4"))
+
+    tech_ok = all(c.status == "PASS" for c in checks)
+    overall = "TECHNICAL_PASS" if (tech_ok and not warnings) else ("CANDIDATE_READY_WITH_BLOCKERS" if tech_ok else "FAIL")
+    val_res = ValidationResult(checks=checks, overall_status=overall, aesthetic_status="PENDING_HUMAN_REVIEW", warnings=warnings)
+    atomic_write_json(run_dir / "evidence" / "revalidation_check.json", val_res.to_dict())
+    return val_res
+
+
 def run_validate_existing_run(run_dir: Path) -> ValidationResult:
     """Re-run full technical validation on an existing run folder."""
     run_dir = run_dir.resolve()
     manifest_p = run_dir / "manifest.json"
     plan_p = run_dir / "edit_plan.json"
     rm_p = run_dir / "render_manifest.json"
-    final_p = run_dir / "final.mp4"
-    if not manifest_p.exists() or not final_p.exists():
-        raise FileNotFoundError(f"Run directory missing manifest.json or final.mp4: {run_dir}")
+    if not manifest_p.exists():
+        raise FileNotFoundError(f"Run directory missing manifest.json: {run_dir}")
 
     manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
+    if manifest.get("composition_mode") == "multisource_director_v2":
+        return _validate_multisource_director_run(run_dir, manifest)
+
+    final_p = run_dir / "final.mp4"
+    if not final_p.exists():
+        raise FileNotFoundError(f"Run directory missing final.mp4: {run_dir}")
+
     media = MediaInfo.from_dict(manifest["media_info"])
 
     # R5 / R5.R1 / R5.R2 generative runs use non-destructive dual-engine + counterfactual audio verification!

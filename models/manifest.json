@@ -49,7 +49,25 @@
       "expected_ram_mb": 2600,
       "runtime_engine": "llama.cpp (MIT, native local llama-completion with --json-schema-file constrained decoding, CPU AVX2 / Metal abstracted)",
       "offline_policy": "Bootstrap-only one-time download; edit runtime invokes local binary directly with zero network access."
+    },
+    "qwen3_vl_2b_instruct_q4_k_m": {
+      "modality": "vlm",
+      "filename": "Qwen3VL-2B-Instruct-Q4_K_M.gguf",
+      "mmproj_filename": "mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf",
+      "purpose": "Local multimodal Vision-Language Model (text + image frames) for grounded visual evidence extraction, multimodal creative planning, and independent decoded-pixel QA critic",
+      "upstream_project": "Qwen/Qwen3-VL-2B-Instruct-GGUF",
+      "distribution_url": "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct-GGUF",
+      "hf_revision_sha": "52d6c8ffea26",
+      "license": "Apache-2.0",
+      "permitted_use": "Commercial & non-commercial permissive use under Apache-2.0",
+      "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
+      "size_bytes": 1107409952,
+      "mmproj_sha256": "f9a68fabba69c3b81e153367b2c7521030b0fa8bb0de400c9599c8e6725f9c82",
+      "mmproj_size_bytes": 445053216,
+      "quantization": "Q4_K_M + mmproj Q8_0",
+      "expected_ram_mb": 2100,
+      "runtime_engine": "llama.cpp (MIT, native local llama-mtmd-cli build b12803, CPU AVX2)",
+      "offline_policy": "Bootstrap-only one-time download; edit runtime invokes local binary directly with zero network access."
     }
   }
 }
-
