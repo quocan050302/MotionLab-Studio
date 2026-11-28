@@ -1,0 +1,43 @@
+{
+  "ambient_bed_enabled": true,
+  "cross_chapter_continuity": {
+    "chapters_total": 1,
+    "continuous_phase_ok": true,
+    "cross_boundary_preserved_tails": 0,
+    "cues_per_chapter": {
+      "ch_00": 14
+    },
+    "duplicate_boundary_peaks": 0,
+    "late_chapter_cues": 14,
+    "late_chapter_id": "ch_00"
+  },
+  "cue_density_per_10s": 5.128,
+  "cues_staged": 14,
+  "cues_suppressed": 3,
+  "niche": "finance",
+  "schema_version": "4.0.0",
+  "score_hash": "a8ee4044c998513060bffafc0ab9df2029ffb5f1f06c20a9ae88a3f73a8c8446",
+  "suppressed_log": [
+    {
+      "event_id": "claim_003_a_ev_focus",
+      "reason": "collision_within_0.55s"
+    },
+    {
+      "event_id": "claim_003_b_ev_focus",
+      "reason": "collision_within_0.55s"
+    },
+    {
+      "event_id": "claim_003_c_ev_focus",
+      "reason": "collision_within_0.55s"
+    }
+  ],
+  "unique_families": [
+    "bass_settle",
+    "page_turn",
+    "paper_rustle",
+    "pop_reveal",
+    "shimmer_payoff",
+    "soft_whoosh",
+    "tick_accent"
+  ]
+}

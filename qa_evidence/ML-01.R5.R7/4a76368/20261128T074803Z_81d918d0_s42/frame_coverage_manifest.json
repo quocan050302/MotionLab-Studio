@@ -1,0 +1,178 @@
+{
+  "covered_frames": 819,
+  "exact_full_coverage": true,
+  "intervals": [
+    {
+      "end_frame_exclusive": 14,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 0,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 119,
+      "primary_kind": "timeline_axis",
+      "reason": "What immediate relatable problem or curiosity gap hooks the viewer in the first 3 seconds?",
+      "scene_id": "scv4_claim_000",
+      "start_frame": 14,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 128,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 119,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 233,
+      "primary_kind": "timeline_axis",
+      "reason": "What exact sequence or timing order does this claim establish? (Like I have money, but rent is due Tuesday and I don't get paid until Fr)",
+      "scene_id": "scv4_claim_001",
+      "start_frame": 128,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 249,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 233,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 297,
+      "primary_kind": "allocation_bar",
+      "reason": "What two states or quantities are contrasted by: So how much can I actually spend??",
+      "scene_id": "scv4_claim_002",
+      "start_frame": 249,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 306,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 297,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 344,
+      "primary_kind": "product_cover_stage",
+      "reason": "Introduce authentic The Next Paycheck Plan",
+      "scene_id": "scv4_bridge_product_intro",
+      "start_frame": 306,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 355,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 344,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 408,
+      "primary_kind": "region_crop",
+      "reason": "What verifiable mechanism or real product evidence proves: It shows you what's already spoken for,?",
+      "scene_id": "scv4_claim_003_a",
+      "start_frame": 355,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 418,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 408,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 468,
+      "primary_kind": "region_crop",
+      "reason": "What verifiable mechanism or real product evidence proves: what needs to last until payday?",
+      "scene_id": "scv4_claim_003_b",
+      "start_frame": 418,
+      "state": "active_scene"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 530,
+      "primary_kind": "region_crop",
+      "reason": "What verifiable mechanism or real product evidence proves: and what you can actually spend.?",
+      "scene_id": "scv4_claim_003_c",
+      "start_frame": 468,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 556,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 530,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 689,
+      "primary_kind": "illustrated_action_sequence",
+      "reason": "What concrete lived action and result illustrates: Imagine going grocery shopping without doing mental math the entire time?",
+      "scene_id": "scv4_claim_004",
+      "start_frame": 556,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 701,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 689,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 736,
+      "primary_kind": "clean_hold",
+      "reason": "How does the frame truthfully support: That's what this is for.?",
+      "scene_id": "scv4_claim_005",
+      "start_frame": 701,
+      "state": "intentional_clean_hold"
+    },
+    {
+      "end_frame_exclusive": 745,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 736,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 782,
+      "primary_kind": "safe_cta",
+      "reason": "How does the frame truthfully support: I left the link in the caption.?",
+      "scene_id": "scv4_claim_006",
+      "start_frame": 745,
+      "state": "active_scene"
+    },
+    {
+      "end_frame_exclusive": 791,
+      "reason": "Natural breathing / transition interval preserving live speaker/context",
+      "scene_id": null,
+      "start_frame": 782,
+      "state": "clean_live_hold"
+    },
+    {
+      "chapter_id": "ch_00",
+      "end_frame_exclusive": 819,
+      "primary_kind": "safe_cta",
+      "reason": "How does the frame truthfully support: Go take a look.?",
+      "scene_id": "scv4_claim_007",
+      "start_frame": 791,
+      "state": "active_scene"
+    }
+  ],
+  "intervals_count": 21,
+  "schema_version": "4.0.0",
+  "total_frames": 819
+}

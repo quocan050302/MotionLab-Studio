@@ -1,0 +1,108 @@
+{
+  "aesthetic_status": "PENDING_HUMAN_REVIEW",
+  "audio_onset_qa_passed": true,
+  "canonical_script_sentences": 10,
+  "critical_factual_accuracy": 1.0,
+  "director_strategy": "generative_v4",
+  "engines_used": [
+    "ffmpeg",
+    "ffmpeg_clean_passthrough",
+    "hyperframes",
+    "remotion"
+  ],
+  "exact_frame_coverage": true,
+  "final_artifact": {
+    "bytes": 23962579,
+    "duration_s": 27.3,
+    "filename": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R7_CANDIDATE_9x16.mp4",
+    "fps": "30/1",
+    "frames": 819,
+    "full_decode_ok": true,
+    "height": 1920,
+    "path": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42\\Olivia_V6_Lamborghini_Payday_Trap_ML01R5R7_CANDIDATE_9x16.mp4",
+    "sha256": "0406eaa2bb27892906f656b8dff68c04b19264e274251f4bb61d8d7194bd33bb",
+    "width": 1080
+  },
+  "final_mix_reasr_wer": 0.0,
+  "generative_authored_raw_fraction": 0.1,
+  "generative_model_involved_fraction": 0.3,
+  "hard_blockers": [
+    "BLOCKED_WATERMARK_AUTHORIZATION",
+    "MISSING_SOURCE_DIALOGUE",
+    "PRODUCT_UI_PROOF_BLOCKED"
+  ],
+  "hook_tie_detected": false,
+  "human_comprehension_status": "HUMAN_COMPREHENSION_NOT_RUN",
+  "independent_statuses": {
+    "creative_evidence": "PASS",
+    "engineering_technical": "PASS",
+    "generative_capability": "PARTIAL",
+    "human_review": "PENDING_HUMAN_REVIEW",
+    "longform_status": "SHORT_FORM_JOB",
+    "product_scope": "ACTUAL_PRODUCT_WORKBOOK_VERIFIED_UI_BLOCKED",
+    "release_rights": "RELEASE_BLOCKED"
+  },
+  "listening_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+  "missing_dialogue_count": 2,
+  "overall_status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "preview_artifact": {
+    "bytes": 4649383,
+    "filename": "preview_9x16.mp4",
+    "path": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42\\preview_9x16.mp4",
+    "sha256": "950de04f6e6a8210e8a45ffa5bb556470b295ba608d159fc8edeeb6237aae7b8"
+  },
+  "resource_stats": {
+    "peak_temp_mb": 135.33,
+    "peak_tree_rss_mb": 258.04,
+    "stages": {
+      "composite_and_semantic_critic": {
+        "elapsed_s": 364.318,
+        "temp_mb": 135.33,
+        "tree_rss_mb": 258.04
+      },
+      "continuous_sonic_score": {
+        "elapsed_s": 3.7174,
+        "temp_mb": 135.33,
+        "tree_rss_mb": 243.09
+      },
+      "dual_engine_v4_render": {
+        "elapsed_s": 39.1268,
+        "temp_mb": 71.94,
+        "tree_rss_mb": 245.42
+      },
+      "ingest_and_speech": {
+        "elapsed_s": 13.6625,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 195.69
+      },
+      "mezzanine_and_blind_hooks": {
+        "elapsed_s": 111.8174,
+        "temp_mb": 69.54,
+        "tree_rss_mb": 239.93
+      },
+      "speech_alignment_and_story_bible": {
+        "elapsed_s": 250.6064,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 225.76
+      }
+    },
+    "total_process_tree_monitor": {
+      "min_observed_disk_free_gb": 32.26,
+      "min_observed_system_avail_ram_gb": 7.14,
+      "peak_concurrent_child_processes": 13,
+      "peak_total_process_tree_rss_mb": 1683.72,
+      "samples_taken": 13
+    }
+  },
+  "run_id": "20261128T074803Z_81d918d0_s42",
+  "schema_version": "4.0.0",
+  "status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "story_coverage_valid": true,
+  "text_model_id": "qwen2_5_3b_instruct_q4_k_m",
+  "uncertain_claims_count": 0,
+  "vlm_model_id": "qwen3_vl_4b_instruct_q4_k_m",
+  "vlm_total_calls": 9,
+  "wall_s": 783.39,
+  "weighted_semantic_coverage": 1.0,
+  "winning_hook_candidate_id": "hook_B_illustrated_action_seq"
+}

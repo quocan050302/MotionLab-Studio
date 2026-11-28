@@ -1,0 +1,224 @@
+================================================================================
+MOTIONLAB STUDIO — ML-01.R5.R7 IMPLEMENTATION & PRODUCTION EXECUTION REPORT
+GENERATIVE VISUAL REASONING & CINEMATIC COMPOSITION (SHORTS + LONG-FORM)
+Date: 2026-11-28 | Branch: feat/ml-01-zero-api-effects | 100% Offline Local-First
+================================================================================
+
+1. GIT & BUILD PROVENANCE
+--------------------------------------------------------------------------------
+- Repository:               https://github.com/quocan050302/MotionLab-Studio
+- Branch Lock:              feat/ml-01-zero-api-effects
+- Master Branch:            7160cc63d01008bde0fd2ec06a395d1aac037ce8 (UNTOUCHED)
+- Prior R5.R6 Tested SHA:   e0ecdecfc7377f22e7ad4184f05eaad0041ff82a
+- Prior R5.R6 Remote HEAD:  45040bc06a054ed1adb7116ce7c9f84d9d1ec91d
+- NEW TESTED CODE SHA:      4a76368f05211badee98a543d90d545af3079f1a
+- Canonical Olivia R7 Run:  20261128T074803Z_81d918d0_s42
+- Strategy Opt-In:          "director_strategy": "generative_v4" (100% legacy &
+                            R5.R5/R5.R6 backward compatibility preserved)
+
+2. ARCHITECTURE & CODE INVENTORY (ML-01.R5.R7 NEW / UPGRADED MODULES)
+--------------------------------------------------------------------------------
+- motionlab/semantic/model_router.py
+  * Multi-model local discovery (`discover_compatible_models`), single-residency
+    RAM budget gate (`estimate_model_budget`), benchmark-driven backend selector
+    (`select_role_backend`), ordered multi-frame VLM observations
+    (`infer_ordered_visual_observations`), and 48-case multi-niche (16 frozen
+    heldout) + 16-task real vision (6 hard negatives) benchmark harness.
+- motionlab/semantic/story_bible.py
+  * Single deterministic `canonical_split_sentences()` (hash `4182d7c8...`),
+    `build_global_story_bible()`, natural `segment_chapters()`,
+    `decompose_atomic_claims_and_actions()`, `build_chapter_context()`,
+    `reconcile_chapter_boundary()`, `validate_story_coverage()` (ZERO
+    `claims[:10]` truncation).
+- motionlab/semantic/generative_visual_planner.py
+  * `ReadOnlyEvidenceToolRegistry`, `request_evidence_tools()`,
+    `propose_beat_programs()`, `rank_feasible_programs()`,
+    `reconcile_program_with_ledger()`, `validate_semantic_graph()`.
+- motionlab/assets/pdf_regions.py
+  * MIT `pdfminer.six` verbatim text + top-down bounding-box extraction
+    (`extract_pdf_text_bboxes`), `extract_semantic_regions()`,
+    `index_evidence_assets()`, `retrieve_claim_evidence()`, and generic
+    `build_verified_example_state_machine()`.
+- motionlab/composition/scene_graph_v4.py + renderers/remotion/src/SceneGraphV4Composition.tsx
+  + renderers/remotion/src/Root.tsx + motionlab/renderers/remotion.py
+  * Dual-engine Remotion + HyperFrames SceneGraph V4 compiler, pure
+    `resolve_frame_state()`, 9:16 & 16:9 `solve_layout_and_occlusion()`,
+    `build_dependency_index()`, global `MotionEventTrack` + exact [0, N)
+    `frame_coverage_manifest`, animated multi-phase `illustrated_action_sequence`,
+    smooth alpha-dissolve studio stages, and unclipped aspect-preserving crops.
+- motionlab/composition/longform_scheduler.py
+  * `TotalProcessTreeMonitor`, `build_render_dag()`, `partition_render_ranges()`,
+    `compute_boundary_handles()`, `snapshot_global_state()`,
+    `resolve_chunk_frame()`, `validate_chunk_manifest()`, `resume_run()`,
+    `assemble_verified_chunks()` (FFmpeg 9.0.2 `-fps_mode cfr`).
+- motionlab/audio/continuous_score.py
+  * `build_global_sonic_score()`, `bind_sound_to_motion_events()`,
+    `reconcile_cross_chapter_audio()`, streaming phase-continuous voice-ducked
+    `render_streaming_stems()`, and `validate_actual_audio_event_alignment()`
+    (zero added clipping + stratified early/mid/late onset check).
+- motionlab/semantic/semantic_comprehension_critic.py
+  * Independent 4-dimension multi-frame verifier
+    (`verify_rendered_semantic_comprehension`) with per-chapter VLM budget (no
+    global 7-call cap), strict fail-closed UNCERTAIN on VLM errors, and
+    `plan_dependency_closure_repair()` with automatic regression rollback.
+- motionlab/composition/hook_competition.py
+  * `rank_hook_sequences_blind()` eliminating single-frame saturation and
+    heuristic contrast/mode bonuses via randomized ordered 3-frame strips.
+- motionlab/composition/director_v4_runner.py + director_pipeline.py + pipeline.py
+  * Opt-in `generative_v4` CLI orchestration + `motionlab validate` support.
+- jobs/olivia_v6_r5r7_job.json & tests/unit/test_r5r7_generative_cinematic_composition.py
+
+3. LOCAL MODEL UPGRADE BENCHMARK (48-CASE MULTI-NICHE + 16-TASK REAL VISION)
+--------------------------------------------------------------------------------
+Host: Windows 11 amd64, 12 logical CPUs, 31.75 GiB RAM (CPU-only Intel UHD 730)
+Runtime: llama.cpp local (`llama-completion.exe` & `llama-mtmd-cli.exe`),
+strict single-model residency enforced, zero cloud APIs.
+
+A. Text Creative Reasoning (48 open-ended multi-niche cases, 16 frozen heldout):
+- Incumbent `qwen2_5_3b_instruct_q4_k_m` (Apache-2.0, 2007.4 MB):
+  * Raw accuracy:     20/48 (41.67%) | Heldout: 6/16 (37.50%)
+  * Valid JSON:       48/48 (100%)
+  * Latency p95:      10.894s | Total wall: 522.89s
+- Candidate `qwen3_4b_instruct_2507_q4_k_m` (Apache-2.0, 2381.6 MB):
+  * Raw accuracy:     18/48 (37.50%) | Heldout: 6/16 (37.50%)
+  * Valid JSON:       48/48 (100%)
+  * Latency p95:      18.955s | Total wall: 822.74s
+-> Text Decision: RETAIN `qwen2_5_3b_instruct_q4_k_m` (higher raw accuracy +
+   1.57x faster; zero model-size bias).
+
+B. Vision / Multimodal QA Critic (16 real-frame tasks, incl. 6 hard negatives):
+- Incumbent `qwen3_vl_2b_instruct_q4_k_m` (Apache-2.0, 1056.1 MB + mmproj 450 MB):
+  * Raw accuracy:     12/16 (75.00%) | Positive: 10/10 | Hard Negs: 2/6
+  * Hard-negative FP: 66.67% | Peak RSS: 2615.56 MB | Total wall: 161.10s
+- Candidate `qwen3_vl_4b_instruct_q4_k_m` (Apache-2.0, 2381.6 MB + mmproj 432.9 MB):
+  * Raw accuracy:     14/16 (87.50%, +12.50pp) | Positive: 10/10 | Hard Negs: 4/6
+  * Hard-negative FP: 33.33% (CUT IN HALF) | Peak RSS: 5080.43 MB | Total wall: 310.42s
+-> Vision Decision: UPGRADE to `qwen3_vl_4b_instruct_q4_k_m`.
+-> Overall Benchmark Verdict: MODEL_UPGRADE_PROVEN (Hybrid single-residency:
+   Qwen2.5-3B text + Qwen3-VL-4B vision).
+
+4. CANONICAL OLIVIA V6 R5.R7 PRODUCTION DELIVERY (9:16 VERTICAL)
+--------------------------------------------------------------------------------
+- Run ID:             20261128T074803Z_81d918d0_s42
+- Candidate MP4:      Olivia_V6_Lamborghini_Payday_Trap_ML01R5R7_CANDIDATE_9x16.mp4
+  * SHA-256:          0406eaa2bb27892906f656b8dff68c04b19264e274251f4bb61d8d7194bd33bb
+  * Size:             23,962,579 bytes | 1080x1920 | 30/1 fps | 819 frames | 27.30s
+  * Full decode:      PASS (`ffmpeg -xerror` exit 0, 0 black frames, 0 abrupt jumps)
+- Preview 9x16 MP4:   preview_9x16.mp4
+  * SHA-256:          950de04f6e6a8210e8a45ffa5bb556470b295ba608d159fc8edeeb6237aae7b8
+  * Size:             4,649,383 bytes
+- Blind Hook Variants (3 rendered 540x960 previews, tie_detected=false):
+  * WINNER (SEQ_A):   hook_B_illustrated_action_seq (score=0.76, VLM=0.70, sha256=a7c651a2...)
+  * Runner-up (SEQ_C):hook_C_causal_timeline_preview (score=0.68, VLM=0.60, sha256=aa8ff671...)
+  * Runner-up (SEQ_B):hook_A_live_action_callout (score=0.68, VLM=0.60, sha256=3338fb3b...)
+- Dual-Engine Usage:  ffmpeg, ffmpeg_clean_passthrough, hyperframes, remotion
+- Speech & Edit Map:
+  * Sources immutable: Source A (18eceffc...) & Source B (0339dc21...) untouched.
+  * Dedup removed:    garbled tail A, orphaned prefix B, stutter repeats
+                      ('how did', 'and what you can actually'), unapproved filler
+                      ('i know'), excess dead air.
+  * Final-mix Re-ASR: 85/85 ordered tokens matched, WER = 0.0, critical recall = 1.0,
+                      0 residual repeats.
+  * Missing Dialogue: 2 intended sentences absent from raw clips A & B
+                      (canonical_sentence_count=10, legacy alignment=11;
+                      voice_cloning_used=false -> MISSING_SOURCE_DIALOGUE blocker).
+- Audio & Continuous Sonic Score:
+  * 14/14 recorded CC0-1.0 Foley cues (0 procedural DSP), 11 unique raw WAV hashes,
+    14/14 proxy audible, 14/14 speech-band safe, 14/14 sync OK (0.0f anchor lag),
+    final decoded LUFS-I = -16.3, true peak = -2.4 dBTP, clipping_samples_added = 0,
+    phase-continuous voice-ducked ambient bed enabled.
+- Resource Profile:   Wall 783.39s, peak process-tree RSS 1683.72 MB, min avail
+                      RAM 7.14 GiB, min disk free 32.26 GiB.
+
+5. R5.R6 VS R5.R7 BACKTEST UNDER EXACT SAME NEW INDEPENDENT VERIFIER
+--------------------------------------------------------------------------------
+Verifier: `verify_rendered_semantic_comprehension` + `qwen3_vl_4b_instruct_q4_k_m`
+(identical frozen StoryBible + ordered 3-frame EARLY|MID|LATE phone strips):
+- R5.R6 Baseline (`d9cd75d93c22722c...`, 22,622,705 bytes):
+  * Weighted semantic coverage:  0.8632 (7/9 material claims)
+  * Critical factual accuracy:   1.0000
+  * High-severity defects:       2 (`UNREADABLE_REGION` on claim_006 & claim_007)
+  * Creative evidence gate:      FAIL
+- R5.R7 Candidate (`0406eaa2bb278929...`, 23,962,579 bytes):
+  * Weighted semantic coverage:  1.0000 (9/9 material claims, +13.68pp)
+  * Critical factual accuracy:   1.0000 (3/3 workbook crops p07=0.9943, p10=0.8671, p12=0.9138)
+  * High-severity defects:       0 (-2 HIGH defects)
+  * Creative evidence gate:      PASS (automated proxy; human comprehension NOT RUN)
+
+6. REAL 5-MINUTE 16:9 LONG-FORM PROOF (NASA PUBLIC DOMAIN SCIENCE DOCUMENTARY)
+--------------------------------------------------------------------------------
+- Source Provenance:  NASA Public Domain (`images-api.nasa.gov`: Webb Mirror
+                      Phasing Chamber A 144.4s + Chamber A MAC Panels 157.8s)
+- Output Artifact:    NASA_Webb_ChamberA_5min_16x9_ML01R5R7_CANDIDATE.mp4
+  * SHA-256:          61f2e9cc5e2a7a7ffb09c05c3d997b2602244524596f632040310be0118f3820
+  * Size & Format:    72,700,914 bytes | 1280x720 (16:9) | 30/1 fps | 9,066 frames | 302.20s
+- Narrative & Coverage:
+  * Chapters:         5 (`ch_00`..`ch_04`), 24 atomic claims, story_coverage_valid=True
+  * Exact Frames:     9,066/9,066 covered (`exact_frame_coverage=True`), full decode OK
+  * Late Chapter:     `ch_04` 16:9 graphic overlay rendered (decoded contrast std=82.62)
+                      + 2 late-chapter SFX cues
+- Audio Onset QA:     10/10 cues audible & within <=1.5 frames, exact sample
+                      conservation=True, clipping_samples_added=0, PASSED
+- Chunked DAG Benchmark (10 chunks, 30s windows):
+  * w=1 cold:         12.107s
+  * w=2 cold:         10.600s (-12.4% speedup)
+  * w=1 warm cache:   0.365s (33.2x speedup)
+  * Peak Tree RSS:    309.05 MB | Min avail RAM: 8.02 GiB | Min disk: 31.63 GiB
+- Verdict:            REAL_LONGFORM_VALIDATED (separate from synthetic unit tests)
+
+7. REAL-PIXEL CAUSALITY & 3-CASE AUTONOMOUS REPAIR PROOFS
+--------------------------------------------------------------------------------
+- 3-Niche Graph-to-Pixel Causality (`model_causality_3_niches.json`): ALL_PASS (3/3)
+  * science_hydraulics: MAD = 15.763
+  * history_silkroad:   MAD = 6.281
+  * cooking_emulsion:   MAD = 36.481
+- 3-Case Injected-Defect Real-Pixel Repair (`three_case_repair_proof.json`): ALL_PASS (3/3)
+  * REPAIR_01_WRONG_ORDER:      FRI->TUE repaired to TUE->FRI (decoded MAD = 0.68)
+  * REPAIR_02_ACTION_NOT_SHOWN: static text -> illustrated_action_sequence (MAD = 17.871)
+  * REPAIR_03_FACE_OCCLUSION:   y_px 520 -> 654 below speaker face (MAD = 19.513)
+
+8. REGRESSION & VERIFICATION SUITE ON COMMITTED SHA 4a76368
+--------------------------------------------------------------------------------
+1. `pytest -q tests/` (ALL unique tests):
+   exit 0 | 214 passed, 15 subtests passed in 105.78s (0 failed, 0 skipped)
+2. `unittest discover -s tests -p "test_render_*.py"` (legacy overlapping subset —
+   already inside pytest above; reported separately, NEVER double-counted):
+   exit 0 | Ran 26 tests in 0.015s | OK
+3. `npx.cmd tsc --noEmit` (`renderers/remotion`):
+   exit 0 in 5.21s
+4. `python -m motionlab doctor --json`:
+   exit 0 in 5.33s
+5. `python -m motionlab validate --run runs/olivia_v6_ml01_r5r7/20261128T074803Z_81d918d0_s42`:
+   exit 0 in 1.64s | 17/17 PASS (CANDIDATE_READY_WITH_BLOCKERS)
+6. Source Immutability:
+   Source A (`18eceffc...`) & Source B (`0339dc21...`) bit-exact verified.
+
+9. GATES G0–G13 & 7 INDEPENDENT STATUS VERDICTS (NO SINGLE-PASS OVERCLAIM)
+--------------------------------------------------------------------------------
+- G0  Scope / Zero-API / Offline:      PASS (100% local, zero cloud APIs)
+- G1  Upstream Audit & Licenses:       PASS (18 repos pinned, zero AGPL/GPL vendored)
+- G2  Model Upgrade Benchmark:         PASS (MODEL_UPGRADE_PROVEN: Qwen3-VL-4B +12.5pp)
+- G3  Story Completeness & V4 Graph:   PASS (zero truncation, 3-niche causality proven)
+- G4  Speech / Edit Map / Re-ASR:      PASS (WER=0.0 on retained; 2 missing lines flagged)
+- G5  Evidence & Product Scope:        PARTIAL/BLOCKED_EXTERNAL (Workbook 3/3 VERIFIED;
+                                       Notion live UI honestly PRODUCT_UI_PROOF_BLOCKED)
+- G6  Motion & Cinematic Continuity:   PASS (dual-engine Remotion+HF, 0 abrupt jumps)
+- G7  Continuous Timeline Long-Form:   PASS (REAL_LONGFORM_VALIDATED on 5-min NASA 16:9)
+- G8  Global Sonic Score & Audio QA:   PASS (automated proxy; human listening NOT RUN)
+- G9  Blind Ordered Hook Competition:  PASS (proxy winner hook_B 0.76 vs 0.68; human A/B pending)
+- G10 Independent Critic & Repair:     PASS (3/3 real-pixel repairs + 0 defects on Olivia R7)
+- G11 Regression / Backtest / Perf:    PASS (214 pytest, tsc, doctor, validate 17/17, w1/w2)
+- G12 Delivery & Release Rights:       CANDIDATE_READY_WITH_BLOCKERS (external rights blockers)
+- G13 Human Acceptance (VQ-01/Audio):  PENDING_HUMAN_REVIEW (never self-approved)
+
+7 Independent Statuses:
+1. engineering_technical:   PASS
+2. generative_capability:   PARTIAL (model-authored + deterministic guardrails; 3-niche causal)
+3. creative_evidence:       PASS (automated independent Qwen3-VL-4B proxy; human NOT RUN)
+4. longform_status:         REAL_LONGFORM_VALIDATED (NASA 5-min 16:9) / SHORT_FORM_JOB (Olivia)
+5. product_scope:           ACTUAL_PRODUCT_WORKBOOK_VERIFIED_UI_BLOCKED
+6. release_rights:          RELEASE_BLOCKED (BLOCKED_WATERMARK_AUTHORIZATION,
+                            MISSING_SOURCE_DIALOGUE, PRODUCT_UI_PROOF_BLOCKED)
+7. human_review:            PENDING_HUMAN_REVIEW (LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY,
+                            HUMAN_COMPREHENSION_NOT_RUN)
+================================================================================

@@ -1,0 +1,113 @@
+{
+  "candidates": [
+    {
+      "blind_label": "SEQ_A",
+      "candidate_id": "hook_B_illustrated_action_seq",
+      "diagnostic_pixels_not_creative_bonus": {
+        "black_frames": 0,
+        "mean_contrast": 61.39,
+        "mean_edge_density": 0.0866,
+        "mean_face_roi_delta_mad": 2.38,
+        "mean_overlay_delta_mad": 11.49,
+        "mean_temporal_progression_mad": 21.77,
+        "pixel_quality_score": 0.9231
+      },
+      "face_clutter_mad": 2.38,
+      "feasible": true,
+      "preview_mp4": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42\\hooks\\hook_B_illustrated_action_seq_preview.mp4",
+      "preview_sha256": "a7c651a288671bd137a0e135e18da15b3731b16c0b91fb3d90e80c2ec4e8a8d1",
+      "primary_kind": "illustrated_action_sequence",
+      "sequence_score": 0.76,
+      "vlm_sequence_evaluation": {
+        "comprehension_score": 0.7,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "covers_speaker_face": 0,
+          "creates_unresolved_curiosity_0_5": 4,
+          "mobile_readability_0_5": 3,
+          "observed_what_changes": 1,
+          "problem_immediately_clear_0_5": 4,
+          "visible_action_or_evolution_0_5": 3,
+          "visible_defect": 0
+        },
+        "status": "VLM_EXECUTED"
+      }
+    },
+    {
+      "blind_label": "SEQ_C",
+      "candidate_id": "hook_C_causal_timeline_preview",
+      "diagnostic_pixels_not_creative_bonus": {
+        "black_frames": 0,
+        "mean_contrast": 68.02,
+        "mean_edge_density": 0.093,
+        "mean_face_roi_delta_mad": 2.32,
+        "mean_overlay_delta_mad": 7.83,
+        "mean_temporal_progression_mad": 20.03,
+        "pixel_quality_score": 0.887
+      },
+      "face_clutter_mad": 2.32,
+      "feasible": true,
+      "preview_mp4": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42\\hooks\\hook_C_causal_timeline_preview_preview.mp4",
+      "preview_sha256": "aa8ff671fae9110b2f8e7c9ec0a10e9eb99eae317622e3b6ffa4ea0254207455",
+      "primary_kind": "timeline_axis",
+      "sequence_score": 0.68,
+      "vlm_sequence_evaluation": {
+        "comprehension_score": 0.6,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "covers_speaker_face": 0,
+          "creates_unresolved_curiosity_0_5": 4,
+          "mobile_readability_0_5": 3,
+          "observed_what_changes": 1,
+          "problem_immediately_clear_0_5": 3,
+          "visible_action_or_evolution_0_5": 2,
+          "visible_defect": 0
+        },
+        "status": "VLM_EXECUTED"
+      }
+    },
+    {
+      "blind_label": "SEQ_B",
+      "candidate_id": "hook_A_live_action_callout",
+      "diagnostic_pixels_not_creative_bonus": {
+        "black_frames": 0,
+        "mean_contrast": 66.42,
+        "mean_edge_density": 0.0969,
+        "mean_face_roi_delta_mad": 2.34,
+        "mean_overlay_delta_mad": 5.42,
+        "mean_temporal_progression_mad": 18.65,
+        "pixel_quality_score": 0.8603
+      },
+      "face_clutter_mad": 2.34,
+      "feasible": true,
+      "preview_mp4": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42\\hooks\\hook_A_live_action_callout_preview.mp4",
+      "preview_sha256": "3338fb3beb81c70a7f6793615cc07f15ad146e3f53164effad8a1f2e9babd022",
+      "primary_kind": "source_clip",
+      "sequence_score": 0.68,
+      "vlm_sequence_evaluation": {
+        "comprehension_score": 0.6,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "covers_speaker_face": 0,
+          "creates_unresolved_curiosity_0_5": 4,
+          "mobile_readability_0_5": 3,
+          "observed_what_changes": 1,
+          "problem_immediately_clear_0_5": 3,
+          "visible_action_or_evolution_0_5": 2,
+          "visible_defect": 0
+        },
+        "status": "VLM_EXECUTED"
+      }
+    }
+  ],
+  "candidates_rendered": 3,
+  "causal_hook_bound_to_final": true,
+  "evaluation_protocol": "BLIND_ORDERED_SEQUENCE_COMPREHENSION_ZERO_MODE_OR_CONTRAST_BONUS",
+  "human_ab_test_status": "PENDING_HUMAN_AB_REVIEW_PROXY_ONLY",
+  "schema_version": "3.0.0",
+  "tie_detected": false,
+  "tie_resolution_note": "CLEAR_PROXY_MARGIN",
+  "winner_blind_label": "SEQ_A",
+  "winner_candidate_id": "hook_B_illustrated_action_seq",
+  "winner_preview_sha256": "a7c651a288671bd137a0e135e18da15b3731b16c0b91fb3d90e80c2ec4e8a8d1"
+}

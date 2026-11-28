@@ -1,0 +1,79 @@
+{
+  "all_commands_exit_zero": true,
+  "branch": "feat/ml-01-zero-api-effects",
+  "note_non_overlapping_counts": "unittest_legacy_overlapping_subset is an overlapping subset already included in pytest_full_unique; reported separately and NEVER double-counted.",
+  "runs": [
+    {
+      "command": "<REPO_ROOT>\\.venv\\Scripts\\python.exe -m pytest -q tests/",
+      "elapsed_s": 106.43,
+      "exit_code": 0,
+      "name": "pytest_full_unique",
+      "tail": [
+        "......................................................... [ 26%]",
+        "........................................................................ [ 60%]",
+        "........................................................................ [ 93%]",
+        ".............                                                            [100%]",
+        "214 passed, 15 subtests passed in 105.78s (0:01:45)"
+      ]
+    },
+    {
+      "command": "<REPO_ROOT>\\.venv\\Scripts\\python.exe -m unittest discover -s tests -p test_render_*.py",
+      "elapsed_s": 0.2,
+      "exit_code": 0,
+      "name": "unittest_legacy_overlapping_subset",
+      "tail": [
+        "master SRT → master.srt (6 cues)",
+        "..........................",
+        "----------------------------------------------------------------------",
+        "Ran 26 tests in 0.015s",
+        "OK"
+      ]
+    },
+    {
+      "command": "npx.cmd tsc --noEmit",
+      "elapsed_s": 5.21,
+      "exit_code": 0,
+      "name": "remotion_tsc_noEmit",
+      "tail": []
+    },
+    {
+      "command": "<REPO_ROOT>\\.venv\\Scripts\\python.exe -m motionlab doctor --json",
+      "elapsed_s": 5.33,
+      "exit_code": 0,
+      "name": "motionlab_doctor_json",
+      "tail": [
+        "    \"available_ram_gb\": 8.42,",
+        "    \"logical_cpus\": 12,",
+        "    \"os\": \"Windows-11-10.0.26300-SP0\",",
+        "    \"project_disk_free_gb\": 32.06,",
+        "    \"python\": \"3.12.10\",",
+        "    \"total_ram_gb\": 31.75",
+        "  }",
+        "}"
+      ]
+    },
+    {
+      "command": "<REPO_ROOT>\\.venv\\Scripts\\python.exe -m motionlab validate --run <REPO_ROOT>\\runs\\olivia_v6_ml01_r5r7\\20261128T074803Z_81d918d0_s42",
+      "elapsed_s": 1.64,
+      "exit_code": 0,
+      "name": "motionlab_validate_r5r7_canonical",
+      "tail": [
+        "    }",
+        "  ],",
+        "  \"warnings\": [",
+        "    \"BLOCKED_WATERMARK_AUTHORIZATION\",",
+        "    \"MISSING_SOURCE_DIALOGUE\",",
+        "    \"PRODUCT_UI_PROOF_BLOCKED\"",
+        "  ]",
+        "}"
+      ]
+    }
+  ],
+  "schema_version": "4.0.0",
+  "source_immutability": {
+    "ok": true,
+    "source_A_sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b",
+    "source_B_sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+  },
+  "tested_code_sha": "4a76368f05211badee98a543d90d545af3079f1a"
+}

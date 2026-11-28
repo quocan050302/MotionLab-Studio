@@ -1,0 +1,91 @@
+{
+  "chapters": [
+    {
+      "chapter_id": "ch_00",
+      "chapter_index": 0,
+      "claim_ids": [
+        "claim_000",
+        "claim_001",
+        "claim_002",
+        "claim_003_a",
+        "claim_003_b",
+        "claim_003_c",
+        "claim_004",
+        "claim_005",
+        "claim_006",
+        "claim_007"
+      ],
+      "dominant_roles": [
+        "breathing_anchor",
+        "causal_sequence_or_timing",
+        "core_conflict_or_comparison",
+        "cta_direction",
+        "lived_resolution_payoff",
+        "opening_hook",
+        "product_or_mechanism_proof"
+      ],
+      "end_frame_exclusive": 819,
+      "end_s": 27.3,
+      "input_state_refs": [
+        "state:initial"
+      ],
+      "key_evidence_ids": [
+        "word:0",
+        "word:1",
+        "word:2",
+        "word:3",
+        "word:16",
+        "word:17",
+        "word:18",
+        "word:19",
+        "word:32",
+        "word:33",
+        "word:34",
+        "word:35",
+        "word:39",
+        "word:40",
+        "word:41",
+        "word:42",
+        "word:46",
+        "word:47",
+        "word:48",
+        "word:49",
+        "word:52",
+        "word:53",
+        "word:54",
+        "word:55"
+      ],
+      "material_claim_ids": [
+        "claim_000",
+        "claim_001",
+        "claim_002",
+        "claim_003_a",
+        "claim_003_b",
+        "claim_003_c",
+        "claim_004",
+        "claim_006",
+        "claim_007"
+      ],
+      "music_sfx_intent": {
+        "allow_sfx": true,
+        "bed_energy": "calm_pulse",
+        "preserve_chapter_phase": true
+      },
+      "narrative_purpose": "complete_short_arc",
+      "output_state_refs": [
+        "state:ch_00:exit"
+      ],
+      "primary_question": "What immediate relatable problem or curiosity gap hooks the viewer in the first 3 seconds?",
+      "start_frame": 0,
+      "start_s": 0.0,
+      "story_tension": "hook_conflict_proof_payoff",
+      "transition_contract": {
+        "handle_frames": 0,
+        "sound_tail_policy": "overlap_cross_chapter_tail",
+        "type": "natural_outro"
+      },
+      "uncertainty": "none"
+    }
+  ],
+  "story_bible_hash": "aca7011d9716d3534b1568e5a8597566203e52e837cc657c03f13daf1d913eea"
+}

@@ -1,0 +1,61 @@
+{
+  "disclosure_label": "FICTIONAL WORKBOOK EXAMPLE — ILLUSTRATIVE ONLY",
+  "domain": "finance",
+  "errors": [],
+  "example_id": "jordan_biweekly_paycheck_p07_p12",
+  "final_value": 120.0,
+  "initial_value": 1600.0,
+  "is_hypothetical": true,
+  "schema_version": "1.0.0",
+  "source_proof": "The_Next_Paycheck_Plan_A4_56p_FINAL_QA(1).pdf pages 7 & 12 (verified verbatim via MIT pdfminer.six)",
+  "state_machine_hash": "feced924a89c2ca620a3ada227767fbdf2279cc06bbfc99294cb94242836bcf2",
+  "transitions": [
+    {
+      "after": 1600.0,
+      "before": 1600.0,
+      "delta": 0.0,
+      "label": "Jordan Biweekly Paycheck",
+      "op": "set",
+      "step_id": "init",
+      "unit": "$"
+    },
+    {
+      "after": 680.0,
+      "before": 1600.0,
+      "delta": -920.0,
+      "label": "Bills Reserved",
+      "op": "sub",
+      "step_id": "bills_reserved",
+      "unit": "$"
+    },
+    {
+      "after": 340.0,
+      "before": 680.0,
+      "delta": -340.0,
+      "label": "Essentials",
+      "op": "sub",
+      "step_id": "essentials",
+      "unit": "$"
+    },
+    {
+      "after": 180.0,
+      "before": 340.0,
+      "delta": -160.0,
+      "label": "Debt Mins",
+      "op": "sub",
+      "step_id": "debt_minimums",
+      "unit": "$"
+    },
+    {
+      "after": 120.0,
+      "before": 180.0,
+      "delta": -60.0,
+      "label": "Buffer",
+      "op": "sub",
+      "step_id": "starter_buffer",
+      "unit": "$"
+    }
+  ],
+  "unit": "$",
+  "valid": true
+}

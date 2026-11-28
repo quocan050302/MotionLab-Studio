@@ -1,0 +1,95 @@
+{
+  "engines_used": [
+    "ffmpeg",
+    "ffmpeg_clean_passthrough",
+    "hyperframes",
+    "remotion"
+  ],
+  "layers": [
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "6dbbacb591dcc3b62dd261ef135cefe99f82a0e06e49843195d8aedf5d880d0d",
+      "engine": "remotion",
+      "primary_kind": "timeline_axis",
+      "scene_id": "scv4_claim_001",
+      "transparent_frac": 0.87584
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "d935f2ff0a7e460d0730751e4894ece3619e09782efdb6db0a2e7e1b578526f1",
+      "engine": "hyperframes",
+      "primary_kind": "illustrated_action_sequence",
+      "scene_id": "scv4_claim_000",
+      "transparent_frac": 0.81467
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "06a36ff4df99c52a5935eedbe44f65b4bfeacef2525ce824d4d92ee7a429eb97",
+      "engine": "hyperframes",
+      "primary_kind": "product_cover_stage",
+      "scene_id": "scv4_bridge_product_intro",
+      "transparent_frac": 0.0
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "24d24a2914fda835a1c8eafc4d488cb9a9c17b9454c93923d720e918ec1daf5f",
+      "engine": "hyperframes",
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_a",
+      "transparent_frac": 0.0
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "dd09d79c792b26a797e11e5ecd1f4c425e6a0d6e58690d27514352b8a7f19c51",
+      "engine": "hyperframes",
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_b",
+      "transparent_frac": 0.0
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "548fe247769406ef0b2c5f781c8e873cd6e6e9cf43c90685ad431a4f9727d5c7",
+      "engine": "hyperframes",
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_c",
+      "transparent_frac": 0.0
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "65ba079630f8f7d32df4405c777692d0a6219f5754d6122e0f59d8d739cb8089",
+      "engine": "remotion",
+      "primary_kind": "allocation_bar",
+      "scene_id": "scv4_claim_002",
+      "transparent_frac": 0.87691
+    },
+    {
+      "alpha_verified": true,
+      "engine": "ffmpeg_clean_passthrough",
+      "scene_id": "scv4_claim_005"
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "9ef088c48ffe3b37e6941cc3a93ab366fa39afe06edbe9c82e856fee1513d1f1",
+      "engine": "hyperframes",
+      "primary_kind": "safe_cta",
+      "scene_id": "scv4_claim_006",
+      "transparent_frac": 0.90923
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "e7caf8620d2f06f036cd74dc19ed3a419cd4b2635ebaa67a0e7cc0f03f6b9e23",
+      "engine": "hyperframes",
+      "primary_kind": "illustrated_action_sequence",
+      "scene_id": "scv4_claim_004",
+      "transparent_frac": 0.81471
+    },
+    {
+      "alpha_verified": true,
+      "artifact_sha256": "321f945b4d810d94eb4e9beaf83d3922d4cee72c3c27979551af40cc562ea02e",
+      "engine": "hyperframes",
+      "primary_kind": "safe_cta",
+      "scene_id": "scv4_claim_007",
+      "transparent_frac": 0.9093
+    }
+  ]
+}

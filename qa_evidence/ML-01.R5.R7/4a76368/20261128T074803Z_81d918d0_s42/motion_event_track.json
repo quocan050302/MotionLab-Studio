@@ -1,0 +1,366 @@
+{
+  "events": [
+    {
+      "action": "obligation_token_lock",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "hyperframes",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_000_ev_start_node",
+      "evidence_ref": "claim:claim_000",
+      "global_frame": 20,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_000_axis"
+      ],
+      "primary_kind": "timeline_axis",
+      "scene_id": "scv4_claim_000",
+      "state_from": "empty",
+      "state_to": "STEP 1_locked"
+    },
+    {
+      "action": "payday_token_arrive",
+      "audio_marker_role": "GRAPHIC_MOTION",
+      "backend": "hyperframes",
+      "causal_predecessors": [
+        "claim_000_ev_start_node"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 12,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_000_ev_end_node",
+      "evidence_ref": "claim:claim_000",
+      "global_frame": 64,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_000_axis",
+        "claim_000_arrow"
+      ],
+      "primary_kind": "timeline_axis",
+      "scene_id": "scv4_claim_000",
+      "state_from": "gap_open",
+      "state_to": "STEP 2_arrived"
+    },
+    {
+      "action": "obligation_token_lock",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "remotion",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_001_ev_start_node",
+      "evidence_ref": "claim:claim_001",
+      "global_frame": 134,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_001_axis"
+      ],
+      "primary_kind": "timeline_axis",
+      "scene_id": "scv4_claim_001",
+      "state_from": "empty",
+      "state_to": "TUE_locked"
+    },
+    {
+      "action": "payday_token_arrive",
+      "audio_marker_role": "GRAPHIC_MOTION",
+      "backend": "remotion",
+      "causal_predecessors": [
+        "claim_001_ev_start_node"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 12,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_001_ev_end_node",
+      "evidence_ref": "claim:claim_001",
+      "global_frame": 178,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_001_axis",
+        "claim_001_arrow"
+      ],
+      "primary_kind": "timeline_axis",
+      "scene_id": "scv4_claim_001",
+      "state_from": "gap_open",
+      "state_to": "FRI_arrived"
+    },
+    {
+      "action": "allocation_bar_partition",
+      "audio_marker_role": "ILLUSTRATIVE_FOLEY",
+      "backend": "remotion",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 14,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_002_ev_partition",
+      "evidence_ref": "jordan_biweekly_paycheck_p07_p12",
+      "global_frame": 257,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_002_alloc"
+      ],
+      "primary_kind": "allocation_bar",
+      "scene_id": "scv4_claim_002",
+      "state_from": "unified_balance",
+      "state_to": "reserved_vs_unassigned_resolved"
+    },
+    {
+      "action": "product_cover_stage_reveal",
+      "audio_marker_role": "TRANSITION_BRIDGE",
+      "backend": "hyperframes",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "bridge_product_intro_ev_enter",
+      "evidence_ref": "claim:bridge_product_intro",
+      "global_frame": 310,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "bridge_product_intro_primary"
+      ],
+      "primary_kind": "product_cover_stage",
+      "scene_id": "scv4_bridge_product_intro",
+      "state_from": "hidden",
+      "state_to": "visible"
+    },
+    {
+      "action": "region_crop_reveal",
+      "audio_marker_role": "PRODUCT_TEXTURE",
+      "backend": "remotion",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_a_ev_reveal",
+      "evidence_ref": "tnpp_wb_p07_jordan_paycheck",
+      "global_frame": 360,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_a_crop"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_a",
+      "state_from": "hidden",
+      "state_to": "visible_zoomed"
+    },
+    {
+      "action": "focal_row_callout_lock",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "remotion",
+      "causal_predecessors": [
+        "claim_003_a_ev_reveal"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_a_ev_focus",
+      "evidence_ref": "tnpp_wb_p07_jordan_paycheck",
+      "global_frame": 369,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_a_arrow"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_a",
+      "state_from": "idle",
+      "state_to": "locked_on_row"
+    },
+    {
+      "action": "region_crop_reveal",
+      "audio_marker_role": "PRODUCT_TEXTURE",
+      "backend": "remotion",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_b_ev_reveal",
+      "evidence_ref": "tnpp_wb_p10_payday_timeline",
+      "global_frame": 423,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_b_crop"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_b",
+      "state_from": "hidden",
+      "state_to": "visible_zoomed"
+    },
+    {
+      "action": "focal_row_callout_lock",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "remotion",
+      "causal_predecessors": [
+        "claim_003_b_ev_reveal"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_b_ev_focus",
+      "evidence_ref": "tnpp_wb_p10_payday_timeline",
+      "global_frame": 432,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_b_arrow"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_b",
+      "state_from": "idle",
+      "state_to": "locked_on_row"
+    },
+    {
+      "action": "region_crop_reveal",
+      "audio_marker_role": "PRODUCT_TEXTURE",
+      "backend": "hyperframes",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_c_ev_reveal",
+      "evidence_ref": "tnpp_wb_p12_planned_reserved_cleared",
+      "global_frame": 473,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_c_crop"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_c",
+      "state_from": "hidden",
+      "state_to": "visible_zoomed"
+    },
+    {
+      "action": "focal_row_callout_lock",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "hyperframes",
+      "causal_predecessors": [
+        "claim_003_c_ev_reveal"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_003_c_ev_focus",
+      "evidence_ref": "tnpp_wb_p12_planned_reserved_cleared",
+      "global_frame": 482,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_003_c_arrow"
+      ],
+      "primary_kind": "region_crop",
+      "scene_id": "scv4_claim_003_c",
+      "state_from": "idle",
+      "state_to": "locked_on_row"
+    },
+    {
+      "action": "scenario_establish",
+      "audio_marker_role": "GRAPHIC_MOTION",
+      "backend": "remotion",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_004_ev_before",
+      "evidence_ref": "claim:claim_004",
+      "global_frame": 562,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_004_action_seq"
+      ],
+      "primary_kind": "illustrated_action_sequence",
+      "scene_id": "scv4_claim_004",
+      "state_from": "hidden",
+      "state_to": "before_state_visible"
+    },
+    {
+      "action": "items_action_progression",
+      "audio_marker_role": "ILLUSTRATIVE_FOLEY",
+      "backend": "remotion",
+      "causal_predecessors": [
+        "claim_004_ev_before"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 14,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_004_ev_act",
+      "evidence_ref": "claim:claim_004",
+      "global_frame": 606,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_004_action_seq"
+      ],
+      "primary_kind": "illustrated_action_sequence",
+      "scene_id": "scv4_claim_004",
+      "state_from": "before_state_visible",
+      "state_to": "action_in_progress"
+    },
+    {
+      "action": "calm_outcome_settle",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "remotion",
+      "causal_predecessors": [
+        "claim_004_ev_act"
+      ],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_004_ev_settle",
+      "evidence_ref": "claim:claim_004",
+      "global_frame": 646,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_004_action_seq"
+      ],
+      "primary_kind": "illustrated_action_sequence",
+      "scene_id": "scv4_claim_004",
+      "state_from": "action_in_progress",
+      "state_to": "resolved_state_held"
+    },
+    {
+      "action": "safe_cta_enter",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "hyperframes",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_006_ev_cta",
+      "evidence_ref": "claim:claim_006",
+      "global_frame": 749,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_006_cta"
+      ],
+      "primary_kind": "safe_cta",
+      "scene_id": "scv4_claim_006",
+      "state_from": "hidden",
+      "state_to": "cta_held_in_safe_zone"
+    },
+    {
+      "action": "safe_cta_enter",
+      "audio_marker_role": "COGNITIVE_EMPHASIS",
+      "backend": "hyperframes",
+      "causal_predecessors": [],
+      "chapter_id": "ch_00",
+      "duration_frames": 10,
+      "easing": "ease_out_cubic",
+      "event_id": "claim_007_ev_cta",
+      "evidence_ref": "claim:claim_007",
+      "global_frame": 794,
+      "marker_tier": "COMPILED_DETERMINISTIC",
+      "node_ids": [
+        "claim_007_cta"
+      ],
+      "primary_kind": "safe_cta",
+      "scene_id": "scv4_claim_007",
+      "state_from": "hidden",
+      "state_to": "cta_held_in_safe_zone"
+    }
+  ],
+  "events_count": 17,
+  "fps_den": 1,
+  "fps_num": 30,
+  "schema_version": "4.0.0",
+  "total_frames": 819,
+  "track_hash": "be730a266f26c03c501f6003fe94c6d8aab5d423f2d01ecc487132e26778aa5b"
+}

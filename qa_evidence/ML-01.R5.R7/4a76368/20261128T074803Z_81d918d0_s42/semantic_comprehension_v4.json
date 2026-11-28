@@ -1,0 +1,603 @@
+{
+  "claims_total": 10,
+  "creative_evidence_gate": "PASS",
+  "critical_factual_accuracy": 1.0,
+  "defects": [],
+  "high_severity_defects_count": 0,
+  "human_comprehension_status": "HUMAN_COMPREHENSION_NOT_RUN",
+  "material_claims_total": 9,
+  "material_claims_verified": 9,
+  "measurement_stage": "INDEPENDENT_MULTI_FRAME_SEMANTIC_COMPREHENSION_V4",
+  "per_chapter_audit": [
+    {
+      "chapter_id": "ch_00",
+      "claims_total": 10,
+      "uncertain_count": 0,
+      "verified_count": 10,
+      "vlm_audited_count": 9
+    }
+  ],
+  "rows": [
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 22.936,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Balance 1: Spendable. Why checking your balance soft enough?",
+          "literal_visible_objects": [
+            "woman",
+            "car",
+            "shopping mall",
+            "digital interface",
+            "text labels",
+            "hand gesture"
+          ],
+          "observed_temporal_change": "Woman's expression shifts from neutral to engaged, then to contemplative.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_000",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 3.38,
+        "min_needed_hold_s": 1.28,
+        "passed": true
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=19.06, hold=3.38s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 61.55,
+        "overlay_delta_mad": 15.61,
+        "passed": true
+      },
+      "role": "opening_hook",
+      "sampled_frames": [
+        32,
+        64,
+        97
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "90a37b4de4344d6f",
+      "temporal_evolution_mad": 19.06,
+      "weight": 1.4
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 27.607,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "EARLY | MID | LATE\nTUESDAY — FRIDAY TIMING GAP\nTUE NEXT SUN\nWED THU\nFRI\nTUE NEXT SUN\nWED THU\nFRI\nTUE NEXT SUN\nWED THU\nFRI",
+          "literal_visible_objects": [
+            "woman",
+            "car_interior",
+            "phone_screen",
+            "timing_gap_label",
+            "date_buttons"
+          ],
+          "observed_temporal_change": "TUE (NEXT SUN) → WED/THU → FRI (NEXT SUN) → WED/THU → FRI",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_001",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": true,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 3.34,
+        "min_needed_hold_s": 1.28,
+        "passed": true
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=14.83, hold=3.34s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 70.92,
+        "overlay_delta_mad": 9.86,
+        "passed": true
+      },
+      "role": "causal_sequence_or_timing",
+      "sampled_frames": [
+        146,
+        178,
+        211
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "f52a5e39bee553fd",
+      "temporal_evolution_mad": 14.83,
+      "weight": 1.5
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 22.763,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "So how much can I actually spend? $292 Investigated",
+          "literal_visible_objects": [
+            "woman",
+            "car interior",
+            "text box",
+            "price label",
+            "time label"
+          ],
+          "observed_temporal_change": "Price decreases from $292 to $121 to $120",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_002",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 1.48,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=14.52, hold=1.48s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 71.33,
+        "overlay_delta_mad": 11.02,
+        "passed": true
+      },
+      "role": "core_conflict_or_comparison",
+      "sampled_frames": [
+        257,
+        271,
+        285
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "67e8a3516fe40c89",
+      "temporal_evolution_mad": 14.52,
+      "weight": 1.3
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 25.163,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Three frames show identical paycheck UI with same text: 'It shows you what's already spoken for'.",
+          "literal_visible_objects": [
+            "EARLY",
+            "MID",
+            "LATE",
+            "PROOF 01",
+            "Meet Jordan: One Paycheck",
+            "$1,600",
+            "It shows you what's already spoken for"
+          ],
+          "observed_temporal_change": "No visible change across frames; identical UI and text in all three states.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_003_a",
+      "crop_contiguous_hits": 3,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 1.66,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Verified source crop across 3/3 frames (corr=0.9943, interior=0.999, w=0.82) + blind phone readability PASS",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 88.9,
+        "overlay_delta_mad": 73.91,
+        "passed": true
+      },
+      "role": "product_or_mechanism_proof",
+      "sampled_frames": [
+        363,
+        379,
+        395
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": {
+        "best_corr": 0.9943,
+        "interior_corr": 0.999,
+        "matched": true,
+        "matched_width_frac": 0.82,
+        "matched_xy_360": [
+          33,
+          160
+        ],
+        "reason": "ok"
+      },
+      "strip_sha256_16": "c0caff63b081af4d",
+      "temporal_evolution_mad": 0.17,
+      "weight": 1.6
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 24.371,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Three timeline cards labeled EARLY, MID, LATE show 'what needs to last until payday' with financial entries.",
+          "literal_visible_objects": [
+            "EARLY",
+            "MID",
+            "LATE",
+            "PROOF 03",
+            "PROOF 02",
+            "The Payday Timeline"
+          ],
+          "observed_temporal_change": "Timeline cards evolve from EARLY to LATE, showing different entries and visual emphasis.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_003_b",
+      "crop_contiguous_hits": 3,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 1.52,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Verified source crop across 3/3 frames (corr=0.8671, interior=0.9752, w=0.82) + blind phone readability PASS",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 95.34,
+        "overlay_delta_mad": 78.46,
+        "passed": true
+      },
+      "role": "product_or_mechanism_proof",
+      "sampled_frames": [
+        426,
+        441,
+        455
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": {
+        "best_corr": 0.8671,
+        "interior_corr": 0.9752,
+        "matched": true,
+        "matched_width_frac": 0.82,
+        "matched_xy_360": [
+          33,
+          151
+        ],
+        "reason": "ok"
+      },
+      "strip_sha256_16": "24115f7d72f57f77",
+      "temporal_evolution_mad": 0.19,
+      "weight": 1.6
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 29.576,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": false,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Three frames show identical text and layout with no verifiable mechanism or product evidence.",
+          "literal_visible_objects": [
+            "EARLY",
+            "MID",
+            "LATE",
+            "PROOF 01",
+            "Planned, Reserved, Paid & Cleared",
+            "PLAN",
+            "RESERVE",
+            "PAY",
+            "CLEAR",
+            "$1,600 - $920 - $340 - $160 - $60",
+            "+$120 STILL UNASSIGNED",
+            "and what you can actually spend",
+            "REAL WORKSHOP: FICTITIOUS EXAMPLE"
+          ],
+          "observed_temporal_change": "No change in visible content across frames.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": "No verifiable mechanism or product evidence shown."
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_003_c",
+      "crop_contiguous_hits": 3,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "critical",
+      "reading_exposure": {
+        "duration_s": 2.04,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Verified source crop across 3/3 frames (corr=0.9138, interior=0.9907, w=0.8) + blind phone readability PASS",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 98.46,
+        "overlay_delta_mad": 84.53,
+        "passed": true
+      },
+      "role": "product_or_mechanism_proof",
+      "sampled_frames": [
+        475,
+        495,
+        514
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": {
+        "best_corr": 0.9138,
+        "interior_corr": 0.9907,
+        "matched": true,
+        "matched_width_frac": 0.8,
+        "matched_xy_360": [
+          36,
+          111
+        ],
+        "reason": "ok"
+      },
+      "strip_sha256_16": "8e5652a22f88fb0e",
+      "temporal_evolution_mad": 0.44,
+      "weight": 1.6
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 24.012,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Shop Without Guessing. Bila stay reserved after your cart. Unreserve Now. Planed & Carts. Bila Reserved. Cart Planned. Carts Checked.",
+          "literal_visible_objects": [
+            "woman",
+            "car",
+            "phone",
+            "screen",
+            "text",
+            "buttons"
+          ],
+          "observed_temporal_change": "Woman's expression shifts from confused to smiling, UI buttons change state.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_004",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "supporting",
+      "reading_exposure": {
+        "duration_s": 4.3,
+        "min_needed_hold_s": 0.88,
+        "passed": true
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=11.97, hold=4.30s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 73.52,
+        "overlay_delta_mad": 14.41,
+        "passed": true
+      },
+      "role": "lived_resolution_payoff",
+      "sampled_frames": [
+        579,
+        620,
+        661
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "a82222e20a8e18d5",
+      "temporal_evolution_mad": 11.97,
+      "weight": 1.1
+    },
+    {
+      "blind_vlm_observation": {
+        "status": "NOT_RUN"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_005",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "ambient",
+      "reading_exposure": {
+        "duration_s": 1.02,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Clean unobstructed live source footage verified (zero black frames).",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 65.1,
+        "overlay_delta_mad": 1.71,
+        "passed": true
+      },
+      "role": "breathing_anchor",
+      "sampled_frames": [
+        707,
+        717,
+        726
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "ea39934f37abc218",
+      "temporal_evolution_mad": 10.51,
+      "weight": 0.5
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 21.59,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "THE NEXT PAVEMENT PLAN\nLink in Caption\nSee the link in caption.",
+          "literal_visible_objects": [
+            "woman",
+            "car",
+            "phone",
+            "caption_box"
+          ],
+          "observed_temporal_change": "No visible change in objects or text across frames.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_006",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "supporting",
+      "reading_exposure": {
+        "duration_s": 1.1,
+        "min_needed_hold_s": 0.75,
+        "passed": true
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=11.1, hold=1.10s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 68.6,
+        "overlay_delta_mad": 6.6,
+        "passed": true
+      },
+      "role": "cta_direction",
+      "sampled_frames": [
+        751,
+        761,
+        772
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "7f0d4c8cdc083772",
+      "temporal_evolution_mad": 11.1,
+      "weight": 0.8
+    },
+    {
+      "blind_vlm_observation": {
+        "elapsed_s": 21.274,
+        "model_id": "qwen3_vl_4b_instruct_q4_k_m",
+        "parsed": {
+          "answers_question_clearly": true,
+          "covers_speaker_eyes_or_mouth": false,
+          "literal_readable_text": "Go Take A Look. See the deal in 30 seconds.",
+          "literal_visible_objects": [
+            "woman",
+            "car",
+            "phone",
+            "text_overlay"
+          ],
+          "observed_temporal_change": "No visible change in text or speaker expression across frames.",
+          "readable_at_phone_scale": true,
+          "uncertainty_or_defect": false
+        },
+        "status": "VLM_EXECUTED"
+      },
+      "chapter_id": "ch_00",
+      "claim_id": "claim_007",
+      "crop_contiguous_hits": 0,
+      "gold_fact_check": {
+        "checked": false,
+        "matched": true,
+        "missing": [],
+        "order_ok": true
+      },
+      "materiality": "supporting",
+      "reading_exposure": {
+        "duration_s": 0.64,
+        "min_needed_hold_s": 0.75,
+        "passed": false
+      },
+      "reason": "Independent pixel + ordered-strip comprehension verified (temporal_mad=11.78, hold=0.64s)",
+      "render_presence": {
+        "black_frames": 0,
+        "contrast_std": 67.97,
+        "overlay_delta_mad": 5.81,
+        "passed": true
+      },
+      "role": "cta_direction",
+      "sampled_frames": [
+        794,
+        801,
+        807
+      ],
+      "semantic_status": "VERIFIED",
+      "source_crop_provenance": null,
+      "strip_sha256_16": "9791c2258ade3e2f",
+      "temporal_evolution_mad": 11.78,
+      "weight": 0.8
+    }
+  ],
+  "schema_version": "4.0.0",
+  "uncertain_claims_count": 0,
+  "vlm_per_chapter_calls": {
+    "ch_00": 9
+  },
+  "vlm_total_calls": 9,
+  "weighted_semantic_coverage": 1.0
+}

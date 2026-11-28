@@ -1,0 +1,153 @@
+{
+  "action": "PRESERVE_PROVENANCE_MARK_AND_RENDER_CANDIDATE",
+  "ai_generated_disclosure_required": true,
+  "clean_release_eligible": false,
+  "detected_sources": [
+    "A",
+    "B"
+  ],
+  "localized_blur_authorized": false,
+  "owner_edit_preference_noted": "localized_blur",
+  "reason": "Static corner provenance mark detected on source(s) ['A', 'B']. No verified clean-export license or non-mandatory provenance-removal authorization provided (user edit preference alone does NOT grant provider rights); preserving mark 100% intact with zero blur/crop/concealment and flagging output as BLOCKED_WATERMARK_AUTHORIZATION.",
+  "roi_measurement": {
+    "A": {
+      "corner_measurements": {
+        "bottom_left": {
+          "approx_norm_xy": [
+            0.11,
+            0.92
+          ],
+          "corner": "bottom_left",
+          "detected": false,
+          "largest_compact_component_px": 0,
+          "max_local_contrast": 26.0,
+          "static_spike_pixels": 0
+        },
+        "bottom_right": {
+          "approx_norm_xy": [
+            0.854,
+            0.906
+          ],
+          "corner": "bottom_right",
+          "detected": true,
+          "largest_compact_component_px": 40,
+          "max_local_contrast": 47.0,
+          "static_spike_pixels": 129
+        },
+        "top_left": {
+          "approx_norm_xy": [
+            0.05,
+            0.088
+          ],
+          "corner": "top_left",
+          "detected": true,
+          "largest_compact_component_px": 18,
+          "max_local_contrast": 62.0,
+          "static_spike_pixels": 18
+        },
+        "top_right": {
+          "approx_norm_xy": [
+            0.89,
+            0.08
+          ],
+          "corner": "top_right",
+          "detected": false,
+          "largest_compact_component_px": 0,
+          "max_local_contrast": 2.0,
+          "static_spike_pixels": 0
+        }
+      },
+      "detected_bright_static_mark": true,
+      "detected_corners": [
+        {
+          "approx_norm_xy": [
+            0.854,
+            0.906
+          ],
+          "corner": "bottom_right",
+          "detected": true,
+          "largest_compact_component_px": 40,
+          "max_local_contrast": 47.0,
+          "static_spike_pixels": 129
+        },
+        {
+          "approx_norm_xy": [
+            0.05,
+            0.088
+          ],
+          "corner": "top_left",
+          "detected": true,
+          "largest_compact_component_px": 18,
+          "max_local_contrast": 62.0,
+          "static_spike_pixels": 18
+        }
+      ],
+      "samples_checked": 12
+    },
+    "B": {
+      "corner_measurements": {
+        "bottom_left": {
+          "approx_norm_xy": [
+            0.11,
+            0.92
+          ],
+          "corner": "bottom_left",
+          "detected": false,
+          "largest_compact_component_px": 0,
+          "max_local_contrast": 25.0,
+          "static_spike_pixels": 0
+        },
+        "bottom_right": {
+          "approx_norm_xy": [
+            0.836,
+            0.904
+          ],
+          "corner": "bottom_right",
+          "detected": true,
+          "largest_compact_component_px": 241,
+          "max_local_contrast": 129.0,
+          "static_spike_pixels": 283
+        },
+        "top_left": {
+          "approx_norm_xy": [
+            0.11,
+            0.08
+          ],
+          "corner": "top_left",
+          "detected": false,
+          "largest_compact_component_px": 0,
+          "max_local_contrast": 77.0,
+          "static_spike_pixels": 181
+        },
+        "top_right": {
+          "approx_norm_xy": [
+            0.89,
+            0.08
+          ],
+          "corner": "top_right",
+          "detected": false,
+          "largest_compact_component_px": 0,
+          "max_local_contrast": 3.0,
+          "static_spike_pixels": 0
+        }
+      },
+      "detected_bright_static_mark": true,
+      "detected_corners": [
+        {
+          "approx_norm_xy": [
+            0.836,
+            0.904
+          ],
+          "corner": "bottom_right",
+          "detected": true,
+          "largest_compact_component_px": 241,
+          "max_local_contrast": 129.0,
+          "static_spike_pixels": 283
+        }
+      ],
+      "samples_checked": 12
+    }
+  },
+  "schema_version": "2.0.0",
+  "status": "BLOCKED_WATERMARK_AUTHORIZATION"
+}

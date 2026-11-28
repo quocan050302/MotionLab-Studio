@@ -1,0 +1,38 @@
+{
+  "all_3_cases_passed": true,
+  "cases": [
+    {
+      "action": "correct_reversed_causal_sequence_order",
+      "after_sha256": "320fdf5ce65342970a6902b9e46894f4c19567d66dca2ea2c148ac8bd4f3587b",
+      "before_sha256": "17cf27dbadfe2b33a10b4e863f62463370b39c55f152ed3f458fc1aa80005130",
+      "case_id": "REPAIR_01_WRONG_ORDER",
+      "decoded_mid_pixel_mad": 0.68,
+      "passed": true,
+      "repaired_order": [
+        "TUE",
+        "FRI"
+      ]
+    },
+    {
+      "action": "replan_scene_nodes_to_multi_phase_illustrated_action_sequence",
+      "after_sha256": "9d754362545bccb2e04f52e0661ba248371b27ee2a6fc7540c1811bc0afbe8fe",
+      "before_sha256": "de888b79d885804a67e2d2c3b255bbd014535b1a1af65abe7f3c2b002163e80b",
+      "case_id": "REPAIR_02_ACTION_NOT_SHOWN",
+      "decoded_mid_pixel_mad": 17.871,
+      "passed": true,
+      "repaired_kind": "illustrated_action_sequence"
+    },
+    {
+      "action": "reposition_layout_below_face_band",
+      "after_sha256": "ceee968888aeeb6e861e32d7856434d620ea17c354b3a5face47ce7740ab6cca",
+      "before_sha256": "31bb178a495dfd7a65d963b6302a83334d5099fff5df059b6a66c3d31a1b84c1",
+      "case_id": "REPAIR_03_FACE_OCCLUSION",
+      "decoded_mid_pixel_mad": 19.513,
+      "passed": true,
+      "y_after": 654,
+      "y_before": 520
+    }
+  ],
+  "experiment": "THREE_CASE_REAL_PIXEL_AUTONOMOUS_REPAIR_PROOF",
+  "schema_version": "4.0.0"
+}

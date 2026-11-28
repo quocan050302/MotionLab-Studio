@@ -1,0 +1,113 @@
+{
+  "chunk_count": 1,
+  "dag_hash": "9d10e0633d839fda3aa5cec0189dd3dee704752eec4a9cbd534fa7d5295a9927",
+  "fps_den": 1,
+  "fps_num": 30,
+  "graph_hash": "b7cb794643eb95e2ee415f0331cc0a82784194eb5ffc4fbd75924a53e2a978ec",
+  "schema_version": "4.0.0",
+  "source_hash": "e9111619ab8ba47db2a5fd0b4ba1f9ac77b9cc7243a2da0bf987f2c1b2f67e97",
+  "tasks": [
+    {
+      "cache_key": "1c4857b3e3924c17c4c32162",
+      "chunk_id": "chunk_000",
+      "chunk_index": 0,
+      "core_end_frame_exclusive": 819,
+      "core_frames": 819,
+      "core_start_frame": 0,
+      "dependencies": [],
+      "render_end_frame_exclusive": 819,
+      "render_start_frame": 0,
+      "state_snapshot": {
+        "chunk_id": "chunk_000",
+        "entity_values": {
+          "jordan_biweekly_paycheck_p07_p12": 1600.0
+        },
+        "entry_global_frame": 0,
+        "exit_global_frame_exclusive": 819,
+        "overlapping_scenes": [
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 119,
+            "scene_hash": "5020fd4b2e7ce9c4c419bf94d1411a19f178df11d4eb85cce20549df1d4aba2d",
+            "scene_id": "scv4_claim_000",
+            "scene_start_frame": 14
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 233,
+            "scene_hash": "d2949c425eb1a9fe1174a132a9e1d69c4d55c749025624160aaa4b9ebe755526",
+            "scene_id": "scv4_claim_001",
+            "scene_start_frame": 128
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 297,
+            "scene_hash": "6752d9cf138c4141b04d8fbfe3a043b91e81cef978274e7aaa0178d82613b453",
+            "scene_id": "scv4_claim_002",
+            "scene_start_frame": 249
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 344,
+            "scene_hash": "fe049012363e2967a0411e2cfb7874be5c7569b426f17f9c3cc8608fe1b07251",
+            "scene_id": "scv4_bridge_product_intro",
+            "scene_start_frame": 306
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 408,
+            "scene_hash": "acb209270da586a25897540c0400fe4e69d5c83a96eec9642828f5da2686b71c",
+            "scene_id": "scv4_claim_003_a",
+            "scene_start_frame": 355
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 468,
+            "scene_hash": "265f462ad617942a7a268703fe5cc535f3b736f42c95da65eeb0f1a7ce913add",
+            "scene_id": "scv4_claim_003_b",
+            "scene_start_frame": 418
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 530,
+            "scene_hash": "73ff6bbef3ac07fc6a7d6685f95c47d63dedbcb2e201342ae7fc7f1480efec42",
+            "scene_id": "scv4_claim_003_c",
+            "scene_start_frame": 468
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 689,
+            "scene_hash": "1e48c1bcbb6df919678b08d336a364c9bcfe55c381f367e7b9c5b5dceea284ea",
+            "scene_id": "scv4_claim_004",
+            "scene_start_frame": 556
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 736,
+            "scene_hash": "d64d170bd3db96b4bea97a5c92e454fabed7512f4c54e34741d89019732c4a9f",
+            "scene_id": "scv4_claim_005",
+            "scene_start_frame": 701
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 782,
+            "scene_hash": "c0c6a2583a86d6621e094c82b6bcffa6e8931a809d7f3998ad129ef2aa74db42",
+            "scene_id": "scv4_claim_006",
+            "scene_start_frame": 745
+          },
+          {
+            "chapter_id": "ch_00",
+            "scene_end_frame_exclusive": 819,
+            "scene_hash": "d84ba0759e025e2821bfa11e4d7f30ec09f9f718ee4040663a19fa737992b0c8",
+            "scene_id": "scv4_claim_007",
+            "scene_start_frame": 791
+          }
+        ],
+        "snapshot_hash": "de50c5718362a2e99dc33eecf4fdd2e97b08aca49bfccf2c4890e78a3e7bf03b"
+      },
+      "trim_leading_frames": 0,
+      "trim_trailing_frames": 0
+    }
+  ],
+  "total_frames": 819
+}

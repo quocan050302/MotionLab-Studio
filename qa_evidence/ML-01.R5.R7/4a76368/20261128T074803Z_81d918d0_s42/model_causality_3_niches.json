@@ -1,0 +1,28 @@
+{
+  "all_passed": true,
+  "experiment": "THREE_NICHE_GRAPH_TO_PIXEL_CAUSALITY",
+  "rows": [
+    {
+      "causal_pixel_change_verified": true,
+      "decoded_pixel_diff_mad": 15.763,
+      "graph_hash_a": "e8904c5bdb444241",
+      "graph_hash_b": "d0b2cc0805b3e559",
+      "niche_case": "science_hydraulics"
+    },
+    {
+      "causal_pixel_change_verified": true,
+      "decoded_pixel_diff_mad": 6.281,
+      "graph_hash_a": "4eb15a9eff467b09",
+      "graph_hash_b": "bd1c0862b5c7df94",
+      "niche_case": "history_silkroad"
+    },
+    {
+      "causal_pixel_change_verified": true,
+      "decoded_pixel_diff_mad": 36.481,
+      "graph_hash_a": "bdc4cfbf75482308",
+      "graph_hash_b": "5687d377e3107ee1",
+      "niche_case": "cooking_emulsion"
+    }
+  ],
+  "schema_version": "4.0.0"
+}

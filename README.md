@@ -1,8 +1,8 @@
-# MotionLab Studio — ML-01.R5.R5 (Zero-API Generative Creative Director & Multimodal Visual Intelligence)
+# MotionLab Studio — ML-01.R5.R7 (Generative Visual Reasoning & Cinematic Composition)
 
-**MotionLab Studio (`ML-01.R5.R5`)** is an independent, 100% local, zero-API generative creative director and automatic video editing CLI built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
+**MotionLab Studio (`ML-01.R5.R7`)** is an independent, 100% local, zero-API generative creative director and automatic video editing CLI for both **9:16 vertical Shorts** and **16:9 multi-chapter long-form** built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
 
-Feed one raw MP4 (legacy `--input`) **or** an ordered multi-source job manifest (`--job <job.json> --creative-mode director`), run **one local offline CLI command**, and MotionLab performs local offline high-res ASR (`faster-whisper-small` with `condition_on_previous_text=False`) + neural Silero VAD ONNX, multi-source stutter/overlap/garble repair (`speech_dedup.py`), exact rational arbitrary-N CFR timeline assembly (`multi_source_timeline.py`), real local multimodal frame perception & independent visual QA critic (`llama-mtmd-cli` + Apache-2.0 `Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0`), hybrid local creative direction (`Qwen2.5-3B-Instruct Q4_K_M`, single-model residency), generic domain-agnostic `TemporalFactLedger`, SceneGraph v2 dynamic-layout compositional rendering (HyperFrames 0.9.101 + GSAP + Remotion 4.0.547 with 20 verified imported mechanisms), 3 real rendered hook proxies, voice-priority 48 kHz stereo CC0-1.0 Foley mixing with true minus-one-cue counterfactual AAC ablation, and full non-destructive technical validation — **100% offline with \$0 per-edit API cost**.
+Feed one raw MP4 (legacy `--input`) **or** an ordered multi-source job manifest (`--job <job.json> --creative-mode director`, opting into `"director_strategy": "generative_v4"`), run **one local offline CLI command**, and MotionLab performs local offline high-res ASR (`faster-whisper-small`) + Silero VAD ONNX, multi-source stutter/overlap/garble repair (`speech_dedup.py`), exact rational arbitrary-N CFR timeline assembly (`multi_source_timeline.py`), Global `StoryBible` & natural multi-chapter segmentation (`story_bible.py`), generative visual program planning (`generative_visual_planner.py`), MIT `pdfminer.six` verbatim PDF region indexing (`pdf_regions.py`), dual-engine **SceneGraph V4** rendering (Remotion `SceneGraphV4Composition` + HyperFrames GSAP), chunked long-form DAG execution with total process-tree monitoring (`longform_scheduler.py`), continuous event-driven global sonic scoring + voice-ducked ambient stem (`continuous_score.py`), blind ordered-sequence hook ranking (`hook_competition.py`), benchmark-upgraded hybrid local inference (`Qwen2.5-3B-Instruct` text + `Qwen3-VL-4B-Instruct` vision, single-model residency), independent 4-dimension multi-frame semantic comprehension auditing + dependency-closure repair (`semantic_comprehension_critic.py`), and non-destructive `motionlab validate` — **100% offline with \$0 per-edit API cost**.
 
 > **Scope, Licensing & Honesty Disclosures**
 > - **Zero runtime cloud/paid APIs:** No OpenAI, Anthropic, ElevenLabs, Google, Gemini, or remote render API is invoked at runtime. All cloud API keys are ignored/stripped and zero remote CDN/font assets are fetched.
@@ -82,7 +82,10 @@ bash scripts/bootstrap.sh
 # Build deterministic EditPlan without rendering
 .\.venv\Scripts\python.exe -m motionlab plan --input "input\raw.mp4" --profile auto --seed 42 --output "runs"
 
-# Multi-Source ML-01.R5.R5 Generative Creative Director (any niche: tutorial, finance, product, storytelling, 9:16 or 16:9)
+# Multi-Source ML-01.R5.R7 Generative Visual Reasoning & Cinematic Composition (`generative_v4`, 9:16 or 16:9)
+.\.venv\Scripts\python.exe -m motionlab edit --job "jobs\olivia_v6_r5r7_job.json" --creative-mode director --offline --output "runs\olivia_v6_ml01_r5r7"
+
+# Multi-Source ML-01.R5.R5 / R5.R6 Generative Creative Director (preserved for backward compatibility)
 .\.venv\Scripts\python.exe -m motionlab plan --job "jobs\olivia_v6_director_job.json" --creative-mode director --output "runs"
 .\.venv\Scripts\python.exe -m motionlab edit --job "jobs\olivia_v6_director_job.json" --creative-mode director --offline --output "runs\olivia_v6_ml01_r5r5"
 
@@ -150,6 +153,9 @@ runs/<run_id>/final.mp4 + preview_9x16.mp4 (direct downscale from final) + compl
 | HyperFrames | `heygen-com/hyperframes` (`0.9.101`) | Apache-2.0 | `hf_apple_money_count`, `hf_mk_progress_stat`, `hf_mk_specs_list`, `hf_mk_callout_highlight`, `hf_lt_mask_reveal`, `hf_strikethrough_replace`, `hf_organic_light_leak`, `hf_data_chart`, `hf_exploded_stack` |
 
 Full provenance, upstream commit SHAs, file paths, adaptation notes, and Visual Benchmark Lab (`B01`–`B08`, `H1`–`H4`) results are documented in:
+- [`docs/ML01_R5R7_RESEARCH.txt`](./docs/ML01_R5R7_RESEARCH.txt) & [`docs/ML01_R5R7_ADR.md`](./docs/ML01_R5R7_ADR.md)
+- [`docs/ML01_R5R7_DEFECT_LEDGER.json`](./docs/ML01_R5R7_DEFECT_LEDGER.json) & [`docs/ML01_R5R7_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5R7_IMPLEMENTATION_REPORT.txt)
+- Redacted `<=2 MiB` QA-02 evidence packs: [`qa_evidence/ML-01.R5.R7/`](./qa_evidence/ML-01.R5.R7/)
 - [`docs/research_matrix.json`](./docs/research_matrix.json) & [`docs/ML01_R5R5_RESEARCH.txt`](./docs/ML01_R5R5_RESEARCH.txt)
 - [`docs/ML01_R5R5_ADR.md`](./docs/ML01_R5R5_ADR.md) & [`docs/ML01_R5R5_DEFECT_LEDGER.json`](./docs/ML01_R5R5_DEFECT_LEDGER.json)
 - [`docs/ML01_R5R5_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5R5_IMPLEMENTATION_REPORT.txt)

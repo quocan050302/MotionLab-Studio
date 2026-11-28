@@ -1,0 +1,43 @@
+{
+  "atomic_claims_count": 24,
+  "audio_onset_qa_detail": {
+    "audible_count": 10,
+    "clipping_free": true,
+    "cues_audited": 10,
+    "exact_sample_conservation": true,
+    "peak_dbfs_proxy": -0.0,
+    "total_cues": 10,
+    "within_1_5_frames_count": 10
+  },
+  "audio_onset_qa_passed": true,
+  "benchmark_w1_cold_s": 12.107,
+  "benchmark_w1_warm_s": 0.365,
+  "benchmark_w2_cold_s": 10.6,
+  "chapters_count": 5,
+  "chunk_count": 10,
+  "dimensions": "1280x720 (16:9)",
+  "duration_s": 302.2,
+  "exact_frame_coverage": true,
+  "full_decode_ok": true,
+  "late_chapter_decoded_contrast_std": 82.62,
+  "late_chapter_id": "ch_04",
+  "late_chapter_overlay_rendered": true,
+  "late_chapter_sfx_cues": 2,
+  "license": "Public Domain (U.S. Government / NASA)",
+  "longform_status": "REAL_LONGFORM_VALIDATED",
+  "output_bytes": 72700914,
+  "output_mp4": "<REPO_ROOT>\\runs\\longform_nasa_webb_16x9_r5r7\\NASA_Webb_ChamberA_5min_16x9_ML01R5R7_CANDIDATE.mp4",
+  "output_sha256": "61f2e9cc5e2a7a7ffb09c05c3d997b2602244524596f632040310be0118f3820",
+  "resource_summary": {
+    "min_observed_disk_free_gb": 31.63,
+    "min_observed_system_avail_ram_gb": 8.02,
+    "peak_concurrent_child_processes": 1,
+    "peak_total_process_tree_rss_mb": 309.05,
+    "samples_taken": 42
+  },
+  "schema_version": "4.0.0",
+  "source_provenance": "NASA Public Domain (images-api.nasa.gov: Webb_Mirror_Phasing_ChamberA + MAC_Panels_Plenum_Contamination)",
+  "story_coverage_valid": true,
+  "total_frames": 9066,
+  "total_wall_s": 96.24
+}

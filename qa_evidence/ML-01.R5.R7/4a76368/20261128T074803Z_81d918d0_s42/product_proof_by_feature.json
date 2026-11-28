@@ -1,0 +1,63 @@
+{
+  "features": [
+    {
+      "achieved_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "asset_ids": [
+        "tnpp_wb_p01_cover"
+      ],
+      "asset_sha256s": [
+        "c75d693c82a36b8c1d0295b6a8039463692fb43f5b82ca898457ec72d5cf2996"
+      ],
+      "description": "Authentic 56-page printable workbook cover identity (The Next Paycheck Plan)",
+      "feature_id": "workbook_cover_identity",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "status": "VERIFIED"
+    },
+    {
+      "achieved_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "asset_ids": [
+        "tnpp_wb_p07_jordan_paycheck",
+        "tnpp_wb_p10_payday_timeline",
+        "tnpp_wb_p11_bills_minimums",
+        "tnpp_wb_p12_planned_reserved_cleared",
+        "tnpp_wb_p24_timing_gap",
+        "tnpp_wb_p45_weekly_plan",
+        "tnpp_wb_p46_biweekly_plan",
+        "tnpp_wb_p49_bill_calendar"
+      ],
+      "asset_sha256s": [
+        "f0880d965337b871654d5ddb0b9510ffac6bc1810b40a39d7371d0602d0bfbcd",
+        "24a83d441bab8e3a94c360cb0efb76d4ee4302fc806909e6ed74f3279d464baf",
+        "e47eb891f598aec0009190afdffee113e2a03940424ad09943a5f10bb336f563",
+        "6ea81d24732f43d86da18d40ec66036e03f584b1f932aa1d56ed924afd9313a6",
+        "59a77ca57a52526b0db277d557faf57d9ecaf71fcfce43a86acbbe112adfefea",
+        "4c3962ad701ab61bcf7a42748a5c19658d31eea29aad0304dafb605abce432e8",
+        "edfce77563627884302d69e131cc93e916d5e3d60c92504cafc342ce85f15c48",
+        "fe00f9ae99c412bc3800378fd95c9af1057b5c4c36008fe3aec4c020a6b4a0c6"
+      ],
+      "description": "Authorized printable workbook pages proving bills reserved (p7/p49), payday timeline (p10), and planned/reserved/paid/cleared math (p12)",
+      "feature_id": "workbook_bills_reserved_and_timeline_and_unassigned",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "status": "VERIFIED"
+    },
+    {
+      "achieved_proof_class": "NOT_SHOWN",
+      "asset_ids": [],
+      "asset_sha256s": [],
+      "description": "Authorized live interactive Notion customer-release screen capture demonstrating action -> result",
+      "feature_id": "notion_live_ui_operation",
+      "required_proof_class": "ACTUAL_PRODUCT_ACTION_RESULT",
+      "status": "PRODUCT_UI_PROOF_BLOCKED"
+    }
+  ],
+  "honest_disclosure": "Workbook PDF pages prove workbook content only; live interactive Notion UI capture was NOT supplied and is NOT fabricated.",
+  "live_action_ui_verified": false,
+  "overall_product_proof_status": "ACTUAL_PRODUCT_WORKBOOK_VERIFIED_UI_BLOCKED",
+  "product_name": "The Next Paycheck Plan",
+  "release_blockers": [
+    "PRODUCT_UI_PROOF_BLOCKED"
+  ],
+  "schema_version": "1.0.0",
+  "static_ui_verified": false,
+  "workbook_verified": true
+}

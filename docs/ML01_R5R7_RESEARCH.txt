@@ -1,0 +1,42 @@
+================================================================================
+ML-01.R5.R7 — UPSTREAM REPOSITORY, MODEL WEIGHT & LICENSE RESEARCH AUDIT
+Date: 2026-11-28 | Branch: feat/ml-01-zero-api-effects
+================================================================================
+
+All repositories below were inspected read-only at pinned commits prior to design/integration.
+Source code licenses and model weight licenses are audited separately. Zero GPL/AGPL code
+vendored; zero competitor proprietary assets/templates copied; zero cloud APIs in runtime.
+
+1. PINNED UPSTREAM REPOSITORY MATRIX (R01..R15)
+--------------------------------------------------------------------------------
+ID   | Repository                                   | Pinned SHA   | License      | Decision      | Concrete Mapping -> MotionLab R5.R7
+-----|----------------------------------------------|--------------|--------------|---------------|-------------------------------------------------------
+R01  | FireRedTeam/FireRed-OpenStoryline            | c9e945215586 | Apache-2.0   | ADAPT_PATTERN | Inspected docs/source/en/guide.md; adapted intent->plan->read-only tool->artifact->revise loop into `generative_visual_planner.py::ReadOnlyEvidenceToolRegistry` & `propose_beat_programs()`. Rejected server/MCP UI & cloud TTS.
+R02  | Vincentwei1021/video-talkcraft               | 57300498a46d | NOASSERTION  | REFERENCE_ONLY| Inspected SKILL.md (layer matrix shotbook, CPU word timing, anti-slideshow pacing). No license file -> strictly reference pattern only; reimplemented clean-room in `story_bible.py` & `scene_graph_v4.py`.
+R03  | Vincentwei1021/video-shotcraft               | 85ad62df7ab3 | Apache-2.0   | ADAPT_PATTERN | Inspected README.md & shot grammar (camera push-to-evidence, crop focus, tactile action-result). Adapted composable primitives & camera tracks into `scene_graph_v4.py` & `SceneGraphV4Composition.tsx`.
+R04  | remotion-dev/remotion (installed 4.0.547)    | 1c5dc595aa1f | Commercial*  | ADAPT_CODE    | Verified local offline CLI + pure frame-indexed `useCurrentFrame() + globalStartFrame` in `SceneGraphV4Composition.tsx` + MIT `remotion-ui` (`Counter`). *Remotion License: free <=3-person teams/evaluators; Company License required >=4-person commercial teams.
+R04b | remotion-dev/skills                          | a3f4098a2afd | NONE         | REFERENCE_ONLY| No SPDX license -> reference only; no code copied.
+R05  | heygen-com/hyperframes                       | 7ee29db983dc | Apache-2.0   | ADAPT_PATTERN | Retained pinned local HyperFrames + GSAP offline adapter with finite `data-duration`, paused `window.gsap.timeline({paused:true})`, explicit `fromTo` states, exact `__hfSeek` determinism in `scene_graph_v4.py`.
+R06  | QwenLM/Qwen3                                 | 7a2f61ffc7a2 | Repo: NONE*  | ADAPT_WEIGHTS | Weights audited separately (`Apache-2.0`): staged `unsloth/Qwen3-4B-Instruct-2507-GGUF` (non-thinking 2507 instruct, 2381.6 MB Q4_K_M, SHA verified) for head-to-head 48-case benchmark vs incumbent Qwen2.5-3B.
+R07  | QwenLM/Qwen3-VL                              | 96588727e44c | Apache-2.0   | ADAPT_WEIGHTS | Staged official `Qwen/Qwen3-VL-4B-Instruct-GGUF` (`Qwen3VL-4B-Instruct-Q4_K_M.gguf` 2381.6 MB + `mmproj-Q8_0` 432.9 MB, Apache-2.0, SHA verified) for ordered multi-frame proxy benchmark vs incumbent Qwen3-VL-2B.
+R08  | ggml-org/llama.cpp (local b12803, 492d23cc9) | 8e23278c7c36 | MIT          | ADAPT_CODE    | Native local `llama-completion.exe` (--json-schema-file) + `llama-mtmd-cli.exe` (--image --mmproj), single-model residency lock, bounded threads, deterministic seed, zero network runtime.
+R09  | AcademySoftwareFoundation/OpenTimelineIO     | 363d71e8a986 | Apache-2.0   | ADAPT_PATTERN | Inspected `docs/tutorials/time-ranges.md` (half-open `[start, end)` rational ranges, handles, nested tracks). Adapted directly into `longform_scheduler.py` (`partition_render_ranges`, `compute_boundary_handles`) & `story_bible.py` without extra native dependency.
+R10  | mlfoundations/open_clip                      | 0b347c221047 | NOASSERTION  | DEFER         | Deferred on CPU-only host to avoid heavy PyTorch footprint; exact entity/numeric + lexical retrieval in `pdf_regions.py::retrieve_claim_evidence()` verified with hard negatives; labeled `EMBEDDING_NOT_RUN`.
+R11  | m-bain/whisperX                              | 8d8e43bf3698 | BSD-2-Clause | DEFER         | Existing `faster-whisper-small` int8 + Silero VAD ONNX + PCM boundary snapping achieves WER=0.0 on decoded AAC final mixes with low CPU footprint; labeled `FORCED_ALIGNER_NOT_RUN`.
+R12  | Breakthrough/PySceneDetect                   | e3b64dd811cf | BSD-3-Clause | DEFER         | Existing streaming OpenCV HSV/MAD detector operates in O(1) RAM without additional dependency.
+R13  | facebookresearch/sam2                        | 2b90b9f5ceec | Apache-2.0   | DEFER         | Infeasible on CPU-only host without multi-minute per-frame cost; existing MODNet ONNX (24.7 MB Apache-2.0) + face ROI safe layout retained.
+R14a | librosa/librosa                              | 6327f7fe4c7e | ISC          | DEFER         | Existing NumPy/SciPy DSP + `frame_to_sample_exact` + FFmpeg EBU R128 sufficient with zero extra runtime bloat.
+R14b | CPJKU/beat_this                              | b95c8ab0c58c | MIT          | DEFER         | Speech and motion event markers govern timing; music beat tracking deferred cleanly.
+R14c | CPJKU/madmom                                 | 27f032e89472 | NOASSERTION  | REJECT        | Legacy Cython/Python 3.12 incompatibility & unclear SPDX metadata.
+R15a | pdfminer/pdfminer.six (pip installed)        | PyPI latest  | MIT          | ADAPT_CODE    | Pure-Python MIT exact PDF text line & bounding-box extraction (`pdf_regions.py::extract_pdf_text_bboxes()`), replacing AGPL PyMuPDF cleanly alongside external Poppler `pdftoppm`/`pdfinfo`.
+R15b | louiseliu/hyperFrames-video-shotcraft        | 1df77f1ab080 | Apache-2.0   | REFERENCE_ONLY| Inspected README; retained clean-room HyperFrames + GSAP V4 deterministic compiler + existing 11 MIT Remotion primitives.
+
+2. MODEL WEIGHT PROVENANCE & LICENSE AUDIT (LOCAL OFFLINE)
+--------------------------------------------------------------------------------
+- qwen2_5_3b_instruct_q4_k_m:   Qwen/Qwen2.5-3B-Instruct-GGUF | Apache-2.0 | 2007.4 MB | sha256=626b4a6678b86442... (incumbent text)
+- qwen3_4b_instruct_2507_q4_k_m: unsloth/Qwen3-4B-Instruct-2507-GGUF (rev a06e946bb6b6) | Apache-2.0 | 2381.6 MB | sha256=3605803b982cb64a... (R5.R7 text candidate)
+- qwen3_vl_2b_instruct_q4_k_m:  Qwen/Qwen3-VL-2B-Instruct-GGUF (rev 52d6c8ffea26) | Apache-2.0 | 1056.1 + 424.4 MB | sha256=089d75c52f4b7ffc... (incumbent VLM)
+- qwen3_vl_4b_instruct_q4_k_m:  Qwen/Qwen3-VL-4B-Instruct-GGUF (rev 1cd86afb9a95) | Apache-2.0 | 2381.6 + 432.9 MB | sha256=66358cb18bb6b3b1... / mmproj=30ba2c7dd3127a45... (R5.R7 VLM candidate)
+- faster-whisper-small:         Systran/faster-whisper-small | MIT | 461.1 MB
+- modnet_portrait_matting:      ZHKKKe/MODNet | Apache-2.0 | 24.7 MB
+================================================================================
