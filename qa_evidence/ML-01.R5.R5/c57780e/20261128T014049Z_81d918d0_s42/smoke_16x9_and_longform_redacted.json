@@ -1,0 +1,36 @@
+{
+  "smoke_16x9_landscape": {
+    "width": 1920,
+    "height": 1080,
+    "layout": {
+      "zone": "lower_timeline_ribbon",
+      "x_px": 115,
+      "y_px": 647,
+      "width_px": 1575,
+      "height_px": 184,
+      "right_margin_px": 230,
+      "safe_top_px": 108,
+      "safe_bottom_px": 853,
+      "face_band_px": [
+        108,
+        583
+      ],
+      "overlaps_face": false,
+      "font_scale": 1.7778
+    },
+    "alpha_verified": true,
+    "elapsed_s": 10.78,
+    "status": "PASS"
+  },
+  "synthetic_90s_streaming_longform": {
+    "duration_s": 90.0,
+    "shots_detected": 3,
+    "hierarchy_chapters": 1,
+    "rss_before_mb": 82.93,
+    "rss_after_mb": 106.94,
+    "rss_delta_mb": 24.01,
+    "elapsed_s": 1.72,
+    "real_longform_status": "REAL_LONGFORM_NOT_RUN",
+    "note": "Synthetic 90s clip validates bounded O(1)-RAM streaming & hierarchical chapter indexing only; real multi-minute heldout footage was not supplied."
+  }
+}

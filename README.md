@@ -1,14 +1,15 @@
-# MotionLab Studio — ML-01.R5.R1 (Zero-API Premium Art Direction, Semantic Sound & Repository-Reuse Engine)
+# MotionLab Studio — ML-01.R5.R5 (Zero-API Generative Creative Director & Multimodal Visual Intelligence)
 
-**MotionLab Studio (`ML-01.R5.R1`)** is an independent, 100% local, zero-API automatic video effects and generative motion-design CLI built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
+**MotionLab Studio (`ML-01.R5.R5`)** is an independent, 100% local, zero-API generative creative director and automatic video editing CLI built atop upstream [`browser-use/video-use`](https://github.com/browser-use/video-use) (SHA `43cfc566833548093455c9d4a46bd69913b7e552`, MIT License).
 
-Feed a raw MP4 (with existing visuals and voice audio), run **one local offline CLI command**, and MotionLab performs local offline ASR (`faster-whisper`), verified integer-cent StoryGraph extraction, local LLM scene planning (`llama.cpp` + `Qwen2.5-3B-Instruct`), all-frame Reels safe-zone & face/eye protection (`art_direction.py`), Two-Pass Semantic Sound Direction (`semantic_sound.py`) synced to compiled animation markers, local portrait matting (`MODNet ONNX`), single-browser dual-engine rendering (**Remotion MIT imported components + HyperFrames Apache-2.0 imported modules + FFmpeg streaming compositor**), voice-priority CC0-1.0 Foley mixing, active-window ablation QA, and full technical validation — **100% offline with \$0 per-edit API cost**.
+Feed one raw MP4 (legacy `--input`) **or** an ordered multi-source job manifest (`--job <job.json> --creative-mode director`), run **one local offline CLI command**, and MotionLab performs local offline high-res ASR (`faster-whisper-small` with `condition_on_previous_text=False`) + neural Silero VAD ONNX, multi-source stutter/overlap/garble repair (`speech_dedup.py`), exact rational arbitrary-N CFR timeline assembly (`multi_source_timeline.py`), real local multimodal frame perception & independent visual QA critic (`llama-mtmd-cli` + Apache-2.0 `Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0`), hybrid local creative direction (`Qwen2.5-3B-Instruct Q4_K_M`, single-model residency), generic domain-agnostic `TemporalFactLedger`, SceneGraph v2 dynamic-layout compositional rendering (HyperFrames 0.9.101 + GSAP + Remotion 4.0.547 with 20 verified imported mechanisms), 3 real rendered hook proxies, voice-priority 48 kHz stereo CC0-1.0 Foley mixing with true minus-one-cue counterfactual AAC ablation, and full non-destructive technical validation — **100% offline with \$0 per-edit API cost**.
 
 > **Scope, Licensing & Honesty Disclosures**
 > - **Zero runtime cloud/paid APIs:** No OpenAI, Anthropic, ElevenLabs, Google, Gemini, or remote render API is invoked at runtime. All cloud API keys are ignored/stripped and zero remote CDN/font assets are fetched.
-> - **Repository Reuse First:** Ships **20 verified imported motion mechanisms** across **5 verified MIT/Apache-2.0 upstream repositories** (`11` Remotion MIT + `9` HyperFrames Apache-2.0), recorded in [`third_party/motion_sources.lock.json`](./third_party/motion_sources.lock.json) and [`third_party/imported_primitive_manifest.json`](./third_party/imported_primitive_manifest.json).
-> - **Audio & CC0-1.0 Foley contract:** The original audio track is preserved untouched (`original_audio_master.m4a`, bit-exact packets and SHA-256). In `--audio-mode mix`, voice stays at unity (`1.0`, zero EQ/NR/pitch/tempo/automation) and music is OFF by default. Run `python scripts/provision_cc0_foley.py` once during bootstrap to download the curated 29-file 48 kHz 24-bit **CC0-1.0** SFX/Foley pack from `wyzowl/sfx-kit` (WAV binaries stay gitignored; exact SHA-256 checksums live in `assets/sfx_foley/manifest.json`). If local WAVs are absent, MotionLab honestly falls back to `PARTIAL_FOLEY_ASSETS` (`procedural_dsp_synthesis`).
-> - **Technical vs Aesthetic gates:** Automated validation certifies technical integrity (`TECHNICAL_PASS`), while visual/audio taste remains human review (`PENDING_HUMAN_REVIEW`, VQ-01 rubric). No local VLM is installed (`VISION_CRITIC_NOT_RUN`), automated playback listening is not a human listener (`LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`), and synthetic corpus tests do not replace real held-out footage (`REAL_HELDOUT_NOT_RUN`).
+> - **Local Multimodal Hybrid Router (`ADR-01`):** `Qwen2.5-3B-Instruct Q4_K_M` (`Apache-2.0`) handles structured text creative reasoning (benchmarked `12/12` raw), while `Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0` (`Apache-2.0`) handles real decoded-frame perception and independent visual QA (`VISION_CRITIC_EXECUTED`). Single-model residency is enforced so text LLM and VLM never load simultaneously. No claim of ChatGPT/frontier parity is made.
+> - **Repository Reuse First:** Ships **20 verified imported motion mechanisms** across **5 verified MIT/Apache-2.0 upstream repositories** (`11` Remotion MIT + `9` HyperFrames Apache-2.0), recorded in [`third_party/motion_sources.lock.json`](./third_party/motion_sources.lock.json) and [`third_party/imported_primitive_manifest.json`](./third_party/imported_primitive_manifest.json), plus 17 pinned research benchmarks in [`docs/research_matrix.json`](./docs/research_matrix.json).
+> - **Audio & CC0-1.0 Foley contract:** Original source audio masters are preserved untouched bit-exact (`original_source_<id>_master.m4a` / `original_audio_master.m4a`). Voice stays dominant, music is OFF by default, and local CC0-1.0 Foley WAVs are verified via `assets/sfx_foley/manifest.json` (falling back honestly to `PARTIAL_FOLEY_ASSETS` if absent).
+> - **Technical vs Rights/Proof/Human gates:** Automated validation certifies technical integrity (`TECHNICAL_PASS` or `CANDIDATE_READY_WITH_BLOCKERS`), strictly separated from hard delivery blockers (`BLOCKED_WATERMARK_AUTHORIZATION`, `PRODUCT_PROOF_BLOCKED`, `MISSING_SOURCE_DIALOGUE`) and human review (`PENDING_HUMAN_REVIEW`, `LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`, `REAL_HELDOUT_NOT_RUN`, `REAL_LONGFORM_NOT_RUN`).
 > - **Renderer licenses:** FFmpeg (`LGPL/GPL` external binary), HyperFrames (`Apache-2.0`), GSAP (`Standard No-Charge License`), and Remotion (`Remotion License` — free for individuals and organizations up to 3 people; organizations with >=4 people require a Remotion Company License or `--disable-remotion`). See [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
 
 ---
@@ -81,6 +82,13 @@ bash scripts/bootstrap.sh
 # Build deterministic EditPlan without rendering
 .\.venv\Scripts\python.exe -m motionlab plan --input "input\raw.mp4" --profile auto --seed 42 --output "runs"
 
+# Multi-Source ML-01.R5.R5 Generative Creative Director (any niche: tutorial, finance, product, storytelling, 9:16 or 16:9)
+.\.venv\Scripts\python.exe -m motionlab plan --job "jobs\olivia_v6_director_job.json" --creative-mode director --output "runs"
+.\.venv\Scripts\python.exe -m motionlab edit --job "jobs\olivia_v6_director_job.json" --creative-mode director --offline --output "runs\olivia_v6_ml01_r5r5"
+
+# Legacy & R5.R4 Single-Source CLI (100% preserved: --pacing preserve | auto)
+.\.venv\Scripts\python.exe -m motionlab edit --input "input\raw.mp4" --profile auto --offline --composition generative --enable-remotion --audio-mode mix --pacing auto --preview-9x16 --seed 42 --max-workers 2 --output "runs"
+
 # Full ML-01.R5 Generative Dual-Engine Edit (default R5 mode)
 .\.venv\Scripts\python.exe -m motionlab edit --input "input\raw.mp4" --profile auto --offline --composition generative --enable-remotion --audio-mode mix --preview-9x16 --seed 42 --max-workers 2 --output "runs"
 
@@ -142,6 +150,9 @@ runs/<run_id>/final.mp4 + preview_9x16.mp4 (direct downscale from final) + compl
 | HyperFrames | `heygen-com/hyperframes` (`0.9.101`) | Apache-2.0 | `hf_apple_money_count`, `hf_mk_progress_stat`, `hf_mk_specs_list`, `hf_mk_callout_highlight`, `hf_lt_mask_reveal`, `hf_strikethrough_replace`, `hf_organic_light_leak`, `hf_data_chart`, `hf_exploded_stack` |
 
 Full provenance, upstream commit SHAs, file paths, adaptation notes, and Visual Benchmark Lab (`B01`–`B08`, `H1`–`H4`) results are documented in:
+- [`docs/research_matrix.json`](./docs/research_matrix.json) & [`docs/ML01_R5R5_RESEARCH.txt`](./docs/ML01_R5R5_RESEARCH.txt)
+- [`docs/ML01_R5R5_ADR.md`](./docs/ML01_R5R5_ADR.md) & [`docs/ML01_R5R5_DEFECT_LEDGER.json`](./docs/ML01_R5R5_DEFECT_LEDGER.json)
+- [`docs/ML01_R5R5_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5R5_IMPLEMENTATION_REPORT.txt)
 - [`docs/ML01_R5R1_BASELINE.txt`](./docs/ML01_R5R1_BASELINE.txt) & [`defects.json`](./defects.json)
 - [`docs/ML01_R5R1_ADR.md`](./docs/ML01_R5R1_ADR.md)
 - [`docs/ML01_R5R1_IMPLEMENTATION_REPORT.txt`](./docs/ML01_R5R1_IMPLEMENTATION_REPORT.txt)

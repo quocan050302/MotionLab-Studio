@@ -1,0 +1,41 @@
+{
+  "candidates": [
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_A_spatial_action_conflict",
+      "face_clear": true,
+      "preview_mp4": "hook_A_spatial_action_conflict_preview.mp4",
+      "preview_sha256": "e70323075765bcc3cbe8f654aeea4a3dd05801b30b993ee5dfe9679885f34754",
+      "score": 1.0,
+      "strategy": "Open kinetic editorial typography anchored in upper/lower negative space over live phone-glance action (zero dark box).",
+      "treatment_mode": "spatial_editorial_anchor",
+      "webm_path": "hook_A_spatial_action_conflict.webm"
+    },
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_B_calendar_tension_lead",
+      "face_clear": true,
+      "preview_mp4": "hook_B_calendar_tension_lead_preview.mp4",
+      "preview_sha256": "0d4a67f9d9e1e38f2f9b48047248036dc2f4a7d280e4b8f49e5c8fe4db87ccbf",
+      "score": 0.91,
+      "strategy": "Warm-ivory architectural weekday gap ribbon previewing timing tension from frame 0.",
+      "treatment_mode": "calendar_timeline_gap",
+      "webm_path": "hook_B_calendar_tension_lead.webm"
+    },
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_C_split_dilemma",
+      "face_clear": true,
+      "preview_mp4": "hook_C_split_dilemma_preview.mp4",
+      "preview_sha256": "9990a7a3d0d1d9bfc12495e242f9a473a31c2721e9eba1099d84e87a96bf80af",
+      "score": 0.91,
+      "strategy": "Two-column split metaphor contrasting on-paper balance vs actually spendable right in the hook.",
+      "treatment_mode": "split_dilemma_metaphor",
+      "webm_path": "hook_C_split_dilemma.webm"
+    }
+  ],
+  "candidates_rendered": 3,
+  "causal_hook_bound_to_final": true,
+  "schema_version": "1.0.0",
+  "winner_candidate_id": "hook_A_spatial_action_conflict"
+}

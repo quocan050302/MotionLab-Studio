@@ -1,0 +1,241 @@
+{
+  "entities": {
+    "calendar_timeline": {
+      "domain": "calendar",
+      "entity_id": "calendar_timeline",
+      "label": "Spoken Weekday Progression",
+      "metadata": {},
+      "monotonic_direction": "ordered_weekday",
+      "unit": "weekday"
+    },
+    "narrative_beat_order": {
+      "domain": "general",
+      "entity_id": "narrative_beat_order",
+      "label": "Editorial Story Arc Progression",
+      "metadata": {},
+      "monotonic_direction": "increasing",
+      "unit": "scene_index"
+    }
+  },
+  "events": [
+    {
+      "depends_on_event_id": null,
+      "display_text": "TUE",
+      "end_frame_exclusive": 190,
+      "entity_id": "calendar_timeline",
+      "event_id": "cal_00_tuesday",
+      "evidence_refs": [
+        "word:24"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "transcript_observed",
+      "start_frame": 175,
+      "transition_kind": "initial",
+      "unit": "weekday",
+      "value": "Tuesday"
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "FRI",
+      "end_frame_exclusive": 234,
+      "entity_id": "calendar_timeline",
+      "event_id": "cal_01_friday",
+      "evidence_refs": [
+        "word:31"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "transcript_observed",
+      "start_frame": 219,
+      "transition_kind": "set",
+      "unit": "weekday",
+      "value": "Friday"
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "hook_relatable_problem",
+      "end_frame_exclusive": 115,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_00_sc_00_hook",
+      "evidence_refs": [
+        "word:0",
+        "word:1",
+        "word:2",
+        "word:3",
+        "word:4",
+        "word:5"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_00_hook",
+      "start_frame": 14,
+      "transition_kind": "initial",
+      "unit": "",
+      "value": 0
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "temporal_gap_conflict",
+      "end_frame_exclusive": 234,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_01_sc_01_calendar_gap",
+      "evidence_refs": [
+        "word:16",
+        "word:17",
+        "word:18",
+        "word:19",
+        "word:20",
+        "word:21",
+        "word:22",
+        "word:23"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_01_calendar_gap",
+      "start_frame": 128,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 1
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "core_dilemma_question",
+      "end_frame_exclusive": 299,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_02_sc_02_dilemma",
+      "evidence_refs": [
+        "word:32",
+        "word:33",
+        "word:34",
+        "word:35",
+        "word:36",
+        "word:37"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_02_dilemma",
+      "start_frame": 249,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 2
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "transition_bridge",
+      "end_frame_exclusive": 342,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_03_sc_03_motivated_bridge",
+      "evidence_refs": [
+        "bridge:edit_map"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_03_motivated_bridge",
+      "start_frame": 306,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 3
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "system_mechanism_benefits",
+      "end_frame_exclusive": 529,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_04_sc_04_system_overview",
+      "evidence_refs": [
+        "word:39",
+        "word:40",
+        "word:41",
+        "word:42",
+        "word:43",
+        "word:44",
+        "word:45",
+        "word:46",
+        "word:47",
+        "word:48"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_04_system_overview",
+      "start_frame": 352,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 4
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "emotional_resolution_payoff",
+      "end_frame_exclusive": 688,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_05_sc_05_payoff_clarity",
+      "evidence_refs": [
+        "word:58",
+        "word:59",
+        "word:60",
+        "word:61",
+        "word:62",
+        "word:63",
+        "word:64",
+        "word:65"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_05_payoff_clarity",
+      "start_frame": 554,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 5
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "resolution_anchor",
+      "end_frame_exclusive": 735,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_06_sc_06_calm_face",
+      "evidence_refs": [
+        "word:69",
+        "word:70",
+        "word:71",
+        "word:72",
+        "word:73"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_06_calm_face",
+      "start_frame": 699,
+      "transition_kind": "set",
+      "unit": "",
+      "value": 6
+    },
+    {
+      "depends_on_event_id": null,
+      "display_text": "cta_direction",
+      "end_frame_exclusive": 817,
+      "entity_id": "narrative_beat_order",
+      "event_id": "arc_07_sc_07_cta",
+      "evidence_refs": [
+        "word:74",
+        "word:75",
+        "word:76",
+        "word:77",
+        "word:78",
+        "word:79"
+      ],
+      "is_recap": false,
+      "recap_label": "",
+      "scene_id": "sc_07_cta",
+      "start_frame": 743,
+      "transition_kind": "resolve",
+      "unit": "",
+      "value": 7
+    }
+  ],
+  "fps_den": 1,
+  "fps_num": 30,
+  "ledger_hash": "11046a71c37300a5756a7b437800e23ebbebf6184ed98d42ba531f337349b39e",
+  "schema_version": "1.0.0",
+  "time_domain": "edited",
+  "valid": true,
+  "validation_errors": []
+}

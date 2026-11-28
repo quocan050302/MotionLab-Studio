@@ -1,0 +1,22 @@
+{
+  "before_y_px": 420,
+  "after_y_px": 1153,
+  "before_geometry_overlaps_face": true,
+  "after_geometry_overlaps_face": false,
+  "before_frame_sha256": "336f79c207d1fa6627fdd25b375969dd91921fe565d9da7507546dcaec0fc0b8",
+  "after_frame_sha256": "9696826aed980f404e8583e320c352d6fccfa6a41a1af2fda3a7ce397d06ab87",
+  "pixels_changed": true,
+  "pixel_diff_mad": 19.996,
+  "vlm_before": {
+    "covers_speaker_eyes_or_mouth": true,
+    "visible_defect": "overlay",
+    "visual_clarity_score_0_4": 0.8
+  },
+  "vlm_after": {
+    "covers_speaker_eyes_or_mouth": false,
+    "visible_defect": false,
+    "visual_clarity_score_0_4": 1
+  },
+  "defect_flagged_before": true,
+  "defect_cleared_after": true
+}

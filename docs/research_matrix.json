@@ -1,0 +1,326 @@
+{
+  "schema_version": "1.0.0",
+  "audit_date_utc": "2026-11-28",
+  "host_environment": {
+    "os": "Windows 11 x64",
+    "logical_cpus": 12,
+    "ram_total_gb": 31.75,
+    "accelerator": "cpu_only_intel_uhd_730",
+    "policy": "100% offline local inference/edit/render; no cloud LLM/VLM/TTS APIs; no GPL/AGPL vendoring; no asset copying"
+  },
+  "repositories": [
+    {
+      "id": "R01",
+      "slug": "FireRedTeam/FireRed-OpenStoryline",
+      "url": "https://github.com/FireRedTeam/FireRed-OpenStoryline",
+      "pinned_sha": "c9e945215586f45c12a61c1951ee9a8e9c43a027",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/c9e945215586f45c12a61c1951ee9a8e9c43a027/LICENSE",
+      "inspected_files": [
+        "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/c9e945215586f45c12a61c1951ee9a8e9c43a027/prompts/tasks/instruction/en/system.md",
+        "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/c9e945215586f45c12a61c1951ee9a8e9c43a027/.storyline/skills/speech_rough_cut_skill/SKILL.md",
+        "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/c9e945215586f45c12a61c1951ee9a8e9c43a027/.storyline/skills/default_editing_workflow_skill/SKILL.md"
+      ],
+      "observed_vs_readme": "README presents an intention-driven video editing agent; inspected SKILL.md and prompts show a FastAPI + MCP workflow stack relying on external/configured API keys in config.toml and structured multi-stage tool calls (load_media -> split_shots -> asr -> speech_rough_cut -> plan_timeline -> render_video) plus post-cut history review.",
+      "cost_and_risk": "Requires POSIX-oriented service stack (uvicorn/MCP/FastAPI) and cloud API keys by default; unnecessary dependency bloat for a single-CLI local engine.",
+      "comparison_vs_motionlab": "MotionLab already runs 100% local offline without FastAPI/MCP daemon overhead, and adds strict rational MultiSourceEditMap + independent Re-ASR preservation.",
+      "adoption_category": "ADOPT_PATTERN",
+      "adopted_interface": "Adopted intention-driven IntentBrief + typed bounded DirectorToolRegistry + post-rough-cut verification feedback loop in motionlab/semantic/creative_director.py and motionlab/composition/director_pipeline.py (zero LangChain/FastAPI/cloud dependencies).",
+      "tested_result": "Verified via unit tests (test_r5r5_director_vlm_critic_and_repair.py) and live Olivia V6 production CLI run."
+    },
+    {
+      "id": "R02",
+      "slug": "QwenLM/Qwen3-VL",
+      "url": "https://github.com/QwenLM/Qwen3-VL",
+      "pinned_sha": "96588727e44c78b25ba03ea03b8e12f7e64fd0da",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/QwenLM/Qwen3-VL/blob/96588727e44c78b25ba03ea03b8e12f7e64fd0da/LICENSE",
+      "inspected_files": [
+        "https://github.com/QwenLM/Qwen3-VL/blob/96588727e44c78b25ba03ea03b8e12f7e64fd0da/README.md",
+        "https://github.com/QwenLM/Qwen3-VL/blob/96588727e44c78b25ba03ea03b8e12f7e64fd0da/cookbooks/utils/agent_function_call.py"
+      ],
+      "observed_vs_readme": "Apache-2.0 official multimodal vision-language model family (2B/4B/8B/MoE). Official quantized GGUF weights + mmproj published on Hugging Face (Qwen/Qwen3-VL-2B-Instruct-GGUF rev 52d6c8ffea26).",
+      "cost_and_risk": "Measured Qwen3-VL-2B-Instruct Q4_K_M (1.11 GB) + mmproj Q8_0 (0.45 GB) = 1.55 GB disk, ~2.62 GB peak RSS, ~9.0s/frame on 12-core CPU. Qwen3-VL-4B (~2.95 GB + KV) deferred to keep safe headroom alongside Chromium rendering on 4.1–7.4 GiB free RAM.",
+      "comparison_vs_motionlab": "Fills MotionLab's R5.R4 VISION_CRITIC_NOT_RUN gap with real local decoded-frame perception and visual QA critic. Comparative 12-case text benchmark proved Qwen2.5-3B-Instruct Q4_K_M scores 12/12 raw vs Qwen3-VL-2B 1/12 raw on strict boolean policy reasoning, justifying a hybrid single-residency router.",
+      "adoption_category": "ADOPT_CODE",
+      "adopted_interface": "Provisioned official Apache-2.0 Qwen3VL-2B-Instruct-Q4_K_M.gguf + mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf in models/manifest.json; executed via tools/llama.cpp/llama-mtmd-cli.exe inside motionlab/semantic/model_router.py (hybrid_qwen2_5_3b_text_plus_qwen3_vl_2b_vision).",
+      "tested_result": "PASSED live frame perception (9.0s/frame, setting='inside a car', visible_objects=['woman','phone','car interior',...], readable_bank_balance='UNREADABLE'), PASSED blurred-screen negative refusal test, and executed inside canonical Olivia V6 VLM perception & VLM critic."
+    },
+    {
+      "id": "R03",
+      "slug": "Blaizzy/mlx-vlm",
+      "url": "https://github.com/Blaizzy/mlx-vlm",
+      "pinned_sha": "e8035ae3b9740d5e3fc6cb0de4894132d60c8682",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/Blaizzy/mlx-vlm/blob/e8035ae3b9740d5e3fc6cb0de4894132d60c8682/LICENSE",
+      "inspected_files": [
+        "https://github.com/Blaizzy/mlx-vlm/blob/e8035ae3b9740d5e3fc6cb0de4894132d60c8682/README.md"
+      ],
+      "observed_vs_readme": "Confirmed MIT license, Apple Silicon macOS MLX runtime only (incompatible with Windows x64 CPU-only host).",
+      "cost_and_risk": "Cannot run on Windows 11 amd64.",
+      "comparison_vs_motionlab": "MotionLab uses existing llama.cpp (llama-mtmd-cli.exe + llama-completion.exe) for portable Windows/Linux/macOS quantized inference without dual runtimes.",
+      "adoption_category": "REJECT",
+      "adopted_interface": "None (Windows x64 fallback via existing llama.cpp mtmd binary).",
+      "tested_result": "N/A on Windows host; llama.cpp mtmd verified in place."
+    },
+    {
+      "id": "R04",
+      "slug": "dolphin-creator/VideoContext-Engine",
+      "url": "https://github.com/dolphin-creator/VideoContext-Engine",
+      "pinned_sha": "4a42b4a309d9d7d8f7f944c2e210a027940208f3",
+      "status": "ACCESSIBLE",
+      "license": "NO_ROOT_LICENSE_FILE_DETECTED",
+      "license_permalink": "https://github.com/dolphin-creator/VideoContext-Engine/blob/4a42b4a309d9d7d8f7f944c2e210a027940208f3/README.md",
+      "inspected_files": [
+        "https://github.com/dolphin-creator/VideoContext-Engine/blob/4a42b4a309d9d7d8f7f944c2e210a027940208f3/README.md"
+      ],
+      "observed_vs_readme": "Only 4 files in repo, NO root LICENSE file (HTTP 404 on LICENSE); Windows llama.cpp support explicitly marked untested beta. Architectural concept: scene segmentation -> Whisper -> Qwen3-VL keyframes -> hierarchical scene/global summary + low-RAM unload mode.",
+      "cost_and_risk": "Missing license prohibits vendoring code; FastAPI service unnecessary.",
+      "comparison_vs_motionlab": "Inspired clean-room streaming O(1)-RAM video evidence index + hierarchical episode/chapter/scene/shot/frame index + strict single-model residency unload.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Clean-room design pattern only in motionlab/semantic/video_evidence.py (zero copied code).",
+      "tested_result": "Clean-room streaming shot detector, face ROI tracker, watermark detector, and Qwen3-VL keyframe observer tested on Olivia V6."
+    },
+    {
+      "id": "R05",
+      "slug": "m-bain/whisperX",
+      "url": "https://github.com/m-bain/whisperX",
+      "pinned_sha": "8d8e43bf3698dd1df4b011c0f1a8dd1d468ae365",
+      "status": "ACCESSIBLE",
+      "license": "BSD-2-Clause",
+      "license_permalink": "https://github.com/m-bain/whisperX/blob/8d8e43bf3698dd1df4b011c0f1a8dd1d468ae365/LICENSE",
+      "inspected_files": [
+        "https://github.com/m-bain/whisperX/blob/8d8e43bf3698dd1df4b011c0f1a8dd1d468ae365/LICENSE"
+      ],
+      "observed_vs_readme": "Wav2Vec2 forced alignment requires PyTorch + torchaudio (~2+ GB dependencies) plus HF diarization tokens for optional speaker separation.",
+      "cost_and_risk": "Heavy PyTorch install risk on CPU-only Windows venv.",
+      "comparison_vs_motionlab": "Installed faster-whisper-small (int8) with condition_on_previous_text=False + neural Silero VAD ONNX + 16kHz PCM valley refinement accurately captures every stutter ('what you can actually spend', 'mental math') and filler ('I know') without PyTorch bloat. Explicitly labeled as ASR+VAD envelope refinement, never falsely labeled forced-aligned.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Retained installed faster-whisper + Silero VAD + PCM quietest-valley boundary snapping.",
+      "tested_result": "Verified on real Olivia V6 A+B audio + independent edited-bed Re-ASR."
+    },
+    {
+      "id": "R06",
+      "slug": "Breakthrough/PySceneDetect",
+      "url": "https://github.com/Breakthrough/PySceneDetect",
+      "pinned_sha": "facff3b7c4db4cd30ffcb7cd17a6d3262ebe2ec2",
+      "status": "ACCESSIBLE",
+      "license": "BSD-3-Clause",
+      "license_permalink": "https://github.com/Breakthrough/PySceneDetect/blob/facff3b7c4db4cd30ffcb7cd17a6d3262ebe2ec2/LICENSE",
+      "inspected_files": [
+        "https://github.com/Breakthrough/PySceneDetect/blob/facff3b7c4db4cd30ffcb7cd17a6d3262ebe2ec2/LICENSE"
+      ],
+      "observed_vs_readme": "Content/HSV threshold shot detector.",
+      "cost_and_risk": "Extra pip dependency unnecessary because OpenCV HSV histogram + MAD streaming shot detector is already installed and runs in O(1) RAM.",
+      "comparison_vs_motionlab": "MotionLab's OpenCV streaming HSV+MAD detector detects real shot cuts cleanly in <1s per 30s clip with zero extra dependencies.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Streaming OpenCV HSV+MAD detector in motionlab/semantic/video_evidence.py::detect_shots.",
+      "tested_result": "Verified on Olivia V6 and synthetic multi-shot fixtures."
+    },
+    {
+      "id": "R07",
+      "slug": "mlfoundations/open_clip",
+      "url": "https://github.com/mlfoundations/open_clip",
+      "pinned_sha": "34b17dc1eebc4eaeabbdc7a145111d8d758c0366",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/mlfoundations/open_clip/blob/34b17dc1eebc4eaeabbdc7a145111d8d758c0366/LICENSE",
+      "inspected_files": [
+        "https://github.com/mlfoundations/open_clip/blob/34b17dc1eebc4eaeabbdc7a145111d8d758c0366/LICENSE"
+      ],
+      "observed_vs_readme": "Requires PyTorch + CLIP vision weights (~600 MB–1.7 GB).",
+      "cost_and_risk": "Extra PyTorch/weight footprint not justified when local asset catalog is currently empty and Qwen3-VL-2B already handles visual verification.",
+      "comparison_vs_motionlab": "Retained deterministic lexical/metadata catalog retrieval + Qwen3-VL visual rerank; explicitly marked EMBEDDING_NOT_RUN.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Deterministic metadata catalog match in motionlab/assets/catalog.py (status EMBEDDING_NOT_RUN).",
+      "tested_result": "Verified fail-closed PRODUCT_PROOF_BLOCKED when authorized Notion/workbook assets absent."
+    },
+    {
+      "id": "R08a",
+      "slug": "facebookresearch/sam2",
+      "url": "https://github.com/facebookresearch/sam2",
+      "pinned_sha": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/facebookresearch/sam2/blob/2b90b9f5ceec907a1c18123530e92e794ad901a4/LICENSE",
+      "inspected_files": [
+        "https://github.com/facebookresearch/sam2/blob/2b90b9f5ceec907a1c18123530e92e794ad901a4/LICENSE"
+      ],
+      "observed_vs_readme": "Heavy GPU-centric video segmentation model (PyTorch/CUDA).",
+      "cost_and_risk": "Prohibitively slow/heavy on CPU-only Intel UHD 730 host.",
+      "comparison_vs_motionlab": "MotionLab already has installed lightweight MODNet ONNX portrait matting (25.9 MB) + OpenCV Haar face ROI tracking + safe dynamic layout exclusion.",
+      "adoption_category": "REJECT",
+      "adopted_interface": "Retained MODNet ONNX + OpenCV face ROI safe layout.",
+      "tested_result": "Verified face-safe dynamic placement across all Olivia V6 scenes."
+    },
+    {
+      "id": "R08b",
+      "slug": "google-ai-edge/mediapipe",
+      "url": "https://github.com/google-ai-edge/mediapipe",
+      "pinned_sha": "2f787dbfe2cb65152d3be409aaff8484a4e8f21b",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/google-ai-edge/mediapipe/blob/2f787dbfe2cb65152d3be409aaff8484a4e8f21b/LICENSE",
+      "inspected_files": [
+        "https://github.com/google-ai-edge/mediapipe/blob/2f787dbfe2cb65152d3be409aaff8484a4e8f21b/LICENSE"
+      ],
+      "observed_vs_readme": "Face/hand landmark package; optional heavy wheel on Windows Python 3.12.",
+      "cost_and_risk": "Avoided destructive venv mutation; OpenCV face ROI + Qwen3-VL visual check already verifies face/eye clearance.",
+      "comparison_vs_motionlab": "OpenCV face ROI + VLM eye/mouth occlusion critic suffice with zero extra native binaries.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Lightweight OpenCV face ROI + VLM occlusion guard.",
+      "tested_result": "Verified in video_evidence.py and independent VLM critic."
+    },
+    {
+      "id": "R09",
+      "slug": "Vincentwei1021/video-shotcraft",
+      "url": "https://github.com/Vincentwei1021/video-shotcraft",
+      "pinned_sha": "85ad62df7ab3a72e87b6bfab7dc5591fc0dde518",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/Vincentwei1021/video-shotcraft/blob/85ad62df7ab3a72e87b6bfab7dc5591fc0dde518/LICENSE",
+      "inspected_files": [
+        "https://github.com/Vincentwei1021/video-shotcraft/blob/85ad62df7ab3a72e87b6bfab7dc5591fc0dde518/SKILL.md",
+        "https://github.com/Vincentwei1021/video-shotcraft/blob/85ad62df7ab3a72e87b6bfab7dc5591fc0dde518/demos/README.md"
+      ],
+      "observed_vs_readme": "124 Remotion shot recipe cards with Look/Polish design tokens (light/dark palette polarity, hairline dividers, deterministic pure-frame functions, real capture vs fake dashboard separation).",
+      "cost_and_risk": "Repo bundles third-party audio/brand assets that MUST NOT be copied; only compositional design doctrine and palette/typography hierarchy apply.",
+      "comparison_vs_motionlab": "MotionLab already maintains 11 verified MIT Remotion mechanisms + 9 HyperFrames mechanisms; adopting Look/Polish editorial polarity and non-pill typographic hierarchy fixed D02.",
+      "adoption_category": "ADOPT_PATTERN",
+      "adopted_interface": "Adopted light/dark polarity alternation (warm ivory vs charcoal editorial cards), hairline rules, and strict non-fake-product disclosure in motionlab/composition/scene_graph_v2.py (zero upstream assets copied).",
+      "tested_result": "6 distinct SceneGraph v2 visual modes compiled, rendered with verified alpha, and inspected on real Olivia V6 frames."
+    },
+    {
+      "id": "R10",
+      "slug": "louiseliu/hyperFrames-video-shotcraft",
+      "url": "https://github.com/louiseliu/hyperFrames-video-shotcraft",
+      "pinned_sha": "1df77f1ab080323558f70a5fb880fad0f88f87fc",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/louiseliu/hyperFrames-video-shotcraft/blob/1df77f1ab080323558f70a5fb880fad0f88f87fc/LICENSE",
+      "inspected_files": [
+        "https://github.com/louiseliu/hyperFrames-video-shotcraft/blob/1df77f1ab080323558f70a5fb880fad0f88f87fc/README.md",
+        "https://github.com/louiseliu/hyperFrames-video-shotcraft/blob/1df77f1ab080323558f70a5fb880fad0f88f87fc/SKILL.md"
+      ],
+      "observed_vs_readme": "HyperFrames + GSAP port of video-shotcraft recipe cards (157 cards, 218 HTML compositions, Ink Press warm paper theme).",
+      "cost_and_risk": "Audio/font assets carry separate licenses; must NOT copy bundled assets.",
+      "comparison_vs_motionlab": "Validated that paused GSAP timelines inside local offline HyperFrames cleanly render editorial paper/ivory motion boards without double-rendering in Remotion.",
+      "adoption_category": "ADOPT_PATTERN",
+      "adopted_interface": "Paused deterministic GSAP timelines + warm ivory/parchment/charcoal editorial themes in scene_graph_v2.py.",
+      "tested_result": "Verified via HyperFrames alpha-verified WebM rendering on Olivia V6."
+    },
+    {
+      "id": "R11",
+      "slug": "heygen-com/hyperframes",
+      "url": "https://github.com/heygen-com/hyperframes",
+      "pinned_sha": "d084cc3940a15ad419d5c43770bd21b35d5c9ded",
+      "status": "ACCESSIBLE",
+      "license": "Apache-2.0",
+      "license_permalink": "https://github.com/heygen-com/hyperframes/blob/d084cc3940a15ad419d5c43770bd21b35d5c9ded/LICENSE",
+      "inspected_files": [
+        "https://github.com/heygen-com/hyperframes/blob/d084cc3940a15ad419d5c43770bd21b35d5c9ded/skills/hyperframes/SKILL.md",
+        "https://github.com/heygen-com/hyperframes/blob/d084cc3940a15ad419d5c43770bd21b35d5c9ded/.agents/skills/captions-overlay/SKILL.md",
+        "https://github.com/heygen-com/hyperframes/blob/d084cc3940a15ad419d5c43770bd21b35d5c9ded/.agents/skills/changelog-video/SKILL.md"
+      ],
+      "observed_vs_readme": "Apache-2.0 HTML/GSAP seekable deterministic renderer (already installed at v0.9.101 in MotionLab). Repo-native skills highlight 'visualize, don't list' and seam-gate transition continuity checks.",
+      "cost_and_risk": "Zero HeyGen cloud TTS/API calls permitted; offline local Chromium + bundled gsap.min.js only (GSAP Standard No-Charge License).",
+      "comparison_vs_motionlab": "Already MotionLab's primary local HTML/GSAP overlay renderer; extended with SceneGraph v2 clip-path motivated bridge and 6 distinct editorial modes.",
+      "adoption_category": "ADOPT_CODE",
+      "adopted_interface": "Installed local HyperFrames 0.9.101 + GSAP 3.15.1 via motionlab/renderers/hyperframes.py and motionlab/composition/scene_graph_v2.py.",
+      "tested_result": "100% alpha-verified WebM renders + zero abrupt boundary jumps in Olivia V6."
+    },
+    {
+      "id": "R12",
+      "slug": "remotion-dev/skills",
+      "url": "https://github.com/remotion-dev/skills",
+      "pinned_sha": "a3f4098a2afd0e13f6a6f8c8760e275f75457ea9",
+      "status": "ACCESSIBLE",
+      "license": "Remotion_Commercial_Threshold_License",
+      "license_permalink": "https://github.com/remotion-dev/skills/blob/a3f4098a2afd0e13f6a6f8c8760e275f75457ea9/README.md",
+      "inspected_files": [
+        "https://github.com/remotion-dev/skills/blob/a3f4098a2afd0e13f6a6f8c8760e275f75457ea9/README.md"
+      ],
+      "observed_vs_readme": "Official Remotion best-practice skills repo (no root LICENSE file; Remotion runtime itself is v4.0.547 free for individuals/orgs <=3 people, company license required >=4).",
+      "cost_and_risk": "Commercial license threshold requires keeping --disable-remotion opt-out intact.",
+      "comparison_vs_motionlab": "Preserved full existing Remotion 4.0.547 + 11 MIT imported primitives + tsc --noEmit verification for single-source generative pipeline while avoiding forced double-render in director mode.",
+      "adoption_category": "ADOPT_CODE",
+      "adopted_interface": "Existing renderers/remotion/ (v4.0.547) preserved and regression-tested with tsc --noEmit.",
+      "tested_result": "tsc --noEmit exit 0; all existing Remotion unit/integration tests pass."
+    },
+    {
+      "id": "R13a",
+      "slug": "Liamrjohnston/remotion-motion-graphics-skill",
+      "url": "https://github.com/Liamrjohnston/remotion-motion-graphics-skill",
+      "pinned_sha": "b860c7921f2220b9e2a84e815ba0ae7b10858f08",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/Liamrjohnston/remotion-motion-graphics-skill/blob/b860c7921f2220b9e2a84e815ba0ae7b10858f08/LICENSE",
+      "inspected_files": [
+        "https://github.com/Liamrjohnston/remotion-motion-graphics-skill/blob/b860c7921f2220b9e2a84e815ba0ae7b10858f08/README.md"
+      ],
+      "observed_vs_readme": "MIT skill prompts for kinetic text, workflow diagrams, editorial highlights.",
+      "cost_and_risk": "Prompt reference only; no runtime dependency needed.",
+      "comparison_vs_motionlab": "Informed open-space kinetic serif typography in spatial_editorial_anchor.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Design reference only.",
+      "tested_result": "Reflected in spatial_editorial_anchor phone legibility."
+    },
+    {
+      "id": "R13b",
+      "slug": "VisualxIntelligence/motion-tools-and-skills",
+      "url": "https://github.com/VisualxIntelligence/motion-tools-and-skills",
+      "pinned_sha": "0d00fd179880bad18b8ce479ead8c010070496c2",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/VisualxIntelligence/motion-tools-and-skills/blob/0d00fd179880bad18b8ce479ead8c010070496c2/LICENSE",
+      "inspected_files": [
+        "https://github.com/VisualxIntelligence/motion-tools-and-skills/blob/0d00fd179880bad18b8ce479ead8c010070496c2/README.md"
+      ],
+      "observed_vs_readme": "MIT curated aggregator of motion-graphics skills and QA gates.",
+      "cost_and_risk": "Aggregator repo — must not copy blindly.",
+      "comparison_vs_motionlab": "Checked for QA gate conventions only.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Reference only.",
+      "tested_result": "N/A."
+    },
+    {
+      "id": "R13c",
+      "slug": "iart-ai/b-roll-skills",
+      "url": "https://github.com/iart-ai/b-roll-skills",
+      "pinned_sha": "bcd56742a8a99edaa699a6f7bc5a45922a8ec567",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/iart-ai/b-roll-skills/blob/bcd56742a8a99edaa699a6f7bc5a45922a8ec567/LICENSE",
+      "inspected_files": [
+        "https://github.com/iart-ai/b-roll-skills/blob/bcd56742a8a99edaa699a6f7bc5a45922a8ec567/README.md"
+      ],
+      "observed_vs_readme": "MIT talking-head line-by-line B-roll vs speaker vs overlay alternating grammar.",
+      "cost_and_risk": "Reference only.",
+      "comparison_vs_motionlab": "Reinforced alternating clean face beats (calm_breathing_face) with illustrative overlays and bridges instead of plastering cards over every sentence.",
+      "adoption_category": "ADOPT_PATTERN",
+      "adopted_interface": "Beat-by-beat alternation including calm_breathing_face in director_pipeline.py.",
+      "tested_result": "Verified in Olivia V6 SceneGraph v2."
+    },
+    {
+      "id": "R13d",
+      "slug": "LottieFiles/motion-design-skill",
+      "url": "https://github.com/LottieFiles/motion-design-skill",
+      "pinned_sha": "d77a9fc8cb371cab1ba5420df5bfd232cd14c9bb",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/LottieFiles/motion-design-skill/blob/d77a9fc8cb371cab1ba5420df5bfd232cd14c9bb/LICENSE",
+      "inspected_files": [
+        "https://github.com/LottieFiles/motion-design-skill/blob/d77a9fc8cb371cab1ba5420df5bfd232cd14c9bb/README.md"
+      ],
+      "observed_vs_readme": "MIT philosophy-first motion timing, easing, choreography & emotional staging guide.",
+      "cost_and_risk": "No code dependency.",
+      "comparison_vs_motionlab": "Guided anticipation/action/settle easing curves (expo.out, back.out(1.5), power3.out) and staged visual focus in SceneGraph v2.",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Choreography easing doctrine in scene_graph_v2.py.",
+      "tested_result": "Verified visually on rendered frames."
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+ML-01.R5.R5 — IMPLEMENTATION & VERIFICATION REPORT
+==========================================================================
+Repository: https://github.com/quocan050302/MotionLab-Studio
+Branch: feat/ml-01-zero-api-effects
+Baseline Audited HEAD: d8a915e91001f114fce9498ea253c1f64e1f4b7c
+Tested Implementation Commit (TESTED_CODE_SHA): c57780e3e3b7b7910b04dde7c1910efbbb8a1618
+Date: 2026-11-28 | Host: Windows 11 x64 (12 CPUs, 31.75 GiB RAM, Intel UHD 730 CPU-only)
+
+1. EXECUTIVE SUMMARY & HONESTY DISCLOSURES
+------------------------------------------
+MotionLab Studio has been upgraded to ML-01.R5.R5 — a general-purpose, 100% local offline
+multimodal creative director and multi-source video editing engine (zero cloud LLM/VLM/TTS APIs
+at runtime).
+
+Technical verification passed 100% on TESTED_CODE_SHA (c57780e), while non-technical/external
+gates remain honestly disclosed and separated:
+- Overall Canonical Run Status: CANDIDATE_READY_WITH_BLOCKERS (technical_gates_passed=true)
+- Hard Delivery Blockers (why output is *_CANDIDATE_9x16.mp4, NOT *_FINAL_9x16.mp4):
+  1) BLOCKED_WATERMARK_AUTHORIZATION: Static 4-point corner provenance mark detected on BOTH
+     source A and source B; preserved intact with zero cropping/blurring/masking.
+  2) PRODUCT_PROOF_BLOCKED: No owner-authorized Notion dashboard capture or 56-page workbook PDF
+     exists on disk; illustrative board is explicitly labeled "ILLUSTRATIVE OVERVIEW" and never
+     forged as ACTUAL_PRODUCT.
+  3) MISSING_SOURCE_DIALOGUE: Two sentences from owner canonical script ("That's the part my
+     monthly budget never really answered." and "That's why I created The Next Paycheck Plan.")
+     are genuinely absent from both raw inputs; zero voice cloning or lip-sync synthesis used.
+- Explicit Honest Review / Coverage Disclosures:
+  - Human aesthetic approval: PENDING_HUMAN_REVIEW (VQ-01 never self-approved)
+  - Human audio playback listening: LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY
+  - Real multi-niche heldout real footage: REAL_HELDOUT_NOT_RUN
+  - Real multi-minute long-form footage: REAL_LONGFORM_NOT_RUN (synthetic 90s streaming only)
+  - Image-text retrieval embeddings (OpenCLIP): EMBEDDING_NOT_RUN (lexical/metadata + VLM)
+  - Frontier model equivalence: NOT claimed (local Qwen2.5-3B + Qwen3-VL-2B audited transparently)
+
+2. EXACT FILE & FUNCTION INVENTORY (TESTED_CODE_SHA c57780e)
+------------------------------------------------------------
+New Production Modules:
+- motionlab/semantic/model_router.py
+  * inspect_vlm_model(), LocalModelRouter, run_comparative_model_benchmark()
+  * Hybrid single-residency offline router (Qwen2.5-3B text + Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0 vision via llama-mtmd-cli.exe)
+- motionlab/semantic/temporal_ledger.py
+  * TemporalEntity, TemporalStateEvent, TemporalFactLedger, validate_temporal_fact_ledger(), build_temporal_ledger_from_story_and_scenes()
+- motionlab/semantic/video_evidence.py
+  * detect_shots_streaming(), detect_static_corner_watermarks(), build_multimodal_video_evidence_index()
+- motionlab/semantic/creative_director.py
+  * IntentBrief, DirectorToolRegistry, extract_claims_and_questions(), build_intent_brief(), propose_global_creative_directions(), build_claim_visual_coverage_matrix()
+- motionlab/composition/scene_graph_v2.py
+  * solve_dynamic_safe_layout(), compile_scene_v2_html(), render_scene_v2_overlay(), build_three_hook_candidates()
+- motionlab/composition/director_pipeline.py
+  * validate_and_load_job_manifest(), run_multisource_director_job(), _run_independent_vlm_render_critic()
+
+Modified Production Modules:
+- motionlab/cli.py: fixed 100% argparse help bug, added vlm_qwen3_vl to doctor, added opt-in --job & --creative-mode director on edit/plan, updated validate exit check for CANDIDATE_READY_WITH_BLOCKERS.
+- motionlab/pipeline.py: added _validate_multisource_director_run() for non-destructive CLI validation.
+- motionlab/composition/multi_source_timeline.py: arbitrary N-source support, MultiSourceEditMap.from_dict(), strict end-exclusive [start, end) mapping, VAD-proven room tone, smooth cross-dissolve bridge mezzanine (fixing D10 MAD 136.08/139.71 -> 1.08/1.21!).
+- motionlab/composition/calendar_editorial.py: removed hardcoded finance/Olivia defaults, fail-closed ValueError on unknown semantic kind (D03).
+- motionlab/semantic/speech_dedup.py: arbitrary N-source adjacent boundary support, removed hardcoded "B" in exact_overlap.
+- motionlab/semantic/speech_perception.py: cross-platform Silero VAD + energy reconciliation when verified transcript words exist alongside strong acoustic signal (preserving silent_video=True on silent footage).
+- motionlab/semantic/pacing_director.py: removed fixed balanced bonus (D09).
+- motionlab/composition/visual_critic.py: fail-closed rhythm critic on missing bed/word-preservation/join QA + WARN_REVIEW_REQUIRED for medium findings (D09).
+- models/manifest.json: registered Apache-2.0 qwen3_vl_2b_instruct_q4_k_m with SHA-256 digests for weights and mmproj.
+- jobs/olivia_v6_director_job.json: pure data manifest for canonical multi-source Olivia V6 job.
+
+New & Updated Tests:
+- tests/unit/test_r5r5_multisource_cli_and_temporal_ledger.py
+- tests/unit/test_r5r5_director_vlm_critic_and_repair.py
+- tests/unit/test_r5r2_product_catalog_and_critic.py (isolated empty temp models_dir so VLM-absent test remains invariant after provisioning Qwen3-VL-2B on host)
+
+3. HOW TO RUN ON ANY OTHER NICHE (GENERAL-PURPOSE CLI)
+------------------------------------------------------
+Create a standard job JSON (e.g. jobs/my_tutorial.json) with ordered `sources` (1..N clips of
+any FPS/sample rate), `intended_story`, `niche_hint` (tutorial, gameplay, product, comedy,
+storytelling, silent_art, finance, etc.), `output` dimensions (`1080x1920` or `1920x1080`),
+optional `asset_catalog_path`, and run:
+  python -m motionlab plan --job jobs/my_tutorial.json --creative-mode director --output runs
+  python -m motionlab edit --job jobs/my_tutorial.json --creative-mode director --offline --output runs
+  python -m motionlab validate --run runs/<run_id>
+
+4. VERIFICATION RESULTS ON TESTED_CODE_SHA (c57780e)
+----------------------------------------------------
+- Full pytest suite (`python -m pytest -v tests/ --tb=short`): 197 passed, 0 failed, 0 skipped (exit 0)
+- Legacy upstream unittest (`python -m unittest discover -s tests -p "test_render_*.py" -v`): 26 passed (exit 0; overlapping upstream subset disclosed separately)
+- Remotion TypeScript (`tsc --noEmit -p renderers/remotion/tsconfig.json`): exit 0
+- CLI doctor (`python -m motionlab doctor --json`): exit 0 (40 legacy effects, 20 imported primitives, 34 CC0 Foley, Qwen2.5-3B + Qwen3-VL-2B verified)
+- CLI validate (`python -m motionlab validate --run runs/olivia_v6_ml01_r5r5/20261128T014049Z_81d918d0_s42`): 14/14 checks PASS, overall_status=CANDIDATE_READY_WITH_BLOCKERS (exit 0)
+- Source immutability: video-olivia-01.mp4 (18eceffc...) and video-olivia-02.mp4 (0339dc21...) verified bit-identical in both input/ and Downloads/.
+
+5. BENCHMARK & ACCEPTANCE GATES (G0-G11)
+----------------------------------------
+- Model Comparative Benchmark (12 strict reasoning cases + real vision + blurred negative):
+  * Qwen2.5-3B-Instruct Q4_K_M text: 12/12 valid JSON, 12/12 raw PASS (113.6s)
+  * Qwen3-VL-2B-Instruct Q4_K_M text: 12/12 valid JSON, 1/12 raw PASS (50.6s)
+  * Qwen3-VL-2B + mmproj Q8_0 vision: VLM_EXECUTED in 9.04s/frame (2,615 MB RSS), PASSED real car/phone observation & PASSED blurred-screen negative refusal test
+  * Decision: hybrid_qwen2_5_3b_text_plus_qwen3_vl_2b_vision (single-model residency)
+- Cold vs Warm Canonical Olivia V6 Render:
+  * Cold run (20261128T013139Z_81d918d0_s42): 466.61s wall, 155.63s overlay render; strict critic caught abrupt_boundary_jumps=2 (MAD 136.08/139.71 on hard cream bridge).
+  * Warm-cache + D10 bridge fix canonical run (20261128T014049Z_81d918d0_s42): 354.57s wall, 47.69s overlay render (3.26x faster); abrupt_boundary_jumps=0 (MAD 1.08/1.21), 0 black frames, WER 0.0 (85/85 tokens, 100% critical recall), 7/7 true minus-one-cue counterfactual audio ablation PASS (-16.3 LUFS, -2.3 dBTP, 0 clipping), 3 rendered hook proxies, VLM_EXECUTED + VISION_CRITIC_EXECUTED.
+- A9 Injected-Defect Real Pixel Repair Proof:
+  * Injected y_px=420 face occlusion -> Qwen3-VL-2B flagged covers_speaker_eyes_or_mouth=true -> layout shifted to y_px=1153 & re-rendered (pixel_diff_mad=19.996, new SHA-256) -> Qwen3-VL-2B confirmed covers_speaker_eyes_or_mouth=false.
+- A10 16:9 Smoke & 90s Synthetic Streaming Proof:
+  * 1920x1080 landscape SceneGraph v2 render: alpha_verified=true (10.78s, PASS).
+  * 90s synthetic 3-shot clip streaming evidence index: 3 shots in 1.72s, RSS delta +24.01 MB (REAL_LONGFORM_NOT_RUN disclosed).
+
+Gate Matrix:
+- G0 Scope/Branch/Immutability/Preflight: PASS
+- G1 Production Callgraph & Regressions: PASS
+- G2 Speech/Map/Re-ASR/Decode: PASS_WITH_MISSING_SOURCE_DIALOGUE (blocker honestly disclosed)
+- G3 Brain/Hybrid Local VLM+LLM: PASS (VLM_EXECUTED + VISION_CRITIC_EXECUTED; Qwen3-VL-4B deferred for RAM)
+- G4 Creative Graph/3 Hooks/Dynamic Layout/Zero Pill Monotony: PASS (6 distinct modes, 0 face overlap, 0 boundary jumps)
+- G5 Product Proof & Watermark Rights: BLOCKED (PRODUCT_PROOF_BLOCKED + BLOCKED_WATERMARK_AUTHORIZATION -> CANDIDATE_9x16.mp4)
+- G6 Audio Stems/Joins/Counterfactual Mix: TECHNICAL_PASS (LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY)
+- G7 Independent Critic & Repair Loop: TECHNICAL_PASS (injected pixel repair proved; VQ-01 PENDING_HUMAN_REVIEW)
+- G8 Full Regression Suite on TESTED_CODE_SHA c57780e: PASS (197 pytest + 26 legacy unittest + tsc + validate + doctor; REAL_HELDOUT_NOT_RUN / REAL_LONGFORM_NOT_RUN)
+- G9 Performance/Cache/Resource Safety: PASS (cold 466.6s -> warm 354.6s, peak RSS 241.5 MB Python tree, disk reserve safe)
+- G10 Delivery & Redacted QA-02 Pack: PASS (CANDIDATE_READY_WITH_BLOCKERS, pack <= 2 MiB)
+- G11 Human Aesthetic & Release Approval: PENDING_HUMAN_REVIEW

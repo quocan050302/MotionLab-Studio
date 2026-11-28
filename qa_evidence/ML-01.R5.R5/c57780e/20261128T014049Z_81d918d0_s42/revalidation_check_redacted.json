@@ -1,0 +1,130 @@
+{
+  "aesthetic_status": "PENDING_HUMAN_REVIEW",
+  "checks": [
+    {
+      "actual": 25694213,
+      "evidence_path": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+      "expected": "> 0 bytes",
+      "message": "",
+      "name": "artifact_exists_non_empty",
+      "status": "PASS"
+    },
+    {
+      "actual": "e3324607a1dce914",
+      "evidence_path": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+      "expected": "e3324607a1dce914",
+      "message": "",
+      "name": "artifact_sha256_matches_manifest",
+      "status": "PASS"
+    },
+    {
+      "actual": "ok=True",
+      "evidence_path": "source_manifest.json",
+      "expected": "2 sources exact SHA-256",
+      "message": "",
+      "name": "all_sources_immutable",
+      "status": "PASS"
+    },
+    {
+      "actual": "errors=[]",
+      "evidence_path": "multi_source_edit_map.json",
+      "expected": "0 invariant errors",
+      "message": "",
+      "name": "multisource_edit_map_valid",
+      "status": "PASS"
+    },
+    {
+      "actual": "1080x1920",
+      "evidence_path": null,
+      "expected": "1080x1920",
+      "message": "",
+      "name": "output_dimensions_exact",
+      "status": "PASS"
+    },
+    {
+      "actual": 817,
+      "evidence_path": null,
+      "expected": 817,
+      "message": "",
+      "name": "frame_count_exact",
+      "status": "PASS"
+    },
+    {
+      "actual": "yuv420p",
+      "evidence_path": null,
+      "expected": "yuv420p",
+      "message": "",
+      "name": "pixel_format_yuv420p",
+      "status": "PASS"
+    },
+    {
+      "actual": "1 audio, 0 subtitles",
+      "evidence_path": null,
+      "expected": "1 audio, 0 subtitles",
+      "message": "",
+      "name": "single_audio_zero_subtitles",
+      "status": "PASS"
+    },
+    {
+      "actual": "exit 0",
+      "evidence_path": null,
+      "expected": "exit 0, empty stderr",
+      "message": "",
+      "name": "ffmpeg_full_decode_zero_errors",
+      "status": "PASS"
+    },
+    {
+      "actual": "status=PASS_WITH_MISSING_SOURCE_DIALOGUE, recall=1.0",
+      "evidence_path": "protected_word_validation.json",
+      "expected": "passed=True",
+      "message": "",
+      "name": "word_preservation_verified",
+      "status": "PASS"
+    },
+    {
+      "actual": "valid=True",
+      "evidence_path": "temporal_fact_ledger.json",
+      "expected": "valid=True",
+      "message": "",
+      "name": "temporal_fact_ledger_valid",
+      "status": "PASS"
+    },
+    {
+      "actual": "status=PASS",
+      "evidence_path": "evidence/audio_join_qa.json",
+      "expected": "status=PASS",
+      "message": "",
+      "name": "audio_join_qa_passed",
+      "status": "PASS"
+    },
+    {
+      "actual": "status=PASS, audible=7/7",
+      "evidence_path": "evidence/audio_event_qa.json",
+      "expected": "status=PASS",
+      "message": "",
+      "name": "audio_counterfactual_qa_passed",
+      "status": "PASS"
+    },
+    {
+      "actual": "exit 0",
+      "evidence_path": "preview_9x16.mp4",
+      "expected": "exit 0, non-empty",
+      "message": "",
+      "name": "preview_9x16_decode_ok",
+      "status": "PASS"
+    }
+  ],
+  "overall_status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "schema_version": "1.0.0",
+  "summary": {
+    "BLOCKED": 0,
+    "FAIL": 0,
+    "PASS": 14,
+    "SKIP": 0
+  },
+  "warnings": [
+    "BLOCKED_WATERMARK_AUTHORIZATION",
+    "PRODUCT_PROOF_BLOCKED",
+    "MISSING_SOURCE_DIALOGUE"
+  ]
+}

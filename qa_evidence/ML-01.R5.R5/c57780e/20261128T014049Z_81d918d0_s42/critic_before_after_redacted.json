@@ -1,0 +1,392 @@
+{
+  "after": {
+    "abrupt_boundary_jumps": 0,
+    "black_frames": 0,
+    "boundary_audit": [
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.4,
+        "edge": "entry",
+        "frame": 14,
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 5.47,
+        "edge": "exit",
+        "frame": 115,
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.76,
+        "edge": "entry",
+        "frame": 128,
+        "scene_id": "sc_01_calendar_gap"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.49,
+        "edge": "exit",
+        "frame": 234,
+        "scene_id": "sc_01_calendar_gap"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.02,
+        "edge": "entry",
+        "frame": 249,
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.53,
+        "edge": "exit",
+        "frame": 299,
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.08,
+        "edge": "entry",
+        "frame": 306,
+        "scene_id": "sc_03_motivated_bridge"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.21,
+        "edge": "exit",
+        "frame": 342,
+        "scene_id": "sc_03_motivated_bridge"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.48,
+        "edge": "entry",
+        "frame": 352,
+        "scene_id": "sc_04_system_overview"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 5.22,
+        "edge": "exit",
+        "frame": 529,
+        "scene_id": "sc_04_system_overview"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.49,
+        "edge": "entry",
+        "frame": 554,
+        "scene_id": "sc_05_payoff_clarity"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 4.24,
+        "edge": "exit",
+        "frame": 688,
+        "scene_id": "sc_05_payoff_clarity"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 0.89,
+        "edge": "entry",
+        "frame": 699,
+        "scene_id": "sc_06_calm_face"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 7.73,
+        "edge": "exit",
+        "frame": 735,
+        "scene_id": "sc_06_calm_face"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.91,
+        "edge": "entry",
+        "frame": 743,
+        "scene_id": "sc_07_cta"
+      }
+    ],
+    "findings": [],
+    "frames_inspected": 817,
+    "human_vq01_status": "PENDING_HUMAN_REVIEW",
+    "schema_version": "1.0.0",
+    "severe_findings_count": 0,
+    "vlm_frames_reviewed": 4,
+    "vlm_independent_weights_note": "Same local Qwen3-VL-2B weights invoked with strictly separate independent QA prompt and zero planner scores (disclosed).",
+    "vlm_mean_clarity_proxy_0_4": 3.0,
+    "vlm_reviews": [
+      {
+        "elapsed_s": 10.929,
+        "frame": 3,
+        "image_sha256_16": "891dae6800938c30",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": "no",
+          "observed_visual_elements": "a woman in a car looking down at a phone, the phone is in her hand, the car interior is visible, there is a small sparkle graphic on her arm, the background shows a storefront and trees",
+          "text_legible_on_phone": "no",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "first_frame"
+      },
+      {
+        "elapsed_s": 9.852,
+        "frame": 64,
+        "image_sha256_16": "6022989a968d44b8",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": false,
+          "observed_visual_elements": [
+            "woman in car",
+            "text overlay",
+            "car interior",
+            "window view",
+            "car seat"
+          ],
+          "text_legible_on_phone": "Balance ≠ Spendable\nChecking your account in the car",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "elapsed_s": 11.397,
+        "frame": 274,
+        "image_sha256_16": "0c11c5d3582c94e0",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": false,
+          "observed_visual_elements": [
+            "woman in car",
+            "text overlay",
+            "car interior",
+            "out-of-focus background"
+          ],
+          "text_legible_on_phone": "So how much can I actually spend? ON PAPER Account Balance ACTUALLY FREE Until Payday",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "elapsed_s": 12.784,
+        "frame": 621,
+        "image_sha256_16": "e9f2d1172d128278",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": "no",
+          "observed_visual_elements": [
+            "woman in car seat",
+            "text overlay",
+            "phone in woman's hand",
+            "car interior",
+            "out-of-focus background"
+          ],
+          "text_legible_on_phone": "No Mental Math",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_05_payoff_clarity"
+      }
+    ],
+    "vlm_status": "VISION_CRITIC_EXECUTED"
+  },
+  "before": {
+    "abrupt_boundary_jumps": 0,
+    "black_frames": 0,
+    "boundary_audit": [
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.4,
+        "edge": "entry",
+        "frame": 14,
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 5.47,
+        "edge": "exit",
+        "frame": 115,
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.76,
+        "edge": "entry",
+        "frame": 128,
+        "scene_id": "sc_01_calendar_gap"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.49,
+        "edge": "exit",
+        "frame": 234,
+        "scene_id": "sc_01_calendar_gap"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.02,
+        "edge": "entry",
+        "frame": 249,
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.53,
+        "edge": "exit",
+        "frame": 299,
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.08,
+        "edge": "entry",
+        "frame": 306,
+        "scene_id": "sc_03_motivated_bridge"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.21,
+        "edge": "exit",
+        "frame": 342,
+        "scene_id": "sc_03_motivated_bridge"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.48,
+        "edge": "entry",
+        "frame": 352,
+        "scene_id": "sc_04_system_overview"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 5.22,
+        "edge": "exit",
+        "frame": 529,
+        "scene_id": "sc_04_system_overview"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 1.49,
+        "edge": "entry",
+        "frame": 554,
+        "scene_id": "sc_05_payoff_clarity"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 4.24,
+        "edge": "exit",
+        "frame": 688,
+        "scene_id": "sc_05_payoff_clarity"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 0.89,
+        "edge": "entry",
+        "frame": 699,
+        "scene_id": "sc_06_calm_face"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 7.73,
+        "edge": "exit",
+        "frame": 735,
+        "scene_id": "sc_06_calm_face"
+      },
+      {
+        "abrupt_flagged": false,
+        "decoded_step_mad": 2.91,
+        "edge": "entry",
+        "frame": 743,
+        "scene_id": "sc_07_cta"
+      }
+    ],
+    "findings": [],
+    "frames_inspected": 817,
+    "human_vq01_status": "PENDING_HUMAN_REVIEW",
+    "schema_version": "1.0.0",
+    "severe_findings_count": 0,
+    "vlm_frames_reviewed": 4,
+    "vlm_independent_weights_note": "Same local Qwen3-VL-2B weights invoked with strictly separate independent QA prompt and zero planner scores (disclosed).",
+    "vlm_mean_clarity_proxy_0_4": 3.0,
+    "vlm_reviews": [
+      {
+        "elapsed_s": 10.929,
+        "frame": 3,
+        "image_sha256_16": "891dae6800938c30",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": "no",
+          "observed_visual_elements": "a woman in a car looking down at a phone, the phone is in her hand, the car interior is visible, there is a small sparkle graphic on her arm, the background shows a storefront and trees",
+          "text_legible_on_phone": "no",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "first_frame"
+      },
+      {
+        "elapsed_s": 9.852,
+        "frame": 64,
+        "image_sha256_16": "6022989a968d44b8",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": false,
+          "observed_visual_elements": [
+            "woman in car",
+            "text overlay",
+            "car interior",
+            "window view",
+            "car seat"
+          ],
+          "text_legible_on_phone": "Balance ≠ Spendable\nChecking your account in the car",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_00_hook"
+      },
+      {
+        "elapsed_s": 11.397,
+        "frame": 274,
+        "image_sha256_16": "0c11c5d3582c94e0",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": false,
+          "observed_visual_elements": [
+            "woman in car",
+            "text overlay",
+            "car interior",
+            "out-of-focus background"
+          ],
+          "text_legible_on_phone": "So how much can I actually spend? ON PAPER Account Balance ACTUALLY FREE Until Payday",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_02_dilemma"
+      },
+      {
+        "elapsed_s": 12.784,
+        "frame": 621,
+        "image_sha256_16": "e9f2d1172d128278",
+        "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+        "review": {
+          "covers_speaker_eyes_or_mouth": "no",
+          "observed_visual_elements": [
+            "woman in car seat",
+            "text overlay",
+            "phone in woman's hand",
+            "car interior",
+            "out-of-focus background"
+          ],
+          "text_legible_on_phone": "No Mental Math",
+          "visible_defect": "none",
+          "visual_clarity_score_0_4": 3
+        },
+        "scene_id": "sc_05_payoff_clarity"
+      }
+    ],
+    "vlm_status": "VISION_CRITIC_EXECUTED"
+  }
+}

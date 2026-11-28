@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "release": "ML-01.R5.R5",
+  "baseline_audited_sha": "d8a915e91001f114fce9498ea253c1f64e1f4b7c",
+  "defects": [
+    {
+      "id": "D01",
+      "title": "R5.R4/V6 modules unintegrated in production CLI callgraph",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Added opt-in `--job <json>` and `--creative-mode <legacy|director>` to `motionlab/cli.py` (`edit` & `plan`), wired end-to-end into `motionlab/composition/director_pipeline.py::run_multisource_director_job` and `motionlab/pipeline.py::_validate_multisource_director_run`.",
+      "files_changed": ["motionlab/cli.py", "motionlab/composition/director_pipeline.py", "motionlab/pipeline.py"]
+    },
+    {
+      "id": "D02",
+      "title": "Single dark glass pill repeated at fixed y=1215..1255",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Built `motionlab/composition/scene_graph_v2.py` with 6 materially distinct visual silhouettes/polarities (open kinetic typography, warm-ivory calendar ribbon, 2-column split dilemma, smooth clip-path grid bridge, multi-row editorial board, minimal spatial CTA) + `calm_breathing_face` and dynamic `solve_dynamic_safe_layout(W, H, face_bounds, safe_zones)`.",
+      "files_changed": ["motionlab/composition/scene_graph_v2.py", "motionlab/composition/director_pipeline.py"]
+    },
+    {
+      "id": "D03",
+      "title": "Hardcoded finance/Olivia defaults and silent CTA fallback on unknown kind",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Removed all hardcoded finance/Olivia strings from `motionlab/composition/calendar_editorial.py` and made unknown semantic kinds raise `ValueError` fail-closed in both `calendar_editorial.py` and `scene_graph_v2.py`.",
+      "files_changed": ["motionlab/composition/calendar_editorial.py", "motionlab/composition/scene_graph_v2.py"]
+    },
+    {
+      "id": "D04",
+      "title": "Hardcoded A/B source assumptions, fixed B room-tone window (9.25..9.75), and ±0.03s cut bleed",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Generalized `multi_source_timeline.py` and `speech_dedup.py` to arbitrary N sources, strict end-exclusive `[start_s, end_s)` mapping, VAD-proven quiet non-speech room-tone selection, and dynamic `detected_sources` watermark authorization.",
+      "files_changed": ["motionlab/composition/multi_source_timeline.py", "motionlab/semantic/speech_dedup.py", "motionlab/semantic/video_evidence.py"]
+    },
+    {
+      "id": "D05",
+      "title": "Real product demo absent; text benefits insufficient as product proof",
+      "verified_at_baseline": true,
+      "status": "BLOCKED_EXTERNAL_ASSET_HONESTLY_ENFORCED",
+      "resolution": "Engine now audits `AssetCatalog`, rejects `dir_C_product_led_demo` when authorized Notion/workbook assets are absent, labels conceptual visuals clearly as `ILLUSTRATIVE OVERVIEW`, enforces `build_claim_visual_coverage_matrix` (TEXT_ONLY/ILLUSTRATION never satisfy `ACTUAL_PRODUCT`), and flags `PRODUCT_PROOF_BLOCKED` + `CANDIDATE_9x16.mp4` naming.",
+      "files_changed": ["motionlab/semantic/creative_director.py", "motionlab/composition/director_pipeline.py"]
+    },
+    {
+      "id": "D06",
+      "title": "No multimodal VLM installed; single text LLM reasoning benchmark incomplete",
+      "verified_at_baseline": true,
+      "status": "FIXED_WITH_RESOURCE_BOUNDED_HYBRID_ROUTER",
+      "resolution": "Provisioned Apache-2.0 `Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0` (`models/manifest.json`), built `motionlab/semantic/model_router.py`, and executed 12-case comparative benchmark + real image perception + blurred refusal. Retained `Qwen2.5-3B` (12/12 raw) for text reasoning and adopted `Qwen3-VL-2B` for real multimodal perception & critic.",
+      "files_changed": ["motionlab/semantic/model_router.py", "models/manifest.json"]
+    },
+    {
+      "id": "D07",
+      "title": "Relaxed word preservation / ASR smoothing hiding stutters",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Director pipeline transcribes directly from 16kHz PCM with `condition_on_previous_text=False` (catching both 'what you can actually spend' and 'mental math' stutters + 'I know' filler + garbled tail/prefix) and executes strict independent Re-ASR on `edited_voice_bed.wav` enforcing 100% critical token recall, monotonic order, and 0 residual repeats.",
+      "files_changed": ["motionlab/composition/director_pipeline.py", "motionlab/semantic/speech_dedup.py"]
+    },
+    {
+      "id": "D08",
+      "title": "Temporal state rollback ($1200 -> $100 -> $1200) undetected",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Created generic domain-agnostic `motionlab/semantic/temporal_ledger.py` rejecting unmarked rollbacks, premature states, and weekday order inversions across all niches while allowing explicitly labeled recaps (`is_recap=True`).",
+      "files_changed": ["motionlab/semantic/temporal_ledger.py", "motionlab/composition/director_pipeline.py"]
+    },
+    {
+      "id": "D09",
+      "title": "Fixed `balanced` bonus in pacing scorer and permissive rhythm critic",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Removed fixed `balanced` variant bonus in `motionlab/semantic/pacing_director.py` and hardened `motionlab/composition/visual_critic.py::run_rhythm_critic` to fail closed when cuts exist without verified voice bed / word preservation / join QA and return `WARN_REVIEW_REQUIRED` on medium findings.",
+      "files_changed": ["motionlab/semantic/pacing_director.py", "motionlab/composition/visual_critic.py"]
+    },
+    {
+      "id": "D10",
+      "title": "Abrupt cream title card jump between clip A and clip B",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Replaced static hard-cut cream card with animated `motivated_object_bridge` clip-path grid sweep in `scene_graph_v2.py` and verified decoded boundary MADs in `cut_continuity.json`.",
+      "files_changed": ["motionlab/composition/scene_graph_v2.py", "motionlab/composition/director_pipeline.py"]
+    },
+    {
+      "id": "D11",
+      "title": "Missing manifest SHA linkage & blurred technical vs human/proof/rights gates",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Canonical runs emit `manifest.json`, `QA02_REPORT.json`, `TO_CHATGPT.txt`, and `watermark_auth.json` linking exact source/output/preview SHA-256s and explicitly separating technical pass from `BLOCKED_WATERMARK_AUTHORIZATION`, `PRODUCT_PROOF_BLOCKED`, `MISSING_SOURCE_DIALOGUE`, `LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`, and `PENDING_HUMAN_REVIEW`.",
+      "files_changed": ["motionlab/composition/director_pipeline.py", "motionlab/pipeline.py"]
+    },
+    {
+      "id": "D12",
+      "title": "Tests limited to synthetic dedup/HTML strings without callgraph, causal, negative, or VLM/repair proofs",
+      "verified_at_baseline": true,
+      "status": "FIXED",
+      "resolution": "Added `test_r5r5_multisource_cli_and_temporal_ledger.py` and `test_r5r5_director_vlm_critic_and_repair.py` covering CLI callgraph, 3+ arbitrary sources, strict mapping, D03/D08/D09 negative mutations, prompt-injection/traversal guards, causal direction sensitivity, claim coverage truth guards, and real injected-defect critic+repair proof.",
+      "files_changed": ["tests/unit/test_r5r5_multisource_cli_and_temporal_ledger.py", "tests/unit/test_r5r5_director_vlm_critic_and_repair.py"]
+    }
+  ]
+}
