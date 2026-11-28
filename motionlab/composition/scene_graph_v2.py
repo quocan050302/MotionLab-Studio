@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import html
 import math
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -28,7 +29,17 @@ from typing import Any
 from motionlab.renderers.hyperframes import HyperFramesRenderer
 from motionlab.schemas import canonical_hash, sanitize_native
 
-SCENE_GRAPH_V2_SCHEMA_VERSION = "2.0.0"
+SCENE_GRAPH_V2_SCHEMA_VERSION = "2.1.0"
+
+_SAFE_LOCAL_ASSET_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,96}\.(png|jpg|jpeg|webp)$", re.IGNORECASE)
+
+
+def _validate_local_asset_key(asset_key: str) -> str:
+    """Fail-closed local relative filename validator (blocks path traversal, remote URLs, and data URIs)."""
+    key = str(asset_key or "").strip()
+    if not key or not _SAFE_LOCAL_ASSET_RE.fullmatch(key) or ".." in key:
+        raise ValueError(f"Unsafe or unsupported local scene asset key (fail-closed): {asset_key!r}")
+    return key
 
 VALID_TREATMENT_MODES = frozenset({
     "spatial_editorial_anchor",
@@ -378,54 +389,219 @@ def compile_scene_v2_html(
         return _wrap_hf_html(comp_id, width, height, fps, dur, "transparent", css, body, js), True
 
     # ------------------------------------------------------------------
-    # 4. MOTIVATED OBJECT BRIDGE — Smooth clip-path wipe carrying editorial grid (Fixes D10!)
+    # 4. MOTIVATED OBJECT BRIDGE — Smooth clip-path wipe carrying editorial grid or real cover (Fixes D10!)
     # ------------------------------------------------------------------
     if mode == "motivated_object_bridge":
         eyebrow = esc(str(params.get("eyebrow") or "TIMING-FIRST CLARITY"))
         title = esc(str(params.get("title") or ""))
         subline = esc(str(params.get("subline") or ""))
         disclosure = esc(str(params.get("disclosure") or "ILLUSTRATIVE CONCEPT"))
+        feat_key_raw = params.get("featured_asset_key")
+        feat_key = _validate_local_asset_key(str(feat_key_raw)) if feat_key_raw else None
         t_out = max(0.45, dur - 0.34)
+        cover_css = ""
+        cover_html = ""
+        cover_js = ""
+        if feat_key:
+            cover_css = f"""
+  #cover-wrap {{
+    position: relative; z-index: 2; margin-top: {int(30*sc)}px;
+    width: {int(430*sc)}px; height: {int(606*sc)}px; border-radius: {int(16*sc)}px;
+    overflow: hidden; background: {pal['charcoal']};
+    border: 3px solid rgba(181, 143, 82, 0.55);
+    box-shadow: 0 34px 72px rgba(14, 24, 20, 0.34), 0 8px 20px rgba(14, 24, 20, 0.18);
+    opacity: 0; transform: translateY(28px) scale(0.94);
+  }}
+  #cover-wrap img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}"""
+            cover_html = f'<div id="cover-wrap"><img src="./{esc(feat_key)}" alt="Authorized product cover" /></div>'
+            cover_js = 'tl.to("#cover-wrap", { opacity: 1, y: 0, scale: 1.0, duration: 0.34, ease: "expo.out" }, 0.22);'
         css = f"""
   #sheet {{
     position: absolute; inset: 0;
     background: linear-gradient(164deg, {pal['ivory']} 0%, {pal['parchment']} 100%);
     clip-path: inset(100% 0 0 0);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 0 {int(84*sc)}px; text-align: center;
+    padding: 0 {int(80*sc)}px; text-align: center;
   }}
   #grid-bg {{
-    position: absolute; inset: 0; opacity: 0.14;
+    position: absolute; inset: 0; opacity: 0.10;
     background-image: linear-gradient(to right, {pal['charcoal']} 1px, transparent 1px),
                       linear-gradient(to bottom, {pal['charcoal']} 1px, transparent 1px);
     background-size: {int(90*sc)}px {int(90*sc)}px;
   }}
-  #rule-top {{ width: {int(180*sc)}px; height: {int(5*sc)}px; border-radius: 3px; background: linear-gradient(90deg, {pal['amber']}, {pal['teal']}); margin-bottom: {int(28*sc)}px; transform: scaleX(0); }}
-  #eyebrow {{ font-size: {int(24*sc)}px; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; color: {pal['ink_soft']}; opacity: 0; }}
-  #title {{ margin-top: {int(18*sc)}px; font-family: {_SERIF_STACK}; font-size: {int(84*sc)}px; font-weight: 700; line-height: 1.06; color: {pal['charcoal']}; opacity: 0; transform: translateY(18px); }}
-  #sub {{ margin-top: {int(22*sc)}px; font-size: {int(30*sc)}px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: {pal['teal']}; opacity: 0; }}
-  #disc {{ position: absolute; bottom: {int(height * 0.22)}px; font-size: {int(19*sc)}px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: {pal['ink_soft']}; opacity: 0.72; }}"""
+  #rule-top {{ position: relative; z-index: 2; width: {int(180*sc)}px; height: {int(5*sc)}px; border-radius: 3px; background: linear-gradient(90deg, {pal['cognac']}, {pal['teal']}); margin-bottom: {int(22*sc)}px; transform: scaleX(0); }}
+  #eyebrow {{ position: relative; z-index: 2; font-size: {int(22*sc)}px; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; color: {pal['ink_soft']}; opacity: 0; }}
+  #title {{ position: relative; z-index: 2; margin-top: {int(14*sc)}px; font-family: {_SERIF_STACK}; font-size: {int((68 if feat_key else 84)*sc)}px; font-weight: 700; line-height: 1.06; color: {pal['charcoal']}; opacity: 0; transform: translateY(18px); }}
+  #sub {{ position: relative; z-index: 2; margin-top: {int(16*sc)}px; font-size: {int(26*sc)}px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: {pal['cognac']}; opacity: 0; }}
+  #disc {{ position: absolute; bottom: {int(height * 0.14)}px; z-index: 2; font-size: {int(18*sc)}px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: {pal['ink_soft']}; opacity: 0.78; }}
+  {cover_css}"""
         body = f"""  <div id="sheet">
     <div id="grid-bg"></div>
     <div id="rule-top"></div>
     <div id="eyebrow">{eyebrow}</div>
     <div id="title">{title}</div>
     {f'<div id="sub">{subline}</div>' if subline else ''}
+    {cover_html}
     <div id="disc">{disclosure}</div>
   </div>"""
         js = f"""
   tl.to("#sheet", {{ clipPath: "inset(0% 0 0 0)", duration: 0.34, ease: "expo.inOut" }}, 0.00);
-  tl.to("#rule-top", {{ scaleX: 1, duration: 0.28, ease: "expo.out" }}, 0.16);
-  tl.to("#eyebrow", {{ opacity: 1, duration: 0.22, ease: "power2.out" }}, 0.20);
-  tl.to("#title", {{ opacity: 1, y: 0, duration: 0.28, ease: "power3.out" }}, 0.24);
-  if (document.getElementById("sub")) {{ tl.to("#sub", {{ opacity: 1, duration: 0.22, ease: "power2.out" }}, 0.34); }}
+  tl.to("#rule-top", {{ scaleX: 1, duration: 0.28, ease: "expo.out" }}, 0.14);
+  tl.to("#eyebrow", {{ opacity: 1, duration: 0.22, ease: "power2.out" }}, 0.18);
+  tl.to("#title", {{ opacity: 1, y: 0, duration: 0.28, ease: "power3.out" }}, 0.20);
+  if (document.getElementById("sub")) {{ tl.to("#sub", {{ opacity: 1, duration: 0.22, ease: "power2.out" }}, 0.28); }}
+  {cover_js}
   tl.to("#sheet", {{ clipPath: "inset(0 0 100% 0)", duration: 0.32, ease: "expo.inOut" }}, {t_out:.4f});"""
         return _wrap_hf_html(comp_id, width, height, fps, dur, "transparent", css, body, js), True
 
     # ------------------------------------------------------------------
-    # 5. ILLUSTRATIVE SYSTEM BOARD — Multi-row structured flow (honestly labeled!)
+    # 5A. ACTUAL PRODUCT CAPTURE — Real owner-authorized local product page/UI studio showcase!
     # ------------------------------------------------------------------
-    if mode in ("illustrative_system_board", "actual_product_capture"):
+    if mode == "actual_product_capture":
+        pages = list(params.get("pages") or [])
+        if not pages:
+            raise ValueError("actual_product_capture requires non-empty verified local `pages` (fail-closed).")
+        prod_title = esc(str(params.get("title") or "PRODUCT WALKTHROUGH"))
+        badge = esc(str(params.get("provenance_badge") or "REAL PRODUCT · VERIFIED"))
+        safe_top = int(layout.get("safe_top_px", int(height * 0.10)))
+        safe_bottom = int(layout.get("safe_bottom_px", int(height * 0.80)))
+        stage_top = safe_top + int(10 * sc)
+        stage_h = max(int(height * 0.56), safe_bottom - stage_top)
+        t_out = max(0.65, dur - 0.34)
+
+        pills_html: list[str] = []
+        cards_html: list[str] = []
+        caps_html: list[str] = []
+        anim_js: list[str] = []
+
+        n_pages = min(4, len(pages))
+        for k, pg in enumerate(pages[:n_pages]):
+            akey = _validate_local_asset_key(str(pg.get("asset_key") or ""))
+            step_lbl = esc(str(pg.get("step_pill") or f"0{k+1}"))
+            cap_k = esc(str(pg.get("caption_kicker") or f"STEP 0{k+1}"))
+            cap_t = esc(str(pg.get("caption_title") or ""))
+            trig = max(0.04, min(t_out - 0.45, float(pg.get("trigger_s", 0.08 + k * (dur / max(1, n_pages))))))
+            next_trig = (
+                max(trig + 0.35, min(t_out - 0.25, float(pages[k + 1].get("trigger_s", trig + 1.4))))
+                if k + 1 < n_pages
+                else t_out
+            )
+            hold_dur = max(0.45, next_trig - trig)
+
+            pills_html.append(f'<div class="sp-pill" id="sp{k}">{step_lbl}</div>')
+            cards_html.append(
+                f'<div class="pg-card" id="pg{k}"><img src="./{esc(akey)}" alt="{cap_t}" /></div>'
+            )
+            caps_html.append(
+                f'<div class="cap-item" id="cap{k}"><div class="cap-k">{cap_k}</div><div class="cap-t">{cap_t}</div></div>'
+            )
+
+            # Activate step pill, reveal real page with gentle studio zoom, fade previous page cleanly
+            anim_js.append(f'tl.to("#sp{k}", {{ backgroundColor: "{pal["cognac"]}", color: "{pal["charcoal"]}", opacity: 1, duration: 0.22 }}, {trig:.4f});')
+            anim_js.append(f'tl.to("#pg{k}", {{ opacity: 1, y: 0, scale: 1.0, duration: 0.34, ease: "expo.out" }}, {trig:.4f});')
+            anim_js.append(f'tl.to("#pg{k} img", {{ scale: 1.035, duration: {hold_dur:.4f}, ease: "none" }}, {trig + 0.10:.4f});')
+            anim_js.append(f'tl.to("#cap{k}", {{ opacity: 1, y: 0, duration: 0.28, ease: "power3.out" }}, {trig + 0.04:.4f});')
+            if k > 0:
+                anim_js.append(f'tl.to("#sp{k-1}", {{ backgroundColor: "rgba(245,242,234,0.12)", color: "rgba(245,242,234,0.68)", duration: 0.20 }}, {trig:.4f});')
+                anim_js.append(f'tl.to("#pg{k-1}", {{ opacity: 0, scale: 0.96, y: -18, duration: 0.28, ease: "power2.inOut" }}, {trig:.4f});')
+                anim_js.append(f'tl.to("#cap{k-1}", {{ opacity: 0, y: -10, duration: 0.22, ease: "power2.in" }}, {trig:.4f});')
+
+        css = f"""
+  #prod-stage {{
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 38%, #224C40 0%, {pal['charcoal']} 74%, #0E231D 100%);
+    clip-path: inset(100% 0 0 0);
+  }}
+  #stage-grid {{
+    position: absolute; inset: 0; opacity: 0.07;
+    background-image: linear-gradient(to right, {pal['ivory']} 1px, transparent 1px),
+                      linear-gradient(to bottom, {pal['ivory']} 1px, transparent 1px);
+    background-size: {int(84*sc)}px {int(84*sc)}px;
+  }}
+  #prod-inner {{
+    position: absolute; left: {x_px}px; width: {w_px}px; top: {stage_top}px; height: {stage_h}px;
+    display: flex; flex-direction: column; justify-content: space-between; gap: {int(14*sc)}px;
+  }}
+  #prod-hdr {{
+    display: flex; flex-direction: column; gap: {int(12*sc)}px; flex-shrink: 0;
+  }}
+  #prod-top {{
+    display: flex; justify-content: space-between; align-items: center; gap: {int(12*sc)}px;
+  }}
+  #prod-title {{
+    font-family: {_SERIF_STACK}; font-size: {int(36*sc)}px; font-weight: 700; color: {pal['white']}; letter-spacing: -0.01em;
+  }}
+  #prod-badge {{
+    padding: {int(6*sc)}px {int(14*sc)}px; border-radius: 99px;
+    background: rgba(181, 143, 82, 0.22); border: 1.5px solid rgba(181, 143, 82, 0.65);
+    color: {pal['ivory']}; font-size: {int(14*sc)}px; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase;
+    white-space: nowrap;
+  }}
+  #step-row {{
+    display: flex; gap: {int(10*sc)}px;
+  }}
+  .sp-pill {{
+    flex: 1; text-align: center; padding: {int(8*sc)}px {int(10*sc)}px; border-radius: {int(10*sc)}px;
+    background: rgba(245, 242, 234, 0.12); color: rgba(245, 242, 234, 0.68);
+    font-size: {int(16*sc)}px; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase;
+    opacity: 0.85;
+  }}
+  #page-stage {{
+    position: relative; flex: 1; min-height: {int(620*sc)}px;
+    display: flex; align-items: center; justify-content: center;
+  }}
+  .pg-card {{
+    position: absolute; inset: 0; margin: auto;
+    width: 100%; height: 100%; max-width: {int(720*sc)}px;
+    border-radius: {int(18*sc)}px; overflow: hidden;
+    background: {pal['ivory']};
+    border: 3px solid rgba(181, 143, 82, 0.58);
+    box-shadow: 0 32px 72px rgba(4, 10, 8, 0.56), 0 8px 24px rgba(0, 0, 0, 0.30);
+    opacity: 0; transform: translateY(24px) scale(0.95);
+  }}
+  .pg-card img {{
+    width: 100%; height: 100%; object-fit: contain; background: {pal['ivory']}; display: block;
+    transform-origin: center 32%;
+  }}
+  #cap-bar {{
+    position: relative; height: {int(108*sc)}px; flex-shrink: 0;
+    border-radius: {int(16*sc)}px; background: rgba(245, 242, 234, 0.96);
+    border-left: 7px solid {pal['cognac']};
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+    overflow: hidden;
+  }}
+  .cap-item {{
+    position: absolute; inset: 0; padding: {int(14*sc)}px {int(24*sc)}px;
+    display: flex; flex-direction: column; justify-content: center;
+    opacity: 0; transform: translateY(12px);
+  }}
+  .cap-k {{
+    font-size: {int(18*sc)}px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: {pal['cognac']};
+  }}
+  .cap-t {{
+    margin-top: {int(4*sc)}px; font-family: {_SERIF_STACK}; font-size: {int(32*sc)}px; font-weight: 700; color: {pal['charcoal']}; line-height: 1.1;
+  }}"""
+        body = f"""  <div id="prod-stage">
+    <div id="stage-grid"></div>
+    <div id="prod-inner">
+      <div id="prod-hdr">
+        <div id="prod-top"><div id="prod-title">{prod_title}</div><div id="prod-badge">{badge}</div></div>
+        <div id="step-row">{"".join(pills_html)}</div>
+      </div>
+      <div id="page-stage">{"".join(cards_html)}</div>
+      <div id="cap-bar">{"".join(caps_html)}</div>
+    </div>
+  </div>"""
+        js = f"""
+  tl.to("#prod-stage", {{ clipPath: "inset(0% 0 0 0)", duration: 0.34, ease: "expo.inOut" }}, 0.00);
+  {chr(10).join("  " + ln for ln in anim_js)}
+  tl.to("#prod-stage", {{ clipPath: "inset(0 0 100% 0)", duration: 0.32, ease: "expo.inOut" }}, {t_out:.4f});"""
+        return _wrap_hf_html(comp_id, width, height, fps, dur, "transparent", css, body, js), True
+
+    # ------------------------------------------------------------------
+    # 5B. ILLUSTRATIVE SYSTEM BOARD — Multi-row structured flow (honestly labeled!)
+    # ------------------------------------------------------------------
+    if mode == "illustrative_system_board":
         board_title = esc(str(params.get("title") or "STRUCTURED OVERVIEW"))
         badge = esc(str(params.get("provenance_badge") or "ILLUSTRATIVE OVERVIEW"))
         rows = params.get("rows") or [
@@ -487,31 +663,49 @@ def compile_scene_v2_html(
         return _wrap_hf_html(comp_id, width, height, fps, dur, "transparent", css, body, js), True
 
     # ------------------------------------------------------------------
-    # 6. MINIMAL CTA ANCHOR — Clean unobtrusive spatial caption pointer
+    # 6. MINIMAL CTA ANCHOR — Clean unobtrusive spatial caption pointer (with optional verified real cover thumb)
     # ------------------------------------------------------------------
     if mode == "minimal_cta_anchor":
         cta_text = esc(str(params.get("headline") or ""))
         subline = esc(str(params.get("subline") or ""))
+        cov_raw = params.get("cover_asset_key")
+        cov_key = _validate_local_asset_key(str(cov_raw)) if cov_raw else None
+        thumb_css = ""
+        thumb_html = ""
+        if cov_key:
+            thumb_css = f"""
+  #cta-thumb {{
+    width: {int(92*sc)}px; height: {int(130*sc)}px; border-radius: {int(10*sc)}px;
+    overflow: hidden; flex-shrink: 0; border: 2px solid {pal['cognac']};
+    box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+  }}
+  #cta-thumb img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}"""
+            thumb_html = f'<div id="cta-thumb"><img src="./{esc(cov_key)}" alt="Workbook cover" /></div>'
         css = f"""
   #cta-wrap {{
     position: absolute; left: {x_px}px; width: {w_px}px; top: {y_px}px;
-    display: flex; flex-direction: column; align-items: center; text-align: center;
+    display: flex; flex-direction: column; align-items: center; text-align: {'left' if cov_key else 'center'};
     opacity: 0; transform: translateY(16px);
   }}
   #cta-card {{
-    display: inline-flex; flex-direction: column; align-items: center;
-    padding: {int(22*sc)}px {int(42*sc)}px; border-radius: {int(18*sc)}px;
-    background: rgba(246, 242, 233, 0.94);
+    display: inline-flex; flex-direction: {'row' if cov_key else 'column'}; align-items: center; gap: {int(24*sc)}px;
+    padding: {int((18 if cov_key else 22)*sc)}px {int((30 if cov_key else 42)*sc)}px; border-radius: {int(18*sc)}px;
+    background: rgba(246, 242, 233, 0.95);
     border: 2px solid {pal['teal']};
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
   }}
-  #cta-sub {{ font-size: {int(21*sc)}px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: {pal['teal']}; margin-bottom: {int(6*sc)}px; }}
-  #cta-hl {{ font-family: {_SERIF_STACK}; font-size: {int(52*sc)}px; font-weight: 700; color: {pal['charcoal']}; letter-spacing: -0.02em; }}
-  #chev {{ margin-top: {int(8*sc)}px; font-size: {int(30*sc)}px; font-weight: 900; color: {pal['teal']}; }}"""
+  #cta-col {{ display: flex; flex-direction: column; align-items: {'flex-start' if cov_key else 'center'}; }}
+  #cta-sub {{ font-size: {int(20*sc)}px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: {pal['cognac'] if cov_key else pal['teal']}; margin-bottom: {int(6*sc)}px; }}
+  #cta-hl {{ font-family: {_SERIF_STACK}; font-size: {int((46 if cov_key else 52)*sc)}px; font-weight: 700; color: {pal['charcoal']}; letter-spacing: -0.02em; }}
+  #chev {{ margin-top: {int(6*sc)}px; font-size: {int(28*sc)}px; font-weight: 900; color: {pal['teal']}; }}
+  {thumb_css}"""
         body = f"""  <div id="cta-wrap"><div id="cta-card">
-    {f'<div id="cta-sub">{subline}</div>' if subline else ''}
-    <div id="cta-hl">{cta_text}</div>
-    <div id="chev">↓</div>
+    {thumb_html}
+    <div id="cta-col">
+      {f'<div id="cta-sub">{subline}</div>' if subline else ''}
+      <div id="cta-hl">{cta_text}</div>
+      <div id="chev">↓</div>
+    </div>
   </div></div>"""
         js = f"""
   tl.to("#cta-wrap", {{ opacity: 1, y: 0, duration: 0.30, ease: "power3.out" }}, 0.04);
@@ -532,11 +726,19 @@ def render_scene_v2_overlay(
     fps: int = 30,
     cache_dir: Path | None = None,
 ) -> dict[str, Any]:
-    """Render a SceneGraph v2 node via local offline HyperFramesRenderer (Chromium + GSAP)."""
+    """Render a SceneGraph v2 node via local offline HyperFramesRenderer (Chromium + GSAP), binding verified local assets."""
     dur_frames = max(6, int(scene["end_frame_exclusive"]) - int(scene["start_frame"]))
     dur_s = dur_frames / float(fps)
     sc_copy = {**scene, "duration_s": dur_s}
     html_src, transparent = compile_scene_v2_html(sc_copy, width=width, height=height, fps=fps)
+    raw_extra = scene.get("extra_assets") or {}
+    extra_assets: dict[str, Path] = {}
+    for k, v in raw_extra.items():
+        safe_k = _validate_local_asset_key(str(k))
+        src_p = Path(str(v)).resolve()
+        if src_p.is_symlink() or not src_p.is_file():
+            raise FileNotFoundError(f"Verified local scene asset missing or symlinked for {safe_k}: {src_p}")
+        extra_assets[safe_k] = src_p
     hf = HyperFramesRenderer(enabled=True)
     res = hf.render_html_slot(
         slot_dir=slot_dir,
@@ -544,6 +746,7 @@ def render_scene_v2_overlay(
         out_path=out_path,
         fps=float(fps),
         fmt="webm",
+        extra_assets=extra_assets or None,
         cache_dir=cache_dir,
         use_cache=(cache_dir is not None),
         skip_cli_lint=True,
@@ -553,6 +756,7 @@ def render_scene_v2_overlay(
         "treatment_mode": scene["treatment_mode"],
         "transparent": transparent,
         "duration_frames": dur_frames,
+        "bound_asset_keys": sorted(extra_assets.keys()),
         "html_sha256": canonical_hash({"html": html_src})[:16],
         **res,
     })
@@ -567,6 +771,7 @@ def build_three_hook_candidates(
     fps: int,
     face_bounds: dict[str, float] | None,
     safe_zones: dict[str, float] | None,
+    palette: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Build 3 materially distinct rendered hook candidates (A: action conflict, B: calendar tension lead, C: split dilemma)."""
     t0 = max(0.05, float(hook_claim.get("start_s", 0.1)))
@@ -639,4 +844,7 @@ def build_three_hook_candidates(
             },
         },
     ]
+    if palette:
+        for c in cands:
+            c["scene"]["palette"] = dict(palette)
     return cands

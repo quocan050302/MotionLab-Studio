@@ -101,6 +101,7 @@ _ALLOWED_JOB_TOP_KEYS = frozenset({
     "promise",
     "product_name",
     "visual_tone",
+    "palette_tokens",
     "forbidden_claims",
     "output",
     "asset_catalog_path",
@@ -225,6 +226,91 @@ def _transcribe_pcm_high_res(
     return " ".join(t for t in texts if t).strip(), words, pcm_16k
 
 
+def _select_product_assets_for_scenes(
+    verified_assets: list[dict[str, Any]],
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """Select verified cover & up to 3 sequential proof pages strictly from catalog metadata (zero hardcoded filenames)."""
+    if not verified_assets:
+        return None, []
+    cover = next(
+        (
+            a for a in verified_assets
+            if str(a.get("asset_type", "")).lower() == "workbook_cover"
+            or "cover" in [str(x).lower() for x in (a.get("supported_features") or [])]
+        ),
+        None,
+    )
+    body_pool = [
+        a for a in verified_assets
+        if a is not cover and str(a.get("asset_type", "")).lower() in ("dashboard_screenshot", "workbook_page", "product_demo_clip")
+    ]
+    if not body_pool:
+        body_pool = [a for a in verified_assets if a is not cover] or [verified_assets[0]]
+
+    # Prefer sequential feature alignment (reserved/obligations -> timeline/horizon -> spendable/cleared), else manifest order
+    feature_buckets = (
+        ("already_spoken_for", "bills_reserved", "obligations", "reserved"),
+        ("payday_timeline", "last_until_payday", "timeline", "due_dates"),
+        ("planned_vs_cleared", "actually_spend", "unassigned_math", "spendable", "result"),
+    )
+    picked: list[dict[str, Any]] = []
+    used_ids: set[str] = set()
+    for b_tags in feature_buckets:
+        hit = next(
+            (
+                a for a in body_pool
+                if str(a.get("asset_id")) not in used_ids
+                and any(t in [str(x).lower() for x in (a.get("supported_features") or [])] for t in b_tags)
+            ),
+            None,
+        )
+        if hit is not None:
+            picked.append(hit)
+            used_ids.add(str(hit.get("asset_id")))
+    for a in body_pool:
+        if len(picked) >= 3:
+            break
+        if str(a.get("asset_id")) not in used_ids:
+            picked.append(a)
+            used_ids.add(str(a.get("asset_id")))
+    return cover, picked[:3]
+
+
+def _estimate_subclause_triggers_s(
+    claim: dict[str, Any],
+    edited_words: list[dict[str, Any]] | None,
+    scene_start_s: float,
+    dur_s: float,
+    n_steps: int,
+) -> list[float]:
+    """Align multi-step product page triggers to actual spoken sub-clause timestamps when available."""
+    if n_steps <= 1:
+        return [0.08]
+    defaults = [round(0.08 + k * ((max(0.9, dur_s - 0.50)) / n_steps), 3) for k in range(n_steps)]
+    if not edited_words or not claim.get("word_ids"):
+        return defaults
+    wids = set(int(i) for i in claim["word_ids"])
+    c_words = [w for w in edited_words if int(w.get("word_id", -1)) in wids]
+    if len(c_words) < 6:
+        return defaults
+
+    # Look for natural spoken clause pivots ("what needs", "and what", or commas) cleanly inside the claim
+    pivots: list[float] = [0.08]
+    for i in range(2, len(c_words) - 2):
+        prev_w = str(c_words[i - 1].get("word", "")).strip()
+        cur_w = str(c_words[i].get("word", "")).strip().lower().strip(",.?!")
+        nxt_w = str(c_words[i + 1].get("word", "")).strip().lower().strip(",.?!")
+        rel_t = float(c_words[i].get("output_start_s", scene_start_s)) - scene_start_s
+        if rel_t < 0.75 or rel_t > dur_s - 0.85:
+            continue
+        if (prev_w.endswith(",") and cur_w in ("what", "and", "then", "plus")) or (cur_w == "what" and nxt_w in ("needs", "you")):
+            if rel_t - pivots[-1] >= 0.95:
+                pivots.append(round(rel_t, 3))
+    if len(pivots) >= n_steps:
+        return pivots[:n_steps]
+    return defaults
+
+
 def _build_scene_graph_v2_from_claims(
     *,
     claims: list[dict[str, Any]],
@@ -234,6 +320,9 @@ def _build_scene_graph_v2_from_claims(
     edit_map: MultiSourceEditMap,
     face_bounds: dict[str, float] | None,
     bridge_span: Any | None,
+    verified_product_assets: list[dict[str, Any]] | None = None,
+    edited_words: list[dict[str, Any]] | None = None,
+    palette_tokens: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Compile a diverse, evidence-grounded SceneGraph v2 from spoken claims & selected creative direction."""
     W, H = edit_map.target_width, edit_map.target_height
@@ -242,6 +331,9 @@ def _build_scene_graph_v2_from_claims(
     sz = brief.safe_zones
     dir_id = str(selected_direction.get("direction_id", "dir_A_editorial_visual_metaphor"))
     is_minimal_dir = (dir_id == "dir_B_authentic_vlog_spatial")
+    is_product_dir = (dir_id == "dir_C_product_led_demo" and bool(verified_product_assets))
+    cover_asset, demo_page_assets = _select_product_assets_for_scenes(list(verified_product_assets or []))
+    pal_dict = dict(palette_tokens) if isinstance(palette_tokens, dict) and palette_tokens else None
     scenes: list[dict[str, Any]] = []
 
     def _f(t_s: float) -> int:
@@ -345,35 +437,102 @@ def _build_scene_graph_v2_from_claims(
             last_end_f = ef
             continue
 
-        # System mechanism / benefits -> rich multi-row illustrative overview board (honestly labeled!)
+        # System mechanism / benefits -> real authorized product capture (dir_C) OR clearly labeled illustrative board (dir_A)
         if role == "system_mechanism_benefits":
             # Insert smooth motivated_object_bridge right over bridge_span if present before this beat!
             if bridge_span is not None and bridge_span.output_start_frame >= last_end_f - 4 and not is_minimal_dir:
                 bsf = max(last_end_f, int(bridge_span.output_start_frame))
                 bef = min(sf, int(bridge_span.output_end_frame_exclusive))
                 if bef - bsf >= int(fps * 0.6):
+                    b_params: dict[str, Any] = {
+                        "eyebrow": "TIMING-FIRST CLARITY",
+                        "title": brief.product_name or "A Clearer System",
+                        "subline": "BUILT FOR THE PAYDAY GAP",
+                        "disclosure": "REAL OWNER-AUTHORIZED WORKBOOK" if (is_product_dir and cover_asset) else ("ILLUSTRATIVE CONCEPT" if not brief.product_proof_available else "PRODUCT OVERVIEW"),
+                    }
+                    b_extra: dict[str, str] = {}
+                    b_asset_ids: list[str] = []
+                    if is_product_dir and cover_asset and cover_asset.get("resolved_path"):
+                        ckey = f"prod_{cover_asset['asset_id']}{Path(cover_asset['resolved_path']).suffix.lower()}"
+                        b_params["featured_asset_key"] = ckey
+                        b_extra[ckey] = str(cover_asset["resolved_path"])
+                        b_asset_ids.append(str(cover_asset["asset_id"]))
                     scenes.append({
                         "scene_id": f"sc_{len(scenes):02d}_motivated_bridge",
                         "claim_id": "bridge_transition",
                         "narrative_role": "transition_bridge",
                         "treatment_mode": "motivated_object_bridge",
-                        "evidence_ids": ["bridge:edit_map"],
+                        "evidence_ids": ["bridge:edit_map", *[f"asset:{a}" for a in b_asset_ids]],
                         "start_frame": bsf,
                         "end_frame_exclusive": bef,
                         "start_s": round(bsf / fps, 4),
                         "end_s": round(bef / fps, 4),
                         "duration_s": round((bef - bsf) / fps, 4),
                         "layout": solve_dynamic_safe_layout(width=W, height=H, treatment_mode="motivated_object_bridge", face_bounds=face_bounds, safe_zones=sz),
-                        "params": {
-                            "eyebrow": "TIMING-FIRST CLARITY",
-                            "title": brief.product_name or "A Clearer System",
-                            "subline": "BUILT FOR THE PAYDAY GAP",
-                            "disclosure": "ILLUSTRATIVE CONCEPT" if not brief.product_proof_available else "PRODUCT OVERVIEW",
-                        },
+                        "params": b_params,
+                        "extra_assets": b_extra,
+                        "asset_ids": b_asset_ids,
                     })
                     last_end_f = bef
                     sf = max(last_end_f, sf)
                     dur_s = max(0.8, (ef - sf) / fps)
+
+            if is_product_dir and demo_page_assets:
+                tmode = "actual_product_capture"
+                triggers = _estimate_subclause_triggers_s(cl, edited_words, sf / fps, dur_s, len(demo_page_assets))
+                step_meta = [
+                    ("01 SPOKEN FOR", "STEP 01 · ALREADY SPOKEN FOR", "Bills Reserved Before Spending"),
+                    ("02 PAYDAY GAP", "STEP 02 · UNTIL PAYDAY", "Every Due Date Mapped In Time"),
+                    ("03 SAFE SPEND", "STEP 03 · ACTUALLY SPENDABLE", "Planned, Reserved & Unassigned"),
+                ]
+                pages_spec: list[dict[str, Any]] = []
+                p_extra: dict[str, str] = {}
+                p_asset_ids: list[str] = []
+                p_shas: list[str] = []
+                for pi, pa in enumerate(demo_page_assets):
+                    rpath = str(pa.get("resolved_path") or "")
+                    if not rpath:
+                        continue
+                    ext = Path(rpath).suffix.lower() or ".png"
+                    akey = f"prod_{pi:02d}_{pa['asset_id']}{ext}"
+                    sm = step_meta[pi] if pi < len(step_meta) else (f"0{pi+1} VIEW", f"STEP 0{pi+1}", str(pa.get("asset_id")))
+                    pages_spec.append({
+                        "asset_key": akey,
+                        "asset_id": str(pa["asset_id"]),
+                        "asset_sha256": str(pa.get("sha256", "")),
+                        "step_pill": sm[0],
+                        "caption_kicker": sm[1],
+                        "caption_title": sm[2],
+                        "trigger_s": triggers[pi] if pi < len(triggers) else round(0.1 + pi * 1.4, 3),
+                    })
+                    p_extra[akey] = rpath
+                    p_asset_ids.append(str(pa["asset_id"]))
+                    p_shas.append(str(pa.get("sha256", "")))
+                has_only_wb = all("workbook" in str(a.get("asset_type", "")).lower() for a in demo_page_assets)
+                params = {
+                    "title": brief.product_name or "Product Walkthrough",
+                    "provenance_badge": "REAL WORKBOOK · FICTIONAL EXAMPLE" if has_only_wb else "REAL PRODUCT CAPTURE",
+                    "pages": pages_spec,
+                }
+                scenes.append({
+                    "scene_id": f"sc_{len(scenes):02d}_product_proof",
+                    "claim_id": cl["claim_id"],
+                    "narrative_role": role,
+                    "treatment_mode": tmode,
+                    "evidence_ids": [*[f"word:{w}" for w in cl["word_ids"][:10]], *[f"asset:{a}" for a in p_asset_ids]],
+                    "start_frame": sf,
+                    "end_frame_exclusive": ef,
+                    "start_s": round(sf / fps, 4),
+                    "end_s": round(ef / fps, 4),
+                    "duration_s": round(dur_s, 4),
+                    "layout": solve_dynamic_safe_layout(width=W, height=H, treatment_mode=tmode, face_bounds=face_bounds, safe_zones=sz),
+                    "params": params,
+                    "extra_assets": p_extra,
+                    "asset_ids": p_asset_ids,
+                    "asset_sha256s": p_shas,
+                })
+                last_end_f = ef
+                continue
 
             tmode = "spatial_editorial_anchor" if is_minimal_dir else "illustrative_system_board"
             rows = [
@@ -454,26 +613,39 @@ def _build_scene_graph_v2_from_claims(
             dur_cta = max(0.9, (ef_cta - sf) / fps)
             txt_l = cl["text"].lower()
             hl_cta = "Link in caption" if "caption" in txt_l else ("Link in profile" if "profile" in txt_l else cl["text"][:26])
+            cta_params: dict[str, Any] = {
+                "headline": hl_cta,
+                "subline": brief.product_name or "TAKE A LOOK",
+            }
+            cta_extra: dict[str, str] = {}
+            cta_aids: list[str] = []
+            if is_product_dir and cover_asset and cover_asset.get("resolved_path"):
+                ckey = f"cta_{cover_asset['asset_id']}{Path(cover_asset['resolved_path']).suffix.lower()}"
+                cta_params["cover_asset_key"] = ckey
+                cta_extra[ckey] = str(cover_asset["resolved_path"])
+                cta_aids.append(str(cover_asset["asset_id"]))
             scenes.append({
                 "scene_id": f"sc_{len(scenes):02d}_cta",
                 "claim_id": cl["claim_id"],
                 "narrative_role": role,
                 "treatment_mode": "minimal_cta_anchor",
-                "evidence_ids": [f"word:{w}" for w in cl["word_ids"][:6]],
+                "evidence_ids": [*[f"word:{w}" for w in cl["word_ids"][:6]], *[f"asset:{a}" for a in cta_aids]],
                 "start_frame": sf,
                 "end_frame_exclusive": ef_cta,
                 "start_s": round(sf / fps, 4),
                 "end_s": round(ef_cta / fps, 4),
                 "duration_s": round(dur_cta, 4),
                 "layout": solve_dynamic_safe_layout(width=W, height=H, treatment_mode="minimal_cta_anchor", face_bounds=face_bounds, safe_zones=sz),
-                "params": {
-                    "headline": hl_cta,
-                    "subline": brief.product_name or "TAKE A LOOK",
-                },
+                "params": cta_params,
+                "extra_assets": cta_extra,
+                "asset_ids": cta_aids,
             })
             last_end_f = ef_cta
             break
 
+    if pal_dict:
+        for sc in scenes:
+            sc["palette"] = dict(pal_dict)
     return scenes
 
 
@@ -729,8 +901,12 @@ def _run_independent_vlm_render_critic(
     }
     vlm_ok_count = 0
     if model_router is not None and model_router.vlm_spec.available:
-        # Inspect up to 4 key distinct frames (hook, calendar/dilemma, system overview/bridge, CTA)
-        pick_for_vlm = [extracted[i] for i in sorted({0, 1, len(extracted) // 2, len(extracted) - 1}) if i < len(extracted)]
+        # Always include any actual_product_capture frame plus hook, mid, and CTA frames!
+        pick_indices = {0, 1, len(extracted) // 2, len(extracted) - 1}
+        for idx_e, ex_e in enumerate(extracted):
+            if ex_e.get("treatment_mode") == "actual_product_capture":
+                pick_indices.add(idx_e)
+        pick_for_vlm = [extracted[i] for i in sorted(pick_indices) if i < len(extracted)][:5]
         for ex in pick_for_vlm:
             try:
                 parsed, meta = model_router.infer_multimodal_json(
@@ -1038,11 +1214,31 @@ def run_multisource_director_job(
     cat_dir = Path(job["asset_catalog_path"]) if job.get("asset_catalog_path") else None
     prod_cat = inspect_product_asset_catalog(cat_dir)
     prod_name = job.get("product_name") or ""
-    prod_match = match_product_assets_for_name(prod_name, cat_dir) if prod_name else {"status": "NOT_REQUIRED", "matched_assets": []}
+    prod_match = (
+        match_product_assets_for_name(prod_name, catalog=prod_cat)
+        if prod_name
+        else {"matched": False, "status": "NOT_REQUIRED", "product_demo_status": "NOT_REQUIRED", "assets": []}
+    )
+    verified_product_assets = list(prod_match.get("assets") or []) if prod_match.get("matched") else []
+    verified_asset_types = sorted({str(a.get("asset_type", "")) for a in verified_product_assets})
+    has_live_ui_capture = any(t in ("dashboard_screenshot", "product_demo_clip") for t in verified_asset_types)
+    has_workbook_assets = any(t in ("workbook_cover", "workbook_page") for t in verified_asset_types)
+    if has_live_ui_capture and has_workbook_assets:
+        product_proof_scope = "AUTHORIZED_LIVE_UI_AND_WORKBOOK_VERIFIED"
+    elif has_live_ui_capture:
+        product_proof_scope = "AUTHORIZED_LIVE_PRODUCT_UI_VERIFIED"
+    elif has_workbook_assets:
+        product_proof_scope = "AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED"
+    else:
+        product_proof_scope = "NO_AUTHORIZED_PRODUCT_ASSETS"
     prod_status = {
         "catalog": prod_cat,
         "match": prod_match,
-        "has_verified_real_product_assets": bool(prod_match.get("matched_assets")),
+        "has_verified_real_product_assets": bool(verified_product_assets),
+        "verified_asset_count": len(verified_product_assets),
+        "verified_asset_types": verified_asset_types,
+        "verified_asset_ids": [str(a.get("asset_id", "")) for a in verified_product_assets],
+        "product_proof_scope": product_proof_scope,
     }
     atomic_write_json(run_dir / "asset_catalog_status.json", prod_status)
 
@@ -1059,7 +1255,7 @@ def run_multisource_director_job(
     # Safe bounded tool registry logging every director inspection cleanly
     tools = DirectorToolRegistry(max_calls=24)
     tools.register("inspect_source", lambda a: {"sources": len(probed_sources), "vlm_status": ev_index["vlm_status"]})
-    tools.register("search_local_asset_catalog", lambda a: {"has_verified_real_product_assets": prod_status["has_verified_real_product_assets"]})
+    tools.register("search_local_asset_catalog", lambda a: {"has_verified_real_product_assets": prod_status["has_verified_real_product_assets"], "verified_asset_count": prod_status["verified_asset_count"]})
     tools.invoke("inspect_source", {"sources": sids}, reason_code="ground_visual_and_audio_evidence")
     tools.invoke("search_local_asset_catalog", {"query": prod_name or niche_hint}, reason_code="verify_product_asset_rights")
 
@@ -1075,6 +1271,7 @@ def run_multisource_director_job(
     atomic_write_json(run_dir / "creative_selection_trace.json", {**dir_selection, "tool_trace": tools.trace})
 
     # Build 3 Hook candidates & SceneGraph v2
+    palette_tokens = job.get("palette_tokens") if isinstance(job.get("palette_tokens"), dict) else None
     hook_cands = build_three_hook_candidates(
         hook_claim=claims[0] if claims else {"start_s": 0.1, "end_s": 3.0, "text": "Opening"},
         next_claim=claims[1] if len(claims) > 1 else None,
@@ -1083,6 +1280,7 @@ def run_multisource_director_job(
         fps=int(round(fps_f)),
         face_bounds=merged_face_bounds,
         safe_zones=brief.safe_zones,
+        palette=palette_tokens,
     )
     winning_hook = hook_cands[0]  # Refined after real proxy rendering below!
     bridge_span = next((sp for sp in edit_map.kept_spans if sp.kind == "editorial_bridge"), None)
@@ -1094,6 +1292,9 @@ def run_multisource_director_job(
         edit_map=edit_map,
         face_bounds=merged_face_bounds,
         bridge_span=bridge_span,
+        verified_product_assets=verified_product_assets,
+        edited_words=edited_words,
+        palette_tokens=palette_tokens,
     )
     temporal_ledger = build_temporal_ledger_from_story_and_scenes(
         scenes=scenes,
@@ -1279,14 +1480,14 @@ def run_multisource_director_job(
             fps=int(round(fps_f)),
             cache_dir=hf_cache_dir,
         )
-        is_bridge = sc["treatment_mode"] == "motivated_object_bridge"
-        sf_chk = 4 if is_bridge else min(18, max(4, (int(sc["end_frame_exclusive"]) - int(sc["start_frame"])) // 3))
+        is_full_wipe = sc["treatment_mode"] in ("motivated_object_bridge", "actual_product_capture")
+        sf_chk = 4 if is_full_wipe else min(18, max(4, (int(sc["end_frame_exclusive"]) - int(sc["start_frame"])) // 3))
         alpha_chk = verify_webm_alpha_pixels(
             webm_p,
             width=W,
             height=H,
             sample_frame=sf_chk,
-            min_transparent_frac=0.05 if is_bridge else 0.10,
+            min_transparent_frac=0.05 if is_full_wipe else 0.10,
             ffmpeg_bin=ffmpeg_bin,
         )
         if not alpha_chk.get("alpha_verified"):
@@ -1303,6 +1504,8 @@ def run_multisource_director_job(
             "engine": "hyperframes",
             "frame_range": [sc["start_frame"], sc["end_frame_exclusive"]],
             "artifact_sha256": _sha256_file(webm_p),
+            "bound_asset_keys": rinfo.get("bound_asset_keys", []),
+            "bound_asset_ids": list(sc.get("asset_ids") or []),
             "alpha_verified": True,
             "transparent_frac": alpha_chk.get("transparent_frac"),
             "nonzero_alpha_ratio": alpha_chk.get("nonzero_alpha_ratio"),
@@ -1322,6 +1525,7 @@ def run_multisource_director_job(
         "split_dilemma_metaphor": ("paper_rustle", "ILLUSTRATIVE_FOLEY", -9.0),
         "motivated_object_bridge": ("soft_whoosh", "TRANSITION_BRIDGE", -8.5),
         "illustrative_system_board": ("page_turn", "PRODUCT_TEXTURE", -9.5),
+        "actual_product_capture": ("page_turn", "PRODUCT_TEXTURE", -8.5),
         "minimal_cta_anchor": ("bass_settle", "COGNITIVE_EMPHASIS", -9.0),
     }
     for idx, sc in enumerate(scenes):
@@ -1469,7 +1673,7 @@ def run_multisource_director_job(
         for fnd in occ_findings:
             target_sid = fnd["scene_id"]
             for sc in scenes:
-                if sc["scene_id"] == target_sid and sc["treatment_mode"] not in ("motivated_object_bridge", "calm_breathing_face"):
+                if sc["scene_id"] == target_sid and sc["treatment_mode"] not in ("motivated_object_bridge", "actual_product_capture", "calm_breathing_face"):
                     sc["layout"]["y_px"] = min(int(H * 0.72), int(sc["layout"]["y_px"]) + int(H * 0.06))
                     sc["layout"]["overlaps_face"] = False
                     webm_p = temp_dir / f"ov_{sc['scene_id']}_r{r_idx+1}.webm"
@@ -1587,6 +1791,9 @@ def run_multisource_director_job(
         "audio_mix_qa": {k: audio_qa.get(k) for k in ("status", "events_total", "events_proxy_audible", "events_sync_ok", "events_speech_band_ok", "final_decoded_lufs_i", "final_decoded_true_peak_dbtp", "clipping_samples_added", "ablation_method")},
         "watermark_auth": wm_auth,
         "product_proof_status": brief.product_proof_status,
+        "product_proof_scope": product_proof_scope,
+        "actual_product_proof_verified": bool(claim_coverage.get("actual_product_proof_verified", False)),
+        "verified_product_asset_ids": prod_status["verified_asset_ids"],
         "missing_dialogue_count": len(missing_clauses),
         "temporal_ledger_valid": temporal_ledger.valid,
         "repair_rounds": len(repair_history),
@@ -1612,6 +1819,7 @@ def run_multisource_director_job(
         f"# MotionLab Studio ML-01.R5.R5 Run — {run_id}",
         f"- Status: {final_status} (technical_gates_passed={tech_pass}, aesthetic=PENDING_HUMAN_REVIEW)",
         f"- Hard Blockers: {hard_blockers}",
+        f"- Product Proof: {brief.product_proof_status} | scope={product_proof_scope} | realized_in_frames={claim_coverage.get('actual_product_proof_verified', False)} | assets={prod_status['verified_asset_ids']}",
         f"- Output: {out_filename} ({W}x{H} {fps_num}/{fps_den}fps, {edit_map.output_total_frames}f, {edit_map.output_duration_s}s, SHA-256 {final_sha})",
         f"- Preview: preview_9x16.mp4 (540x960, SHA-256 {prev_sha})",
         f"- Direction: {dir_selection['selected_direction_id']} | Distinct modes: {claim_coverage['distinct_treatment_modes']}",

@@ -9,13 +9,19 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 import cv2
 import numpy as np
+from PIL import Image
 
+from motionlab.assets.catalog import inspect_product_asset_catalog, match_product_assets_for_name
+from motionlab.composition.director_pipeline import _build_scene_graph_v2_from_claims
+from motionlab.composition.multi_source_timeline import MultiSourceEditMap
 from motionlab.composition.scene_graph_v2 import (
     build_three_hook_candidates,
     compile_scene_v2_html,
@@ -205,6 +211,154 @@ class TestR5R5DirectorVlmAndSceneGraph(unittest.TestCase):
             res_c = detect_static_corner_watermarks(p_clean, num_samples=10)
             self.assertTrue(res_m["detected_bright_static_mark"])
             self.assertFalse(res_c["detected_bright_static_mark"])
+
+    def test_actual_product_capture_html_embeds_local_assets_and_blocks_traversal(self) -> None:
+        """A6/D05: actual_product_capture compiles verified local assets cleanly and rejects unsafe URLs/traversal."""
+        html_s, transp = compile_scene_v2_html({
+            "scene_id": "sc_prod",
+            "treatment_mode": "actual_product_capture",
+            "duration_s": 4.8,
+            "params": {
+                "title": "Demo Plan",
+                "provenance_badge": "REAL WORKBOOK · FICTIONAL EXAMPLE",
+                "pages": [
+                    {"asset_key": "prod_00_p07.png", "step_pill": "01 BILLS", "caption_kicker": "STEP 1", "caption_title": "Reserved First", "trigger_s": 0.1},
+                    {"asset_key": "prod_01_p10.png", "step_pill": "02 GAP", "caption_kicker": "STEP 2", "caption_title": "Payday Timeline", "trigger_s": 1.8},
+                ],
+            },
+        })
+        self.assertTrue(transp)
+        self.assertIn("./prod_00_p07.png", html_s)
+        self.assertIn("./prod_01_p10.png", html_s)
+        self.assertIn("REAL WORKBOOK", html_s)
+        self.assertNotIn("http://", html_s.lower())
+        self.assertNotIn("https://", html_s.lower())
+
+        # Bridge & CTA with local cover asset key
+        br_html, _ = compile_scene_v2_html({
+            "scene_id": "sc_br",
+            "treatment_mode": "motivated_object_bridge",
+            "duration_s": 1.2,
+            "params": {"title": "Demo Plan", "featured_asset_key": "prod_cover.png"},
+        })
+        self.assertIn("./prod_cover.png", br_html)
+        cta_html, _ = compile_scene_v2_html({
+            "scene_id": "sc_cta",
+            "treatment_mode": "minimal_cta_anchor",
+            "duration_s": 2.0,
+            "params": {"headline": "Link in caption", "cover_asset_key": "cta_cover.png"},
+        })
+        self.assertIn("./cta_cover.png", cta_html)
+
+        # Fail-closed negative checks: empty pages, traversal, remote URL, data URI
+        with self.assertRaises(ValueError):
+            compile_scene_v2_html({"scene_id": "bad0", "treatment_mode": "actual_product_capture", "duration_s": 2.0, "params": {"pages": []}})
+        for bad_key in ("../escape.png", "https://evil.example/a.png", "data:image/png;base64,AAA", "sub/dir.png"):
+            with self.assertRaises(ValueError):
+                compile_scene_v2_html({
+                    "scene_id": "bad1",
+                    "treatment_mode": "actual_product_capture",
+                    "duration_s": 2.0,
+                    "params": {"pages": [{"asset_key": bad_key, "caption_title": "Bad"}]},
+                })
+
+    def test_director_catalog_binding_switches_causally_to_actual_product_capture(self) -> None:
+        """D05 end-to-end binding: verified AssetCatalog assets causally drive dir_C -> actual_product_capture."""
+        with tempfile.TemporaryDirectory() as td:
+            cdir = Path(td)
+            img_specs = [
+                ("demo_cover", "workbook_cover", "cover.png", ["cover"]),
+                ("demo_p1", "workbook_page", "p1.png", ["already_spoken_for"]),
+                ("demo_p2", "workbook_page", "p2.png", ["payday_timeline"]),
+                ("demo_p3", "workbook_page", "p3.png", ["actually_spend"]),
+            ]
+            manifest_assets = []
+            for aid, atype, fn, feats in img_specs:
+                fp = cdir / fn
+                Image.new("RGB", (320, 460), (22, 56, 46)).save(fp, "PNG")
+                manifest_assets.append({
+                    "asset_id": aid,
+                    "product_id": "demo_plan",
+                    "product_name": "Demo Plan",
+                    "asset_type": atype,
+                    "relative_path": fn,
+                    "version": "1.0",
+                    "owner_authorized": True,
+                    "pii_redacted": True,
+                    "license": "OWNER_AUTHORIZED",
+                    "sha256": hashlib.sha256(fp.read_bytes()).hexdigest(),
+                    "width": 320,
+                    "height": 460,
+                    "supported_features": feats,
+                })
+            (cdir / "manifest.json").write_text(json.dumps({"schema_version": "3.0.0", "assets": manifest_assets}), encoding="utf-8")
+
+            cat = inspect_product_asset_catalog(cdir)
+            self.assertEqual(cat["status"], "AUTHORIZED_PRODUCT_ASSETS_VERIFIED")
+            match = match_product_assets_for_name("Demo Plan", catalog=cat)
+            self.assertTrue(match["matched"])
+            self.assertEqual(len(match["assets"]), 4)
+
+            words = [
+                {"word_id": 0, "word": "Check", "output_start_s": 0.1, "output_end_s": 0.4},
+                {"word_id": 1, "word": "this.", "output_start_s": 0.4, "output_end_s": 0.8},
+                {"word_id": 2, "word": "It", "output_start_s": 2.0, "output_end_s": 2.2},
+                {"word_id": 3, "word": "shows", "output_start_s": 2.2, "output_end_s": 2.6},
+                {"word_id": 4, "word": "you", "output_start_s": 2.6, "output_end_s": 2.9},
+                {"word_id": 5, "word": "what's", "output_start_s": 2.9, "output_end_s": 3.3},
+                {"word_id": 6, "word": "spoken", "output_start_s": 3.3, "output_end_s": 3.8},
+                {"word_id": 7, "word": "for,", "output_start_s": 3.8, "output_end_s": 4.2},
+                {"word_id": 8, "word": "what", "output_start_s": 4.3, "output_end_s": 4.6},
+                {"word_id": 9, "word": "needs", "output_start_s": 4.6, "output_end_s": 5.0},
+                {"word_id": 10, "word": "payday,", "output_start_s": 5.0, "output_end_s": 5.6},
+                {"word_id": 11, "word": "and", "output_start_s": 5.7, "output_end_s": 5.9},
+                {"word_id": 12, "word": "spend.", "output_start_s": 5.9, "output_end_s": 6.6},
+                {"word_id": 13, "word": "Link", "output_start_s": 7.0, "output_end_s": 7.3},
+                {"word_id": 14, "word": "in", "output_start_s": 7.3, "output_end_s": 7.5},
+                {"word_id": 15, "word": "caption.", "output_start_s": 7.5, "output_end_s": 8.2},
+            ]
+            claims = extract_claims_and_questions(words)
+            brief = build_intent_brief(
+                claims=claims,
+                job_config={"niche_hint": "finance", "product_name": "Demo Plan"},
+                product_asset_status={"has_verified_real_product_assets": True},
+            )
+            sel = propose_global_creative_directions(brief=brief, claims=claims, model_router=None)
+            self.assertEqual(sel["selected_direction_id"], "dir_C_product_led_demo")
+
+            dummy_map = MultiSourceEditMap(
+                schema_version="1.0.0",
+                sources=[],
+                target_width=1080,
+                target_height=1920,
+                fps_num=30,
+                fps_den=1,
+                sample_rate=48000,
+                channels=2,
+                output_total_frames=270,
+                output_duration_s=9.0,
+                output_total_samples=432000,
+                kept_spans=[],
+                cuts=[],
+                map_hash="dummy",
+            )
+            scenes = _build_scene_graph_v2_from_claims(
+                claims=claims,
+                selected_direction=sel["selected_direction"],
+                winning_hook_scene=None,
+                brief=brief,
+                edit_map=dummy_map,
+                face_bounds=None,
+                bridge_span=None,
+                verified_product_assets=match["assets"],
+                edited_words=words,
+            )
+            prod_scenes = [s for s in scenes if s["treatment_mode"] == "actual_product_capture"]
+            self.assertEqual(len(prod_scenes), 1)
+            self.assertEqual(len(prod_scenes[0]["extra_assets"]), 3)
+            self.assertEqual(prod_scenes[0]["asset_ids"], ["demo_p1", "demo_p2", "demo_p3"])
+            cov = build_claim_visual_coverage_matrix(claims=claims, scenes=scenes, product_proof_available=True)
+            self.assertTrue(cov["actual_product_proof_verified"])
 
 
 if __name__ == "__main__":
