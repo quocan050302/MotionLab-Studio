@@ -1,0 +1,309 @@
+{
+  "actual_product_proof_verified": true,
+  "aesthetic_status": "PENDING_HUMAN_REVIEW",
+  "audio_join_qa_status": "PASS",
+  "audio_mix_qa": {
+    "ablation_method": "true_minus_one_cue_aac_counterfactual",
+    "clipping_samples_added": 0,
+    "events_proxy_audible": 7,
+    "events_speech_band_ok": 7,
+    "events_sync_ok": 7,
+    "events_total": 7,
+    "final_decoded_lufs_i": -16.3,
+    "final_decoded_true_peak_dbtp": -2.4,
+    "status": "PASS"
+  },
+  "claim_visual_coverage_ratio": 0.5,
+  "creative_mode": "director",
+  "distinct_treatment_modes": [
+    "actual_product_capture",
+    "calendar_timeline_gap",
+    "calm_breathing_face",
+    "minimal_cta_anchor",
+    "spatial_editorial_anchor",
+    "split_dilemma_metaphor"
+  ],
+  "final_artifact": {
+    "bytes": 22638962,
+    "duration_s": 27.233333,
+    "filename": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+    "fps": "30/1",
+    "frames": 817,
+    "full_decode_ok": true,
+    "height": 1920,
+    "path": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+    "sha256": "749279367a9d13fa46ec2c5a59d255d1f9ca4777bff9a9905c6ecf42accae1c5",
+    "width": 1080
+  },
+  "hard_blockers": [
+    "BLOCKED_WATERMARK_AUTHORIZATION",
+    "MISSING_SOURCE_DIALOGUE"
+  ],
+  "listening_status": "LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY",
+  "missing_dialogue_count": 2,
+  "overall_status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "preview_artifact": {
+    "bytes": 4398281,
+    "filename": "preview_9x16.mp4",
+    "path": "preview_9x16.mp4",
+    "sha256": "c58d74e710ad12d2b7c418ad11c2eeaf7e222b9e2ea2c7370a4c64f0de943d5e"
+  },
+  "product_proof_scope": "AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED",
+  "product_proof_status": "ACTUAL_PRODUCT_VERIFIED",
+  "repair_rounds": 0,
+  "resource_stats": {
+    "peak_temp_mb": 137.74,
+    "peak_tree_rss_mb": 247.44,
+    "stages": {
+      "composite_and_critic_qa": {
+        "elapsed_s": 168.3078,
+        "temp_mb": 137.74,
+        "tree_rss_mb": 241.55
+      },
+      "creative_director": {
+        "elapsed_s": 10.8147,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 229.12
+      },
+      "hook_proxies_and_scene_render": {
+        "elapsed_s": 131.7025,
+        "temp_mb": 74.51,
+        "tree_rss_mb": 247.44
+      },
+      "ingest_and_speech_perception": {
+        "elapsed_s": 13.3244,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 192.62
+      },
+      "mezzanine_and_word_qa": {
+        "elapsed_s": 25.3871,
+        "temp_mb": 68.98,
+        "tree_rss_mb": 240.87
+      },
+      "multimodal_evidence_index": {
+        "elapsed_s": 68.8314,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 228.74
+      },
+      "semantic_audio_mix": {
+        "elapsed_s": 3.4282,
+        "temp_mb": 137.74,
+        "tree_rss_mb": 241.02
+      },
+      "speech_dedup_and_timeline": {
+        "elapsed_s": 0.0576,
+        "temp_mb": 6.4,
+        "tree_rss_mb": 192.86
+      }
+    }
+  },
+  "run_id": "20261128T024956Z_81d918d0_s42",
+  "schema_version": "1.0.0",
+  "selected_direction_id": "dir_C_product_led_demo",
+  "sources_immutable": true,
+  "status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "technical_gates_passed": true,
+  "temporal_ledger_valid": true,
+  "verified_product_asset_ids": [
+    "tnpp_wb_p01_cover",
+    "tnpp_wb_p07_jordan_paycheck",
+    "tnpp_wb_p10_payday_timeline",
+    "tnpp_wb_p12_planned_reserved_cleared",
+    "tnpp_wb_p24_timing_gap",
+    "tnpp_wb_p49_bill_calendar"
+  ],
+  "vlm_critic_status": "VISION_CRITIC_EXECUTED",
+  "vlm_perception_status": "VLM_EXECUTED",
+  "wall_s": 422.02,
+  "watermark_auth": {
+    "action": "PRESERVE_PROVENANCE_MARK_AND_RENDER_CANDIDATE",
+    "ai_generated_disclosure_required": true,
+    "clean_release_eligible": false,
+    "detected_sources": [
+      "A",
+      "B"
+    ],
+    "reason": "Static corner provenance mark detected on source(s) ['A', 'B']. No verified clean-export license or provenance-removal authorization provided; preserving mark intact and flagging output as BLOCKED_WATERMARK_AUTHORIZATION (never stripping/cropping provenance without license).",
+    "roi_measurement": {
+      "A": {
+        "corner_measurements": {
+          "bottom_left": {
+            "approx_norm_xy": [
+              0.11,
+              0.92
+            ],
+            "corner": "bottom_left",
+            "detected": false,
+            "largest_compact_component_px": 0,
+            "max_local_contrast": 26.0,
+            "static_spike_pixels": 0
+          },
+          "bottom_right": {
+            "approx_norm_xy": [
+              0.854,
+              0.906
+            ],
+            "corner": "bottom_right",
+            "detected": true,
+            "largest_compact_component_px": 40,
+            "max_local_contrast": 47.0,
+            "static_spike_pixels": 129
+          },
+          "top_left": {
+            "approx_norm_xy": [
+              0.05,
+              0.088
+            ],
+            "corner": "top_left",
+            "detected": true,
+            "largest_compact_component_px": 18,
+            "max_local_contrast": 62.0,
+            "static_spike_pixels": 18
+          },
+          "top_right": {
+            "approx_norm_xy": [
+              0.89,
+              0.08
+            ],
+            "corner": "top_right",
+            "detected": false,
+            "largest_compact_component_px": 0,
+            "max_local_contrast": 2.0,
+            "static_spike_pixels": 0
+          }
+        },
+        "detected_bright_static_mark": true,
+        "detected_corners": [
+          {
+            "approx_norm_xy": [
+              0.854,
+              0.906
+            ],
+            "corner": "bottom_right",
+            "detected": true,
+            "largest_compact_component_px": 40,
+            "max_local_contrast": 47.0,
+            "static_spike_pixels": 129
+          },
+          {
+            "approx_norm_xy": [
+              0.05,
+              0.088
+            ],
+            "corner": "top_left",
+            "detected": true,
+            "largest_compact_component_px": 18,
+            "max_local_contrast": 62.0,
+            "static_spike_pixels": 18
+          }
+        ],
+        "samples_checked": 12
+      },
+      "B": {
+        "corner_measurements": {
+          "bottom_left": {
+            "approx_norm_xy": [
+              0.11,
+              0.92
+            ],
+            "corner": "bottom_left",
+            "detected": false,
+            "largest_compact_component_px": 0,
+            "max_local_contrast": 25.0,
+            "static_spike_pixels": 0
+          },
+          "bottom_right": {
+            "approx_norm_xy": [
+              0.836,
+              0.904
+            ],
+            "corner": "bottom_right",
+            "detected": true,
+            "largest_compact_component_px": 241,
+            "max_local_contrast": 129.0,
+            "static_spike_pixels": 283
+          },
+          "top_left": {
+            "approx_norm_xy": [
+              0.11,
+              0.08
+            ],
+            "corner": "top_left",
+            "detected": false,
+            "largest_compact_component_px": 0,
+            "max_local_contrast": 77.0,
+            "static_spike_pixels": 181
+          },
+          "top_right": {
+            "approx_norm_xy": [
+              0.89,
+              0.08
+            ],
+            "corner": "top_right",
+            "detected": false,
+            "largest_compact_component_px": 0,
+            "max_local_contrast": 3.0,
+            "static_spike_pixels": 0
+          }
+        },
+        "detected_bright_static_mark": true,
+        "detected_corners": [
+          {
+            "approx_norm_xy": [
+              0.836,
+              0.904
+            ],
+            "corner": "bottom_right",
+            "detected": true,
+            "largest_compact_component_px": 241,
+            "max_local_contrast": 129.0,
+            "static_spike_pixels": 283
+          }
+        ],
+        "samples_checked": 12
+      }
+    },
+    "schema_version": "1.0.0",
+    "status": "BLOCKED_WATERMARK_AUTHORIZATION"
+  },
+  "word_preservation": {
+    "critical_token_recall": 1.0,
+    "critical_tokens_checked": [
+      "not",
+      "tuesday",
+      "don't",
+      "friday",
+      "payday",
+      "without"
+    ],
+    "edited_token_count": 85,
+    "matched_ordered_tokens": 85,
+    "missing_critical_tokens": [],
+    "missing_source_dialogue_claims": [
+      {
+        "best_match_ratio": 0.1818,
+        "clause": "That's the part my monthly budget never really answered.",
+        "reason": "clause_absent_in_all_sources",
+        "sentence_index": 4
+      },
+      {
+        "best_match_ratio": 0.3158,
+        "clause": "That's why I created The Next Paycheck Plan.",
+        "reason": "clause_absent_in_all_sources",
+        "sentence_index": 5
+      }
+    ],
+    "order_preserved": true,
+    "passed": true,
+    "re_asr_backend": "faster_whisper_small_int8_independent_bed_reasr",
+    "re_asr_text": "<REDACTED>",
+    "re_asr_word_count": 85,
+    "residual_repeats": [],
+    "schema_version": "1.0.0",
+    "status": "PASS_WITH_MISSING_SOURCE_DIALOGUE",
+    "target_token_count": 85,
+    "token_precision": 1.0,
+    "token_recall": 1.0,
+    "wer": 0.0
+  }
+}

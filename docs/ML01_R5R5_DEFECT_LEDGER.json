@@ -39,9 +39,9 @@
       "id": "D05",
       "title": "Real product demo absent; text benefits insufficient as product proof",
       "verified_at_baseline": true,
-      "status": "BLOCKED_EXTERNAL_ASSET_HONESTLY_ENFORCED",
-      "resolution": "Engine now audits `AssetCatalog`, rejects `dir_C_product_led_demo` when authorized Notion/workbook assets are absent, labels conceptual visuals clearly as `ILLUSTRATIVE OVERVIEW`, enforces `build_claim_visual_coverage_matrix` (TEXT_ONLY/ILLUSTRATION never satisfy `ACTUAL_PRODUCT`), and flags `PRODUCT_PROOF_BLOCKED` + `CANDIDATE_9x16.mp4` naming.",
-      "files_changed": ["motionlab/semantic/creative_director.py", "motionlab/composition/director_pipeline.py"]
+      "status": "FIXED_FOR_AUTHORIZED_WORKBOOK_PROOF_NOTION_CAPTURE_PENDING",
+      "resolution": "Fixed catalog binding bug in `director_pipeline.py` (`match_product_assets_for_name(..., catalog=prod_cat)` + `assets` key), added fail-closed local asset binding & dedicated `actual_product_capture` multi-page studio showcase + Cover-enhanced bridge/CTA in `scene_graph_v2.py`, and calibrated proof hierarchy in `creative_director.py`. With owner-supplied 56-page Workbook PDF pages locally verified (gitignored in `assets/product_catalog/`), the engine causally switches to `dir_C_product_led_demo`, renders real Workbook pages (`Page 1 Cover`, `Page 7 Jordan $1,600/$920`, `Page 10 Payday Timeline`, `Page 12 $120 STILL UNASSIGNED`) with honest `REAL WORKBOOK · FICTIONAL EXAMPLE` badge, and verifies `ACTUAL_PRODUCT` in `claim_visual_coverage.json`. Still fails closed to `PRODUCT_PROOF_BLOCKED` + `dir_A` when assets are absent, and honestly discloses `AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED` (pre-launch Quick Start private Notion links never scraped or fabricated).",
+      "files_changed": ["motionlab/semantic/creative_director.py", "motionlab/composition/director_pipeline.py", "motionlab/composition/scene_graph_v2.py", "jobs/olivia_v6_director_job.json", ".gitignore"]
     },
     {
       "id": "D06",

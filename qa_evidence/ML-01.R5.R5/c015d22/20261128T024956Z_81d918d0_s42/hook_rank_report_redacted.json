@@ -1,0 +1,41 @@
+{
+  "candidates": [
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_A_spatial_action_conflict",
+      "face_clear": true,
+      "preview_mp4": "<REDACTED>",
+      "preview_sha256": "5f88be15ec9373f8c00a59268bcaad2ba986747bb8f20aa3173b04fb12332a74",
+      "score": 1.0,
+      "strategy": "Open kinetic editorial typography anchored in upper/lower negative space over live phone-glance action (zero dark box).",
+      "treatment_mode": "spatial_editorial_anchor",
+      "webm_path": "<REDACTED>"
+    },
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_B_calendar_tension_lead",
+      "face_clear": true,
+      "preview_mp4": "<REDACTED>",
+      "preview_sha256": "f02ee21f4aa73a424dedec1ae07c589b375684e5277e32fef4be2e9e05f00538",
+      "score": 0.91,
+      "strategy": "Warm-ivory architectural weekday gap ribbon previewing timing tension from frame 0.",
+      "treatment_mode": "calendar_timeline_gap",
+      "webm_path": "<REDACTED>"
+    },
+    {
+      "alpha_verified": true,
+      "candidate_id": "hook_C_split_dilemma",
+      "face_clear": true,
+      "preview_mp4": "<REDACTED>",
+      "preview_sha256": "058e26fc883b55bc9c50de570c6edf3a15054a65960fd19103b71f4bed7c73b6",
+      "score": 0.91,
+      "strategy": "Two-column split metaphor contrasting on-paper balance vs actually spendable right in the hook.",
+      "treatment_mode": "split_dilemma_metaphor",
+      "webm_path": "<REDACTED>"
+    }
+  ],
+  "candidates_rendered": 3,
+  "causal_hook_bound_to_final": true,
+  "schema_version": "1.0.0",
+  "winner_candidate_id": "hook_A_spatial_action_conflict"
+}

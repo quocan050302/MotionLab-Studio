@@ -3,25 +3,34 @@ ML-01.R5.R5 — IMPLEMENTATION & VERIFICATION REPORT
 Repository: https://github.com/quocan050302/MotionLab-Studio
 Branch: feat/ml-01-zero-api-effects
 Baseline Audited HEAD: d8a915e91001f114fce9498ea253c1f64e1f4b7c
-Tested Implementation Commit (TESTED_CODE_SHA): c57780e3e3b7b7910b04dde7c1910efbbb8a1618
+Prior Verified Commit (illustrative dir_A baseline): c57780e3e3b7b7910b04dde7c1910efbbb8a1618
+Current Tested Implementation Commit (TESTED_CODE_SHA): c015d22da57f33a4e3d952efd668f23fc7228de2
 Date: 2026-11-28 | Host: Windows 11 x64 (12 CPUs, 31.75 GiB RAM, Intel UHD 730 CPU-only)
 
 1. EXECUTIVE SUMMARY & HONESTY DISCLOSURES
 ------------------------------------------
 MotionLab Studio has been upgraded to ML-01.R5.R5 — a general-purpose, 100% local offline
 multimodal creative director and multi-source video editing engine (zero cloud LLM/VLM/TTS APIs
-at runtime).
+at runtime), now including verified local product asset binding (`actual_product_capture`) for
+`dir_C_product_led_demo`.
 
-Technical verification passed 100% on TESTED_CODE_SHA (c57780e), while non-technical/external
+Technical verification passed 100% on TESTED_CODE_SHA (c015d22), while non-technical/external
 gates remain honestly disclosed and separated:
 - Overall Canonical Run Status: CANDIDATE_READY_WITH_BLOCKERS (technical_gates_passed=true)
-- Hard Delivery Blockers (why output is *_CANDIDATE_9x16.mp4, NOT *_FINAL_9x16.mp4):
+- Product Proof Status: ACTUAL_PRODUCT_VERIFIED
+  * Product Proof Scope: AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED
+  * Owner-supplied 56-page A4 Workbook PDF pages (Pages 1, 7, 10, 12, 24, 49) were rasterized
+    locally and verified via SHA-256 + pixel decode inside gitignored `assets/product_catalog/`
+    (ZERO raw PDFs, PNG captures, or private local manifests are committed to Git).
+  * No live Notion dashboard screen-recording/screenshot was supplied; the pre-launch Quick Start
+    PDF ("PRE-LAUNCH PROOF — NOT FOR CUSTOMER DISTRIBUTION") was intentionally NOT scraped,
+    displayed as a live customer link, or fabricated as a fake Notion UI.
+  * When run on a clone without local product assets, the engine cleanly degrades fail-closed to
+    `PRODUCT_PROOF_BLOCKED` + `dir_A_editorial_visual_metaphor`.
+- Remaining Hard Delivery Blockers (why output remains *_CANDIDATE_9x16.mp4, NOT *_FINAL_9x16.mp4):
   1) BLOCKED_WATERMARK_AUTHORIZATION: Static 4-point corner provenance mark detected on BOTH
      source A and source B; preserved intact with zero cropping/blurring/masking.
-  2) PRODUCT_PROOF_BLOCKED: No owner-authorized Notion dashboard capture or 56-page workbook PDF
-     exists on disk; illustrative board is explicitly labeled "ILLUSTRATIVE OVERVIEW" and never
-     forged as ACTUAL_PRODUCT.
-  3) MISSING_SOURCE_DIALOGUE: Two sentences from owner canonical script ("That's the part my
+  2) MISSING_SOURCE_DIALOGUE: Two sentences from owner canonical script ("That's the part my
      monthly budget never really answered." and "That's why I created The Next Paycheck Plan.")
      are genuinely absent from both raw inputs; zero voice cloning or lip-sync synthesis used.
 - Explicit Honest Review / Coverage Disclosures:
@@ -32,9 +41,9 @@ gates remain honestly disclosed and separated:
   - Image-text retrieval embeddings (OpenCLIP): EMBEDDING_NOT_RUN (lexical/metadata + VLM)
   - Frontier model equivalence: NOT claimed (local Qwen2.5-3B + Qwen3-VL-2B audited transparently)
 
-2. EXACT FILE & FUNCTION INVENTORY (TESTED_CODE_SHA c57780e)
+2. EXACT FILE & FUNCTION INVENTORY (TESTED_CODE_SHA c015d22)
 ------------------------------------------------------------
-New Production Modules:
+Core R5.R5 Production Modules:
 - motionlab/semantic/model_router.py
   * inspect_vlm_model(), LocalModelRouter, run_comparative_model_benchmark()
   * Hybrid single-residency offline router (Qwen2.5-3B text + Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0 vision via llama-mtmd-cli.exe)
@@ -43,74 +52,63 @@ New Production Modules:
 - motionlab/semantic/video_evidence.py
   * detect_shots_streaming(), detect_static_corner_watermarks(), build_multimodal_video_evidence_index()
 - motionlab/semantic/creative_director.py
-  * IntentBrief, DirectorToolRegistry, extract_claims_and_questions(), build_intent_brief(), propose_global_creative_directions(), build_claim_visual_coverage_matrix()
+  * IntentBrief, DirectorToolRegistry, extract_claims_and_questions(), build_intent_brief(), propose_global_creative_directions() (proof hierarchy prioritizing verified real product proof when authorized assets exist while strictly rejecting dir_C when absent), build_claim_visual_coverage_matrix()
 - motionlab/composition/scene_graph_v2.py
-  * solve_dynamic_safe_layout(), compile_scene_v2_html(), render_scene_v2_overlay(), build_three_hook_candidates()
+  * _validate_local_asset_key() (fail-closed traversal/URL/data-URI guard), solve_dynamic_safe_layout(), compile_scene_v2_html() (including dedicated `actual_product_capture` multi-page studio showcase, real-cover `motivated_object_bridge`, real-cover-thumb `minimal_cta_anchor`, data-driven palette tokens), render_scene_v2_overlay() (binds verified local `extra_assets` offline into HyperFrames), build_three_hook_candidates()
 - motionlab/composition/director_pipeline.py
-  * validate_and_load_job_manifest(), run_multisource_director_job(), _run_independent_vlm_render_critic()
+  * validate_and_load_job_manifest() (supports optional data-driven `palette_tokens`), _select_product_assets_for_scenes(), _estimate_subclause_triggers_s(), _build_scene_graph_v2_from_claims(), run_multisource_director_job() (fixed catalog binding `match_product_assets_for_name(..., catalog=prod_cat)` + `assets` key, honest `product_proof_scope`), _run_independent_vlm_render_critic() (explicitly inspects rendered `actual_product_capture` phone-scale frames)
+- .gitignore: ignores `assets/product_catalog/` raw PNG/JPG/WEBP/PDF/MP4 captures and local private `manifest.json`
+- jobs/olivia_v6_director_job.json: pure data manifest with brand `palette_tokens` sampled from the authorized workbook (zero hardcoded timestamps/cutlists/absolute local paths)
 
-Modified Production Modules:
-- motionlab/cli.py: fixed 100% argparse help bug, added vlm_qwen3_vl to doctor, added opt-in --job & --creative-mode director on edit/plan, updated validate exit check for CANDIDATE_READY_WITH_BLOCKERS.
-- motionlab/pipeline.py: added _validate_multisource_director_run() for non-destructive CLI validation.
-- motionlab/composition/multi_source_timeline.py: arbitrary N-source support, MultiSourceEditMap.from_dict(), strict end-exclusive [start, end) mapping, VAD-proven room tone, smooth cross-dissolve bridge mezzanine (fixing D10 MAD 136.08/139.71 -> 1.08/1.21!).
-- motionlab/composition/calendar_editorial.py: removed hardcoded finance/Olivia defaults, fail-closed ValueError on unknown semantic kind (D03).
-- motionlab/semantic/speech_dedup.py: arbitrary N-source adjacent boundary support, removed hardcoded "B" in exact_overlap.
-- motionlab/semantic/speech_perception.py: cross-platform Silero VAD + energy reconciliation when verified transcript words exist alongside strong acoustic signal (preserving silent_video=True on silent footage).
-- motionlab/semantic/pacing_director.py: removed fixed balanced bonus (D09).
-- motionlab/composition/visual_critic.py: fail-closed rhythm critic on missing bed/word-preservation/join QA + WARN_REVIEW_REQUIRED for medium findings (D09).
-- models/manifest.json: registered Apache-2.0 qwen3_vl_2b_instruct_q4_k_m with SHA-256 digests for weights and mmproj.
-- jobs/olivia_v6_director_job.json: pure data manifest for canonical multi-source Olivia V6 job.
+Prior Foundation Modules Retained & Verified:
+- motionlab/cli.py, motionlab/pipeline.py, motionlab/composition/multi_source_timeline.py,
+  motionlab/composition/calendar_editorial.py, motionlab/semantic/speech_dedup.py,
+  motionlab/semantic/speech_perception.py, motionlab/semantic/pacing_director.py,
+  motionlab/composition/visual_critic.py, models/manifest.json
 
-New & Updated Tests:
+Tests:
 - tests/unit/test_r5r5_multisource_cli_and_temporal_ledger.py
-- tests/unit/test_r5r5_director_vlm_critic_and_repair.py
-- tests/unit/test_r5r2_product_catalog_and_critic.py (isolated empty temp models_dir so VLM-absent test remains invariant after provisioning Qwen3-VL-2B on host)
+- tests/unit/test_r5r5_director_vlm_critic_and_repair.py (expanded with `actual_product_capture` HTML/security/traversal guards and end-to-end synthetic `AssetCatalog` -> `dir_C_product_led_demo` -> `actual_product_capture` causal proof tests)
+- tests/unit/test_r5r2_product_catalog_and_critic.py
 
 3. HOW TO RUN ON ANY OTHER NICHE (GENERAL-PURPOSE CLI)
 ------------------------------------------------------
 Create a standard job JSON (e.g. jobs/my_tutorial.json) with ordered `sources` (1..N clips of
 any FPS/sample rate), `intended_story`, `niche_hint` (tutorial, gameplay, product, comedy,
 storytelling, silent_art, finance, etc.), `output` dimensions (`1080x1920` or `1920x1080`),
-optional `asset_catalog_path`, and run:
+optional `palette_tokens` and optional local `asset_catalog_path`, and run:
   python -m motionlab plan --job jobs/my_tutorial.json --creative-mode director --output runs
   python -m motionlab edit --job jobs/my_tutorial.json --creative-mode director --offline --output runs
   python -m motionlab validate --run runs/<run_id>
 
-4. VERIFICATION RESULTS ON TESTED_CODE_SHA (c57780e)
+4. VERIFICATION RESULTS ON TESTED_CODE_SHA (c015d22)
 ----------------------------------------------------
-- Full pytest suite (`python -m pytest -v tests/ --tb=short`): 197 passed, 0 failed, 0 skipped (exit 0)
-- Legacy upstream unittest (`python -m unittest discover -s tests -p "test_render_*.py" -v`): 26 passed (exit 0; overlapping upstream subset disclosed separately)
-- Remotion TypeScript (`tsc --noEmit -p renderers/remotion/tsconfig.json`): exit 0
+- Full pytest suite (`python -m pytest -q tests/`): 199 passed, 15 subtests passed, 0 failed, 0 skipped (102.32s, exit 0)
+- Legacy upstream unittest (`python -m unittest discover -s tests -p "test_render_*.py"`): 26 passed (0.019s, exit 0; overlapping upstream subset disclosed separately)
+- Remotion TypeScript (`npx tsc --noEmit` in `renderers/remotion`): exit 0
 - CLI doctor (`python -m motionlab doctor --json`): exit 0 (40 legacy effects, 20 imported primitives, 34 CC0 Foley, Qwen2.5-3B + Qwen3-VL-2B verified)
-- CLI validate (`python -m motionlab validate --run runs/olivia_v6_ml01_r5r5/20261128T014049Z_81d918d0_s42`): 14/14 checks PASS, overall_status=CANDIDATE_READY_WITH_BLOCKERS (exit 0)
-- Source immutability: video-olivia-01.mp4 (18eceffc...) and video-olivia-02.mp4 (0339dc21...) verified bit-identical in both input/ and Downloads/.
+- CLI validate (`python -m motionlab validate --run runs/olivia_v6_ml01_r5r5/20261128T024956Z_81d918d0_s42`): 14/14 checks PASS, overall_status=CANDIDATE_READY_WITH_BLOCKERS (exit 0)
+- Source immutability: video-olivia-01.mp4 (18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b) and video-olivia-02.mp4 (0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae) verified bit-identical.
 
-5. BENCHMARK & ACCEPTANCE GATES (G0-G11)
-----------------------------------------
-- Model Comparative Benchmark (12 strict reasoning cases + real vision + blurred negative):
-  * Qwen2.5-3B-Instruct Q4_K_M text: 12/12 valid JSON, 12/12 raw PASS (113.6s)
-  * Qwen3-VL-2B-Instruct Q4_K_M text: 12/12 valid JSON, 1/12 raw PASS (50.6s)
-  * Qwen3-VL-2B + mmproj Q8_0 vision: VLM_EXECUTED in 9.04s/frame (2,615 MB RSS), PASSED real car/phone observation & PASSED blurred-screen negative refusal test
-  * Decision: hybrid_qwen2_5_3b_text_plus_qwen3_vl_2b_vision (single-model residency)
-- Cold vs Warm Canonical Olivia V6 Render:
-  * Cold run (20261128T013139Z_81d918d0_s42): 466.61s wall, 155.63s overlay render; strict critic caught abrupt_boundary_jumps=2 (MAD 136.08/139.71 on hard cream bridge).
-  * Warm-cache + D10 bridge fix canonical run (20261128T014049Z_81d918d0_s42): 354.57s wall, 47.69s overlay render (3.26x faster); abrupt_boundary_jumps=0 (MAD 1.08/1.21), 0 black frames, WER 0.0 (85/85 tokens, 100% critical recall), 7/7 true minus-one-cue counterfactual audio ablation PASS (-16.3 LUFS, -2.3 dBTP, 0 clipping), 3 rendered hook proxies, VLM_EXECUTED + VISION_CRITIC_EXECUTED.
-- A9 Injected-Defect Real Pixel Repair Proof:
-  * Injected y_px=420 face occlusion -> Qwen3-VL-2B flagged covers_speaker_eyes_or_mouth=true -> layout shifted to y_px=1153 & re-rendered (pixel_diff_mad=19.996, new SHA-256) -> Qwen3-VL-2B confirmed covers_speaker_eyes_or_mouth=false.
-- A10 16:9 Smoke & 90s Synthetic Streaming Proof:
-  * 1920x1080 landscape SceneGraph v2 render: alpha_verified=true (10.78s, PASS).
-  * 90s synthetic 3-shot clip streaming evidence index: 3 shots in 1.72s, RSS delta +24.01 MB (REAL_LONGFORM_NOT_RUN disclosed).
+5. BENCHMARK, BEFORE/AFTER UPGRADE & ACCEPTANCE GATES (G0-G11)
+--------------------------------------------------------------
+- Before vs After Real Product Proof Upgrade on Olivia V6:
+  * Baseline (c57780e / 20261128T014049Z_81d918d0_s42): no product assets -> `dir_A_editorial_visual_metaphor`, `illustrative_system_board`, `PRODUCT_PROOF_BLOCKED` (3 blockers), `actual_product_proof_verified=false`, `354.57s` warm wall.
+  * Upgraded (c015d22 / 20261128T024956Z_81d918d0_s42): 6 verified local workbook PNGs -> causally switched to `dir_C_product_led_demo` (total score 1.0025 vs dir_A 0.919, Qwen2.5-3B advisory agreed), `actual_product_capture` rendering real Page 7 (`Meet Jordan $1,600 / Bills reserved $920`), Page 10 (`The Payday Timeline`), and Page 12 (`$120 STILL UNASSIGNED`), plus real Page 1 Cover in `motivated_object_bridge` and `minimal_cta_anchor`, `ACTUAL_PRODUCT_VERIFIED` (`AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED`), 2 remaining blockers (`BLOCKED_WATERMARK_AUTHORIZATION`, `MISSING_SOURCE_DIALOGUE`), `abrupt_boundary_jumps=0` (bridge MAD 1.09/1.21, product cutaway MAD 1.49/1.34), `black_frames=0`, `WER=0.0` (85/85 ordered tokens, 100% critical recall), `7/7` true minus-one-cue counterfactual audio ablation PASS (`-16.3 LUFS`, `-2.4 dBTP`, `0` clipping), `Qwen3-VL-2B` VLM critic independently read `'The Next Paycheck Plan' / 'Payday Timeline'` directly from 360x640 phone-scale frame `f0440` (`text_legible_on_phone="Yes"`, `covers_speaker_eyes_or_mouth="No"`, `visible_defect="none"`), `peak_tree_rss_mb=247.44 MB`, `peak_temp_mb=137.74 MB`, `422.02s` cold-asset wall.
+  * New Canonical Output: `Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4` (`22,638,962` B, `1080x1920`, `30/1 fps`, `817` frames, `27.233s`, SHA-256 `749279367a9d13fa46ec2c5a59d255d1f9ca4777bff9a9905c6ecf42accae1c5`)
+  * New Canonical Preview: `preview_9x16.mp4` (`4,398,281` B, `540x960`, SHA-256 `c58d74e710ad12d2b7c418ad11c2eeaf7e222b9e2ea2c7370a4c64f0de943d5e`)
+- Model Comparative Benchmark (12 strict reasoning cases + vision + blurred refusal), A9 Injected-Defect Real Pixel Repair Proof (`pixel_diff_mad=19.996`), and A10 16:9 Smoke + 90s Synthetic Streaming Proof: all PASS (see `qa_evidence/ML-01.R5.R5/`).
 
 Gate Matrix:
 - G0 Scope/Branch/Immutability/Preflight: PASS
 - G1 Production Callgraph & Regressions: PASS
 - G2 Speech/Map/Re-ASR/Decode: PASS_WITH_MISSING_SOURCE_DIALOGUE (blocker honestly disclosed)
 - G3 Brain/Hybrid Local VLM+LLM: PASS (VLM_EXECUTED + VISION_CRITIC_EXECUTED; Qwen3-VL-4B deferred for RAM)
-- G4 Creative Graph/3 Hooks/Dynamic Layout/Zero Pill Monotony: PASS (6 distinct modes, 0 face overlap, 0 boundary jumps)
-- G5 Product Proof & Watermark Rights: BLOCKED (PRODUCT_PROOF_BLOCKED + BLOCKED_WATERMARK_AUTHORIZATION -> CANDIDATE_9x16.mp4)
-- G6 Audio Stems/Joins/Counterfactual Mix: TECHNICAL_PASS (LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY)
-- G7 Independent Critic & Repair Loop: TECHNICAL_PASS (injected pixel repair proved; VQ-01 PENDING_HUMAN_REVIEW)
-- G8 Full Regression Suite on TESTED_CODE_SHA c57780e: PASS (197 pytest + 26 legacy unittest + tsc + validate + doctor; REAL_HELDOUT_NOT_RUN / REAL_LONGFORM_NOT_RUN)
-- G9 Performance/Cache/Resource Safety: PASS (cold 466.6s -> warm 354.6s, peak RSS 241.5 MB Python tree, disk reserve safe)
-- G10 Delivery & Redacted QA-02 Pack: PASS (CANDIDATE_READY_WITH_BLOCKERS, pack <= 2 MiB)
+- G4 Creative Graph/3 Hooks/Dynamic Layout/Zero Pill Monotony: PASS (6 distinct claim modes + motivated_object_bridge, 0 face overlap, 0 boundary jumps)
+- G5 Product Proof & Watermark Rights: PARTIAL_BLOCKED (ACTUAL_PRODUCT_VERIFIED for authorized workbook pages, Notion live capture not supplied; BLOCKED_WATERMARK_AUTHORIZATION remains active -> CANDIDATE_9x16.mp4)
+- G6 Audio Stems/Joins/Counterfactual Mix: TECHNICAL_PASS (7/7 true counterfactual ablation, LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY)
+- G7 Independent Critic & Repair Loop: TECHNICAL_PASS (Qwen3-VL-2B verified 5 decoded frames including real product showcase; VQ-01 PENDING_HUMAN_REVIEW)
+- G8 Full Regression Suite on TESTED_CODE_SHA c015d22: PASS (199 pytest + 26 legacy unittest + tsc + validate + doctor; REAL_HELDOUT_NOT_RUN / REAL_LONGFORM_NOT_RUN)
+- G9 Performance/Cache/Resource Safety: PASS (peak Python tree RSS 247.44 MB, peak temp 137.74 MB, disk reserve safe)
+- G10 Delivery & Redacted QA-02 Pack: PASS (CANDIDATE_READY_WITH_BLOCKERS, redacted pack <= 2 MiB, zero raw product assets/paths/transcripts leaked)
 - G11 Human Aesthetic & Release Approval: PENDING_HUMAN_REVIEW

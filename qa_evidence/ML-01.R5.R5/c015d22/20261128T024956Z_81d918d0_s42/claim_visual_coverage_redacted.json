@@ -1,0 +1,178 @@
+{
+  "actual_product_proof_verified": true,
+  "claims_total": 8,
+  "claims_with_visual_evidence": 4,
+  "distinct_treatment_mode_count": 6,
+  "distinct_treatment_modes": [
+    "actual_product_capture",
+    "calendar_timeline_gap",
+    "calm_breathing_face",
+    "minimal_cta_anchor",
+    "spatial_editorial_anchor",
+    "split_dilemma_metaphor"
+  ],
+  "rows": [
+    {
+      "claim_id": "claim_00",
+      "end_s": 3.84,
+      "evidence_class": "TEXT_ONLY",
+      "frame_ranges": [
+        [
+          14,
+          115
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "hook_relatable_problem",
+      "scene_ids": [
+        "sc_00_hook"
+      ],
+      "start_s": 0.46,
+      "treatment_modes": [
+        "spatial_editorial_anchor"
+      ]
+    },
+    {
+      "claim_id": "claim_01",
+      "end_s": 7.62,
+      "evidence_class": "ILLUSTRATION",
+      "frame_ranges": [
+        [
+          128,
+          234
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "temporal_gap_conflict",
+      "scene_ids": [
+        "sc_01_calendar_gap"
+      ],
+      "start_s": 4.28,
+      "treatment_modes": [
+        "calendar_timeline_gap"
+      ]
+    },
+    {
+      "claim_id": "claim_02",
+      "end_s": 9.78,
+      "evidence_class": "ILLUSTRATION",
+      "frame_ranges": [
+        [
+          249,
+          299
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "core_dilemma_question",
+      "scene_ids": [
+        "sc_02_dilemma"
+      ],
+      "start_s": 8.3,
+      "treatment_modes": [
+        "split_dilemma_metaphor"
+      ]
+    },
+    {
+      "claim_id": "claim_03",
+      "end_s": 17.45,
+      "evidence_class": "ACTUAL_PRODUCT",
+      "frame_ranges": [
+        [
+          352,
+          529
+        ]
+      ],
+      "product_proof_satisfied": true,
+      "role": "system_mechanism_benefits",
+      "scene_ids": [
+        "sc_04_product_proof"
+      ],
+      "start_s": 11.75,
+      "treatment_modes": [
+        "actual_product_capture"
+      ]
+    },
+    {
+      "claim_id": "claim_04",
+      "end_s": 22.75,
+      "evidence_class": "TEXT_ONLY",
+      "frame_ranges": [
+        [
+          554,
+          688
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "emotional_resolution_payoff",
+      "scene_ids": [
+        "sc_05_payoff_clarity"
+      ],
+      "start_s": 18.45,
+      "treatment_modes": [
+        "spatial_editorial_anchor"
+      ]
+    },
+    {
+      "claim_id": "claim_05",
+      "end_s": 24.33,
+      "evidence_class": "REAL_FOOTAGE",
+      "frame_ranges": [
+        [
+          699,
+          735
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "resolution_anchor",
+      "scene_ids": [
+        "sc_06_calm_face"
+      ],
+      "start_s": 23.31,
+      "treatment_modes": [
+        "calm_breathing_face"
+      ]
+    },
+    {
+      "claim_id": "claim_06",
+      "end_s": 25.86,
+      "evidence_class": "TEXT_ONLY",
+      "frame_ranges": [
+        [
+          743,
+          817
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "cta_direction",
+      "scene_ids": [
+        "sc_07_cta"
+      ],
+      "start_s": 24.76,
+      "treatment_modes": [
+        "minimal_cta_anchor"
+      ]
+    },
+    {
+      "claim_id": "claim_07",
+      "end_s": 26.94,
+      "evidence_class": "TEXT_ONLY",
+      "frame_ranges": [
+        [
+          743,
+          817
+        ]
+      ],
+      "product_proof_satisfied": false,
+      "role": "cta_direction",
+      "scene_ids": [
+        "sc_07_cta"
+      ],
+      "start_s": 26.3,
+      "treatment_modes": [
+        "minimal_cta_anchor"
+      ]
+    }
+  ],
+  "schema_version": "1.0.0",
+  "visual_coverage_ratio": 0.5
+}

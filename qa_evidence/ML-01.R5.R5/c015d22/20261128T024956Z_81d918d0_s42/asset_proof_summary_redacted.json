@@ -1,0 +1,74 @@
+{
+  "catalog_status": "AUTHORIZED_PRODUCT_ASSETS_VERIFIED",
+  "product_demo_status": "AUTHORIZED_ASSET_CANDIDATE_READY",
+  "product_proof_scope": "AUTHORIZED_WORKBOOK_PAGES_VERIFIED_NOTION_LIVE_CAPTURE_NOT_SUPPLIED",
+  "verified_asset_count": 6,
+  "verified_asset_types": [
+    "workbook_cover",
+    "workbook_page"
+  ],
+  "verified_assets_digests": [
+    {
+      "asset_id": "tnpp_wb_p01_cover",
+      "asset_type": "workbook_cover",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "c75d693c82a36b8c1d0295b6a8039463692fb43f5b82ca898457ec72d5cf2996"
+    },
+    {
+      "asset_id": "tnpp_wb_p07_jordan_paycheck",
+      "asset_type": "workbook_page",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "f0880d965337b871654d5ddb0b9510ffac6bc1810b40a39d7371d0602d0bfbcd"
+    },
+    {
+      "asset_id": "tnpp_wb_p10_payday_timeline",
+      "asset_type": "workbook_page",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "24a83d441bab8e3a94c360cb0efb76d4ee4302fc806909e6ed74f3279d464baf"
+    },
+    {
+      "asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+      "asset_type": "workbook_page",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "6ea81d24732f43d86da18d40ec66036e03f584b1f932aa1d56ed924afd9313a6"
+    },
+    {
+      "asset_id": "tnpp_wb_p24_timing_gap",
+      "asset_type": "workbook_page",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "59a77ca57a52526b0db277d557faf57d9ecaf71fcfce43a86acbbe112adfefea"
+    },
+    {
+      "asset_id": "tnpp_wb_p49_bill_calendar",
+      "asset_type": "workbook_page",
+      "license": "OWNER_AUTHORIZED",
+      "owner_authorized": true,
+      "pii_redacted": true,
+      "decoded_width": 1654,
+      "decoded_height": 2339,
+      "sha256": "fe00f9ae99c412bc3800378fd95c9af1057b5c4c36008fe3aec4c020a6b4a0c6"
+    }
+  ],
+  "raw_product_images_committed_to_git": false,
+  "notion_live_capture_supplied": false
+}

@@ -1,0 +1,136 @@
+{
+  "brief_hash": "0fe9c2f7464fd411142eade36dcf82595e0279643daab4f5b5f5cae0bcf3b935",
+  "directions_considered": [
+    {
+      "direction_id": "dir_A_editorial_visual_metaphor",
+      "feasible": true,
+      "reject_reasons": [],
+      "requires_real_product_assets": false,
+      "scores": {
+        "motion_continuity": 0.92,
+        "phone_legibility": 0.95,
+        "resource_efficiency": 0.88,
+        "story_coverage": 0.8,
+        "truth_and_rights": 1.0,
+        "visual_variety": 0.96
+      },
+      "summary": "Alternates authentic human face anchor with distinct full-width visual-relation scenes: open-space kinetic hook type (zero dark pill), architectural weekday timeline gap, split decision dilemma metaphor, motivated grid-bridge transition, clearly labeled illustrative system board (3-step flow), calm face breathing beat, and clean spatial CTA.",
+      "title": "Editorial Visual Metaphor & Purposeful Cutaways",
+      "total_score": 0.919,
+      "treatment_modes": [
+        "spatial_editorial_anchor",
+        "calendar_timeline_gap",
+        "split_dilemma_metaphor",
+        "motivated_object_bridge",
+        "illustrative_system_board",
+        "calm_breathing_face",
+        "minimal_cta_anchor"
+      ]
+    },
+    {
+      "direction_id": "dir_B_authentic_vlog_spatial",
+      "feasible": true,
+      "reject_reasons": [],
+      "requires_real_product_assets": false,
+      "scores": {
+        "motion_continuity": 0.94,
+        "phone_legibility": 0.9,
+        "resource_efficiency": 0.95,
+        "story_coverage": 0.78,
+        "truth_and_rights": 1.0,
+        "visual_variety": 0.64
+      },
+      "summary": "Keeps speaker on camera >= 85% of runtime with minimal floating spatial typography, subtle motivated punch-ins, and a single lightweight inline calendar ribbon; highest visual simplicity, lower diagram richness for complex multi-part benefits.",
+      "title": "Authentic Vlog-First Spatial Typography",
+      "total_score": 0.8515,
+      "treatment_modes": [
+        "spatial_editorial_anchor",
+        "calendar_timeline_gap",
+        "calm_breathing_face",
+        "minimal_cta_anchor"
+      ]
+    },
+    {
+      "direction_id": "dir_C_product_led_demo",
+      "feasible": true,
+      "reject_reasons": [],
+      "requires_real_product_assets": true,
+      "scores": {
+        "motion_continuity": 0.94,
+        "phone_legibility": 0.96,
+        "resource_efficiency": 0.88,
+        "story_coverage": 0.99,
+        "truth_and_rights": 1.0,
+        "visual_variety": 0.97
+      },
+      "summary": "Centers on verified owner-authorized live product screen captures with real cursor/selection action -> result proof and workbook pages.",
+      "title": "Product-Led Real UI Demonstration",
+      "total_score": 1.0025,
+      "treatment_modes": [
+        "spatial_editorial_anchor",
+        "calendar_timeline_gap",
+        "motivated_object_bridge",
+        "actual_product_capture",
+        "minimal_cta_anchor"
+      ]
+    }
+  ],
+  "raw_llm_advisory": {
+    "elapsed_s": 8.926,
+    "model_id": "qwen2_5_3b_instruct_q4_k_m",
+    "raw_proposal": {
+      "hook_focus": "checking bank account before buying groceries",
+      "rationale": "Given that real product assets are available, it is appropriate to use dir_C_product_led_demo to showcase the actual product pages or user interface, providing strong, verified real product proof. This direction aligns with the hook and the product's nature, ensuring the video is both informative and engaging.",
+      "recommended_direction_id": "dir_C_product_led_demo"
+    },
+    "status": "EXECUTED"
+  },
+  "reconciled_llm_override": false,
+  "schema_version": "1.0.0",
+  "selected_direction": {
+    "direction_id": "dir_C_product_led_demo",
+    "feasible": true,
+    "reject_reasons": [],
+    "requires_real_product_assets": true,
+    "scores": {
+      "motion_continuity": 0.94,
+      "phone_legibility": 0.96,
+      "resource_efficiency": 0.88,
+      "story_coverage": 0.99,
+      "truth_and_rights": 1.0,
+      "visual_variety": 0.97
+    },
+    "summary": "Centers on verified owner-authorized live product screen captures with real cursor/selection action -> result proof and workbook pages.",
+    "title": "Product-Led Real UI Demonstration",
+    "total_score": 1.0025,
+    "treatment_modes": [
+      "spatial_editorial_anchor",
+      "calendar_timeline_gap",
+      "motivated_object_bridge",
+      "actual_product_capture",
+      "minimal_cta_anchor"
+    ]
+  },
+  "selected_direction_id": "dir_C_product_led_demo",
+  "tool_trace": [
+    {
+      "args_keys": [
+        "sources"
+      ],
+      "call_index": 0,
+      "ok": true,
+      "reason_code": "ground_visual_and_audio_evidence",
+      "tool": "inspect_source"
+    },
+    {
+      "args_keys": [
+        "query"
+      ],
+      "call_index": 1,
+      "ok": true,
+      "reason_code": "verify_product_asset_rights",
+      "tool": "search_local_asset_catalog"
+    }
+  ],
+  "vlm_grounded": true
+}

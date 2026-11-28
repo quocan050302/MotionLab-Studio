@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "CANDIDATE_READY_WITH_BLOCKERS",
+  "aesthetic_status": "PENDING_HUMAN_REVIEW",
+  "summary": {
+    "PASS": 14,
+    "FAIL": 0,
+    "SKIP": 0,
+    "BLOCKED": 0
+  },
+  "checks": [
+    {
+      "name": "artifact_exists_non_empty",
+      "status": "PASS",
+      "expected": "> 0 bytes",
+      "actual": 22638962,
+      "evidence_path": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+      "message": ""
+    },
+    {
+      "name": "artifact_sha256_matches_manifest",
+      "status": "PASS",
+      "expected": "749279367a9d13fa",
+      "actual": "749279367a9d13fa",
+      "evidence_path": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+      "message": ""
+    },
+    {
+      "name": "all_sources_immutable",
+      "status": "PASS",
+      "expected": "2 sources exact SHA-256",
+      "actual": "ok=True",
+      "evidence_path": "source_manifest.json",
+      "message": ""
+    },
+    {
+      "name": "multisource_edit_map_valid",
+      "status": "PASS",
+      "expected": "0 invariant errors",
+      "actual": "errors=[]",
+      "evidence_path": "multi_source_edit_map.json",
+      "message": ""
+    },
+    {
+      "name": "output_dimensions_exact",
+      "status": "PASS",
+      "expected": "1080x1920",
+      "actual": "1080x1920",
+      "evidence_path": null,
+      "message": ""
+    },
+    {
+      "name": "frame_count_exact",
+      "status": "PASS",
+      "expected": 817,
+      "actual": 817,
+      "evidence_path": null,
+      "message": ""
+    },
+    {
+      "name": "pixel_format_yuv420p",
+      "status": "PASS",
+      "expected": "yuv420p",
+      "actual": "yuv420p",
+      "evidence_path": null,
+      "message": ""
+    },
+    {
+      "name": "single_audio_zero_subtitles",
+      "status": "PASS",
+      "expected": "1 audio, 0 subtitles",
+      "actual": "1 audio, 0 subtitles",
+      "evidence_path": null,
+      "message": ""
+    },
+    {
+      "name": "ffmpeg_full_decode_zero_errors",
+      "status": "PASS",
+      "expected": "exit 0, empty stderr",
+      "actual": "exit 0",
+      "evidence_path": null,
+      "message": ""
+    },
+    {
+      "name": "word_preservation_verified",
+      "status": "PASS",
+      "expected": "passed=True",
+      "actual": "status=PASS_WITH_MISSING_SOURCE_DIALOGUE, recall=1.0",
+      "evidence_path": "protected_word_validation.json",
+      "message": ""
+    },
+    {
+      "name": "temporal_fact_ledger_valid",
+      "status": "PASS",
+      "expected": "valid=True",
+      "actual": "valid=True",
+      "evidence_path": "temporal_fact_ledger.json",
+      "message": ""
+    },
+    {
+      "name": "audio_join_qa_passed",
+      "status": "PASS",
+      "expected": "status=PASS",
+      "actual": "status=PASS",
+      "evidence_path": "evidence/audio_join_qa.json",
+      "message": ""
+    },
+    {
+      "name": "audio_counterfactual_qa_passed",
+      "status": "PASS",
+      "expected": "status=PASS",
+      "actual": "status=PASS, audible=7/7",
+      "evidence_path": "evidence/audio_event_qa.json",
+      "message": ""
+    },
+    {
+      "name": "preview_9x16_decode_ok",
+      "status": "PASS",
+      "expected": "exit 0, non-empty",
+      "actual": "exit 0",
+      "evidence_path": "preview_9x16.mp4",
+      "message": ""
+    }
+  ],
+  "warnings": [
+    "BLOCKED_WATERMARK_AUTHORIZATION",
+    "MISSING_SOURCE_DIALOGUE"
+  ]
+}
