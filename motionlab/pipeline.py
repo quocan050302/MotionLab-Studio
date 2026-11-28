@@ -883,6 +883,18 @@ def _validate_multisource_director_run(run_dir: Path, manifest: dict[str, Any]) 
     checks.append(ValidationCheck("audio_join_qa_passed", "PASS" if ja.get("status") == "PASS" else "FAIL", "status=PASS", f"status={ja.get('status')}", "evidence/audio_join_qa.json"))
     aq = json.loads((run_dir / "evidence" / "audio_event_qa.json").read_text(encoding="utf-8")) if (run_dir / "evidence" / "audio_event_qa.json").is_file() else {}
     checks.append(ValidationCheck("audio_counterfactual_qa_passed", "PASS" if aq.get("status") == "PASS" else "FAIL", "status=PASS", f"status={aq.get('status')}, audible={aq.get('events_proxy_audible')}/{aq.get('events_total')}", "evidence/audio_event_qa.json"))
+    if manifest.get("composition_mode") == "multisource_director_v3":
+        fmr = json.loads((run_dir / "final_mix_reasr.json").read_text(encoding="utf-8")) if (run_dir / "final_mix_reasr.json").is_file() else {}
+        checks.append(ValidationCheck("final_mix_reasr_verified", "PASS" if bool(fmr.get("passed")) else "FAIL", "passed=True", f"status={fmr.get('status')}, wer={fmr.get('wer')}", "final_mix_reasr.json"))
+        occ = json.loads((run_dir / "observed_claim_coverage.json").read_text(encoding="utf-8")) if (run_dir / "observed_claim_coverage.json").is_file() else {}
+        occ_ok = bool(occ) and int(occ.get("high_severity_defects_count", 1)) == 0 and float(occ.get("weighted_observed_material_coverage", 0.0)) >= 0.90
+        checks.append(ValidationCheck(
+            "observed_material_claim_coverage",
+            "PASS" if occ_ok else "FAIL",
+            "weighted_coverage>=0.90, high_defects=0",
+            f"weighted={occ.get('weighted_observed_material_coverage')}, critical={occ.get('critical_factual_accuracy')}, high_defects={occ.get('high_severity_defects_count')}",
+            "observed_claim_coverage.json",
+        ))
     prev_p = run_dir / "preview_9x16.mp4"
     if prev_p.is_file():
         pdec = subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(prev_p), "-f", "null", "-"], capture_output=True, text=True, timeout=90, shell=False)
@@ -905,7 +917,7 @@ def run_validate_existing_run(run_dir: Path) -> ValidationResult:
         raise FileNotFoundError(f"Run directory missing manifest.json: {run_dir}")
 
     manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
-    if manifest.get("composition_mode") == "multisource_director_v2":
+    if manifest.get("composition_mode") in ("multisource_director_v2", "multisource_director_v3"):
         return _validate_multisource_director_run(run_dir, manifest)
 
     final_p = run_dir / "final.mp4"

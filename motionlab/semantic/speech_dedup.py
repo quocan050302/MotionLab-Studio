@@ -894,3 +894,172 @@ def validate_semantic_preservation(
         "order_preserved": order_ok,
         "missing_source_dialogue_claims": list(missing_source_claims or []),
     })
+
+
+def align_source_dialogue_to_intent(
+    words_by_source: dict[str, list[dict[str, Any]]],
+    intended_story: str | None,
+    *,
+    disfluency_by_source: dict[str, dict[str, Any]] | None = None,
+    boundary_infos: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """A1 (R5.R6): Monotonic source-to-intent alignment strictly separating source completeness from edit recall.
+
+    Classifies every intended canonical sentence into:
+      - AVAILABLE_EXACT (match ratio >= 0.90)
+      - AVAILABLE_VARIANT (0.62 <= match ratio < 0.90)
+      - UNCERTAIN (0.45 <= match ratio < 0.62 — low ASR confidence / possible partial garble)
+      - MISSING_SOURCE (match ratio < 0.45 across ALL supplied source clips)
+    """
+    source_ids = list(words_by_source.keys())
+    all_words: list[dict[str, Any]] = []
+    for sid in source_ids:
+        for w in _norm_word_list(words_by_source[sid], sid):
+            all_words.append(w)
+    all_toks = [w["norm"] for w in all_words if w["norm"]]
+
+    sentences = _split_sentences(intended_story or "")
+    rows: list[dict[str, Any]] = []
+    counts = {
+        "AVAILABLE_EXACT": 0,
+        "AVAILABLE_VARIANT": 0,
+        "UNCERTAIN": 0,
+        "MISSING_SOURCE": 0,
+    }
+    for s_idx, sent in enumerate(sentences):
+        stoks = tokenize_text(sent)
+        if not stoks:
+            continue
+        ratio = _clause_in_tokens(stoks, all_toks)
+        # Identify which source clip(s) carry the best match
+        best_src = None
+        best_src_ratio = 0.0
+        for sid in source_ids:
+            st = [normalize_token(_word_field(w, "word", "")) for w in words_by_source[sid]]
+            st = [t for t in st if t]
+            r_s = _clause_in_tokens(stoks, st)
+            if r_s > best_src_ratio:
+                best_src_ratio = r_s
+                best_src = sid
+
+        if ratio >= 0.90:
+            cls = "AVAILABLE_EXACT"
+        elif ratio >= 0.62:
+            cls = "AVAILABLE_VARIANT"
+        elif ratio >= 0.45:
+            cls = "UNCERTAIN"
+        else:
+            cls = "MISSING_SOURCE"
+        counts[cls] += 1
+        rows.append({
+            "sentence_index": s_idx,
+            "intended_sentence": sent,
+            "token_count": len(stoks),
+            "best_match_ratio": ratio,
+            "best_source_id": best_src if best_src_ratio >= 0.45 else None,
+            "classification": cls,
+        })
+
+    # Collect duplicate restarts & garbled fragments recorded during repair inspection
+    disfluency_events: list[dict[str, Any]] = []
+    for sid, dinfo in (disfluency_by_source or {}).items():
+        for rg in dinfo.get("repeat_groups") or []:
+            disfluency_events.append({
+                "source_id": sid,
+                "classification": "DUPLICATE_RESTART",
+                "phrase": rg.get("phrase", []),
+                "occurrence_1_s": rg.get("first_span_s"),
+                "occurrence_2_s": rg.get("second_span_s"),
+            })
+    for b in (boundary_infos or []):
+        if b.get("garbled_tail_a"):
+            gt = b["garbled_tail_a"]
+            disfluency_events.append({
+                "source_id": gt.get("source_id"),
+                "classification": "GARBLED",
+                "cut_start_s": gt.get("cut_start_s"),
+                "cut_end_s": gt.get("cut_end_s"),
+                "reason": gt.get("reason", ""),
+            })
+        if b.get("truncated_prefix_b"):
+            tp = b["truncated_prefix_b"]
+            disfluency_events.append({
+                "source_id": tp.get("source_id"),
+                "classification": "GARBLED",
+                "prefix_tokens": tp.get("prefix_tokens", []),
+                "cut_start_s": tp.get("cut_start_s"),
+                "cut_end_s": tp.get("cut_end_s"),
+                "reason": tp.get("reason", ""),
+            })
+
+    total_s = len(rows)
+    avail_s = counts["AVAILABLE_EXACT"] + counts["AVAILABLE_VARIANT"]
+    completeness = round(avail_s / max(1, total_s), 4) if total_s else 1.0
+    missing_rows = [r for r in rows if r["classification"] in ("MISSING_SOURCE", "UNCERTAIN")]
+    return sanitize_native({
+        "schema_version": "2.0.0",
+        "sources_audited": source_ids,
+        "intended_sentences_total": total_s,
+        "available_sentences_count": avail_s,
+        "missing_or_uncertain_sentences_count": len(missing_rows),
+        "source_completeness_ratio": completeness,
+        "source_completeness_status": "COMPLETE_SOURCE_SCRIPT" if not missing_rows else "MISSING_SOURCE_DIALOGUE",
+        "classification_counts": counts,
+        "sentence_alignment": rows,
+        "disfluency_and_garble_events": disfluency_events,
+    })
+
+
+def verify_required_claims(
+    alignment_report: dict[str, Any],
+    edited_words: list[dict[str, Any]],
+    *,
+    product_name: str | None = None,
+) -> dict[str, Any]:
+    """A1 (R5.R6): Fail-closed critical claim & release-blocking dialogue completeness check."""
+    edited_toks = [normalize_token(_word_field(w, "word", w) if not isinstance(w, str) else w) for w in edited_words]
+    edited_toks = [t for t in edited_toks if t]
+    edited_set = set(edited_toks)
+
+    avail_sentences = [
+        r for r in (alignment_report.get("sentence_alignment") or [])
+        if r.get("classification") in ("AVAILABLE_EXACT", "AVAILABLE_VARIANT")
+    ]
+    missing_sentences = [
+        r for r in (alignment_report.get("sentence_alignment") or [])
+        if r.get("classification") in ("MISSING_SOURCE", "UNCERTAIN")
+    ]
+
+    # Critical tokens present in AVAILABLE source sentences MUST survive in edited output!
+    avail_toks = [t for r in avail_sentences for t in tokenize_text(r.get("intended_sentence", ""))]
+    required_crit = sorted({
+        t for t in avail_toks
+        if t in _NEGATION_TOKENS or t in _DATE_DAY_TOKENS or t in ("caption", "bio", "profile", "link")
+    })
+    dropped_crit = [t for t in required_crit if t not in edited_set]
+
+    # Check if product_name was present in available source vs absent in all sources
+    prod_toks = tokenize_text(product_name or "")
+    prod_in_avail = bool(prod_toks) and _clause_in_tokens(prod_toks, avail_toks) >= 0.75
+    prod_in_edited = bool(prod_toks) and _clause_in_tokens(prod_toks, edited_toks) >= 0.75
+    dropped_brand = prod_in_avail and not prod_in_edited
+
+    retained_ok = (len(dropped_crit) == 0) and (not dropped_brand)
+    release_blocked = bool(missing_sentences) or (not retained_ok)
+    return sanitize_native({
+        "schema_version": "2.0.0",
+        "retained_critical_speech_ok": retained_ok,
+        "required_available_critical_tokens": required_crit,
+        "dropped_critical_tokens": dropped_crit,
+        "product_name_spoken_in_source": prod_in_avail,
+        "product_name_preserved_in_edit": prod_in_edited,
+        "dropped_spoken_brand": dropped_brand,
+        "missing_source_sentences_count": len(missing_sentences),
+        "missing_source_sentences": [r["intended_sentence"] for r in missing_sentences],
+        "release_blocked_by_script_completeness": release_blocked,
+        "status": (
+            "FAIL_DROPPED_CRITICAL_SPEECH"
+            if not retained_ok
+            else ("RELEASE_BLOCKED_MISSING_SOURCE_DIALOGUE" if missing_sentences else "PASS_FULL_SCRIPT_VERIFIED")
+        ),
+    })

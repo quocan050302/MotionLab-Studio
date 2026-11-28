@@ -272,11 +272,14 @@ def evaluate_watermark_authorization(
         })
 
     auth = authorization_doc or {}
+    edit_pref = str(auth.get("edit_preference_method") or auth.get("preferred_method") or "").strip()
     if bool(auth.get("clean_export_authorized")) and str(auth.get("license_basis", "")).strip() and not bool(auth.get("mandatory_provenance_mark", True)):
+        method = edit_pref if edit_pref in ("clean_export", "localized_blur", "verified_crop") else "clean_export"
         return sanitize_native({
-            "schema_version": MULTI_SOURCE_SCHEMA_VERSION,
+            "schema_version": "2.0.0",
             "status": "AUTHORIZED_CLEANUP_ALLOWED",
-            "action": str(auth.get("preferred_method", "clean_export_or_verified_crop")),
+            "action": method,
+            "localized_blur_authorized": (method == "localized_blur"),
             "license_basis": str(auth["license_basis"]),
             "clean_release_eligible": True,
             "ai_generated_disclosure_required": bool(auth.get("ai_generated_disclosure_required", True)),
@@ -289,18 +292,115 @@ def evaluate_watermark_authorization(
         if isinstance(v, dict) and bool(v.get("detected_bright_static_mark"))
     ]
     return sanitize_native({
-        "schema_version": MULTI_SOURCE_SCHEMA_VERSION,
+        "schema_version": "2.0.0",
         "status": "BLOCKED_WATERMARK_AUTHORIZATION",
         "action": "PRESERVE_PROVENANCE_MARK_AND_RENDER_CANDIDATE",
+        "localized_blur_authorized": False,
+        "owner_edit_preference_noted": edit_pref or None,
         "detected_sources": detected_sources,
         "reason": (
             f"Static corner provenance mark detected on source(s) {detected_sources}. "
-            "No verified clean-export license or provenance-removal authorization provided; preserving mark intact and "
-            "flagging output as BLOCKED_WATERMARK_AUTHORIZATION (never stripping/cropping provenance without license)."
+            "No verified clean-export license or non-mandatory provenance-removal authorization provided "
+            "(user edit preference alone does NOT grant provider rights); preserving mark 100% intact with zero blur/crop/concealment "
+            "and flagging output as BLOCKED_WATERMARK_AUTHORIZATION."
         ),
         "clean_release_eligible": False,
         "ai_generated_disclosure_required": True,
         "roi_measurement": watermark_roi_measurement,
+    })
+
+
+def apply_localized_watermark_blur_if_authorized(
+    *,
+    video_path: Path,
+    out_path: Path,
+    watermark_auth: dict[str, Any],
+    source_roi: dict[str, Any],
+    ffmpeg_bin: str = "ffmpeg",
+) -> dict[str, Any]:
+    """A8/D12: Apply tight feathered Gaussian blur ONLY inside verified corner ROI when explicitly authorized on a non-mandatory mark.
+
+    FAILS CLOSED: if `watermark_auth["localized_blur_authorized"]` is False, does NOT touch video pixels and returns `applied=False`.
+    """
+    if watermark_auth.get("status") != "AUTHORIZED_CLEANUP_ALLOWED" or not bool(watermark_auth.get("localized_blur_authorized")):
+        return sanitize_native({
+            "applied": False,
+            "action": "PRESERVED_INTACT_NO_BLUR",
+            "reason": "Watermark localized_blur not authorized (mandatory provenance mark or missing verified provider license).",
+        })
+
+    det_corners = [c for c in (source_roi.get("detected_corners") or []) if c.get("detected")]
+    if not det_corners:
+        return sanitize_native({"applied": False, "action": "NO_ROI_DETECTED", "reason": "No detected corner mark ROI."})
+
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise RuntimeError(f"Cannot open video for authorized localized blur: {video_path}")
+    W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
+
+    # Build tight feathered elliptical mask STRICTLY over detected corner mark(s) (~6% radius max, never whole-frame!)
+    mask = np.zeros((H, W), dtype=np.float32)
+    roi_boxes: list[list[int]] = []
+    rx = max(14, int(round(W * 0.045)))
+    ry = max(14, int(round(H * 0.030)))
+    for dc in det_corners:
+        nxy = dc.get("approx_norm_xy") or [0.88, 0.91]
+        cx = max(rx, min(W - rx - 1, int(round(float(nxy[0]) * W))))
+        cy = max(ry, min(H - ry - 1, int(round(float(nxy[1]) * H))))
+        cv2.ellipse(mask, (cx, cy), (rx, ry), 0, 0, 360, 1.0, -1)
+        roi_boxes.append([max(0, cx - rx), max(0, cy - ry), min(W, cx + rx), min(H, cy + ry)])
+    mask = cv2.GaussianBlur(mask, (0, 0), sigmaX=max(3.0, rx * 0.25))
+    mask_3 = mask[:, :, None]
+    outside_bool = mask < 0.01
+
+    enc = subprocess.Popen(
+        [
+            ffmpeg_bin, "-y", "-hide_banner", "-loglevel", "error", "-nostdin",
+            "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", f"{fps:.6f}",
+            "-i", "pipe:0",
+            "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
+            "-an", str(out_path),
+        ],
+        stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=False,
+    )
+    assert enc.stdin
+    outside_mads: list[float] = []
+    inside_mads: list[float] = []
+    frames = 0
+    try:
+        while True:
+            ok, fr = cap.read()
+            if not ok or fr is None:
+                break
+            blurred = cv2.GaussianBlur(fr, (0, 0), sigmaX=9.0, sigmaY=9.0)
+            comp = np.clip(np.round(fr.astype(np.float32) * (1.0 - mask_3) + blurred.astype(np.float32) * mask_3), 0, 255).astype(np.uint8)
+            if frames % 5 == 0:
+                diff = np.abs(comp.astype(np.float32) - fr.astype(np.float32))
+                outside_mads.append(float(np.mean(diff[outside_bool])))
+                inside_mads.append(float(np.mean(diff[~outside_bool])) if np.any(~outside_bool) else 0.0)
+            enc.stdin.write(comp.tobytes())
+            frames += 1
+    finally:
+        cap.release()
+        enc.stdin.close()
+        enc.wait(timeout=120)
+
+    if enc.returncode != 0:
+        raise RuntimeError(f"Authorized localized blur FFmpeg encode failed (rc={enc.returncode})")
+    out_mad = round(float(np.mean(outside_mads)) if outside_mads else 0.0, 4)
+    in_mad = round(float(np.mean(inside_mads)) if inside_mads else 0.0, 4)
+    return sanitize_native({
+        "applied": True,
+        "action": "LOCALIZED_ROI_FEATHERED_BLUR_APPLIED",
+        "license_basis": watermark_auth.get("license_basis"),
+        "frames_processed": frames,
+        "roi_boxes_px": roi_boxes,
+        "outside_roi_mad": out_mad,
+        "outside_roi_preserved": out_mad < 0.5,
+        "inside_roi_change_mad": in_mad,
+        "out_path": str(out_path),
     })
 
 

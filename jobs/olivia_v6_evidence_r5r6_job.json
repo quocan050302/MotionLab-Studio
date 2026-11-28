@@ -1,0 +1,110 @@
+{
+  "schema_version": "2.0.0",
+  "director_strategy": "evidence_v3",
+  "job_id": "olivia_v6_lamborghini_payday_trap_ml01_r5r6",
+  "output_stem": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R6",
+  "sources": [
+    {
+      "source_id": "A",
+      "path": "input/video-olivia-01.mp4",
+      "sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b"
+    },
+    {
+      "source_id": "B",
+      "path": "input/video-olivia-02.mp4",
+      "sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+    }
+  ],
+  "intended_story": "Okay, tell me I'm not the only one who checks their bank account before buying groceries. Like, I have money... but rent is due Tuesday, and I don't get paid until Friday. So how much can I actually spend? That's the part my monthly budget never really answered. That's why I created The Next Paycheck Plan. It shows you what's already spoken for, what needs to last until payday, and what you can actually spend. Imagine going grocery shopping without doing mental math the entire time. That's what this is for. I left the link in the caption. Go take a look.",
+  "niche_hint": "finance",
+  "audience": "Adults in the US managing bills and groceries between paychecks who want clear timing-first spend clarity",
+  "job_to_be_done": "Show why bank balance alone misleads before Tuesday rent is due and demonstrate how The Next Paycheck Plan separates bills reserved, payday timeline, and remaining unassigned amounts",
+  "promise": "Timing-first clarity of what is already spoken for, what must last until payday, and what remains unassigned before review",
+  "product_name": "The Next Paycheck Plan",
+  "visual_tone": "quiet_luxury_editorial_ugc",
+  "palette_tokens": {
+    "ivory": "#F5F2EA",
+    "parchment": "#EBE4D5",
+    "charcoal": "#16382E",
+    "ink_soft": "#4A6158",
+    "amber": "#C7806A",
+    "teal": "#16382E",
+    "cognac": "#B58F52",
+    "sage": "#ADC4B5",
+    "white": "#FAF8F4"
+  },
+  "copy_overrides": {
+    "hook_kicker": "BEFORE GROCERIES",
+    "hook_headline": "Balance ≠ Spendable",
+    "hook_subline": "Why checking your balance isn't enough",
+    "hook_context_tags": [
+      "Groceries today",
+      "Rent due Tuesday"
+    ],
+    "sequence_start_tag": "RENT DUE",
+    "sequence_end_tag": "PAYDAY",
+    "split_left_label": "BANK BALANCE",
+    "split_left_sub": "Includes Reserved Bills",
+    "split_right_label": "UNASSIGNED",
+    "split_right_sub": "Review Before Spending",
+    "bridge_eyebrow": "TIMING-FIRST WORKBOOK",
+    "bridge_subline": "ONE PAYCHECK AT A TIME",
+    "evidence_badge": "REAL WORKBOOK · FICTIONAL EXAMPLE",
+    "payoff_kicker": "GROCERY CHECKOUT",
+    "payoff_headline": "Shop Without Guessing",
+    "payoff_subline": "Know what is reserved before you reach the aisle",
+    "payoff_motif": "basket_calm",
+    "payoff_checks": [
+      "Bills reserved first",
+      "Payday horizon mapped",
+      "No mental math"
+    ],
+    "cta_headline": "Link in caption"
+  },
+  "feature_requirements": [
+    {
+      "feature_id": "workbook_cover_identity",
+      "description": "Authentic 56-page printable workbook cover identity (The Next Paycheck Plan)",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "accepted_asset_types": ["workbook_cover"]
+    },
+    {
+      "feature_id": "workbook_bills_reserved_and_timeline_and_unassigned",
+      "description": "Authorized printable workbook pages proving bills reserved (p7/p49), payday timeline (p10), and planned/reserved/paid/cleared math (p12)",
+      "required_proof_class": "ACTUAL_PRODUCT_WORKBOOK",
+      "accepted_asset_types": ["workbook_page"]
+    },
+    {
+      "feature_id": "notion_live_ui_operation",
+      "description": "Authorized live interactive Notion customer-release screen capture demonstrating action -> result",
+      "required_proof_class": "ACTUAL_PRODUCT_ACTION_RESULT",
+      "accepted_asset_types": ["product_demo_clip"],
+      "fallback_static_types": ["dashboard_screenshot"]
+    }
+  ],
+  "watermark_authorization": {
+    "clean_export_authorized": false,
+    "mandatory_provenance_mark": true,
+    "edit_preference_method": "localized_blur",
+    "license_basis": ""
+  },
+  "forbidden_claims": [
+    "No guaranteed savings, safe spend, debt reduction, or wealth claims",
+    "No Lamborghini endorsement or implied ownership income",
+    "No fabricated bank balance or fake Notion dashboard pretending to be real product capture",
+    "No private PRE-LAUNCH URLs or customer data exposed",
+    "No voice cloning for missing dialogue"
+  ],
+  "output": {
+    "width": 1080,
+    "height": 1920,
+    "fps_num": 30,
+    "fps_den": 1,
+    "sample_rate": 48000,
+    "channels": 2
+  },
+  "seed": 42,
+  "enable_vlm": true,
+  "enable_llm": true,
+  "render_hooks": true
+}

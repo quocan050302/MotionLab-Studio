@@ -91,6 +91,7 @@ DIRECTOR_PIPELINE_SCHEMA_VERSION = "1.0.0"
 
 _ALLOWED_JOB_TOP_KEYS = frozenset({
     "schema_version",
+    "director_strategy",
     "job_id",
     "output_stem",
     "sources",
@@ -102,6 +103,8 @@ _ALLOWED_JOB_TOP_KEYS = frozenset({
     "product_name",
     "visual_tone",
     "palette_tokens",
+    "copy_overrides",
+    "feature_requirements",
     "forbidden_claims",
     "output",
     "asset_catalog_path",
@@ -996,6 +999,19 @@ def run_multisource_director_job(
     ffprobe_bin = shutil.which("ffprobe") or "ffprobe"
 
     job = validate_and_load_job_manifest(job_path)
+    strategy = str(job.get("director_strategy") or "v2").strip().lower()
+    if strategy == "evidence_v3":
+        from motionlab.composition.director_v3_runner import run_evidence_v3_director_job  # noqa: PLC0415
+
+        return run_evidence_v3_director_job(
+            job=job,
+            output_root=output_root,
+            config=config,
+            creative_mode=creative_mode,
+            dry_run=dry_run,
+        )
+    if strategy != "v2":
+        raise ValueError(f"Unknown director_strategy (fail-closed): {strategy!r}")
     seed = int(job.get("seed", config.seed))
     out_cfg = job["output"]
     W, H = int(out_cfg["width"]), int(out_cfg["height"])
