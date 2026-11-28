@@ -1,0 +1,68 @@
+{
+  "audit_phase": "A0_ML01_R5R6_BASELINE_AUDIT",
+  "audited_remote_head_before_r5r6": "6de406ab31329d84f9fd358cea6baef85e7a7d8e",
+  "base_branch": "feat/ml-01-zero-api-effects",
+  "defects_d01_to_d13_reproduced": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D13"
+  ],
+  "host_compute_budget": {
+    "accelerator": "cpu_only",
+    "arch": "amd64",
+    "can_safely_provision_7b_8b_without_disk_pressure": true,
+    "disk_free_gb": 37.64,
+    "disk_reserve_min_gb": 5.0,
+    "disk_total_gb": 144.02,
+    "logical_cpus": 12,
+    "os": "Windows 11",
+    "ram_available_gb": 13.77,
+    "ram_total_gb": 31.75
+  },
+  "master_untouched_sha": "7160cc63d01008bde0fd2ec06a395d1aac037ce8",
+  "r5r5_baseline_mp4_verified": {
+    "bytes": 22638962,
+    "duration_s": 27.233333,
+    "filename": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+    "re_evaluated_under_strict_r5r6_verifier": {
+      "creative_evidence_gate_status": "PASS",
+      "critical_factual_accuracy": 1.0,
+      "defects_count": 1,
+      "high_severity_defects_count": 0,
+      "product_workbook_claims_verified": 3,
+      "weighted_observed_material_coverage": 0.902
+    },
+    "reported_legacy_visual_coverage_ratio": 0.5,
+    "sha256": "749279367a9d13fa46ec2c5a59d255d1f9ca4777bff9a9905c6ecf42accae1c5"
+  },
+  "r5r5_tested_code_sha": "c015d22da57f33a4e3d952efd668f23fc7228de2",
+  "raw_inputs_verified": {
+    "source_A": {
+      "bytes": 14534001,
+      "dimensions": "1080x1920",
+      "duration_s": 15.0,
+      "filename": "video-olivia-01.mp4",
+      "fps": "24/1",
+      "sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b"
+    },
+    "source_B": {
+      "bytes": 14492270,
+      "dimensions": "1080x1920",
+      "duration_s": 19.9,
+      "filename": "video-olivia-02.mp4",
+      "fps": "30/1",
+      "sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+    }
+  },
+  "schema_version": "1.0.0"
+}

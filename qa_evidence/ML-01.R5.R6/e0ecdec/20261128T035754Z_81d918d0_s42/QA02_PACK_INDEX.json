@@ -1,0 +1,33 @@
+{
+  "canonical_run_id": "20261128T035754Z_81d918d0_s42",
+  "files_included": [
+    "QA02_REPORT.json",
+    "a0_baseline_audit.json",
+    "baseline_vs_r5r6_same_verifier.json",
+    "creative_repair_proof.json",
+    "final_mix_reasr.json",
+    "hook_rank_report.json",
+    "manifest.json",
+    "model_comparative_benchmark.json",
+    "observed_claim_coverage.json",
+    "planned_claim_coverage.json",
+    "product_proof_by_feature.json",
+    "protected_word_validation.json",
+    "raw_vs_reconciled_plans.json",
+    "resource_stats.json",
+    "script_completeness.json",
+    "speech_alignment.json",
+    "temporal_fact_ledger.json",
+    "test_results_on_tested_sha.json",
+    "validation.json",
+    "watermark_auth.json"
+  ],
+  "max_budget_bytes": 2097152,
+  "phase": "ML-01.R5.R6",
+  "redaction_policy": "JSON-only; zero binaries/PNGs/PDFs/MP4s/WAVs/GGUFs; host paths, usernames, private URLs, and raw verbatim transcripts redacted.",
+  "schema_version": "1.0.0",
+  "tested_code_sha": "e0ecdecfc7377f22e7ad4184f05eaad0041ff82a",
+  "tested_code_sha_7": "e0ecdec",
+  "total_bytes": 134508,
+  "within_2mib_budget": true
+}

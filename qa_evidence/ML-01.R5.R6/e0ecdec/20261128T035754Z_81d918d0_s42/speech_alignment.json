@@ -1,0 +1,151 @@
+{
+  "available_sentences_count": 9,
+  "classification_counts": {
+    "AVAILABLE_EXACT": 1,
+    "AVAILABLE_VARIANT": 8,
+    "MISSING_SOURCE": 2,
+    "UNCERTAIN": 0
+  },
+  "disfluency_and_garble_events": [
+    {
+      "classification": "DUPLICATE_RESTART",
+      "occurrence_1_s": null,
+      "occurrence_2_s": null,
+      "phrase": [
+        "how",
+        "did"
+      ],
+      "source_id": "A"
+    },
+    {
+      "classification": "DUPLICATE_RESTART",
+      "occurrence_1_s": null,
+      "occurrence_2_s": null,
+      "phrase": [
+        "and",
+        "what",
+        "you",
+        "can",
+        "actually"
+      ],
+      "source_id": "B"
+    },
+    {
+      "classification": "GARBLED",
+      "cut_end_s": 15.0,
+      "cut_start_s": 10.19,
+      "reason": "Trailing source A words diverge from approved story (generation hallucination/garble) after final matched sentence.",
+      "source_id": "A"
+    },
+    {
+      "classification": "GARBLED",
+      "cut_end_s": 0.67,
+      "cut_start_s": 0.0,
+      "prefix_tokens": [
+        "check",
+        "plan"
+      ],
+      "reason": "Orphaned truncated fragment at clip B head without matching stem in clip A; trim to clean sentence onset without synthesizing fake audio.",
+      "source_id": "B"
+    }
+  ],
+  "intended_sentences_total": 11,
+  "missing_or_uncertain_sentences_count": 2,
+  "schema_version": "2.0.0",
+  "sentence_alignment": [
+    {
+      "best_match_ratio": 0.8421,
+      "best_source_id": "A",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=89 sha256_12=79cab4270595>",
+      "sentence_index": 0,
+      "token_count": 16
+    },
+    {
+      "best_match_ratio": 0.8,
+      "best_source_id": "A",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=21 sha256_12=2f11c2acbed5>",
+      "sentence_index": 1,
+      "token_count": 4
+    },
+    {
+      "best_match_ratio": 0.8276,
+      "best_source_id": "A",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=59 sha256_12=dc48beada0e1>",
+      "sentence_index": 2,
+      "token_count": 12
+    },
+    {
+      "best_match_ratio": 0.8235,
+      "best_source_id": "A",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=33 sha256_12=83d6c2de0496>",
+      "sentence_index": 3,
+      "token_count": 7
+    },
+    {
+      "best_match_ratio": 0.1818,
+      "best_source_id": null,
+      "classification": "MISSING_SOURCE",
+      "intended_sentence": "<REDACTED_TEXT len=56 sha256_12=a94a6868e1ff>",
+      "sentence_index": 4,
+      "token_count": 9
+    },
+    {
+      "best_match_ratio": 0.3158,
+      "best_source_id": null,
+      "classification": "MISSING_SOURCE",
+      "intended_sentence": "<REDACTED_TEXT len=44 sha256_12=913456b2d6fd>",
+      "sentence_index": 5,
+      "token_count": 8
+    },
+    {
+      "best_match_ratio": 0.8444,
+      "best_source_id": "B",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=105 sha256_12=8c731bb6c3ba>",
+      "sentence_index": 6,
+      "token_count": 19
+    },
+    {
+      "best_match_ratio": 0.8462,
+      "best_source_id": "B",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=73 sha256_12=f6b6b3846a41>",
+      "sentence_index": 7,
+      "token_count": 11
+    },
+    {
+      "best_match_ratio": 0.8333,
+      "best_source_id": "B",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=24 sha256_12=cadefb54b061>",
+      "sentence_index": 8,
+      "token_count": 5
+    },
+    {
+      "best_match_ratio": 0.8235,
+      "best_source_id": "B",
+      "classification": "AVAILABLE_VARIANT",
+      "intended_sentence": "<REDACTED_TEXT len=31 sha256_12=28b090d4cd3a>",
+      "sentence_index": 9,
+      "token_count": 7
+    },
+    {
+      "best_match_ratio": 1.0,
+      "best_source_id": "B",
+      "classification": "AVAILABLE_EXACT",
+      "intended_sentence": "<REDACTED_TEXT len=15 sha256_12=969c7f9661cb>",
+      "sentence_index": 10,
+      "token_count": 4
+    }
+  ],
+  "source_completeness_ratio": 0.8182,
+  "source_completeness_status": "MISSING_SOURCE_DIALOGUE",
+  "sources_audited": [
+    "A",
+    "B"
+  ]
+}

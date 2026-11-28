@@ -1,0 +1,705 @@
+{
+  "delta": {
+    "critical_factual_accuracy_delta": 0.0,
+    "defects_delta": -1,
+    "high_severity_defects_delta": 0,
+    "product_workbook_claims_verified_delta": 0,
+    "weighted_observed_coverage_delta": 0.098
+  },
+  "experiment": "APPLES_TO_APPLES_R5R5_VS_R5R6_EXACT_SAME_VERIFIER",
+  "frozen_atomic_claim_graph_claims": 9,
+  "r5r5_baseline": {
+    "bytes": 22638962,
+    "duration_s": 27.233333,
+    "mp4_name": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R5_CANDIDATE_9x16.mp4",
+    "observed_under_r5r6_verifier": {
+      "claims_total": 9,
+      "creative_evidence_gate_status": "PASS",
+      "critical_factual_accuracy": 1.0,
+      "defects": [
+        {
+          "category": "TEXT_ONLY_ON_MATERIAL_CLAIM",
+          "claim_id": "claim_04",
+          "detail": "Emotional payoff rendered as bare text overlay rather than concrete lived-context visual.",
+          "frame": 620,
+          "scene_id": "sc_05_payoff_clarity",
+          "severity": "MEDIUM"
+        }
+      ],
+      "high_severity_defects_count": 0,
+      "material_claims_total": 8,
+      "material_claims_verified": 7,
+      "measurement_stage": "POST_RENDER_OBSERVED_DECODED_PIXELS",
+      "product_workbook_claims_verified": 3,
+      "rows": [
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_00",
+          "frame_contrast_std": 59.82,
+          "materiality": "critical",
+          "observed_evidence_class": "REAL_CONTEXT_FOOTAGE",
+          "output_frame_samples": [
+            36,
+            64,
+            93
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 3.38,
+          "reason": "Opening visual anchor verified over live source action (mode=spatial_editorial_anchor, delta_mad=None)",
+          "required_evidence_kind": "REAL_CONTEXT_OR_VISUAL_ANCHOR",
+          "role": "hook_relatable_problem",
+          "sample_thumb_sha256_16": "09095168332288ed",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 18.435,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "Balance ≠ Spendable",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "speaker_only"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.2
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_01",
+          "frame_contrast_std": 71.56,
+          "materiality": "critical",
+          "observed_evidence_class": "VERIFIED_FACT_DIAGRAM",
+          "output_frame_samples": [
+            150,
+            178,
+            207
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 3.34,
+          "reason": "Decoded causal sequence graphic verified (delta_mad=None, contrast=71.56)",
+          "required_evidence_kind": "VERIFIED_FACT_DIAGRAM",
+          "role": "temporal_gap_conflict",
+          "sample_thumb_sha256_16": "752567b699023a84",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 15.07,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "TIMELINE TUE RENT DUE WED THU",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "text_overlay"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_02",
+          "frame_contrast_std": 66.69,
+          "materiality": "critical",
+          "observed_evidence_class": "ILLUSTRATIVE_EXAMPLE",
+          "output_frame_samples": [
+            259,
+            271,
+            284
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.48,
+          "reason": "Decoded allocation/state split graphic verified (delta_mad=None)",
+          "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_DIAGRAM",
+          "role": "core_dilemma_question",
+          "sample_thumb_sha256_16": "c763aacb634db756",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 14.3,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "So how much can I actually spend?",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "speaker_only"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.2
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_a",
+          "frame_contrast_std": 91.15,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            365,
+            379,
+            393
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.66,
+          "reason": "Decoded frame matched verified source crop (corr=0.9948, w=0.66)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "fc726cc5a9462c84",
+          "source_asset_id": "tnpp_wb_p07_jordan_paycheck",
+          "source_crop_audit": {
+            "best_corr": 0.9948,
+            "interior_corr": 0.9965,
+            "matched": true,
+            "matched_width_frac": 0.66,
+            "matched_xy_360": [
+              47,
+              119
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 13.156,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Next Paycheck Plan 1,600",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_b",
+          "frame_contrast_std": 93.38,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            428,
+            441,
+            454
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.52,
+          "reason": "Decoded frame matched verified source crop (corr=0.9701, w=0.66)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "649b3781f0c719bf",
+          "source_asset_id": "tnpp_wb_p10_payday_timeline",
+          "source_crop_audit": {
+            "best_corr": 0.9701,
+            "interior_corr": 0.9118,
+            "matched": true,
+            "matched_width_frac": 0.66,
+            "matched_xy_360": [
+              47,
+              119
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 12.559,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Payday Timeline",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_c",
+          "frame_contrast_std": 93.96,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            478,
+            495,
+            512
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 2.04,
+          "reason": "Decoded frame matched verified source crop (corr=0.9755, w=0.66)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "10cd2e3f4f5dd62b",
+          "source_asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+          "source_crop_audit": {
+            "best_corr": 0.9755,
+            "interior_corr": 0.9574,
+            "matched": true,
+            "matched_width_frac": 0.66,
+            "matched_xy_360": [
+              47,
+              119
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 12.574,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Next Paycheck Plan Planned, Reserved, Paid & Cleared",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_04",
+          "frame_contrast_std": 59.01,
+          "materiality": "supporting",
+          "observed_evidence_class": "TEXT_ONLY",
+          "output_frame_samples": [
+            584,
+            620,
+            656
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 4.3,
+          "reason": "Emotional payoff rendered as bare text overlay rather than concrete lived-context visual.",
+          "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_CONTEXT",
+          "role": "emotional_resolution_payoff",
+          "sample_thumb_sha256_16": "cbdb2cdc312be65d",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "PARTIAL",
+          "vlm_observation": {
+            "elapsed_s": 12.642,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "No Mental Math",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "speaker_only"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.0
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_05",
+          "frame_contrast_std": 64.96,
+          "materiality": "ambient",
+          "observed_evidence_class": "REAL_CONTEXT_FOOTAGE",
+          "output_frame_samples": [
+            708,
+            717,
+            725
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.02,
+          "reason": "Clean unobstructed source footage verified.",
+          "required_evidence_kind": "REAL_CONTEXT_FOOTAGE",
+          "role": "resolution_anchor",
+          "sample_thumb_sha256_16": "3c552d2c120eeb73",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "status": "NOT_SAMPLED"
+          },
+          "weight": 0.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_06",
+          "frame_contrast_std": 66.13,
+          "materiality": "supporting",
+          "observed_evidence_class": "SAFE_CTA_WITH_IDENTITY",
+          "output_frame_samples": [
+            759,
+            778,
+            796
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 2.18,
+          "reason": "Safe-zone CTA card verified in decoded frames (delta_mad=None)",
+          "required_evidence_kind": "SAFE_CTA_WITH_IDENTITY",
+          "role": "cta_direction",
+          "sample_thumb_sha256_16": "3990ff7c3c6dfec6",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "status": "NOT_SAMPLED"
+          },
+          "weight": 0.8
+        }
+      ],
+      "schema_version": "1.0.0",
+      "vlm_frames_audited": 7,
+      "vlm_status": "VISION_CRITIC_EXECUTED",
+      "weighted_observed_material_coverage": 0.902
+    },
+    "reported_legacy_r5r5_claims_total": 8,
+    "reported_legacy_r5r5_visual_coverage_ratio": 0.5,
+    "sha256": "749279367a9d13fa46ec2c5a59d255d1f9ca4777bff9a9905c6ecf42accae1c5"
+  },
+  "r5r6_candidate": {
+    "bytes": 22622705,
+    "duration_s": 27.3,
+    "mp4_name": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R6_CANDIDATE_9x16.mp4",
+    "observed_under_r5r6_verifier": {
+      "claims_total": 9,
+      "creative_evidence_gate_status": "PASS",
+      "critical_factual_accuracy": 1.0,
+      "defects": [],
+      "high_severity_defects_count": 0,
+      "material_claims_total": 8,
+      "material_claims_verified": 8,
+      "measurement_stage": "POST_RENDER_OBSERVED_DECODED_PIXELS",
+      "product_workbook_claims_verified": 3,
+      "rows": [
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_00",
+          "frame_contrast_std": 62.22,
+          "materiality": "critical",
+          "observed_evidence_class": "ILLUSTRATIVE_EXAMPLE",
+          "output_frame_samples": [
+            36,
+            64,
+            93
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 3.38,
+          "reason": "Opening visual anchor verified over live source action (mode=lived_payoff_visual, delta_mad=None)",
+          "required_evidence_kind": "REAL_CONTEXT_OR_VISUAL_ANCHOR",
+          "role": "hook_relatable_problem",
+          "sample_thumb_sha256_16": "f5218254016e4660",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 12.888,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "Balance ≠ Spendable Why checking your balance isn't enough",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "illustrated_card"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.2
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_01",
+          "frame_contrast_std": 71.56,
+          "materiality": "critical",
+          "observed_evidence_class": "VERIFIED_FACT_DIAGRAM",
+          "output_frame_samples": [
+            150,
+            178,
+            207
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 3.34,
+          "reason": "Decoded causal sequence graphic verified (delta_mad=None, contrast=71.56)",
+          "required_evidence_kind": "VERIFIED_FACT_DIAGRAM",
+          "role": "temporal_gap_conflict",
+          "sample_thumb_sha256_16": "7132adbf789ed3fb",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 13.269,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "TIMELINE TUE RENT DUE",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "text_overlay"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_02",
+          "frame_contrast_std": 67.01,
+          "materiality": "critical",
+          "observed_evidence_class": "ILLUSTRATIVE_EXAMPLE",
+          "output_frame_samples": [
+            259,
+            271,
+            284
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.48,
+          "reason": "Decoded allocation/state split graphic verified (delta_mad=None)",
+          "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_DIAGRAM",
+          "role": "core_dilemma_question",
+          "sample_thumb_sha256_16": "e944130d7bd367c4",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 13.758,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "So how much can I actually spend? BANK BALANCE Includes Reserved Bills UNASSIGNED Review Before Spending",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "text_overlay"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.2
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_a",
+          "frame_contrast_std": 92.85,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            365,
+            379,
+            393
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.66,
+          "reason": "Decoded frame matched verified source crop (corr=0.9886, w=0.8)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "6cf0d01c662708b1",
+          "source_asset_id": "tnpp_wb_p07_jordan_paycheck",
+          "source_crop_audit": {
+            "best_corr": 0.9886,
+            "interior_corr": 0.999,
+            "matched": true,
+            "matched_width_frac": 0.8,
+            "matched_xy_360": [
+              22,
+              140
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 13.619,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Next Paycheck Plan 1,600",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_b",
+          "frame_contrast_std": 95.16,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            428,
+            441,
+            454
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.52,
+          "reason": "Decoded frame matched verified source crop (corr=0.7788, w=0.8)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "2af76425b3a8aa03",
+          "source_asset_id": "tnpp_wb_p10_payday_timeline",
+          "source_crop_audit": {
+            "best_corr": 0.7788,
+            "interior_corr": 0.9806,
+            "matched": true,
+            "matched_width_frac": 0.8,
+            "matched_xy_360": [
+              22,
+              131
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 13.317,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Payday Timeline",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_03_c",
+          "frame_contrast_std": 95.87,
+          "materiality": "critical",
+          "observed_evidence_class": "ACTUAL_PRODUCT_WORKBOOK",
+          "output_frame_samples": [
+            478,
+            495,
+            512
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 2.04,
+          "reason": "Decoded frame matched verified source crop (corr=0.7567, w=0.7)",
+          "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI",
+          "role": "system_mechanism_benefits",
+          "sample_thumb_sha256_16": "17def0b6fc18ebb8",
+          "source_asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+          "source_crop_audit": {
+            "best_corr": 0.7567,
+            "interior_corr": 0.8629,
+            "matched": true,
+            "matched_width_frac": 0.7,
+            "matched_xy_360": [
+              39,
+              111
+            ],
+            "reason": "ok"
+          },
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 9.507,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "The Next Paycheck Plan",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "workbook_page_crop"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_04",
+          "frame_contrast_std": 70.68,
+          "materiality": "supporting",
+          "observed_evidence_class": "ILLUSTRATIVE_EXAMPLE",
+          "output_frame_samples": [
+            584,
+            620,
+            656
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 4.3,
+          "reason": "Decoded illustrated lived-context visual verified (delta_mad=None)",
+          "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_CONTEXT",
+          "role": "emotional_resolution_payoff",
+          "sample_thumb_sha256_16": "54f992974091bf1b",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "elapsed_s": 8.685,
+            "model_id": "qwen3_vl_2b_instruct_q4_k_m",
+            "parsed": {
+              "covers_speaker_eyes_or_mouth": false,
+              "legible_key_content": "Shop Without Guessing",
+              "readable_on_phone": true,
+              "visible_defect": "none",
+              "visible_evidence_type": "illustrated_card"
+            },
+            "status": "VLM_EXECUTED"
+          },
+          "weight": 1.0
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_05",
+          "frame_contrast_std": 65.07,
+          "materiality": "ambient",
+          "observed_evidence_class": "REAL_CONTEXT_FOOTAGE",
+          "output_frame_samples": [
+            708,
+            717,
+            725
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 1.02,
+          "reason": "Clean unobstructed source footage verified.",
+          "required_evidence_kind": "REAL_CONTEXT_FOOTAGE",
+          "role": "resolution_anchor",
+          "sample_thumb_sha256_16": "6bd91f135b0e3431",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "status": "NOT_SAMPLED"
+          },
+          "weight": 0.5
+        },
+        {
+          "black_frames_in_window": 0,
+          "claim_id": "claim_06",
+          "frame_contrast_std": 66.11,
+          "materiality": "supporting",
+          "observed_evidence_class": "SAFE_CTA_WITH_IDENTITY",
+          "output_frame_samples": [
+            759,
+            778,
+            796
+          ],
+          "overlay_delta_mad": null,
+          "readable_duration_s": 2.18,
+          "reason": "Safe-zone CTA card verified in decoded frames (delta_mad=None)",
+          "required_evidence_kind": "SAFE_CTA_WITH_IDENTITY",
+          "role": "cta_direction",
+          "sample_thumb_sha256_16": "bdc1434ef324267a",
+          "source_asset_id": null,
+          "source_crop_audit": null,
+          "status": "VERIFIED",
+          "vlm_observation": {
+            "status": "NOT_SAMPLED"
+          },
+          "weight": 0.8
+        }
+      ],
+      "schema_version": "1.0.0",
+      "vlm_frames_audited": 7,
+      "vlm_status": "VISION_CRITIC_EXECUTED",
+      "weighted_observed_material_coverage": 1.0
+    },
+    "sha256": "d9cd75d93c22722cdf847fb67c8e3153d59d58f413fb5b680e180bd276753cb4"
+  },
+  "schema_version": "1.0.0"
+}

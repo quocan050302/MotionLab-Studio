@@ -1,0 +1,49 @@
+ML-01.R5.R6 — UPSTREAM RESEARCH & LICENSE AUDIT REPORT
+======================================================================
+Date: 2026-11-28 | Host: Windows 11 x64 (12 CPUs, 31.75 GiB RAM total, 9.43 GiB available, 37.92 GiB free disk)
+Base Audited Remote HEAD: 6de406ab31329d84f9fd358cea6baef85e7a7d8e (R5.R5 tested code c015d22da57f33a4e3d952efd668f23fc7228de2)
+Policy: 100% local offline inference/edit/render; ZERO required cloud LLM/VLM/TTS APIs; ZERO AGPL/GPL source vendoring; ZERO competitor asset copying.
+
+SUMMARY OF R5.R6 RESEARCH ADDITIONS & RE-AUDITS (PINNED SHAs)
+-------------------------------------------------------------
+1. R01 FireRedTeam/FireRed-OpenStoryline (c9e945215586f45c12a61c1951ee9a8e9c43a027, Apache-2.0)
+   - Decision: ADOPT_PATTERN (inspect -> plan -> tool -> observe rendered artifact -> revise; reusable skill memory).
+   - Rejected: FastAPI/MCP server stack & cloud search/TTS/transition APIs in config.toml.
+
+2. R02a QwenLM/Qwen3 (7a2f61ffc7a20d47efcd2bf97f6f2bf52729042e, NO_SPDX_LICENSE at repo root; Qwen3 model weights Apache-2.0 on HF)
+   & R02b ggml-org/llama.cpp (8e23278c7c36f4429fb237467d50e2935a91e655, MIT)
+   - Decision: ADOPT_CODE (local llama-completion.exe + llama-mtmd-cli.exe installed under tools/llama.cpp/) & BENCHMARK_DRIVEN_SELECTION.
+   - Observed: Qwen3 variants differ in thinking-mode tokenization; unbounded thinking tokens waste CPU budget on 12-core CPU-only host. Retained installed Apache-2.0 Qwen2.5-3B-Instruct Q4_K_M + Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0 and benchmarked both across a fresh 24-case open-ended multi-niche creative benchmark + 8 real visual tasks (raw vs repaired tracked separately).
+
+3. R03 QwenLM/Qwen3-VL (96588727e44c78b25ba03ea03b8e12f7e64fd0da, Apache-2.0)
+   - Decision: ADOPT_CODE (installed Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0 via single-residency llama-mtmd-cli.exe).
+   - R5.R6 Upgrade: Multi-frame shot-aware temporal sampling (first/mid/last + dense first-5s hook frames + every material claim crop hold) fed with explicit timestamps & blind prompts; Qwen3-VL-4B deferred to preserve RAM safety alongside Chromium/FFmpeg rendering.
+
+4. R04 mlfoundations/open_clip (34b17dc1eebc4eaeabbdc7a145111d8d758c0366, MIT)
+   - Decision: DEFER / REFERENCE_ONLY (EMBEDDING_NOT_RUN). Installing PyTorch + 600MB-1.7GB weights is unjustified when local catalog has <50 assets and TF-IDF/feature-overlap retrieval + Qwen3-VL visual rerank runs in <10ms + 9s/frame with zero PyTorch bloat.
+
+5. R05 m-bain/whisperX (8d8e43bf3698dd1df4b011c0f1a8dd1d468ae365, BSD-2-Clause)
+   - Decision: REFERENCE_ONLY (FORCED_ALIGNER_NOT_RUN). Wav2Vec2 forced alignment requires PyTorch + torchaudio; retained faster-whisper-small (int8, condition_on_previous_text=False) + neural Silero VAD ONNX + 16kHz PCM valley boundary snapping + independent final-mix Re-ASR audit.
+
+6. R06 Breakthrough/PySceneDetect (facff3b7c4db4cd30ffcb7cd17a6d3262ebe2ec2, BSD-3-Clause)
+   - Decision: REFERENCE_ONLY. Existing streaming O(1)-RAM OpenCV HSV+MAD detector in video_evidence.py detects cuts cleanly without extra dependencies.
+
+7. R07 facebookresearch/sam2 (2b90b9f5ceec907a1c18123530e92e794ad901a4, Apache-2.0)
+   - Decision: REJECT_FOR_CPU_HOST. GPU-centric PyTorch video segmentation prohibitive on CPU-only host; retained MODNet ONNX + OpenCV face ROI + safe non-overlapping dynamic layout.
+
+8. R08 Vincentwei1021/video-shotcraft (85ad62df7ab3a72e87b6bfab7dc5591fc0dde518, Apache-2.0)
+   & R09 louiseliu/hyperFrames-video-shotcraft (1df77f1ab080323558f70a5fb880fad0f88f87fc, Apache-2.0)
+   & R10 heygen-com/hyperframes (d084cc3940a15ad419d5c43770bd21b35d5c9ded, Apache-2.0)
+   - Decision: ADOPT_PATTERN (R08/R09) + ADOPT_CODE (R10 HyperFrames 0.9.101 + GSAP 3.15.1 already installed locally).
+   - R5.R6 Upgrade: Adapted region-crop close-up evidence reveals, animated focus brackets, causal state progressions, and deterministic seekable paused GSAP timelines in SceneGraph V3 (zero upstream assets/audio copied, zero HeyGen cloud APIs).
+
+9. R11 remotion-dev/skills (a3f4098a2afd0e13f6a6f8c8760e275f75457ea9) & Liamrjohnston/remotion-motion-graphics-skill (b860c7921f2220b9e2a84e815ba0ae7b10858f08, MIT)
+   - Decision: RETAIN_EXISTING_REMOTION_STACK (v4.0.547 + 11 MIT primitives preserved and verified via tsc --noEmit).
+
+10. R12 Vincentwei1021/video-talkcraft (57300498a46db6e55a3d824f5555265da1e5c9cd, NOASSERTION)
+    - Decision: REFERENCE_ONLY (missing SPDX license prevents code vendoring). Reinforced show-mechanism / action->result visual storytelling doctrine for non-product educational niches.
+
+11. R13a pymupdf/PyMuPDF (c220b70b22b45035dce6a5f3a3b36c055fca3f15, AGPL-3.0)
+    & R13b pymupdf/PyMuPDF-Utilities (4247801c2e827d69783e4a0064cf141bf9fa5a67, AGPL-3.0)
+    - Decision: REJECT_VENDORING (AGPL-3.0 dual license conflict with clean permissive codebase).
+    - Adopted Clean Alternative: Installed local Poppler CLI (`pdftoppm` 26.07.0 + `pdfinfo`) invoked strictly as external read-only subprocesses + OpenCV/PIL content-aware layout region cropping in `motionlab/assets/pdf_regions.py` (zero AGPL code linked or bundled!).

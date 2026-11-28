@@ -1,0 +1,474 @@
+{
+  "raw_llm_proposal": {
+    "elapsed_s": 23.722,
+    "model_id": "qwen2_5_3b_instruct_q4_k_m",
+    "raw_proposal": {
+      "plans": [
+        {
+          "hook_focus": "lived_context_metaphor",
+          "narrative_approach": "Sequential, step-by-step, showing the user how the product works and its benefits",
+          "payoff_style": "lived_payoff_visual",
+          "plan_id": "default_plan",
+          "product_presentation": "zoomed_region_crops",
+          "rationale": "Start with a relatable problem, then show the product in action, followed by a visual representation of the benefits, and end with a lived payoff scenario"
+        },
+        {
+          "hook_focus": "lived_context_metaphor",
+          "narrative_approach": "Parallel, showing the user's current struggles and the product's solution side-by-side",
+          "payoff_style": "lived_payoff_visual",
+          "plan_id": "alternate_plan",
+          "product_presentation": "zoomed_region_crops",
+          "rationale": "Begin with a relatable problem, then show the product's solution in action, and end with a lived payoff scenario, while also highlighting the user's current struggles"
+        }
+      ]
+    },
+    "status": "EXECUTED"
+  },
+  "reconciled_plans": [
+    {
+      "claim_assignments": [
+        {
+          "claim_id": "claim_00",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_01",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "causal_sequence_diagram"
+        },
+        {
+          "claim_id": "claim_02",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_03_a",
+          "matched_asset_id": "tnpp_wb_p07_jordan_paycheck",
+          "relevance_score": 0.6384,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_03_b",
+          "matched_asset_id": "tnpp_wb_p10_payday_timeline",
+          "relevance_score": 0.6456,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_03_c",
+          "matched_asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+          "relevance_score": 1.0,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_04",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "lived_payoff_visual"
+        },
+        {
+          "claim_id": "claim_05",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "clean_speaker_anchor"
+        },
+        {
+          "claim_id": "claim_06",
+          "matched_asset_id": "tnpp_wb_p01_cover",
+          "relevance_score": 1.0,
+          "treatment_mode": "safe_cta_card"
+        }
+      ],
+      "distinct_treatment_modes": [
+        "allocation_state_visual",
+        "causal_sequence_diagram",
+        "clean_speaker_anchor",
+        "lived_payoff_visual",
+        "phone_action_callout",
+        "region_crop_evidence_stage",
+        "safe_cta_card"
+      ],
+      "feasible": true,
+      "hook_focus": "lived_context_metaphor",
+      "include_product_cover_bridge": true,
+      "measured_plan_metrics": {
+        "predicted_material_coverage": 1.0,
+        "reading_time_feasibility": 1.0,
+        "verified_product_grounding_ratio": 1.0,
+        "visual_mode_variety": 1.0
+      },
+      "measured_plan_score": 1.0,
+      "narrative_approach": "Sequential, step-by-step, showing the user how the product works and its benefits",
+      "origin": "local_llm_proposal",
+      "payoff_style": "lived_payoff_visual",
+      "plan_hash": "9c7b58bf437c460e7be8b7372877ea0df0b0211e9b08ce30140f2b6578e89426",
+      "plan_id": "default_plan",
+      "product_presentation": "zoomed_region_crops",
+      "rationale": "Start with a relatable problem, then show the product in action, followed by a visual representation of the benefits, and end with a lived payoff scenario",
+      "reject_reasons": []
+    },
+    {
+      "claim_assignments": [
+        {
+          "claim_id": "claim_00",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_01",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "causal_sequence_diagram"
+        },
+        {
+          "claim_id": "claim_02",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_03_a",
+          "matched_asset_id": "tnpp_wb_p07_jordan_paycheck",
+          "relevance_score": 0.6384,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_03_b",
+          "matched_asset_id": "tnpp_wb_p10_payday_timeline",
+          "relevance_score": 0.6456,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_03_c",
+          "matched_asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+          "relevance_score": 1.0,
+          "treatment_mode": "region_crop_evidence_stage"
+        },
+        {
+          "claim_id": "claim_04",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "lived_payoff_visual"
+        },
+        {
+          "claim_id": "claim_05",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "clean_speaker_anchor"
+        },
+        {
+          "claim_id": "claim_06",
+          "matched_asset_id": "tnpp_wb_p01_cover",
+          "relevance_score": 1.0,
+          "treatment_mode": "safe_cta_card"
+        }
+      ],
+      "distinct_treatment_modes": [
+        "allocation_state_visual",
+        "causal_sequence_diagram",
+        "clean_speaker_anchor",
+        "lived_payoff_visual",
+        "phone_action_callout",
+        "region_crop_evidence_stage",
+        "safe_cta_card"
+      ],
+      "feasible": true,
+      "hook_focus": "lived_context_metaphor",
+      "include_product_cover_bridge": true,
+      "measured_plan_metrics": {
+        "predicted_material_coverage": 1.0,
+        "reading_time_feasibility": 1.0,
+        "verified_product_grounding_ratio": 1.0,
+        "visual_mode_variety": 1.0
+      },
+      "measured_plan_score": 1.0,
+      "narrative_approach": "Parallel, showing the user's current struggles and the product's solution side-by-side",
+      "origin": "local_llm_proposal",
+      "payoff_style": "lived_payoff_visual",
+      "plan_hash": "9c7b58bf437c460e7be8b7372877ea0df0b0211e9b08ce30140f2b6578e89426",
+      "plan_id": "alternate_plan",
+      "product_presentation": "zoomed_region_crops",
+      "rationale": "Begin with a relatable problem, then show the product's solution in action, and end with a lived payoff scenario, while also highlighting the user's current struggles",
+      "reject_reasons": []
+    },
+    {
+      "claim_assignments": [
+        {
+          "claim_id": "claim_00",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_01",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "causal_sequence_diagram"
+        },
+        {
+          "claim_id": "claim_02",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_03_a",
+          "matched_asset_id": null,
+          "relevance_score": 0.6384,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_03_b",
+          "matched_asset_id": null,
+          "relevance_score": 0.6456,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_03_c",
+          "matched_asset_id": null,
+          "relevance_score": 1.0,
+          "treatment_mode": "allocation_state_visual"
+        },
+        {
+          "claim_id": "claim_04",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "lived_payoff_visual"
+        },
+        {
+          "claim_id": "claim_05",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "clean_speaker_anchor"
+        },
+        {
+          "claim_id": "claim_06",
+          "matched_asset_id": "tnpp_wb_p01_cover",
+          "relevance_score": 1.0,
+          "treatment_mode": "safe_cta_card"
+        }
+      ],
+      "distinct_treatment_modes": [
+        "allocation_state_visual",
+        "causal_sequence_diagram",
+        "clean_speaker_anchor",
+        "lived_payoff_visual",
+        "phone_action_callout",
+        "safe_cta_card"
+      ],
+      "feasible": true,
+      "hook_focus": "causal_conflict_preview",
+      "include_product_cover_bridge": true,
+      "measured_plan_metrics": {
+        "predicted_material_coverage": 1.0,
+        "reading_time_feasibility": 1.0,
+        "verified_product_grounding_ratio": 0.0,
+        "visual_mode_variety": 1.0
+      },
+      "measured_plan_score": 0.65,
+      "narrative_approach": "Causal diagrams and explicitly labeled illustrative metaphors without assuming live product screenshots",
+      "origin": "deterministic_evidence_candidate",
+      "payoff_style": "lived_payoff_visual",
+      "plan_hash": "35284a5bf0b55195734595ff8c7f09cf0ec16b008907c2adc562d0686a3120ca",
+      "plan_id": "causal_diagram_and_lived_payoff",
+      "product_presentation": "illustrative_diagram",
+      "rationale": "Honest non-product conceptual visual storytelling when authorized captures are absent or optional.",
+      "reject_reasons": []
+    },
+    {
+      "claim_assignments": [
+        {
+          "claim_id": "claim_00",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_01",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "causal_sequence_diagram"
+        },
+        {
+          "claim_id": "claim_02",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_03_a",
+          "matched_asset_id": null,
+          "relevance_score": 0.6384,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_03_b",
+          "matched_asset_id": null,
+          "relevance_score": 0.6456,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_03_c",
+          "matched_asset_id": null,
+          "relevance_score": 1.0,
+          "treatment_mode": "phone_action_callout"
+        },
+        {
+          "claim_id": "claim_04",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "clean_speaker_anchor"
+        },
+        {
+          "claim_id": "claim_05",
+          "matched_asset_id": null,
+          "relevance_score": 0.0,
+          "treatment_mode": "clean_speaker_anchor"
+        },
+        {
+          "claim_id": "claim_06",
+          "matched_asset_id": "tnpp_wb_p01_cover",
+          "relevance_score": 1.0,
+          "treatment_mode": "safe_cta_card"
+        }
+      ],
+      "distinct_treatment_modes": [
+        "causal_sequence_diagram",
+        "clean_speaker_anchor",
+        "phone_action_callout",
+        "safe_cta_card"
+      ],
+      "feasible": true,
+      "hook_focus": "live_action_question",
+      "include_product_cover_bridge": false,
+      "measured_plan_metrics": {
+        "predicted_material_coverage": 0.3431,
+        "reading_time_feasibility": 1.0,
+        "verified_product_grounding_ratio": 0.0,
+        "visual_mode_variety": 0.8
+      },
+      "measured_plan_score": 0.3572,
+      "narrative_approach": "Speaker-led authentic framing with minimal unobtrusive anchors",
+      "origin": "deterministic_evidence_candidate",
+      "payoff_style": "clean_speaker_anchor",
+      "plan_hash": "842b0397de0e425e7db995da9558c2cf39279751f1574908d391f87a112fdbe7",
+      "plan_id": "minimal_speaker_first",
+      "product_presentation": "minimal_text",
+      "rationale": "Lowest graphic density for ambient, quiet, or speaker-centric niches.",
+      "reject_reasons": []
+    }
+  ],
+  "schema_version": "1.0.0",
+  "scoring_basis": "MEASURED_CLAIM_AND_ASSET_GROUNDING_NO_CONSTANT_TEMPLATES",
+  "selected_plan": {
+    "claim_assignments": [
+      {
+        "claim_id": "claim_00",
+        "matched_asset_id": null,
+        "relevance_score": 0.0,
+        "treatment_mode": "phone_action_callout"
+      },
+      {
+        "claim_id": "claim_01",
+        "matched_asset_id": null,
+        "relevance_score": 0.0,
+        "treatment_mode": "causal_sequence_diagram"
+      },
+      {
+        "claim_id": "claim_02",
+        "matched_asset_id": null,
+        "relevance_score": 0.0,
+        "treatment_mode": "allocation_state_visual"
+      },
+      {
+        "claim_id": "claim_03_a",
+        "matched_asset_id": "tnpp_wb_p07_jordan_paycheck",
+        "relevance_score": 0.6384,
+        "treatment_mode": "region_crop_evidence_stage"
+      },
+      {
+        "claim_id": "claim_03_b",
+        "matched_asset_id": "tnpp_wb_p10_payday_timeline",
+        "relevance_score": 0.6456,
+        "treatment_mode": "region_crop_evidence_stage"
+      },
+      {
+        "claim_id": "claim_03_c",
+        "matched_asset_id": "tnpp_wb_p12_planned_reserved_cleared",
+        "relevance_score": 1.0,
+        "treatment_mode": "region_crop_evidence_stage"
+      },
+      {
+        "claim_id": "claim_04",
+        "matched_asset_id": null,
+        "relevance_score": 0.0,
+        "treatment_mode": "lived_payoff_visual"
+      },
+      {
+        "claim_id": "claim_05",
+        "matched_asset_id": null,
+        "relevance_score": 0.0,
+        "treatment_mode": "clean_speaker_anchor"
+      },
+      {
+        "claim_id": "claim_06",
+        "matched_asset_id": "tnpp_wb_p01_cover",
+        "relevance_score": 1.0,
+        "treatment_mode": "safe_cta_card"
+      }
+    ],
+    "distinct_treatment_modes": [
+      "allocation_state_visual",
+      "causal_sequence_diagram",
+      "clean_speaker_anchor",
+      "lived_payoff_visual",
+      "phone_action_callout",
+      "region_crop_evidence_stage",
+      "safe_cta_card"
+    ],
+    "feasible": true,
+    "hook_focus": "lived_context_metaphor",
+    "include_product_cover_bridge": true,
+    "measured_plan_metrics": {
+      "predicted_material_coverage": 1.0,
+      "reading_time_feasibility": 1.0,
+      "verified_product_grounding_ratio": 1.0,
+      "visual_mode_variety": 1.0
+    },
+    "measured_plan_score": 1.0,
+    "narrative_approach": "Parallel, showing the user's current struggles and the product's solution side-by-side",
+    "origin": "local_llm_proposal",
+    "payoff_style": "lived_payoff_visual",
+    "plan_hash": "9c7b58bf437c460e7be8b7372877ea0df0b0211e9b08ce30140f2b6578e89426",
+    "plan_id": "alternate_plan",
+    "product_presentation": "zoomed_region_crops",
+    "rationale": "Begin with a relatable problem, then show the product's solution in action, and end with a lived payoff scenario, while also highlighting the user's current struggles",
+    "reject_reasons": []
+  },
+  "selected_plan_hash": "9c7b58bf437c460e7be8b7372877ea0df0b0211e9b08ce30140f2b6578e89426",
+  "selected_plan_id": "alternate_plan",
+  "tool_trace": [
+    {
+      "args_keys": [
+        "sources"
+      ],
+      "call_index": 0,
+      "ok": true,
+      "reason_code": "ground_multimodal_video_evidence",
+      "tool": "inspect_source"
+    },
+    {
+      "args_keys": [
+        "query"
+      ],
+      "call_index": 1,
+      "ok": true,
+      "reason_code": "retrieve_and_crop_verified_assets",
+      "tool": "search_local_asset_catalog"
+    }
+  ]
+}

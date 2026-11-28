@@ -321,6 +321,96 @@
       "adoption_category": "REFERENCE_ONLY",
       "adopted_interface": "Choreography easing doctrine in scene_graph_v2.py.",
       "tested_result": "Verified visually on rendered frames."
+    },
+    {
+      "id": "R02a_R6",
+      "slug": "QwenLM/Qwen3",
+      "url": "https://github.com/QwenLM/Qwen3",
+      "pinned_sha": "7a2f61ffc7a20d47efcd2bf97f6f2bf52729042e",
+      "status": "ACCESSIBLE",
+      "license": "NO_SPDX_ROOT_WEIGHTS_APACHE_2_0",
+      "license_permalink": "https://github.com/QwenLM/Qwen3/blob/7a2f61ffc7a20d47efcd2bf97f6f2bf52729042e/README.md",
+      "inspected_files": [
+        "https://github.com/QwenLM/Qwen3/blob/7a2f61ffc7a20d47efcd2bf97f6f2bf52729042e/docs/source/getting_started/quickstart.md"
+      ],
+      "observed_vs_readme": "Qwen3 instruct variants differ in thinking-mode flags; unbounded thinking tokens increase CPU-only wall time significantly.",
+      "cost_and_risk": "Downloading 4B/8B Qwen3 weights adds 2.5-5 GB disk & slower CPU decoding without verified gain over installed Qwen2.5-3B on structured JSON schemas.",
+      "comparison_vs_motionlab": "Benchmarked installed Apache-2.0 Qwen2.5-3B-Instruct Q4_K_M vs Qwen3-VL-2B-Instruct Q4_K_M across a 24-case open-ended multi-niche creative benchmark + 8 visual tasks.",
+      "adoption_category": "DEFER",
+      "adopted_interface": "Retained installed hybrid Qwen2.5-3B text + Qwen3-VL-2B vision router.",
+      "tested_result": "Verified on 24-case multi-niche creative benchmark."
+    },
+    {
+      "id": "R02b_R6",
+      "slug": "ggml-org/llama.cpp",
+      "url": "https://github.com/ggml-org/llama.cpp",
+      "pinned_sha": "8e23278c7c36f4429fb237467d50e2935a91e655",
+      "status": "ACCESSIBLE",
+      "license": "MIT",
+      "license_permalink": "https://github.com/ggml-org/llama.cpp/blob/8e23278c7c36f4429fb237467d50e2935a91e655/LICENSE",
+      "inspected_files": [
+        "https://github.com/ggml-org/llama.cpp/blob/8e23278c7c36f4429fb237467d50e2935a91e655/LICENSE"
+      ],
+      "observed_vs_readme": "MIT local GGUF inference runtime powering installed tools/llama.cpp/llama-completion.exe and llama-mtmd-cli.exe with native --json-schema-file grammar constraints.",
+      "cost_and_risk": "Zero cloud cost; enforced single-model residency lock and process-tree RSS tracking.",
+      "comparison_vs_motionlab": "Already deployed locally in tools/llama.cpp/.",
+      "adoption_category": "ADOPT_CODE",
+      "adopted_interface": "tools/llama.cpp/llama-completion.exe + llama-mtmd-cli.exe via motionlab/semantic/model_router.py.",
+      "tested_result": "Verified across text LLM planning, 24-case benchmark, and multi-frame VLM critic."
+    },
+    {
+      "id": "R12_R6",
+      "slug": "Vincentwei1021/video-talkcraft",
+      "url": "https://github.com/Vincentwei1021/video-talkcraft",
+      "pinned_sha": "57300498a46db6e55a3d824f5555265da1e5c9cd",
+      "status": "ACCESSIBLE",
+      "license": "NOASSERTION",
+      "license_permalink": "https://github.com/Vincentwei1021/video-talkcraft/blob/57300498a46db6e55a3d824f5555265da1e5c9cd/README.md",
+      "inspected_files": [
+        "https://github.com/Vincentwei1021/video-talkcraft/blob/57300498a46db6e55a3d824f5555265da1e5c9cd/README.md"
+      ],
+      "observed_vs_readme": "Narrated explainer shotbook focusing on show-mechanism and action->result visual storytelling; no clean SPDX license in GitHub metadata.",
+      "cost_and_risk": "Missing SPDX license prohibits code vendoring.",
+      "comparison_vs_motionlab": "Used strictly as conceptual reference for non-product explanatory visuals (show-mechanism over text cards).",
+      "adoption_category": "REFERENCE_ONLY",
+      "adopted_interface": "Clean-room design reference only.",
+      "tested_result": "Reflected in SceneGraph V3 causal sequence & lived payoff layers."
+    },
+    {
+      "id": "R13a_R6",
+      "slug": "pymupdf/PyMuPDF",
+      "url": "https://github.com/pymupdf/PyMuPDF",
+      "pinned_sha": "c220b70b22b45035dce6a5f3a3b36c055fca3f15",
+      "status": "ACCESSIBLE",
+      "license": "AGPL-3.0",
+      "license_permalink": "https://github.com/pymupdf/PyMuPDF/blob/c220b70b22b45035dce6a5f3a3b36c055fca3f15/COPYING",
+      "inspected_files": [
+        "https://github.com/pymupdf/PyMuPDF/blob/c220b70b22b45035dce6a5f3a3b36c055fca3f15/COPYING"
+      ],
+      "observed_vs_readme": "AGPL-3.0 / commercial dual-licensed PDF library; cannot be vendored or automatically bundled into permissive MotionLab runtime.",
+      "cost_and_risk": "AGPL-3.0 copyleft licensing conflict.",
+      "comparison_vs_motionlab": "Replaced cleanly with installed local Poppler external CLI (`pdftoppm` 26.07.0 / `pdfinfo`) + OpenCV/PIL content-aware region cropping in motionlab/assets/pdf_regions.py.",
+      "adoption_category": "REJECT",
+      "adopted_interface": "External Poppler subprocess + OpenCV/PIL region cropper in motionlab/assets/pdf_regions.py.",
+      "tested_result": "Verified high-DPI cropped evidence regions on 56-page Workbook PDF."
+    },
+    {
+      "id": "R13b_R6",
+      "slug": "pymupdf/PyMuPDF-Utilities",
+      "url": "https://github.com/pymupdf/PyMuPDF-Utilities",
+      "pinned_sha": "4247801c2e827d69783e4a0064cf141bf9fa5a67",
+      "status": "ACCESSIBLE",
+      "license": "AGPL-3.0",
+      "license_permalink": "https://github.com/pymupdf/PyMuPDF-Utilities/blob/4247801c2e827d69783e4a0064cf141bf9fa5a67/README.md",
+      "inspected_files": [
+        "https://github.com/pymupdf/PyMuPDF-Utilities/blob/4247801c2e827d69783e4a0064cf141bf9fa5a67/README.md"
+      ],
+      "observed_vs_readme": "AGPL-3.0 layout analysis examples for PyMuPDF.",
+      "cost_and_risk": "AGPL-3.0 copyleft conflict.",
+      "comparison_vs_motionlab": "Clean-room OpenCV projection-profile layout band detector implemented directly in motionlab/assets/pdf_regions.py.",
+      "adoption_category": "REJECT",
+      "adopted_interface": "None (clean-room OpenCV/PIL alternative).",
+      "tested_result": "Verified in pdf_regions.py unit tests."
     }
   ]
 }

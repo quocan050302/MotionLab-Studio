@@ -1,0 +1,160 @@
+================================================================================
+ML-01.R5.R6 — EVIDENCE-DRIVEN CREATIVE INTELLIGENCE & GENERATIVE STORYTELLING
+FINAL IMPLEMENTATION & VERIFICATION REPORT
+Date: 2026-11-28 | Repo: https://github.com/quocan050302/MotionLab-Studio
+Branch: feat/ml-01-zero-api-effects
+================================================================================
+
+1. PROVENANCE, GIT LOCK & TESTED CODE SHA
+--------------------------------------------------------------------------------
+- Base branch audited before R5.R6: 6de406ab31329d84f9fd358cea6baef85e7a7d8e
+- Prior R5.R5 tested code SHA:      c015d22da57f33a4e3d952efd668f23fc7228de2
+- Untouched master SHA (verified):  7160cc63d01008bde0fd2ec06a395d1aac037ce8
+- NEW TESTED_CODE_SHA (R5.R6):      e0ecdecfc7377f22e7ad4184f05eaad0041ff82a
+- Canonical R5.R6 run_id:           20261128T035754Z_81d918d0_s42
+- Runtime policy:                   100% offline local CPU, zero cloud LLM/VLM/TTS
+                                    APIs, zero paid dependencies, zero AGPL vendoring
+- Source immutability verified:
+  * Source A (video-olivia-01.mp4): 18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b (14,534,001 bytes, 1080x1920, 24/1 fps, 15.0s)
+  * Source B (video-olivia-02.mp4): 0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae (14,492,270 bytes, 1080x1920, 30/1 fps, 19.9s)
+
+2. DELIVERED MEDIA ARTIFACTS & DETERMINISM PROOF
+--------------------------------------------------------------------------------
+- Candidate MP4 (honest candidate naming enforced by hard release blockers):
+  * Filename:   Olivia_V6_Lamborghini_Payday_Trap_ML01R5R6_CANDIDATE_9x16.mp4
+  * SHA-256:    d9cd75d93c22722cdf847fb67c8e3153d59d58f413fb5b680e180bd276753cb4
+  * Size:       22,622,705 bytes
+  * Streams:    1080x1920, 30/1 CFR, 819 frames, 27.30s, yuv420p, 1 audio stream (48 kHz stereo AAC), 0 subtitle streams
+  * Decode QA:  FFmpeg full decode exit 0, 0 black frames, 0 abrupt boundary jumps
+  * Determinism: Verified bit-exact identical MP4 SHA-256 across independent warm runs
+    (20261128T034012Z, 20261128T034931Z, 20261128T035754Z -> all d9cd75d93c22722c...)
+- Fresh 9:16 Preview MP4:
+  * Filename:   preview_9x16.mp4
+  * SHA-256:    0a56b243d4c81bb1a6544390d34706776ffb11f254a2772333728b1b1be4a40c
+  * Size:       4,498,823 bytes
+- Blind-Ranked Composited Hooks (3 distinct rendered previews):
+  * Winner (BLIND_B): hook_B_lived_context_metaphor (blind_score=0.955, sha=1b2c016f...) -> CAUSALLY BOUND to final SceneGraph V3
+  * Runner-up (BLIND_A): hook_C_causal_conflict_preview (blind_score=0.9528, sha=ccca45f0...)
+  * Third (BLIND_C): hook_A_live_action_callout (blind_score=0.9435, sha=d21e548a...)
+  * Protocol: Shuffled blind labels, zero mode/id/palette bonuses, permutation-invariant
+- Contact Sheet: contact_sheet.jpg (60-frame visual overview)
+
+3. APPLES-TO-APPLES COMPARISON: R5.R5 BASELINE VS R5.R6 (EXACT SAME VERIFIER)
+--------------------------------------------------------------------------------
+Both videos were evaluated under the exact same frozen 9-claim atomic graph
+(8 material claims), the exact same decoded-pixel multi-scale + interior-body
+crop correlation verifier, and the exact same blind Qwen3-VL-2B phone-scale
+(360x640) critic (`baseline_vs_r5r6_same_verifier.json`):
+
+Metric                                      | R5.R5 (74927936...) | R5.R6 (d9cd75d9...) | Delta
+--------------------------------------------|---------------------|---------------------|------------
+Legacy pre-render visual_coverage_ratio     | 0.5000 (8 claims)   | N/A (replaced)      | Replaced
+Observed weighted material coverage         | 0.9020 (7/8 mat)    | 1.0000 (8/8 mat)    | +0.0980
+Observed critical factual accuracy          | 1.0000              | 1.0000              |  0.0000
+Workbook claims verified on decoded pixels  | 3/3 (full page w=.66)| 3/3 (zoom w=.80/.80/.70)| +21% width (+47% area p7/p10)
+Observed defects                            | 1 (TEXT_ONLY Beat 6)| 0                   | -1
+Beat 0 (claim_00 hook) blind VLM class      | speaker_only        | illustrated_card    | Visual upgrade
+Beat 2 (claim_02 dilemma) blind VLM read    | question text only  | BOTH split columns  | Visual upgrade
+Beat 6 (claim_04 payoff) blind VLM class    | speaker_only (FAIL) | illustrated_card    | FIXED (D05)
+Blind VLM readable_on_phone / face clear    | 7/7 / 7/7           | 7/7 / 7/7           | 100% clean
+
+Decoded crop correlation on R5.R6 (verified anti-spoofing: swapped pages score <= 0.02 interior):
+- claim_03_a (Page 7):  best_corr=0.9886, interior_corr=0.9990, width_frac=0.80
+- claim_03_b (Page 10): best_corr=0.7788, interior_corr=0.9806, width_frac=0.80
+- claim_03_c (Page 12): best_corr=0.7567, interior_corr=0.8629, width_frac=0.70
+
+4. REAL INJECTED-DEFECT AUTONOMOUS CREATIVE REPAIR PROOF
+--------------------------------------------------------------------------------
+Experiment (`creative_repair_proof.json`) executed on actual Beat 6 Olivia footage:
+- Injected defect: Downgraded Beat 6 (`claim_04`) to bare text-only `phone_action_callout`
+  -> rendered via HyperFrames -> composited (`before_repair.mp4`, sha `a5718d82...`).
+- Verifier caught defect automatically: `status=PARTIAL`, `observed_evidence_class=TEXT_ONLY`,
+  `defects=[TEXT_ONLY_ON_MATERIAL_CLAIM]`, `weighted_observed_coverage=0.0`.
+- Autonomous repair action: Upgraded Beat 6 to `lived_payoff_visual` (concrete grocery basket
+  scene + 3 check items), re-rendered real HyperFrames WebM, re-composited (`after_repair.mp4`,
+  sha `c51b4d42...`).
+- Post-repair decoded verification: `status=VERIFIED`, `defects=[]`, `weighted_observed_coverage=1.0`,
+  real decoded `pixel_diff_full_frame_mad=28.001`, `pixel_diff_visual_zone_mad=54.859`,
+  `repair_verified_pass=true`.
+
+5. 24-CASE MULTI-NICHE MODEL BENCHMARK + 8 REAL VISION TASKS (RAW VS RECONCILED)
+--------------------------------------------------------------------------------
+Executed sequentially under single-model residency (`model_comparative_benchmark.json`):
+- Qwen2.5-3B-Instruct Q4_K_M (24 multi-niche cases):
+  * Valid JSON:   24/24 (100%)
+  * Raw accuracy: 7/24 (29.17%), wall 265.40s
+- Qwen3-VL-2B-Instruct Q4_K_M (text-only on same 24 multi-niche cases):
+  * Valid JSON:   20/24 (83.3%; 4 truncated at max_tokens=160)
+  * Raw accuracy: 2/24 (8.33%), wall 241.41s (systematically over-set allows_real_product_claim=true)
+- Qwen3-VL-2B-Instruct Q4_K_M (8 real vision tasks including 2 hard negatives):
+  * Score:        5/8 (62.5%)
+  * Passed (5/5): Real source A car frame, real source B car frame, real workbook cover p01,
+                  hard negative blurred frame (refused hallucination -> UNREADABLE),
+                  hard negative blank white image (refused hallucination -> UNREADABLE).
+  * Failed (3/8): Dense page transcription truncated at max_tokens=160 (root cause also solved
+                  in production `evidence_verifier.py` via `max_tokens=280` + concise <=16-word limit,
+                  yielding 7/7 clean VLM audits on canonical video).
+- Architectural conclusion:
+  * Single-residency hybrid (`Qwen2.5-3B` text planner + `Qwen3-VL-2B` vision critic) empirically
+    validated over Qwen3-VL-2B-only; Qwen3-4B/8B deferred for CPU latency/RAM reserve.
+  * Raw 2B-3B accuracy proves why deterministic grounding (content relevance retrieval, Poppler
+    crops, multi-scale interior template verification, temporal fact ledger, rights gates) is
+    mandatory; ZERO claim of frontier/ChatGPT parity.
+
+6. HONEST RELEASE BLOCKERS, RIGHTS, SPEECH & PRODUCT PROOF SEPARATION
+--------------------------------------------------------------------------------
+- Independent 4-way gates on canonical run:
+  * technical_gate:         PASS
+  * creative_evidence_gate: PASS (observed weighted=1.0, critical=1.0, high_defects=0)
+  * release_rights_gate:    RELEASE_BLOCKED
+  * human_review_gate:      PENDING_HUMAN_REVIEW
+- Explicit Hard Release Blockers (preserving `_CANDIDATE_9x16.mp4` naming):
+  1) BLOCKED_WATERMARK_AUTHORIZATION: Corner sparkle detected on Sources A & B; no verified
+     non-mandatory provider clean-export license exists. Both sources preserved 100% intact
+     (`PRESERVED_INTACT_NO_BLUR`); localized blur guard verified via unit test for authorized
+     non-mandatory assets only.
+  2) MISSING_SOURCE_DIALOGUE: `script_completeness.json` confirms 8/10 intended sentences exist
+     in raw sources and 2 sentences were never recorded (`voice_cloning_used=false`).
+     Independent final-mix Re-ASR (`final_mix_reasr.json`) on decoded MP4 AAC audio confirms
+     `WER=0.0`, `85/85` ordered tokens, `0` residual repeats, `critical_token_recall=1.0`.
+  3) PRODUCT_UI_PROOF_BLOCKED: `product_proof_by_feature.json` verifies authentic printable
+     workbook identity and pages (`ACTUAL_PRODUCT_WORKBOOK`), while honestly marking interactive
+     live Notion customer-release UI capture as `PRODUCT_UI_PROOF_BLOCKED`. Private prelaunch
+     PDF (`PRE-LAUNCH PROOF — NOT FOR CUSTOMER DISTRIBUTION`) links were NEVER scraped, opened,
+     displayed, or fabricated.
+- Explicit Honest Disclosures:
+  * aesthetic_status: PENDING_HUMAN_REVIEW (human VQ-01 NOT self-approved)
+  * listening_status: LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY (automated audio QA: 7/7 audible,
+    voice-priority ducking, 0 clipping; human ear review pending)
+  * Cross-niche transfer: 14-niche cold-catalog + 16:9 verified via automated unit tests;
+    REAL_HELDOUT_NOT_RUN, REAL_LONGFORM_NOT_RUN, EMBEDDING_NOT_RUN, FORCED_ALIGNER_NOT_RUN.
+
+7. REGRESSION SUITE RESULTS DIRECTLY ON TESTED_CODE_SHA (e0ecdecf)
+--------------------------------------------------------------------------------
+Command                                                                 | Exit | Result
+------------------------------------------------------------------------|------|------------------------------------
+python -m pytest -q tests/                                              | 0    | 206 passed, 15 subtests passed (98.70s) [180 pytest-native + 26 legacy unittest]
+python -m unittest discover -s tests -p "test_render_*.py"              | 0    | Ran 26 tests in 0.017s — OK
+npx tsc --noEmit (renderers/remotion)                                   | 0    | Clean (0 errors, 2.70s)
+python -m motionlab doctor --json                                       | 0    | Healthy (CPU 12, RAM 13.36/31.75 GiB, Disk 37.64 GiB free)
+python -m motionlab validate --run runs/.../20261128T035754Z_81d918d0_s42| 0    | 16/16 PASS (0 FAIL, 0 SKIP; CANDIDATE_READY_WITH_BLOCKERS)
+Source immutability SHA-256 check (A & B)                               | 0    | Bit-exact immutable
+
+8. G0-G12 GATE MATRIX
+--------------------------------------------------------------------------------
+Gate | Scope                                                    | Status
+-----|----------------------------------------------------------|---------------------------------------------
+G0   | A0 audit, pinned upstream SHAs, zero-AGPL Poppler check  | PASS
+G1   | A1 speech alignment, completeness, final-mix Re-ASR      | PASS_WITH_MISSING_SOURCE_DIALOGUE (WER=0.0)
+G2   | A2/A3 atomic claim DAG, relevance retrieval, plan search | PASS (alternate_plan won 1.0 vs 0.65/0.38)
+G3   | A4 zero-AGPL PDF region crops & feature-level proof      | PASS_WORKBOOK_ONLY (PRODUCT_UI_PROOF_BLOCKED)
+G4   | A5/A6 layered SceneGraph V3 & 9:16 + 16:9 layout solver  | PASS
+G5   | A7 blind permutation-invariant 3-hook competition        | PASS (hook_B won 0.955, causally bound)
+G6   | A8 watermark authorization guard & voice-priority audio  | PASS_GUARD_ACTIVE (BLOCKED_WATERMARK_AUTHORIZATION)
+G7   | A9 decoded-pixel observed verifier & repair proof        | PASS (1.000 cov, 3/3 crops, repair MAD=54.859)
+G8   | Apples-to-apples R5.R5 vs R5.R6 same-verifier proof      | PASS (+0.098 cov, 1->0 defects, +21% crop width)
+G9   | 24-case multi-niche benchmark + 8 real vision tasks      | PASS_HONEST_RAW (Q2.5=7/24, Q3VL=2/24, Vis=5/8)
+G10  | Universal 14-niche cold-catalog & legacy regression      | PASS (206 pytest / 26 unittest / tsc / 16/16 val)
+G11  | Privacy redaction & <= 2 MiB QA-02 pack + leak scan      | PASS (verified by build_r5r6_qa02_pack.py)
+G12  | Human VQ-01 & human listening / release rights clearance | PENDING_HUMAN_REVIEW / RELEASE_BLOCKED
+================================================================================

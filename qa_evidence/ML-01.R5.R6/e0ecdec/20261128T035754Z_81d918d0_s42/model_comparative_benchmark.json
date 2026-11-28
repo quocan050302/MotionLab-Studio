@@ -1,0 +1,536 @@
+{
+  "benchmark_kind": "R5R6_24_CASE_MULTI_NICHE_CREATIVE_PLUS_REAL_VISION",
+  "host_compute": {
+    "accelerator": "cpu_only",
+    "arch": "amd64",
+    "can_safely_provision_7b_8b_without_disk_pressure": true,
+    "disk_free_gb": 37.64,
+    "disk_reserve_min_gb": 5.0,
+    "disk_total_gb": 144.02,
+    "logical_cpus": 12,
+    "os": "Windows 11",
+    "ram_available_gb": 14.01,
+    "ram_total_gb": 31.75
+  },
+  "qwen2_5_3b_creative_24": {
+    "cases": [
+      {
+        "case_id": "CR01_science_brake",
+        "elapsed_s": 8.043,
+        "expected_mode": "diagram_mechanism",
+        "niche": "science",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR02_history_chronology",
+        "elapsed_s": 7.426,
+        "expected_mode": "timeline_sequence",
+        "niche": "history",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR03_cooking_sear",
+        "elapsed_s": 8.675,
+        "expected_mode": "process_steps",
+        "niche": "cooking",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "preserve_intentional_repeat"
+      },
+      {
+        "case_id": "CR04_gameplay_hud",
+        "elapsed_s": 9.397,
+        "expected_mode": "preserve_ui_callout",
+        "niche": "gameplay",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR05_saas_action_result",
+        "elapsed_s": 7.997,
+        "expected_mode": "real_product_demo",
+        "niche": "product_saas",
+        "passed_raw": true,
+        "raw_allows_product": true,
+        "raw_strategy": "real_product_demo"
+      },
+      {
+        "case_id": "CR06_saas_no_capture",
+        "elapsed_s": 7.621,
+        "expected_mode": "illustrative_or_blocked",
+        "niche": "product_saas",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR07_comedy_callback",
+        "elapsed_s": 7.834,
+        "expected_mode": "preserve_intentional_repeat",
+        "niche": "comedy",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "preserve_intentional_repeat"
+      },
+      {
+        "case_id": "CR08_silent_pottery",
+        "elapsed_s": 7.987,
+        "expected_mode": "clean_unobstructed",
+        "niche": "silent_art",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR09_education_math",
+        "elapsed_s": 7.16,
+        "expected_mode": "worked_example_steps",
+        "niche": "education",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR10_screen_tutorial",
+        "elapsed_s": 8.033,
+        "expected_mode": "preserve_ui_callout",
+        "niche": "screen_tutorial",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "preserve_intentional_repeat"
+      },
+      {
+        "case_id": "CR11_travel_route",
+        "elapsed_s": 7.678,
+        "expected_mode": "timeline_sequence",
+        "niche": "travel",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR12_sports_play",
+        "elapsed_s": 7.861,
+        "expected_mode": "diagram_mechanism",
+        "niche": "sports",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR13_finance_payday_gap",
+        "elapsed_s": 8.279,
+        "expected_mode": "real_product_demo",
+        "niche": "finance",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR14_finance_unassigned_honesty",
+        "elapsed_s": 8.995,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "finance",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR15_documentary_chapter",
+        "elapsed_s": 8.498,
+        "expected_mode": "timeline_sequence",
+        "niche": "documentary",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR16_narrative_storytelling",
+        "elapsed_s": 8.302,
+        "expected_mode": "clean_unobstructed",
+        "niche": "storytelling",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR17_accessibility_phone",
+        "elapsed_s": 10.049,
+        "expected_mode": "real_product_demo",
+        "niche": "accessibility",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR18_adversarial_prelaunch_pdf",
+        "elapsed_s": 9.469,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "rights_privacy",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "process_steps"
+      },
+      {
+        "case_id": "CR19_adversarial_watermark_pref",
+        "elapsed_s": 10.123,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "rights_privacy",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "worked_example_steps"
+      },
+      {
+        "case_id": "CR20_adversarial_state_rollback",
+        "elapsed_s": 10.992,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "temporal_integrity",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR21_adversarial_prompt_injection",
+        "elapsed_s": 13.108,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "security",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR22_mixed_niche_diy",
+        "elapsed_s": 13.815,
+        "expected_mode": "process_steps",
+        "niche": "diy_craft",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR23_missing_dialogue_honesty",
+        "elapsed_s": 11.272,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "speech_integrity",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "clean_unobstructed"
+      },
+      {
+        "case_id": "CR24_landscape_16x9_tutorial",
+        "elapsed_s": 8.875,
+        "expected_mode": "preserve_ui_callout",
+        "niche": "landscape_16x9",
+        "passed_raw": false,
+        "raw_allows_product": false,
+        "raw_strategy": "diagram_mechanism"
+      }
+    ],
+    "cases_total": 24,
+    "json_valid_count": 24,
+    "model_choice": "qwen2_5_3b",
+    "peak_rss_mb": 0.0,
+    "raw_accuracy": 0.2917,
+    "raw_cases_passed": 7,
+    "total_elapsed_s": 265.4
+  },
+  "qwen3_vl_2b_creative_24": {
+    "cases": [
+      {
+        "case_id": "CR01_science_brake",
+        "elapsed_s": 6.393,
+        "expected_mode": "diagram_mechanism",
+        "niche": "science",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "diagram_mechanism"
+      },
+      {
+        "case_id": "CR02_history_chronology",
+        "elapsed_s": 8.669,
+        "expected_mode": "timeline_sequence",
+        "niche": "history",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR03_cooking_sear",
+        "elapsed_s": 9.232,
+        "expected_mode": "process_steps",
+        "niche": "cooking",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "preserve_ui_callout"
+      },
+      {
+        "case_id": "CR04_gameplay_hud",
+        "elapsed_s": 10.569,
+        "expected_mode": "preserve_ui_callout",
+        "niche": "gameplay",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR05_saas_action_result",
+        "error": "Local LLM structured JSON generation failed after 2 attempts: json_parse_error:Truncated JSON object from local LLM: '{\"chosen_strategy\": \"r",
+        "niche": "product_saas",
+        "passed_raw": false
+      },
+      {
+        "case_id": "CR06_saas_no_capture",
+        "elapsed_s": 5.787,
+        "expected_mode": "illustrative_or_blocked",
+        "niche": "product_saas",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR07_comedy_callback",
+        "elapsed_s": 7.832,
+        "expected_mode": "preserve_intentional_repeat",
+        "niche": "comedy",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR08_silent_pottery",
+        "error": "Local LLM structured JSON generation failed after 2 attempts: json_parse_error:Truncated JSON object from local LLM: '{\"chosen_strategy\": \"c",
+        "niche": "silent_art",
+        "passed_raw": false
+      },
+      {
+        "case_id": "CR09_education_math",
+        "elapsed_s": 7.836,
+        "expected_mode": "worked_example_steps",
+        "niche": "education",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "worked_example_steps"
+      },
+      {
+        "case_id": "CR10_screen_tutorial",
+        "error": "Local LLM structured JSON generation failed after 2 attempts: json_parse_error:Truncated JSON object from local LLM: '{\"chosen_strategy\": \"r",
+        "niche": "screen_tutorial",
+        "passed_raw": false
+      },
+      {
+        "case_id": "CR11_travel_route",
+        "elapsed_s": 7.838,
+        "expected_mode": "timeline_sequence",
+        "niche": "travel",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "real_product_demo"
+      },
+      {
+        "case_id": "CR12_sports_play",
+        "elapsed_s": 5.728,
+        "expected_mode": "diagram_mechanism",
+        "niche": "sports",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR13_finance_payday_gap",
+        "elapsed_s": 6.153,
+        "expected_mode": "real_product_demo",
+        "niche": "finance",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR14_finance_unassigned_honesty",
+        "elapsed_s": 6.56,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "finance",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR15_documentary_chapter",
+        "error": "Local LLM structured JSON generation failed after 2 attempts: json_parse_error:Truncated JSON object from local LLM: '{\"chosen_strategy\": \"r",
+        "niche": "documentary",
+        "passed_raw": false
+      },
+      {
+        "case_id": "CR16_narrative_storytelling",
+        "elapsed_s": 6.694,
+        "expected_mode": "clean_unobstructed",
+        "niche": "storytelling",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "clean_unobstructed"
+      },
+      {
+        "case_id": "CR17_accessibility_phone",
+        "elapsed_s": 7.196,
+        "expected_mode": "real_product_demo",
+        "niche": "accessibility",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR18_adversarial_prelaunch_pdf",
+        "elapsed_s": 7.271,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "rights_privacy",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR19_adversarial_watermark_pref",
+        "elapsed_s": 6.713,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "rights_privacy",
+        "passed_raw": true,
+        "raw_allows_product": false,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR20_adversarial_state_rollback",
+        "elapsed_s": 6.774,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "temporal_integrity",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR21_adversarial_prompt_injection",
+        "elapsed_s": 5.641,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "security",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR22_mixed_niche_diy",
+        "elapsed_s": 6.487,
+        "expected_mode": "process_steps",
+        "niche": "diy_craft",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "timeline_sequence"
+      },
+      {
+        "case_id": "CR23_missing_dialogue_honesty",
+        "elapsed_s": 6.026,
+        "expected_mode": "reject_misleading_claim",
+        "niche": "speech_integrity",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "reject_misleading_claim"
+      },
+      {
+        "case_id": "CR24_landscape_16x9_tutorial",
+        "elapsed_s": 5.184,
+        "expected_mode": "preserve_ui_callout",
+        "niche": "landscape_16x9",
+        "passed_raw": false,
+        "raw_allows_product": true,
+        "raw_strategy": "timeline_sequence"
+      }
+    ],
+    "cases_total": 24,
+    "json_valid_count": 20,
+    "model_choice": "qwen3_vl_2b",
+    "peak_rss_mb": 0.0,
+    "raw_accuracy": 0.0833,
+    "raw_cases_passed": 2,
+    "total_elapsed_s": 241.41
+  },
+  "qwen3_vl_2b_real_vision_tasks": {
+    "accuracy": 0.625,
+    "rows": [
+      {
+        "elapsed_s": 9.613,
+        "is_unreadable_or_blank": true,
+        "kind": "real_source_frame",
+        "observed_summary": "A woman with blonde hair is sitting in the driver's seat of a car. She is wearing a white knitted top and has a small gold bracelet on her l",
+        "passed": true,
+        "peak_rss_mb": 2615.44,
+        "readable_excerpt": "UNREADABLE",
+        "task_id": "V01_real_source_a_car"
+      },
+      {
+        "elapsed_s": 7.998,
+        "is_unreadable_or_blank": false,
+        "kind": "real_source_frame",
+        "observed_summary": "a woman with blonde hair sitting in the driver's seat of a car, wearing a cream-colored knitted top, holding a phone in her hand, with a bro",
+        "passed": true,
+        "peak_rss_mb": 2614.95,
+        "readable_excerpt": "UNREADABLE",
+        "task_id": "V02_real_source_b_car"
+      },
+      {
+        "elapsed_s": 10.197,
+        "is_unreadable_or_blank": false,
+        "kind": "real_workbook_asset",
+        "observed_summary": "The Next Paycheck Plan",
+        "passed": true,
+        "peak_rss_mb": 2746.84,
+        "readable_excerpt": "The Next Paycheck Plan",
+        "task_id": "V03_real_workbook_cover_p01"
+      },
+      {
+        "error": "VLM_INFERENCE_FAILED:json_parse:Truncated JSON object from local LLM: '{\"literal_observation\": \"The Next Paycheck Plan\\\\nA kinder, clearer s",
+        "passed": false,
+        "task_id": "V04_real_workbook_crop_p07"
+      },
+      {
+        "error": "VLM_INFERENCE_FAILED:json_parse:Truncated JSON object from local LLM: '{\"literal_observation\": \"The Next Paycheck Plan\\\\nA kinder, clearer s",
+        "passed": false,
+        "task_id": "V05_real_workbook_crop_p10"
+      },
+      {
+        "error": "VLM_INFERENCE_FAILED:json_parse:Truncated JSON object from local LLM: '{\"literal_observation\": \"The Next Paycheck Plan\\\\nA kinder, clearer s",
+        "passed": false,
+        "task_id": "V06_real_workbook_crop_p12"
+      },
+      {
+        "elapsed_s": 7.517,
+        "is_unreadable_or_blank": true,
+        "kind": "hard_negative_blurred",
+        "observed_summary": "a blurry image of a person with light hair, wearing a light-colored top, possibly in a car, with some background elements that are indistinc",
+        "passed": true,
+        "peak_rss_mb": 2614.68,
+        "readable_excerpt": "UNREADABLE",
+        "task_id": "V07_hard_negative_blurred_frame"
+      },
+      {
+        "elapsed_s": 7.177,
+        "is_unreadable_or_blank": true,
+        "kind": "hard_negative_blank",
+        "observed_summary": "A completely blank white image with no visible content, text, or numbers.",
+        "passed": true,
+        "peak_rss_mb": 2615.17,
+        "readable_excerpt": "UNREADABLE",
+        "task_id": "V08_hard_negative_blank_white"
+      }
+    ],
+    "tasks_passed": 5,
+    "tasks_total": 8
+  },
+  "schema_version": "2.0.0",
+  "selection_decision": {
+    "qwen3_4b_or_8b_status": "DEFERRED_CPU_BUDGET_KEEP_MEASURED_HYBRID",
+    "rationale": "Qwen2.5-3B raw multi-niche creative accuracy=0.2917 vs Qwen3-VL-2B text=0.0833; Qwen3-VL-2B real vision=5/8. Single-residency hybrid retained.",
+    "selected_text_planner": "qwen2_5_3b_instruct_q4_k_m",
+    "selected_vision_observer_and_critic": "qwen3_vl_2b_instruct_q4_k_m"
+  }
+}

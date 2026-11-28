@@ -1,0 +1,42 @@
+{
+  "composition_mode": "multisource_director_v3",
+  "director_strategy": "evidence_v3",
+  "edit_map_hash": "a442dda9fa56ffc917e667777ebb4d79ec2c4e1aa6ff4603dedbefa6f9c5d8e4",
+  "final_artifact": "Olivia_V6_Lamborghini_Payday_Trap_ML01R5R6_CANDIDATE_9x16.mp4",
+  "final_sha256": "d9cd75d93c22722cdf847fb67c8e3153d59d58f413fb5b680e180bd276753cb4",
+  "hard_blockers": [
+    "BLOCKED_WATERMARK_AUTHORIZATION",
+    "MISSING_SOURCE_DIALOGUE",
+    "PRODUCT_UI_PROOF_BLOCKED"
+  ],
+  "run_id": "20261128T035754Z_81d918d0_s42",
+  "scene_graph_hash": "cbf08681a1fc640951055869e26a43e2110817e3dfd5dd638c5905222a41358b",
+  "schema_version": "3.0.0",
+  "sources": [
+    {
+      "duration_s": 15.0,
+      "fps_den": 1,
+      "fps_num": 24,
+      "height": 1920,
+      "original_master_path": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r6\\20261128T035754Z_81d918d0_s42\\original_audio_masters\\original_source_A_master.m4a",
+      "path": "<REPO_ROOT>\\input\\video-olivia-01.mp4",
+      "sample_rate": 48000,
+      "sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b",
+      "source_id": "A",
+      "width": 1080
+    },
+    {
+      "duration_s": 19.9,
+      "fps_den": 1,
+      "fps_num": 30,
+      "height": 1920,
+      "original_master_path": "<REPO_ROOT>\\runs\\olivia_v6_ml01_r5r6\\20261128T035754Z_81d918d0_s42\\original_audio_masters\\original_source_B_master.m4a",
+      "path": "<REPO_ROOT>\\input\\video-olivia-02.mp4",
+      "sample_rate": 44100,
+      "sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae",
+      "source_id": "B",
+      "width": 1080
+    }
+  ],
+  "status": "CANDIDATE_READY_WITH_BLOCKERS"
+}

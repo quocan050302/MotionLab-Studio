@@ -1,0 +1,69 @@
+{
+  "all_passed": true,
+  "checks": {
+    "motionlab_doctor": {
+      "elapsed_s": 5.11,
+      "exit_code": 0,
+      "tail": [
+        "    \"available_ram_gb\": 13.36,",
+        "    \"logical_cpus\": 12,",
+        "    \"os\": \"Windows-11-10.0.26300-SP0\",",
+        "    \"project_disk_free_gb\": 37.64,",
+        "    \"python\": \"3.12.10\",",
+        "    \"total_ram_gb\": 31.75",
+        "  }",
+        "}"
+      ]
+    },
+    "motionlab_validate_r5r6": {
+      "elapsed_s": 1.5,
+      "exit_code": 0,
+      "tail": [
+        "    }",
+        "  ],",
+        "  \"warnings\": [",
+        "    \"BLOCKED_WATERMARK_AUTHORIZATION\",",
+        "    \"MISSING_SOURCE_DIALOGUE\",",
+        "    \"PRODUCT_UI_PROOF_BLOCKED\"",
+        "  ]",
+        "}"
+      ]
+    },
+    "pytest_all": {
+      "elapsed_s": 99.34,
+      "exit_code": 0,
+      "tail": [
+        "......................................................... [ 27%]",
+        "........................................................................ [ 62%]",
+        "........................................................................ [ 97%]",
+        ".....                                                                    [100%]",
+        "206 passed, 15 subtests passed in 98.70s (0:01:38)"
+      ]
+    },
+    "remotion_tsc": {
+      "elapsed_s": 2.7,
+      "exit_code": 0,
+      "tail": []
+    },
+    "unittest_legacy_render": {
+      "elapsed_s": 0.18,
+      "exit_code": 0,
+      "tail": [
+        "master SRT → master.srt (6 cues)",
+        "",
+        "..........................",
+        "----------------------------------------------------------------------",
+        "Ran 26 tests in 0.017s",
+        "",
+        "OK"
+      ]
+    }
+  },
+  "source_immutability": {
+    "bit_exact_immutable": true,
+    "source_A_sha256": "18eceffc711d80c549d9a9b3d8e2d3753a10be6cf535cef14ae9bc826737a47b",
+    "source_B_sha256": "0339dc2191265e08ef3198ff2e30575d4389746f54b77d34c6b69b66997d6fae"
+  },
+  "tested_code_sha": "e0ecdecfc7377f22e7ad4184f05eaad0041ff82a",
+  "tested_code_sha_7": "e0ecdec"
+}

@@ -1,0 +1,106 @@
+{
+  "measurement_stage": "PLANNED_PRE_RENDER_ONLY",
+  "planned_weighted_ratio": 1.0,
+  "rows": [
+    {
+      "claim_id": "claim_00",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "phone_action_callout"
+      ],
+      "planned_scene_ids": [
+        "sc_00_hook"
+      ],
+      "required_evidence_kind": "REAL_CONTEXT_OR_VISUAL_ANCHOR"
+    },
+    {
+      "claim_id": "claim_01",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "causal_sequence_diagram"
+      ],
+      "planned_scene_ids": [
+        "sc_01_causal_sequence"
+      ],
+      "required_evidence_kind": "VERIFIED_FACT_DIAGRAM"
+    },
+    {
+      "claim_id": "claim_02",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "allocation_state_visual"
+      ],
+      "planned_scene_ids": [
+        "sc_02_allocation_state"
+      ],
+      "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_DIAGRAM"
+    },
+    {
+      "claim_id": "claim_03_a",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "region_crop_evidence_stage"
+      ],
+      "planned_scene_ids": [
+        "sc_04_evidence_crops"
+      ],
+      "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI"
+    },
+    {
+      "claim_id": "claim_03_b",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "region_crop_evidence_stage"
+      ],
+      "planned_scene_ids": [
+        "sc_04_evidence_crops"
+      ],
+      "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI"
+    },
+    {
+      "claim_id": "claim_03_c",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "region_crop_evidence_stage"
+      ],
+      "planned_scene_ids": [
+        "sc_04_evidence_crops"
+      ],
+      "required_evidence_kind": "ACTUAL_PRODUCT_WORKBOOK_OR_UI"
+    },
+    {
+      "claim_id": "claim_04",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "lived_payoff_visual"
+      ],
+      "planned_scene_ids": [
+        "sc_05_lived_payoff"
+      ],
+      "required_evidence_kind": "ILLUSTRATIVE_EXAMPLE_OR_CONTEXT"
+    },
+    {
+      "claim_id": "claim_05",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "clean_speaker_anchor"
+      ],
+      "planned_scene_ids": [
+        "sc_06_clean_speaker_anchor"
+      ],
+      "required_evidence_kind": "REAL_CONTEXT_FOOTAGE"
+    },
+    {
+      "claim_id": "claim_06",
+      "is_plan_only_not_observed": true,
+      "planned_modes": [
+        "safe_cta_card"
+      ],
+      "planned_scene_ids": [
+        "sc_07_safe_cta"
+      ],
+      "required_evidence_kind": "SAFE_CTA_WITH_IDENTITY"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

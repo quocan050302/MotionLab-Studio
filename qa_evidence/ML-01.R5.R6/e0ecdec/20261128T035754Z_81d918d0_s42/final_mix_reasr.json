@@ -1,0 +1,40 @@
+{
+  "critical_token_recall": 1.0,
+  "critical_tokens_checked": [
+    "not",
+    "tuesday",
+    "don't",
+    "friday",
+    "payday",
+    "without"
+  ],
+  "edited_token_count": 85,
+  "matched_ordered_tokens": 85,
+  "missing_critical_tokens": [],
+  "missing_source_dialogue_claims": [
+    {
+      "best_match_ratio": 0.1818,
+      "clause": "<REDACTED_CLAUSE len=56 sha256_12=a94a6868e1ff>",
+      "reason": "classification:MISSING_SOURCE",
+      "sentence_index": 4
+    },
+    {
+      "best_match_ratio": 0.3158,
+      "clause": "That's why I created The Next Paycheck Plan.",
+      "reason": "classification:MISSING_SOURCE",
+      "sentence_index": 5
+    }
+  ],
+  "order_preserved": true,
+  "passed": true,
+  "re_asr_source": "decoded_final_mp4_aac_mix",
+  "re_asr_text": "Okay, tell me I'm not the only one who checks their bank account before buying groceries. Like I have money, but rent is due Tuesday and I don't get paid until Friday. So how much can I actually spend? It shows you what's already spoken for, what needs to last until payday, and what you can actually spend. Imagine going grocery shopping without doing mental math the entire time. That's what this is for. I left the link in the caption. Go take a look.",
+  "re_asr_word_count": 85,
+  "residual_repeats": [],
+  "schema_version": "1.0.0",
+  "status": "PASS_WITH_MISSING_SOURCE_DIALOGUE",
+  "target_token_count": 85,
+  "token_precision": 1.0,
+  "token_recall": 1.0,
+  "wer": 0.0
+}

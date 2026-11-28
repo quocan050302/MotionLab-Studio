@@ -1,0 +1,24 @@
+{
+  "available_sentences_count": 9,
+  "intended_sentences_total": 11,
+  "missing_clauses": [
+    {
+      "best_match_ratio": 0.1818,
+      "clause": "<REDACTED_CLAUSE len=56 sha256_12=a94a6868e1ff>",
+      "reason": "classification:MISSING_SOURCE",
+      "sentence_index": 4
+    },
+    {
+      "best_match_ratio": 0.3158,
+      "clause": "That's why I created The Next Paycheck Plan.",
+      "reason": "classification:MISSING_SOURCE",
+      "sentence_index": 5
+    }
+  ],
+  "missing_or_uncertain_sentences_count": 2,
+  "policy": "Never synthesize or clone missing source dialogue; separate source completeness from edited-speech preservation.",
+  "schema_version": "3.0.0",
+  "source_completeness_ratio": 0.8182,
+  "source_completeness_status": "MISSING_SOURCE_DIALOGUE",
+  "voice_cloning_used": false
+}

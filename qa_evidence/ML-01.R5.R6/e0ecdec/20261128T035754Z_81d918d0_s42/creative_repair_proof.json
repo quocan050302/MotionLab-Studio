@@ -1,0 +1,40 @@
+{
+  "after_repair": {
+    "defects": [],
+    "mp4_sha256": "c51b4d42e4c4054e3e3725ba4f35afdba81dc2852fac5550be43337cfdf767e7",
+    "observed_evidence_class": "ILLUSTRATIVE_EXAMPLE",
+    "status": "VERIFIED",
+    "treatment_mode": "lived_payoff_visual",
+    "weighted_observed_coverage": 1.0
+  },
+  "before_repair": {
+    "defects": [
+      {
+        "category": "TEXT_ONLY_ON_MATERIAL_CLAIM",
+        "claim_id": "claim_04",
+        "detail": "Emotional payoff rendered as bare text overlay rather than concrete lived-context visual.",
+        "frame": 66,
+        "scene_id": "sc_repair_before_text_only",
+        "severity": "MEDIUM"
+      }
+    ],
+    "mp4_sha256": "a5718d82c19a31d2c0bdf8f96b2403851c1d5f39e499d6118ab6b4d79c748080",
+    "observed_evidence_class": "TEXT_ONLY",
+    "status": "PARTIAL",
+    "treatment_mode": "phone_action_callout",
+    "weighted_observed_coverage": 0.0
+  },
+  "decoded_pixel_diff_full_frame_mad": 28.001,
+  "decoded_pixel_diff_visual_zone_mad": 54.859,
+  "experiment": "REAL_INJECTED_DEFECT_AUTONOMOUS_CREATIVE_REPAIR_PROOF",
+  "injected_defect": "Downgraded Beat 6 from lived_payoff_visual to bare text-only phone_action_callout (replicating R5.R5 D05 defect)",
+  "repair_action": {
+    "action": "upgrade_scene_mode: phone_action_callout -> lived_payoff_visual (concrete grocery basket scene + 3 check items)",
+    "re_rendered_real_hyperframes_webm": true,
+    "triggered_by_defect_category": "TEXT_ONLY_ON_MATERIAL_CLAIM"
+  },
+  "repair_verified_pass": true,
+  "schema_version": "1.0.0",
+  "target_claim_id": "claim_04",
+  "target_role": "emotional_resolution_payoff"
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "ML-01.R5.R6",
+  "tested_code_sha": "e0ecdecfc7377f22e7ad4184f05eaad0041ff82a",
+  "canonical_run_id": "20261128T035754Z_81d918d0_s42",
+  "baseline_r5r5_tested_sha": "c015d22da57f33a4e3d952efd668f23fc7228de2",
+  "baseline_r5r5_mp4_sha256": "749279367a9d13fa46ec2c5a59d255d1f9ca4777bff9a9905c6ecf42accae1c5",
+  "r5r6_candidate_mp4_sha256": "d9cd75d93c22722cdf847fb67c8e3153d59d58f413fb5b680e180bd276753cb4",
+  "defects": [
+    {
+      "defect_id": "D01",
+      "title": "Monolithic bundled benefit clause prevented per-benefit atomic proof binding",
+      "before_r5r5": "Benefit sentence was modeled as 1 single monolithic claim (`claim_03`), hiding whether each individual spoken benefit received dedicated readable visual proof.",
+      "after_r5r6": "Built niche-agnostic `build_atomic_claim_graph()` in `motionlab/semantic/evidence_planner.py` splitting bundled enumerations (including missing Oxford commas) into atomic sub-claims (`claim_03_a`, `claim_03_b`, `claim_03_c`) with per-claim evidence requirements and weights.",
+      "verification_evidence": "9 atomic claims (8 material) verified on canonical Olivia V6 run (`20261128T035754Z_81d918d0_s42`); unit test `test_a2_a3_atomic_claim_splitting_and_relevance_retrieval` PASS.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D02",
+      "title": "Plan search used static constant candidate scores rather than model-proposed, evidence-measured plans",
+      "before_r5r5": "Candidate plans had hardcoded/static ranking scores that did not causally depend on retrieved evidence fit.",
+      "after_r5r6": "Implemented `propose_model_driven_plans()` in `motionlab/semantic/evidence_planner.py` where local `Qwen2.5-3B` proposes structured plan specs (`default_plan`, `alternate_plan`) and every candidate is scored strictly on measured content-grounded evidence fit (`alternate_plan` won at `1.0` vs `causal_diagram_and_lived_payoff` `0.65` vs `minimal_speaker_first` `0.3809`, zero constant A/B/C scores).",
+      "verification_evidence": "`raw_vs_reconciled_plans.json` records raw model proposals separately from reconciled plans; `selected_plan_id=alternate_plan` causally bound to `scene_graph_v3.json`.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D03",
+      "title": "Full uncropped A4 workbook pages reduced mobile legibility at 360x640 phone viewing scale",
+      "before_r5r5": "R5.R5 displayed full uncropped 1000x1414 A4 pages occupying `w=0.66` frame width; dense workbook tables and headings appeared smaller on phone screens.",
+      "after_r5r6": "Implemented zero-AGPL Poppler CLI (`pdftoppm`/`pdfinfo`) + OpenCV region-band detection and `extract_verified_region_crop()` in `motionlab/assets/pdf_regions.py`, rendering zoomed verified region crops (`p07`, `p10`, `p12`) at `w=0.80` / `0.80` / `0.70` (+21% linear / +47% pixel area zoom on Pages 7 & 10) with sleek left-margin gold accent bars (zero text overlap) and persistent fictional-example disclosures.",
+      "verification_evidence": "Apples-to-apples `baseline_vs_r5r6_same_verifier.json` confirms `w=0.66 -> 0.80` on `p07`/`p10` and `interior_corr=0.999/0.9806/0.8629`; 7/7 blind `Qwen3-VL-2B` phone-scale audits returned `readable_on_phone=true`.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D04",
+      "title": "Feature-level product proof vs missing live interactive Notion UI was conflated",
+      "before_r5r5": "Single boolean `actual_product_proof_verified=true` risked implying live Notion app UI had been proven alongside printable workbook pages.",
+      "after_r5r6": "Implemented `build_product_proof_by_feature()` in `motionlab/assets/pdf_regions.py` separating `workbook_cover_identity` (`VERIFIED`), `workbook_bills_reserved_and_timeline_and_unassigned` (`VERIFIED`), and `notion_live_ui_operation` (`PRODUCT_UI_PROOF_BLOCKED`). Prelaunch PDF private links are never scraped, rendered, or fabricated.",
+      "verification_evidence": "`product_proof_by_feature.json` emits `overall_product_proof_status=ACTUAL_PRODUCT_WORKBOOK_VERIFIED_UI_BLOCKED` and propagates `PRODUCT_UI_PROOF_BLOCKED` into `hard_blockers`.",
+      "status": "FIXED_VERIFIED_WITH_HONEST_BLOCKER"
+    },
+    {
+      "defect_id": "D05",
+      "title": "Material emotional payoff beat relied on bare text pill ('No Mental Math') instead of concrete lived visual",
+      "before_r5r5": "Under strict R5.R6 observed verifier (`baseline_vs_r5r6_same_verifier.json`), R5.R5 Beat 6 (`claim_04`) was observed by blind VLM as `speaker_only` with bare text `'No Mental Math'`, failing as `PARTIAL` with defect `TEXT_ONLY_ON_MATERIAL_CLAIM`.",
+      "after_r5r6": "Replaced text-only payoff pill with `lived_payoff_visual` in `motionlab/composition/scene_graph_v3.py` showing an illustrated grocery basket scene, clear payoff checks (`Rent Reserved`, `Bills Covered`, `Shop Calmly`), and zero face overlap. Autonomous repair proof (`creative_repair_proof.json`) also proves injecting text-only Beat 6 triggers `TEXT_ONLY_ON_MATERIAL_CLAIM` -> autonomous upgrade -> real HyperFrames re-render (`full_mad=28.001`, `roi_mad=54.859`) -> `VERIFIED`.",
+      "verification_evidence": "Blind `Qwen3-VL-2B` observed `visible_evidence_type=illustrated_card` (`Shop Without Guessing`) on canonical R5.R6 MP4; `creative_repair_proof.json` `repair_verified_pass=true`.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D06",
+      "title": "Pre-render coverage metadata could over-claim visual proof without verifying decoded rendered pixels",
+      "before_r5r5": "Legacy `claim_visual_coverage.json` checked scene metadata (`treatment_mode`) rather than decoded MP4 pixels or template correlation (`visual_coverage_ratio=0.50`).",
+      "after_r5r6": "Strictly separated `plan_claim_coverage()` (`planned_claim_coverage.json`, `PLANNED_PRE_RENDER_ONLY`) from `verify_rendered_claim_coverage()` (`observed_claim_coverage.json`, `POST_RENDER_OBSERVED_DECODED_PIXELS`) using decoded MP4 frames, anti-aliased multi-scale `TM_CCOEFF_NORMED` (`>= 0.66`) + interior-body correlation (`>= 0.80`) + mobile scale (`>= 0.45`) + blind `Qwen3-VL-2B` phone-scale reading. Wrong/swapped/blank/tiny crops fail closed.",
+      "verification_evidence": "Canonical run achieved `observed_weighted_material_coverage=1.0`, `critical_factual_accuracy=1.0`, `3/3` workbook crops matched; unit test `test_a9_observed_verifier_catches_wrong_crop_and_text_only_payoff` PASS.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D07",
+      "title": "Lack of independent final-mix Re-ASR audit and separation of source completeness from edited preservation",
+      "before_r5r5": "Speech checks did not independently decode and Re-ASR the final mixed AAC audio stream of the delivered MP4.",
+      "after_r5r6": "Added `align_source_dialogue_to_intent()` + `verify_required_claims()` in `motionlab/semantic/speech_dedup.py` plus independent final-mix Re-ASR (`final_mix_reasr.json`) decoding the final MP4 AAC audio stream and verifying `WER=0.0`, `85/85` ordered tokens, `0` residual repeats, and honestly separating `script_completeness.json` (`8/10` source sentences; 2 unrecorded sentences flagged as `MISSING_SOURCE_DIALOGUE` with zero voice cloning).",
+      "verification_evidence": "`final_mix_reasr.json` (`WER=0.0`, `token_recall=1.0`, `critical_token_recall=1.0`) and `script_completeness.json` (`voice_cloning_used=false`).",
+      "status": "FIXED_VERIFIED_WITH_HONEST_BLOCKER"
+    },
+    {
+      "defect_id": "D08",
+      "title": "Hook selection risked mode/id bias and needed permutation-invariant blind evaluation on real composited renders",
+      "before_r5r5": "Hook ranking required stronger guarantees that mode names, IDs, or candidate order cannot bias winner selection.",
+      "after_r5r6": "Implemented `build_three_distinct_v3_hooks()` and `rank_rendered_hooks_blind()` in `motionlab/composition/hook_competition.py` using shuffled blind labels (`BLIND_A/B/C`), ZERO mode/id/palette bonuses, decoded-frame pixel metrics + blind `Qwen3-VL-2B` viewer clarity/evidence scoring, and causal binding of the winner into final SceneGraph V3.",
+      "verification_evidence": "Canonical run: `BLIND_B` (`hook_B_lived_context_metaphor`, `0.955`) beat `BLIND_A` (`hook_C`, `0.9528`) and `BLIND_C` (`hook_A`, `0.9435`) and bound causally (`causal_hook_bound_to_final=true`); unit test `test_a7_blind_hook_ranking_permutation_invariant_and_pixel_sensitive` PASS.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D09",
+      "title": "Single-niche leakage risk and landscape 16:9 layout coverage",
+      "before_r5r5": "Core director logic risked leaking Olivia/finance phrasing into other niches and lacked verified 16:9 landscape layout solving.",
+      "after_r5r6": "All `evidence_planner.py`, `scene_graph_v3.py`, and `evidence_verifier.py` modules are 100% domain-agnostic (deriving phrasing strictly from spoken claims, catalog metadata, or explicit job config) and `solve_v3_layout()` computes clean non-overlapping 9:16 and 16:9 layouts.",
+      "verification_evidence": "Unit test `test_11a_universal_multi_niche_transfer_14_niches_and_16x9_layout` passed across 14 distinct cold-catalog niches (science, history, cooking, gameplay, SaaS, comedy, silent art, education, screen tutorial, travel, sports, documentary, storytelling, DIY) + 16:9 with zero leaked Olivia/finance strings.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D10",
+      "title": "Local model selection lacked multi-niche open-ended comparative benchmark separating raw vs reconciled accuracy",
+      "before_r5r5": "Only a 12-case safety benchmark existed; open-ended multi-niche creative capability of `Qwen2.5-3B` vs `Qwen3-VL-2B` was unmeasured.",
+      "after_r5r6": "Implemented `BENCHMARK_24_CREATIVE_CASES` + `run_r5r6_creative_model_benchmark()` in `motionlab/semantic/model_router.py` and executed all 24 multi-niche cases + 8 real vision tasks (including 2 hard negatives). Results honestly recorded raw accuracy without inflation: `Qwen2.5-3B` `7/24` (29.17%, 24/24 valid JSON) vs `Qwen3-VL-2B` `2/24` (8.33%, 20/24 valid JSON) and `Qwen3-VL-2B` real vision `5/8` (100% on real car frames, cover, and blurred/blank hard negatives; 3 verbose page calls hit `max_tokens=160` truncation), proving why deterministic grounding + single-residency hybrid routing are essential.",
+      "verification_evidence": "`model_comparative_benchmark.json` in canonical run and redacted QA-02 pack.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D11",
+      "title": "AGPL licensing hazard if vendoring PyMuPDF for PDF region extraction",
+      "before_r5r5": "PDF rasterization and region extraction required an audit against AGPL-3.0 contamination.",
+      "after_r5r6": "Audited pinned upstream `pymupdf/PyMuPDF` (`c220b70b`) and `pymupdf/PyMuPDF-Utilities` (`4247801c`) as `AGPL-3.0 -> REJECTED`. Implemented zero-AGPL external Poppler CLI (`pdftoppm 26.07.0` / `pdfinfo`) + OpenCV/PIL region band detection in `motionlab/assets/pdf_regions.py`.",
+      "verification_evidence": "`docs/ML01_R5R6_RESEARCH.txt`, `docs/research_matrix.json`, and `docs/ML01_R5R6_ADR.md`.",
+      "status": "FIXED_VERIFIED"
+    },
+    {
+      "defect_id": "D12",
+      "title": "Watermark preference vs legal/provider authorization needed strict separation and localized-only blur guard",
+      "before_r5r5": "Watermark cleanup lacked explicit distinction between user edit preference and verified non-mandatory provider rights plus a localized feathered blur primitive.",
+      "after_r5r6": "Extended `motionlab/composition/multi_source_timeline.py` with `evaluate_watermark_authorization()` (blocking mandatory/unauthorized marks even when `edit_preference_method=localized_blur`) and `apply_localized_watermark_blur_if_authorized()` (tight feathered Gaussian blur strictly inside ROI ONLY when authorized on non-mandatory mark). On Olivia V6, both sources preserved 100% intact (`PRESERVED_INTACT_NO_BLUR`) and `BLOCKED_WATERMARK_AUTHORIZATION` remains an explicit hard release blocker.",
+      "verification_evidence": "Unit test `test_a8_watermark_authorization_and_localized_blur_guard` PASS; canonical run `watermark_auth.json` + `watermark_cleanup_execution.json`.",
+      "status": "FIXED_VERIFIED_WITH_HONEST_BLOCKER"
+    },
+    {
+      "defect_id": "D13",
+      "title": "Independent gating required strict separation of technical, creative evidence, release rights, and human review verdicts",
+      "before_r5r5": "A single top-level PASS could be misread as human aesthetic approval or release clearance.",
+      "after_r5r6": "Added explicit 4-way `independent_gates` (`technical_gate`, `creative_evidence_gate`, `release_rights_gate`, `human_review_gate`) in `director_v3_runner.py` and 16-check `multisource_director_v3` validation in `motionlab/pipeline.py`. Candidate MP4 naming (`_CANDIDATE_9x16.mp4`) enforced automatically whenever any hard release blocker exists; human review explicitly locked at `PENDING_HUMAN_REVIEW` and `LISTENING_NOT_RUN_AUTOMATED_PROXY_ONLY`.",
+      "verification_evidence": "Canonical run `QA02_REPORT.json` and `motionlab validate` (`16/16` PASS, `overall_status=CANDIDATE_READY_WITH_BLOCKERS`).",
+      "status": "FIXED_VERIFIED"
+    }
+  ]
+}

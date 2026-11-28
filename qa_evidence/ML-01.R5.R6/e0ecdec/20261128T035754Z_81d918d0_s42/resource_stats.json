@@ -1,0 +1,46 @@
+{
+  "peak_temp_mb": 137.2,
+  "peak_tree_rss_mb": 286.88,
+  "stages": {
+    "blind_hooks_and_scene_render": {
+      "elapsed_s": 30.8357,
+      "temp_mb": 73.81,
+      "tree_rss_mb": 286.88
+    },
+    "composite_and_observed_critic_qa": {
+      "elapsed_s": 221.8817,
+      "temp_mb": 137.2,
+      "tree_rss_mb": 256.62
+    },
+    "evidence_planning_and_crops": {
+      "elapsed_s": 26.3699,
+      "temp_mb": 6.4,
+      "tree_rss_mb": 226.62
+    },
+    "ingest_and_speech_perception": {
+      "elapsed_s": 14.6003,
+      "temp_mb": 6.4,
+      "tree_rss_mb": 193.43
+    },
+    "mezzanine_and_word_qa": {
+      "elapsed_s": 27.9129,
+      "temp_mb": 69.15,
+      "tree_rss_mb": 239.54
+    },
+    "multimodal_evidence_index": {
+      "elapsed_s": 84.8967,
+      "temp_mb": 6.4,
+      "tree_rss_mb": 228.7
+    },
+    "semantic_audio_mix": {
+      "elapsed_s": 3.5809,
+      "temp_mb": 137.2,
+      "tree_rss_mb": 286.88
+    },
+    "speech_alignment_and_timeline": {
+      "elapsed_s": 0.0705,
+      "temp_mb": 6.4,
+      "tree_rss_mb": 193.66
+    }
+  }
+}
